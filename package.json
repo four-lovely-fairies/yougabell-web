@@ -1,0 +1,18 @@
+{
+  "name": "working-mom-dad-web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Working Mom Dad — user-facing web (Next.js, served inside Expo WebView)",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@9.12.0",
+  "scripts": {
+    "dev": "echo 'TODO: next dev'",
+    "build": "echo 'TODO: next build'",
+    "start": "echo 'TODO: next start'",
+    "lint": "echo 'TODO: next lint'",
+    "type-check": "echo 'TODO: tsc --noEmit'"
+  }
+}
