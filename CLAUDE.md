@@ -19,10 +19,10 @@
 - **BFF는 가볍게**: 도메인 로직은 API에. Next route handler는 프록시·이미지 변환·캐시 정도만.
 - **컴포넌트 파일명**: kebab-case (`nav-bar.tsx`), 함수형 + `const`, Server Component 기본.
 
-## 디렉토리 (예정)
+## 디렉토리 (예정, src 없는 형식)
 
 ```
-src/
+.
 ├── app/
 │   ├── (onboarding)/
 │   ├── (main)/
@@ -34,6 +34,8 @@ src/
 ├── hooks/
 └── styles/
 ```
+
+> tsconfig paths: `@/*` → `./*` (src 제거 후 루트 기준)
 
 ## 환경 변수
 
