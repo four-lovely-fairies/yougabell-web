@@ -1,7 +1,7 @@
-# working-mom-dad-web
+# yougabell-web
 
 > 사용자용 웹. Expo WebView가 띄우는 메인 UI.
-> 워크스페이스 전체 컨벤션은 umbrella 레포 [`working-mom-dad`](https://github.com/youth-corp/working-mom-dad/blob/main/AGENTS.md) 참조.
+> 워크스페이스 전체 컨벤션은 umbrella 레포 [`yougabell`](https://github.com/four-lovely-fairies/yougabell/blob/main/AGENTS.md) 참조.
 > 디자인 시스템·토큰은 [`DESIGN.md`](./DESIGN.md) 참조 (Figma MCP 연결 후 채워짐).
 
 ## 빌드 · 실행 · 검증 명령
@@ -25,7 +25,7 @@ pnpm lint         # eslint
 ## 핵심 원칙
 
 - **WebView 환경 가정**: SafeArea / 키보드 / 스크롤 위임을 항상 고려.
-- **API 호출**: `working-mom-dad-api` OpenAPI 코드젠 클라이언트 사용. Prisma 직접 import 금지.
+- **API 호출**: `yougabell-api` OpenAPI 코드젠 클라이언트 사용. Prisma 직접 import 금지.
 - **인증**: `@supabase/ssr`로 쿠키 기반 세션. JWT는 API 호출 시 Bearer 헤더로.
 - **BFF는 가볍게**: 도메인 로직은 API에. Next route handler는 프록시·이미지 변환·캐시 정도만.
 - **컴포넌트 파일명**: kebab-case (`nav-bar.tsx`), 함수형 + `const`, Server Component 기본.

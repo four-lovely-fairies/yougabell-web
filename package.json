@@ -1,5 +1,5 @@
 {
-  "name": "working-mom-dad-web",
+  "name": "yougabell-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -23,7 +23,7 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "description": "Working Mom Dad — user-facing web (Next.js, served inside Expo WebView)",
+  "description": "육아밸 — user-facing web (Next.js, served inside Expo WebView)",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=24"

@@ -1,9 +1,9 @@
-# Design System — working-mom-dad-web
+# Design System — yougabell-web
 
 > 사용자용 웹의 디자인 시스템 컨텍스트. AI 코딩 에이전트가 UI 코드를 생성할 때 참고.
 > **현재 placeholder** — Figma MCP 연결 후 토큰·컴포넌트·룰을 자동 또는 수동 동기화한다.
 
-> Figma 파일: TBD (`Wireframe_26.04.29` — 노드 ID는 [`docs/schema/`](https://github.com/youth-corp/working-mom-dad-api/tree/main/docs/schema)에 인용됨)
+> Figma 파일: TBD (`Wireframe_26.04.29` — 노드 ID는 [`docs/schema/`](https://github.com/four-lovely-fairies/yougabell-api/tree/main/docs/schema)에 인용됨)
 
 ---
 
