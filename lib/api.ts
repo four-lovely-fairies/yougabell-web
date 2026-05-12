@@ -1,3 +1,4 @@
+import { getDemoHomeDashboard, type HomeDashboard } from "./home-data";
 import type { CompleteOnboardingPayload, MeResponse } from "./types";
 
 const BASE_URL =
@@ -12,6 +13,12 @@ function authHeaders(): Record<string, string> {
   const tempUserId = window.localStorage.getItem("dev:userId");
   return tempUserId ? { "x-user-id": tempUserId } : {};
 }
+
+export type HomeLoadState = {
+  data: HomeDashboard;
+  source: "api" | "demo";
+  message?: string;
+};
 
 async function request<T>(
   path: string,
@@ -51,4 +58,54 @@ export const api = {
       method: "POST",
       json: payload,
     }),
+};
+
+export const loadHomeDashboard = async (
+  childId?: string | null,
+): Promise<HomeLoadState> => {
+  const headers = authHeaders();
+
+  if (!headers["x-user-id"]) {
+    return {
+      data: getDemoHomeDashboard(),
+      source: "demo",
+      message: "로그인 세션이 연결되면 실제 홈 데이터를 표시합니다.",
+    };
+  }
+
+  const params = new URLSearchParams();
+  if (childId) {
+    params.set("childId", childId);
+  }
+
+  try {
+    return {
+      data: await request<HomeDashboard>(
+        `/home${params.size ? `?${params}` : ""}`,
+      ),
+      source: "api",
+    };
+  } catch (error) {
+    const message =
+      error instanceof ApiError
+        ? `API 응답을 가져오지 못해 샘플 데이터를 표시합니다. (${error.status})`
+        : "API 서버에 연결할 수 없어 샘플 데이터를 표시합니다.";
+
+    return {
+      data: getDemoHomeDashboard(),
+      source: "demo",
+      message,
+    };
+  }
+};
+
+export const getStoredSelectedChildId = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  return window.localStorage.getItem("home:selected-child-id");
+};
+
+export const setStoredSelectedChildId = (childId: string) => {
+  window.localStorage.setItem("home:selected-child-id", childId);
 };
