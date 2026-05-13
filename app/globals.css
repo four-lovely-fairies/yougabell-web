@@ -1,26 +1,75 @@
 @import "tailwindcss";
+@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans:
+    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
+    "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji",
+    sans-serif;
+
+  /* Primary — DESIGN.md §1.1 */
+  --color-primary-50: #f1eaff;
+  --color-primary-100: #d9cbfe;
+  --color-primary-200: #c0a8fe;
+  --color-primary-300: #a483ff;
+  --color-primary-400: #8c65fe;
+  --color-primary-500: #754af6;
+  --color-primary-600: #6945ef;
+  --color-primary-700: #583ce5;
+  --color-primary-800: #4737dc;
+  --color-primary-900: #2a2bce;
+
+  /* Grayscale — DESIGN.md §1.2 */
+  --color-gray-0: #ffffff;
+  --color-gray-20: #fdfdfe;
+  --color-gray-50: #f6f6f6;
+  --color-gray-100: #e9e9e9;
+  --color-gray-200: #d9d9d9;
+  --color-gray-300: #c4c4c4;
+  --color-gray-400: #9d9d9d;
+  --color-gray-500: #7b7b7b;
+  --color-gray-600: #555555;
+  --color-gray-700: #434343;
+  --color-gray-800: #262626;
+
+  /* Semantic — DESIGN.md §1.3 */
+  --color-error-50: #fff1f2;
+  --color-error-100: #fb9ca7;
+  --color-error-600: #ec003f;
+  --color-info-50: #e2f4ff;
+  --color-info-500: #009cff;
+  --color-info-700: #0565ff;
+  --color-info-800: #263fe0;
+  --color-warning-50: #fdf3e9;
+  --color-warning-600: #fbda2b;
+  --color-warning-800: #f9ab16;
+  --color-success-50: #e5f6ed;
+  --color-success-200: #98d8b5;
+  --color-success-500: #06b26c;
+
+  /* Radius — DESIGN.md §3 */
+  --radius-xs: 4px;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-xl: 20px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--color-gray-0);
+  color: var(--color-gray-800);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-feature-settings: "ss03", "tnum";
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* WebView 안 input zoom 방지 */
+input,
+select,
+textarea {
+  font-size: 16px;
 }
