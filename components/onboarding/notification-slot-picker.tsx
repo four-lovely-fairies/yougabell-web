@@ -70,7 +70,7 @@ export function NotificationSlotPicker({ value, onChange }: Props) {
               onClick={() => select(slot)}
               aria-pressed={selected}
               className={cn(
-                "flex items-center gap-3 h-[61px] px-4 rounded-l border transition-colors text-left",
+                "flex items-center gap-3 h-[61px] px-4 rounded-lg border transition-colors text-left",
                 selected
                   ? "border-primary-300 bg-primary-50"
                   : "border-gray-200 bg-white hover:border-gray-300",
@@ -97,7 +97,7 @@ export function NotificationSlotPicker({ value, onChange }: Props) {
                       type="button"
                       onClick={() => onChange({ slot, time })}
                       className={cn(
-                        "flex-1 h-10 rounded-s border text-xs font-medium transition-colors",
+                        "flex-1 h-10 rounded-sm border text-xs font-medium transition-colors",
                         active
                           ? "border-primary-300 bg-primary-50 text-gray-800"
                           : "border-gray-200 bg-white text-gray-600 hover:border-gray-300",
@@ -118,7 +118,7 @@ export function NotificationSlotPicker({ value, onChange }: Props) {
                 onChange={(e) =>
                   onChange({ slot: "custom", time: e.target.value })
                 }
-                className="h-12 px-4 rounded-m border border-gray-200 bg-white text-gray-800 focus:border-primary-500 outline-none"
+                className="h-12 px-4 rounded-md border border-gray-200 bg-white text-gray-800 focus:border-primary-500 outline-none"
               />
             ) : null}
           </div>

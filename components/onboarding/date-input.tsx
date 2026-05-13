@@ -43,7 +43,7 @@ export function DateInput({
         type="button"
         onClick={open}
         aria-labelledby={id}
-        className="flex items-center w-full h-12 px-4 rounded-m bg-white border border-gray-200 focus:border-primary-500 outline-none text-left"
+        className="flex items-center w-full h-12 px-4 rounded-md bg-white border border-gray-200 focus:border-primary-500 outline-none text-left"
       >
         <span
           id={id}

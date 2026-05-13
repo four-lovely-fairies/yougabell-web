@@ -28,7 +28,7 @@ export function ChildCardForm({ index, child, onChange }: ChildCardProps) {
   const patch = (next: Partial<ChildDraft>) => onChange({ ...child, ...next });
 
   return (
-    <div className="rounded-l border border-gray-100 p-5 flex flex-col gap-5 bg-white">
+    <div className="rounded-lg border border-gray-100 p-5 flex flex-col gap-5 bg-white">
       <h3 className="text-sm font-semibold text-gray-800">자녀 {index + 1}</h3>
 
       <div className="flex flex-col gap-2">
@@ -78,7 +78,7 @@ export function ChildCardForm({ index, child, onChange }: ChildCardProps) {
           placeholder="식품 알레르기, 질병, 복용 중인 약 등"
           value={child.notes ?? ""}
           onChange={(e) => patch({ notes: e.target.value })}
-          className="w-full px-4 py-3 rounded-m border border-gray-200 bg-white resize-none text-gray-800 placeholder:text-gray-400 focus:border-primary-500 outline-none"
+          className="w-full px-4 py-3 rounded-md border border-gray-200 bg-white resize-none text-gray-800 placeholder:text-gray-400 focus:border-primary-500 outline-none"
         />
       </div>
     </div>
@@ -95,7 +95,7 @@ export function ChildRow({ child, onEdit, onDelete }: ChildRowProps) {
   const g = genderLabel(child.gender);
   const d = formatDate(child.birthDate);
   return (
-    <div className="flex items-center h-12 px-4 rounded-m bg-gray-50">
+    <div className="flex items-center h-12 px-4 rounded-md bg-gray-50">
       <span className="flex-1 text-sm text-gray-800 truncate">
         {g ? <span className="text-gray-500 mr-2">{g}</span> : null}
         {child.name}

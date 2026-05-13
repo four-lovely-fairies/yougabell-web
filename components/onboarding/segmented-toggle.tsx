@@ -33,7 +33,7 @@ export function SegmentedToggle<T extends string>({
               onChange(allowDeselect && selected ? null : opt.value)
             }
             className={cn(
-              "flex-1 h-12 rounded-m border text-sm font-medium transition-colors",
+              "flex-1 h-12 rounded-md border text-sm font-medium transition-colors",
               selected
                 ? "border-primary-300 bg-primary-50 text-gray-800"
                 : "border-gray-200 bg-white text-gray-700 hover:border-gray-300",
