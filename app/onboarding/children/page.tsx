@@ -102,6 +102,9 @@ export default function ChildrenPage() {
                 index={idx}
                 child={c}
                 onChange={(next) => updateChild(c.tempId, next)}
+                onRemove={
+                  idx > 0 ? () => setPendingDeleteId(c.tempId) : undefined
+                }
               />
             );
           }

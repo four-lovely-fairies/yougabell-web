@@ -11,6 +11,7 @@ type ChildCardProps = {
   index: number;
   child: ChildDraft;
   onChange: (next: ChildDraft) => void;
+  onRemove?: () => void; // 둘째 이후 카드에만 전달 — 편집 중에도 삭제 가능
 };
 
 function genderLabel(g: ChildDraft["gender"]) {
@@ -24,12 +25,30 @@ function formatDate(iso?: string) {
   return iso.replace(/-/g, ".");
 }
 
-export function ChildCardForm({ index, child, onChange }: ChildCardProps) {
+export function ChildCardForm({
+  index,
+  child,
+  onChange,
+  onRemove,
+}: ChildCardProps) {
   const patch = (next: Partial<ChildDraft>) => onChange({ ...child, ...next });
 
   return (
     <div className="rounded-lg border border-gray-100 p-5 flex flex-col gap-5 bg-white">
-      <h3 className="text-sm font-semibold text-gray-800">자녀 {index + 1}</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-800">
+          자녀 {index + 1}
+        </h3>
+        {onRemove ? (
+          <IconButton
+            label="자녀 삭제"
+            onClick={onRemove}
+            className="w-9 h-9 text-gray-700"
+          >
+            <TrashIcon size={18} />
+          </IconButton>
+        ) : null}
+      </div>
 
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium text-gray-800">
