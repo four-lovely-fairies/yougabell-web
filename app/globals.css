@@ -56,6 +56,30 @@
   --radius-xl: 20px;
 }
 
+/* 의미 변수 — 홈 대시보드 등에서 색상을 의미 이름으로 참조할 때 사용.
+   값은 위 DESIGN.md 토큰을 가리킴. */
+:root {
+  --background: var(--color-gray-50);
+  --foreground: var(--color-gray-800);
+  --surface: var(--color-gray-0);
+  --surface-muted: var(--color-gray-50);
+  --mission-surface: var(--color-primary-50);
+  --primary: var(--color-primary-500);
+  --primary-soft: var(--color-primary-50);
+  --text-primary: var(--color-gray-800);
+  --text-secondary: var(--color-gray-600);
+  --text-tertiary: var(--color-gray-500);
+  --text-disabled: var(--color-gray-300);
+  --icon-secondary: var(--color-gray-700);
+  --border-secondary: var(--color-gray-100);
+  --danger: var(--color-error-600);
+  --danger-soft: var(--color-error-50);
+  --success: var(--color-success-500);
+  --success-soft: var(--color-success-50);
+  --warning: var(--color-warning-800);
+  --warning-soft: var(--color-warning-50);
+}
+
 html,
 body {
   background: var(--color-gray-0);
@@ -72,4 +96,12 @@ input,
 select,
 textarea {
   font-size: 16px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
