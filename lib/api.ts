@@ -1,8 +1,11 @@
+import createClient from "openapi-fetch";
+import type { paths } from "./generated/api-types";
 import { getDemoHomeDashboard, type HomeDashboard } from "./home-data";
 import type { CompleteOnboardingPayload, MeResponse } from "./types";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+const openApiClient = createClient<paths>({ baseUrl: BASE_URL });
 
 /**
  * TODO(auth): Supabase 세션에서 토큰을 추출해 Authorization 헤더로 전달.
@@ -73,16 +76,26 @@ export const loadHomeDashboard = async (
     };
   }
 
-  const params = new URLSearchParams();
-  if (childId) {
-    params.set("childId", childId);
-  }
-
   try {
+    const { data, error, response } = await openApiClient.GET("/home", {
+      params: {
+        query: {
+          childId: childId ?? undefined,
+        },
+      },
+      headers,
+    });
+    const status = response.status;
+
+    if (error) {
+      throw new ApiError(status, error);
+    }
+    if (!data) {
+      throw new ApiError(status, {});
+    }
+
     return {
-      data: await request<HomeDashboard>(
-        `/home${params.size ? `?${params}` : ""}`,
-      ),
+      data,
       source: "api",
     };
   } catch (error) {

@@ -1,0 +1,1051 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/onboarding/complete": {
+      "post": {
+        "description": "Parent 정보 + Child[] + 앱 사용 시간대[]를 단일 atomic 트랜잭션으로 적용. 이미 완료된 사용자는 409.",
+        "operationId": "OnboardingController_complete",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteOnboardingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "온보딩 일괄 완료",
+        "tags": [
+          "onboarding"
+        ]
+      }
+    },
+    "/me": {
+      "get": {
+        "description": "User 본인 + children + appUsageSlots 포함. onboardedAt이 null이면 미완료.",
+        "operationId": "UsersController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "본인 정보 조회",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "description": "온보딩 완료자 기본. q(이름 LIKE) / page / limit / onboarded 필터.",
+        "operationId": "AdminController_listUsers",
+        "parameters": [
+          {
+            "name": "onboarded",
+            "required": false,
+            "in": "query",
+            "description": "온보딩 필터. default true (완료자만)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false",
+                "all"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "이름 LIKE 검색",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-based",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "페이지당 항목",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "사용자 목록 (운영자)",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/home": {
+      "get": {
+        "operationId": "HomeController_getHome",
+        "parameters": [
+          {
+            "name": "childId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "description": "홈 기준일. YYYY-MM-DD",
+            "schema": {
+              "example": "2026-05-13",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeDashboardDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "home"
+        ]
+      }
+    },
+    "/notifications": {
+      "get": {
+        "operationId": "NotificationsController_list",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/read-all": {
+      "patch": {
+        "operationId": "NotificationsController_markAllRead",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarkAllNotificationsReadResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/{id}/read": {
+      "patch": {
+        "operationId": "NotificationsController_markRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationListItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/children/{id}": {
+      "patch": {
+        "operationId": "ChildrenController_updateChild",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateChildDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "children"
+        ]
+      },
+      "delete": {
+        "operationId": "ChildrenController_deleteChild",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "children"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Yougabell API",
+    "description": "육아밸 domain API",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "ParentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "홍길동",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1990-01-01",
+            "description": "ISO date (YYYY-MM-DD)"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "female",
+              "male"
+            ]
+          },
+          "workStatus": {
+            "type": "string",
+            "enum": [
+              "working",
+              "full_time_caregiver"
+            ],
+            "nullable": true,
+            "description": "직장 유무 (선택)"
+          }
+        },
+        "required": [
+          "name",
+          "birthDate",
+          "gender"
+        ]
+      },
+      "ChildInputDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "김유스",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2024-01-02"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "female",
+              "male"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "description": "특이사항 자유 텍스트 (알레르기·발달 이슈 등). AI 챗봇 컨텍스트로 소비.",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "name",
+          "birthDate",
+          "gender"
+        ]
+      },
+      "AppUsageSlotDto": {
+        "type": "object",
+        "properties": {
+          "dayOfWeek": {
+            "type": "string",
+            "enum": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "slot": {
+            "type": "string",
+            "enum": [
+              "morning",
+              "afternoon",
+              "evening",
+              "night",
+              "all_day"
+            ]
+          }
+        },
+        "required": [
+          "dayOfWeek",
+          "slot"
+        ]
+      },
+      "CompleteOnboardingDto": {
+        "type": "object",
+        "properties": {
+          "parent": {
+            "$ref": "#/components/schemas/ParentDto"
+          },
+          "children": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChildInputDto"
+            }
+          },
+          "appUsage": {
+            "description": "앱 사용 시간대 (요일 × 시간대). 빈 배열 허용 — 향후 정책 확정.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppUsageSlotDto"
+            }
+          }
+        },
+        "required": [
+          "parent",
+          "children",
+          "appUsage"
+        ]
+      },
+      "HomeChildDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "김유스"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2023-04-20",
+            "description": "ISO date YYYY-MM-DD"
+          },
+          "ageLabel": {
+            "type": "string",
+            "example": "만3세"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "birthDate",
+          "ageLabel",
+          "displayOrder"
+        ]
+      },
+      "HomeMoodDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "number",
+            "enum": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "example": 4
+          },
+          "emoji": {
+            "type": "string",
+            "example": "😊"
+          }
+        },
+        "required": [
+          "level",
+          "emoji"
+        ]
+      },
+      "HomeWeekDayDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2026-05-13",
+            "description": "ISO date YYYY-MM-DD"
+          },
+          "weekdayLabel": {
+            "type": "string",
+            "enum": [
+              "월",
+              "화",
+              "수",
+              "목",
+              "금",
+              "토",
+              "일"
+            ],
+            "example": "수"
+          },
+          "dayOfMonth": {
+            "type": "number",
+            "example": 13
+          },
+          "isToday": {
+            "type": "boolean"
+          },
+          "mood": {
+            "$ref": "#/components/schemas/HomeMoodDto"
+          },
+          "missionCompleted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "date",
+          "weekdayLabel",
+          "dayOfMonth",
+          "isToday"
+        ]
+      },
+      "HomeWeekDto": {
+        "type": "object",
+        "properties": {
+          "monthLabel": {
+            "type": "string",
+            "example": "5월"
+          },
+          "weekOfMonthLabel": {
+            "type": "string",
+            "example": "2주차"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HomeWeekDayDto"
+            }
+          }
+        },
+        "required": [
+          "monthLabel",
+          "weekOfMonthLabel",
+          "days"
+        ]
+      },
+      "HomeRecommendedMissionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subThemeLabel": {
+            "type": "string",
+            "example": "아이 10분 가까워지기"
+          },
+          "title": {
+            "type": "string",
+            "example": "아이와 눈을 마주치며 이야기를 해보아요"
+          },
+          "durationMinutes": {
+            "type": "number",
+            "example": 10
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "not_started",
+              "in_progress",
+              "completed"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "subThemeLabel",
+          "title",
+          "durationMinutes",
+          "status"
+        ]
+      },
+      "HomeGrowthStageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "자아 형성기"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "summary"
+        ]
+      },
+      "HomeReportSummaryDto": {
+        "type": "object",
+        "properties": {
+          "monthTogetherDaysPercent": {
+            "type": "number",
+            "example": 84,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "completedDays": {
+            "type": "number",
+            "example": 10,
+            "minimum": 0
+          },
+          "elapsedDays": {
+            "type": "number",
+            "example": 12,
+            "minimum": 1
+          },
+          "label": {
+            "type": "string",
+            "example": "이번 달 함께한 날"
+          }
+        },
+        "required": [
+          "monthTogetherDaysPercent",
+          "completedDays",
+          "elapsedDays",
+          "label"
+        ]
+      },
+      "HomeNotificationSummaryItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "actionType": {
+            "type": "string",
+            "enum": [
+              "none",
+              "open_home",
+              "open_mission",
+              "open_roadmap",
+              "open_chat",
+              "open_report",
+              "url"
+            ]
+          },
+          "targetType": {
+            "type": "string",
+            "enum": [
+              "mission",
+              "mission_execution",
+              "weekly_report",
+              "child",
+              "chat_session",
+              "url"
+            ],
+            "nullable": true
+          },
+          "targetId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "targetUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "body",
+          "actionType",
+          "targetType",
+          "targetId",
+          "targetUrl",
+          "createdAt",
+          "readAt"
+        ]
+      },
+      "HomeNotificationsDto": {
+        "type": "object",
+        "properties": {
+          "unreadCount": {
+            "type": "number",
+            "example": 2,
+            "minimum": 0
+          },
+          "latest": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HomeNotificationSummaryItemDto"
+            }
+          }
+        },
+        "required": [
+          "unreadCount",
+          "latest"
+        ]
+      },
+      "HomeDashboardDto": {
+        "type": "object",
+        "properties": {
+          "selectedChild": {
+            "$ref": "#/components/schemas/HomeChildDto"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HomeChildDto"
+            }
+          },
+          "week": {
+            "$ref": "#/components/schemas/HomeWeekDto"
+          },
+          "recommendedMission": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HomeRecommendedMissionDto"
+              }
+            ]
+          },
+          "growthStage": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HomeGrowthStageDto"
+              }
+            ]
+          },
+          "reportSummary": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HomeReportSummaryDto"
+              }
+            ]
+          },
+          "notifications": {
+            "$ref": "#/components/schemas/HomeNotificationsDto"
+          }
+        },
+        "required": [
+          "selectedChild",
+          "children",
+          "week",
+          "recommendedMission",
+          "growthStage",
+          "reportSummary",
+          "notifications"
+        ]
+      },
+      "NotificationListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "mission_reminder",
+              "mission_feedback",
+              "weekly_report_ready",
+              "roadmap_update",
+              "mental_check_reminder",
+              "chat_follow_up",
+              "system_notice"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "actionType": {
+            "type": "string",
+            "enum": [
+              "none",
+              "open_home",
+              "open_mission",
+              "open_roadmap",
+              "open_chat",
+              "open_report",
+              "url"
+            ]
+          },
+          "targetType": {
+            "type": "string",
+            "enum": [
+              "mission",
+              "mission_execution",
+              "weekly_report",
+              "child",
+              "chat_session",
+              "url"
+            ],
+            "nullable": true
+          },
+          "targetId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "targetUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "high"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "body",
+          "actionType",
+          "targetType",
+          "targetId",
+          "targetUrl",
+          "priority",
+          "createdAt",
+          "readAt"
+        ]
+      },
+      "NotificationListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationListItemDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "MarkAllNotificationsReadResponseDto": {
+        "type": "object",
+        "properties": {
+          "updatedCount": {
+            "type": "number",
+            "example": 3,
+            "minimum": 0
+          }
+        },
+        "required": [
+          "updatedCount"
+        ]
+      },
+      "UpdateChildDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "김유스",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2023-04-20",
+            "description": "ISO date YYYY-MM-DD"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "female",
+              "male"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1000
+          },
+          "displayOrder": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "ChildResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "김유스"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2023-04-20",
+            "description": "ISO date YYYY-MM-DD"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "female",
+              "male"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "birthDate",
+          "gender",
+          "notes",
+          "avatarUrl",
+          "displayOrder"
+        ]
+      }
+    }
+  }
+}

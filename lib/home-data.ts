@@ -1,80 +1,9 @@
-export type WeekdayLabel = "월" | "화" | "수" | "목" | "금" | "토" | "일";
+import type { components } from "./generated/api-types";
 
-export type HomeChild = {
-  id: string;
-  name: string;
-  birthDate: string;
-  ageLabel: string;
-  displayOrder: number;
-};
-
-export type HomeNotification = {
-  id: string;
-  title: string;
-  body: string;
-  actionType:
-    | "none"
-    | "open_home"
-    | "open_mission"
-    | "open_roadmap"
-    | "open_chat"
-    | "open_report"
-    | "url";
-  targetType:
-    | "mission"
-    | "mission_execution"
-    | "weekly_report"
-    | "child"
-    | "chat_session"
-    | "url"
-    | null;
-  targetId: string | null;
-  targetUrl: string | null;
-  createdAt: string;
-  readAt: string | null;
-};
-
-export type HomeDashboard = {
-  selectedChild: HomeChild;
-  children: HomeChild[];
-  week: {
-    monthLabel: string;
-    weekOfMonthLabel: string;
-    days: Array<{
-      date: string;
-      weekdayLabel: WeekdayLabel;
-      dayOfMonth: number;
-      isToday: boolean;
-      mood?: {
-        level: 1 | 2 | 3 | 4 | 5;
-        emoji: string;
-      };
-      missionCompleted?: boolean;
-    }>;
-  };
-  recommendedMission: {
-    id: string;
-    subThemeLabel: string;
-    title: string;
-    durationMinutes: number;
-    status: "not_started" | "in_progress" | "completed";
-  } | null;
-  growthStage: {
-    id: string;
-    name: string;
-    summary: string;
-  } | null;
-  reportSummary: {
-    monthTogetherDaysPercent: number;
-    completedDays: number;
-    elapsedDays: number;
-    label: string;
-  } | null;
-  notifications: {
-    unreadCount: number;
-    latest: HomeNotification[];
-  };
-};
+export type HomeDashboard = components["schemas"]["HomeDashboardDto"];
+export type HomeChild = components["schemas"]["HomeChildDto"];
+export type HomeNotification =
+  components["schemas"]["HomeNotificationSummaryItemDto"];
 
 export const getDemoHomeDashboard = (): HomeDashboard => ({
   selectedChild: {
