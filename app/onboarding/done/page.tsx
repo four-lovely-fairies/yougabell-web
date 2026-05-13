@@ -88,7 +88,7 @@ export default function DonePage() {
         <p className="text-gray-700">
           입력값이 부족합니다. 이전 단계로 돌아가세요.
         </p>
-        <Button onClick={() => router.push("/onboarding/parent")}>
+        <Button onClick={() => router.replace("/onboarding/app-usage")}>
           이전 단계로
         </Button>
       </div>
@@ -111,7 +111,7 @@ export default function DonePage() {
         </Button>
         <button
           type="button"
-          onClick={() => router.push("/onboarding/parent")}
+          onClick={() => router.replace("/onboarding/app-usage")}
           className="text-sm text-gray-500"
         >
           이전 단계로
