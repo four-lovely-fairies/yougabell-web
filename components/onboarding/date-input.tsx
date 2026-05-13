@@ -1,13 +1,14 @@
 "use client";
 
-import { useId, useMemo, useRef } from "react";
+import { useId, useMemo, useState } from "react";
 import { ChevronDownIcon } from "@/components/icons";
+import { DateBottomSheet } from "./date-bottom-sheet";
 
 type Props = {
   value?: string;
   onChange: (iso: string) => void;
-  min?: string;
-  max?: string;
+  yearMin?: number;
+  yearMax?: number;
   placeholder?: string;
 };
 
@@ -21,29 +22,23 @@ function format(iso: string | undefined) {
 export function DateInput({
   value,
   onChange,
-  min = "1900-01-01",
-  max,
+  yearMin,
+  yearMax,
   placeholder = "선택",
 }: Props) {
   const id = useId();
-  const ref = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
   const display = useMemo(() => format(value), [value]);
-  const todayMax = max ?? new Date().toISOString().slice(0, 10);
-
-  const open = () => {
-    const el = ref.current;
-    if (!el) return;
-    if (typeof el.showPicker === "function") el.showPicker();
-    else el.click();
-  };
 
   return (
-    <div className="relative">
+    <>
       <button
         type="button"
-        onClick={open}
+        onClick={() => setOpen(true)}
         aria-labelledby={id}
-        className="flex items-center w-full h-12 px-4 rounded-md bg-white border border-gray-200 focus:border-primary-500 outline-none text-left"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        className="flex items-center w-full h-12 px-4 rounded-lg bg-white border border-gray-200 focus:border-primary-500 outline-none text-left text-sm"
       >
         <span
           id={id}
@@ -53,17 +48,15 @@ export function DateInput({
         </span>
         <ChevronDownIcon size={20} className="text-gray-500" />
       </button>
-      <input
-        ref={ref}
-        type="date"
-        value={value ?? ""}
-        min={min}
-        max={todayMax}
-        onChange={(e) => onChange(e.target.value)}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden
-      />
-    </div>
+      {open && (
+        <DateBottomSheet
+          onClose={() => setOpen(false)}
+          value={value}
+          onConfirm={onChange}
+          yearMin={yearMin}
+          yearMax={yearMax}
+        />
+      )}
+    </>
   );
 }
