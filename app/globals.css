@@ -108,3 +108,11 @@ button {
 button:disabled {
   cursor: not-allowed;
 }
+
+/* scroll-snap wheel picker용 — 시스템 스크롤바 숨김 */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
