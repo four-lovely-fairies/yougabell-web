@@ -2,40 +2,68 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ChildCard } from "@/components/onboarding/child-card";
+import { PlusIcon } from "@/components/icons";
+import { ChildCardForm, ChildRow } from "@/components/onboarding/child-card";
+import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
+import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import type { ChildDraft } from "@/lib/types";
-import { newTempId } from "@/lib/utils";
+import { cn, newTempId } from "@/lib/utils";
 
 function emptyChild(): ChildDraft {
   return { tempId: newTempId() };
 }
 
+function isValid(c: ChildDraft) {
+  return Boolean(c.name && c.birthDate && c.gender);
+}
+
 export default function ChildrenPage() {
   const router = useRouter();
   const { draft, patch } = useOnboardingDraft();
-  const [children, setChildren] = useState<ChildDraft[]>(
-    draft?.children && draft.children.length > 0
-      ? draft.children
-      : [emptyChild()],
+  const [children, setChildren] = useState<ChildDraft[]>(() => {
+    const saved = draft?.children ?? [];
+    return saved.length > 0 ? saved : [emptyChild()];
+  });
+  const [editingId, setEditingId] = useState<string | null>(
+    children[0]?.tempId ?? null,
   );
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-  const isValid = (c: ChildDraft) =>
-    Boolean(c.name && c.birthDate && c.gender);
-  const canSubmit = children.length >= 1 && children.every(isValid);
+  const updateChild = (id: string, next: Partial<ChildDraft>) => {
+    setChildren((prev) =>
+      prev.map((c) => (c.tempId === id ? { ...c, ...next } : c)),
+    );
+  };
 
-  const updateChild = (idx: number, next: ChildDraft) => {
-    setChildren((prev) => prev.map((c, i) => (i === idx ? next : c)));
+  const removeChild = (id: string) => {
+    setChildren((prev) => {
+      const next = prev.filter((c) => c.tempId !== id);
+      return next.length > 0 ? next : [emptyChild()];
+    });
+    setPendingDeleteId(null);
+    setEditingId(null);
   };
-  const removeChild = (idx: number) => {
-    setChildren((prev) => prev.filter((_, i) => i !== idx));
+
+  const addChild = () => {
+    const next = emptyChild();
+    setChildren((prev) => [...prev, next]);
+    setEditingId(next.tempId);
   };
-  const addChild = () => setChildren((prev) => [...prev, emptyChild()]);
+
+  const saveCurrent = () => {
+    const current = children.find((c) => c.tempId === editingId);
+    if (!current || !isValid(current)) return;
+    setEditingId(null);
+  };
+
+  const allValid = children.length >= 1 && children.every(isValid);
+  const canProceed = allValid && editingId === null;
 
   const back = () => router.push("/onboarding/parent");
   const submit = () => {
-    if (!canSubmit) return;
+    if (!canProceed) return;
     patch({ children, lastStep: "children" });
     track({ type: "onboarding_step_complete", step: "children" });
     router.push("/onboarding/app-usage");
@@ -47,52 +75,120 @@ export default function ChildrenPage() {
         e.preventDefault();
         submit();
       }}
-      className="flex flex-col flex-1 gap-6"
+      className="flex flex-col flex-1"
     >
-      <header>
-        <h1 className="text-2xl font-semibold">자녀 정보</h1>
-        <p className="text-sm text-zinc-600 mt-1">
-          소중한 아이에 대해 알려주세요. 다자녀는 아래 &lsquo;자녀
-          추가&rsquo; 버튼으로 입력하세요.
-        </p>
+      <OnboardingHeader variant="back" onAction={back} />
+
+      <header className="mt-2 mb-7">
+        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+          아이 정보를
+          <br />
+          입력해 주세요
+        </h1>
       </header>
 
-      <div className="flex flex-col gap-4">
-        {children.map((c, idx) => (
-          <ChildCard
-            key={c.tempId}
-            index={idx}
-            child={c}
-            onChange={(next) => updateChild(idx, next)}
-            onRemove={children.length > 1 ? () => removeChild(idx) : undefined}
-          />
-        ))}
-      </div>
+      <div className="flex flex-col gap-3">
+        {children.map((c, idx) => {
+          const isEditing = editingId === c.tempId;
+          if (isEditing) {
+            return (
+              <ChildCardForm
+                key={c.tempId}
+                index={idx}
+                child={c}
+                onChange={(next) => updateChild(c.tempId, next)}
+              />
+            );
+          }
+          return (
+            <ChildRow
+              key={c.tempId}
+              child={c}
+              onEdit={() => setEditingId(c.tempId)}
+              onDelete={() => setPendingDeleteId(c.tempId)}
+            />
+          );
+        })}
 
-      <button
-        type="button"
-        onClick={addChild}
-        className="h-14 rounded-2xl border-2 border-dashed border-zinc-400 text-zinc-700 font-medium"
-      >
-        + 자녀 추가
-      </button>
-
-      <div className="flex gap-3 mt-2">
         <button
           type="button"
-          onClick={back}
-          className="flex-1 h-14 rounded-2xl border border-zinc-300 text-zinc-700 font-medium"
+          onClick={addChild}
+          disabled={editingId !== null}
+          className={cn(
+            "h-12 flex items-center justify-center gap-2 rounded-m border-2 border-dashed transition-colors",
+            editingId !== null
+              ? "border-gray-200 text-gray-300 cursor-not-allowed"
+              : "border-primary-300 text-primary-500 hover:bg-primary-50",
+          )}
         >
-          이전
-        </button>
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="flex-1 h-14 rounded-2xl bg-zinc-900 text-white font-medium disabled:bg-zinc-300"
-        >
-          다음
+          <PlusIcon size={18} />
+          <span className="text-sm font-semibold">자녀 추가</span>
         </button>
       </div>
+
+      <div className="flex-1 min-h-8" />
+
+      {editingId ? (
+        <Button
+          type="button"
+          size="full"
+          onClick={saveCurrent}
+          disabled={!isValid(children.find((c) => c.tempId === editingId)!)}
+        >
+          저장
+        </Button>
+      ) : (
+        <Button type="submit" size="full" disabled={!canProceed}>
+          다음
+        </Button>
+      )}
+
+      {pendingDeleteId ? (
+        <DeleteConfirm
+          onCancel={() => setPendingDeleteId(null)}
+          onConfirm={() => removeChild(pendingDeleteId)}
+        />
+      ) : null}
     </form>
+  );
+}
+
+function DeleteConfirm({
+  onCancel,
+  onConfirm,
+}: {
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div
+      role="dialog"
+      aria-modal
+      className="fixed inset-0 z-10 flex items-center justify-center bg-black/40 px-6"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-xs rounded-l bg-white p-6 flex flex-col gap-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-base font-semibold text-gray-800">
+          자녀 정보를 삭제할까요?
+        </h2>
+        <p className="text-sm text-gray-500">삭제 후에는 되돌릴 수 없습니다.</p>
+        <div className="flex gap-3 mt-2">
+          <Button
+            size="md"
+            variant="outline"
+            className="flex-1"
+            onClick={onCancel}
+          >
+            취소
+          </Button>
+          <Button size="md" className="flex-1" onClick={onConfirm}>
+            삭제
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
