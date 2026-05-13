@@ -43,7 +43,7 @@ export default function ParentPage() {
     >
       <OnboardingHeader variant="back" />
 
-      <header className="mt-2 mb-7">
+      <header className="py-6">
         <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
           프로필 정보를
           <br />
@@ -51,7 +51,7 @@ export default function ParentPage() {
         </h1>
       </header>
 
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4">
         <Field label="이름" required>
           <Input
             type="text"
@@ -78,6 +78,8 @@ export default function ParentPage() {
           <DateInput
             value={parent.birthDate}
             onChange={(iso) => update({ birthDate: iso })}
+            // 부모는 만 25세 이상만 — 올해 - 25 이전 출생
+            yearMax={new Date().getFullYear() - 25}
           />
         </Field>
 
@@ -127,9 +129,11 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-gray-800">
+      <span className="text-xs font-medium leading-[1.4] text-gray-800">
         {label}
-        {required ? <span className="text-error-600 ml-0.5">*</span> : null}
+        {required ? (
+          <span className="text-error-600 font-bold ml-0.5">*</span>
+        ) : null}
       </span>
       {children}
     </div>
