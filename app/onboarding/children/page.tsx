@@ -46,7 +46,12 @@ export default function ChildrenPage() {
     setEditingId(null);
   };
 
+  const editingChild = children.find((c) => c.tempId === editingId);
+  const canAddChild = editingChild === undefined || isValid(editingChild);
+
   const addChild = () => {
+    // 편집 중인 자녀가 있으면 유효한 경우에만 추가 허용 (자동 저장)
+    if (!canAddChild) return;
     const next = emptyChild();
     setChildren((prev) => [...prev, next]);
     setEditingId(next.tempId);
@@ -113,10 +118,10 @@ export default function ChildrenPage() {
         <button
           type="button"
           onClick={addChild}
-          disabled={editingId !== null}
+          disabled={!canAddChild}
           className={cn(
-            "h-12 flex items-center justify-center gap-2 rounded-m border-2 border-dashed transition-colors",
-            editingId !== null
+            "h-12 flex items-center justify-center gap-2 rounded-md border-2 border-dashed transition-colors",
+            !canAddChild
               ? "border-gray-200 text-gray-300 cursor-not-allowed"
               : "border-primary-300 text-primary-500 hover:bg-primary-50",
           )}
@@ -168,7 +173,7 @@ function DeleteConfirm({
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-xs rounded-l bg-white p-6 flex flex-col gap-4"
+        className="w-full max-w-xs rounded-lg bg-white p-6 flex flex-col gap-4"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-base font-semibold text-gray-800">
