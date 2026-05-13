@@ -2,6 +2,11 @@ import createClient from "openapi-fetch";
 import type { paths } from "./generated/api-types";
 import { getDemoHomeDashboard, type HomeDashboard } from "./home-data";
 import type { CompleteOnboardingPayload, MeResponse } from "./types";
+import type {
+  WeeklyReportCurrent,
+  WeeklyReportDetail,
+  WeeklyReportViewData,
+} from "./weekly-report-data";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
@@ -22,6 +27,19 @@ export type HomeLoadState = {
   source: "api" | "demo";
   message?: string;
 };
+
+export type WeeklyReportLoadState =
+  | {
+      data: WeeklyReportViewData;
+      error: null;
+    }
+  | {
+      data: null;
+      error: {
+        status: number | null;
+        message: string;
+      };
+    };
 
 async function request<T>(
   path: string,
@@ -111,6 +129,89 @@ export const loadHomeDashboard = async (
     };
   }
 };
+
+export const loadWeeklyReport = async ({
+  childId,
+  reportId,
+}: {
+  childId?: string | null;
+  reportId?: string | null;
+} = {}): Promise<WeeklyReportLoadState> => {
+  const headers = authHeaders();
+
+  if (!headers["x-user-id"]) {
+    return {
+      data: null,
+      error: {
+        status: 401,
+        message: "로그인 세션이 연결되어야 주간 리포트를 불러올 수 있습니다.",
+      },
+    };
+  }
+
+  try {
+    if (reportId) {
+      const { data, error, response } = await openApiClient.GET(
+        "/weekly-reports/{id}",
+        {
+          params: { path: { id: reportId } },
+          headers,
+        },
+      );
+      if (error || !data) {
+        throw new ApiError((response as Response).status, error ?? {});
+      }
+      return {
+        data: toWeeklyReportViewData(data),
+        error: null,
+      };
+    }
+
+    const { data, error, response } = await openApiClient.GET(
+      "/weekly-reports/current",
+      {
+        params: {
+          query: {
+            childId: childId ?? undefined,
+          },
+        },
+        headers,
+      },
+    );
+    if (error || !data) {
+      throw new ApiError((response as Response).status, error ?? {});
+    }
+    return {
+      data: toWeeklyReportViewData(data),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      data: null,
+      error: {
+        status: error instanceof ApiError ? error.status : null,
+        message:
+          error instanceof ApiError
+            ? "주간 리포트를 불러오지 못했습니다."
+            : "API 서버에 연결할 수 없습니다.",
+      },
+    };
+  }
+};
+
+function toWeeklyReportViewData(
+  data: WeeklyReportCurrent | WeeklyReportDetail,
+): WeeklyReportViewData {
+  if ("selectedChild" in data) {
+    return data;
+  }
+
+  return {
+    selectedChild: null,
+    report: data,
+    emptyState: null,
+  };
+}
 
 export const getStoredSelectedChildId = () => {
   if (typeof window === "undefined") {

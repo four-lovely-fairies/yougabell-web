@@ -493,11 +493,11 @@ const NotificationModal = ({
 
 const BottomNav = () => {
   const items = [
-    { label: "홈", icon: Home, active: true },
+    { label: "홈", icon: Home, active: true, href: "/" },
     { label: "10분 놀이", icon: Play },
     { label: "성장 로드맵", icon: Map },
     { label: "ai 상담", icon: Bot },
-    { label: "주간 리포트", icon: MessageCircle },
+    { label: "주간 리포트", icon: MessageCircle, href: "/weekly-report" },
   ];
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto h-[82px] max-w-[390px] rounded-t-[48px] bg-[rgba(252,247,252,0.9)] pt-[13px] shadow-[0_-4px_40px_rgba(27,28,27,0.04)] backdrop-blur-xl">
@@ -506,6 +506,11 @@ const BottomNav = () => {
           <button
             key={item.label}
             type="button"
+            onClick={() => {
+              if (item.href && item.href !== window.location.pathname) {
+                window.location.href = item.href;
+              }
+            }}
             aria-current={item.active ? "page" : undefined}
             className={`flex h-[55px] w-[77px] flex-col items-center justify-center px-3 py-2 text-[10px] font-bold leading-[15px] ${
               item.active

@@ -4,586 +4,856 @@
  */
 
 export interface paths {
-    "/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AppController_getHello"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/onboarding/complete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 온보딩 일괄 완료
-         * @description Parent 정보 + Child[] + 앱 사용 시간대[]를 단일 atomic 트랜잭션으로 적용. 이미 완료된 사용자는 409.
-         */
-        post: operations["OnboardingController_complete"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["AppController_getHello"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/onboarding/complete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 본인 정보 조회
-         * @description User 본인 + children + appUsageSlots 포함. onboardedAt이 null이면 미완료.
-         */
-        get: operations["UsersController_getMe"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * 온보딩 일괄 완료
+     * @description Parent 정보 + Child[] + 앱 사용 시간대[]를 단일 atomic 트랜잭션으로 적용. 이미 완료된 사용자는 409.
+     */
+    post: operations["OnboardingController_complete"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 사용자 목록 (운영자)
-         * @description 온보딩 완료자 기본. q(이름 LIKE) / page / limit / onboarded 필터.
-         */
-        get: operations["AdminController_listUsers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * 본인 정보 조회
+     * @description User 본인 + children + appUsageSlots 포함. onboardedAt이 null이면 미완료.
+     */
+    get: operations["UsersController_getMe"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/home": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["HomeController_getHome"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * 사용자 목록 (운영자)
+     * @description 온보딩 완료자 기본. q(이름 LIKE) / page / limit / onboarded 필터.
+     */
+    get: operations["AdminController_listUsers"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/weekly-reports/generate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["NotificationsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * 주간 리포트 수동 생성 (운영자)
+     * @description 지정한 주차 또는 직전 완료 주차의 주간 리포트를 자녀별로 생성한다.
+     */
+    post: operations["AdminController_generateWeeklyReports"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/weekly-reports/current": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/notifications/read-all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["NotificationsController_markAllRead"];
-        trace?: never;
+    get: operations["WeeklyReportsController_getCurrent"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/weekly-reports/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/notifications/{id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["NotificationsController_markRead"];
-        trace?: never;
+    get: operations["WeeklyReportsController_getById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/home": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/children/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["ChildrenController_deleteChild"];
-        options?: never;
-        head?: never;
-        patch: operations["ChildrenController_updateChild"];
-        trace?: never;
+    get: operations["HomeController_getHome"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get: operations["NotificationsController_list"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/read-all": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations["NotificationsController_markAllRead"];
+    trace?: never;
+  };
+  "/notifications/{id}/read": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations["NotificationsController_markRead"];
+    trace?: never;
+  };
+  "/children/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["ChildrenController_deleteChild"];
+    options?: never;
+    head?: never;
+    patch: operations["ChildrenController_updateChild"];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        ParentDto: {
-            /** @example 홍길동 */
-            name: string;
-            /**
-             * @description ISO date (YYYY-MM-DD)
-             * @example 1990-01-01
-             */
-            birthDate: string;
-            /** @enum {string} */
-            gender: "female" | "male";
-            /**
-             * @description 직장 유무 (선택)
-             * @enum {string|null}
-             */
-            workStatus?: "working" | "full_time_caregiver" | null;
-        };
-        ChildInputDto: {
-            /** @example 김유스 */
-            name: string;
-            /** @example 2024-01-02 */
-            birthDate: string;
-            /** @enum {string} */
-            gender: "female" | "male";
-            /** @description 특이사항 자유 텍스트 (알레르기·발달 이슈 등). AI 챗봇 컨텍스트로 소비. */
-            notes?: string;
-        };
-        AppUsageSlotDto: {
-            /** @enum {string} */
-            dayOfWeek: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
-            /** @enum {string} */
-            slot: "morning" | "afternoon" | "evening" | "night" | "all_day";
-        };
-        CompleteOnboardingDto: {
-            parent: components["schemas"]["ParentDto"];
-            children: components["schemas"]["ChildInputDto"][];
-            /** @description 앱 사용 시간대 (요일 × 시간대). 빈 배열 허용 — 향후 정책 확정. */
-            appUsage: components["schemas"]["AppUsageSlotDto"][];
-        };
-        HomeChildDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 김유스 */
-            name: string;
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2023-04-20
-             */
-            birthDate: string;
-            /** @example 만3세 */
-            ageLabel: string;
-            /** @example 0 */
-            displayOrder: number;
-        };
-        HomeMoodDto: {
-            /**
-             * @example 4
-             * @enum {number}
-             */
-            level: 1 | 2 | 3 | 4 | 5;
-            /** @example 😊 */
-            emoji: string;
-        };
-        HomeWeekDayDto: {
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2026-05-13
-             */
-            date: string;
-            /**
-             * @example 수
-             * @enum {string}
-             */
-            weekdayLabel: "월" | "화" | "수" | "목" | "금" | "토" | "일";
-            /** @example 13 */
-            dayOfMonth: number;
-            isToday: boolean;
-            mood?: components["schemas"]["HomeMoodDto"];
-            missionCompleted?: boolean;
-        };
-        HomeWeekDto: {
-            /** @example 5월 */
-            monthLabel: string;
-            /** @example 2주차 */
-            weekOfMonthLabel: string;
-            days: components["schemas"]["HomeWeekDayDto"][];
-        };
-        HomeRecommendedMissionDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 아이 10분 가까워지기 */
-            subThemeLabel: string;
-            /** @example 아이와 눈을 마주치며 이야기를 해보아요 */
-            title: string;
-            /** @example 10 */
-            durationMinutes: number;
-            /** @enum {string} */
-            status: "not_started" | "in_progress" | "completed";
-        };
-        HomeGrowthStageDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 자아 형성기 */
-            name: string;
-            summary: string;
-        };
-        HomeReportSummaryDto: {
-            /** @example 84 */
-            monthTogetherDaysPercent: number;
-            /** @example 10 */
-            completedDays: number;
-            /** @example 12 */
-            elapsedDays: number;
-            /** @example 이번 달 함께한 날 */
-            label: string;
-        };
-        HomeNotificationSummaryItemDto: {
-            /** Format: uuid */
-            id: string;
-            title: string;
-            body: string;
-            /** @enum {string} */
-            actionType: "none" | "open_home" | "open_mission" | "open_roadmap" | "open_chat" | "open_report" | "url";
-            /** @enum {string|null} */
-            targetType: "mission" | "mission_execution" | "weekly_report" | "child" | "chat_session" | "url" | null;
-            /** Format: uuid */
-            targetId: string | null;
-            targetUrl: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            readAt: string | null;
-        };
-        HomeNotificationsDto: {
-            /** @example 2 */
-            unreadCount: number;
-            latest: components["schemas"]["HomeNotificationSummaryItemDto"][];
-        };
-        HomeDashboardDto: {
-            selectedChild: components["schemas"]["HomeChildDto"];
-            children: components["schemas"]["HomeChildDto"][];
-            week: components["schemas"]["HomeWeekDto"];
-            recommendedMission: components["schemas"]["HomeRecommendedMissionDto"] | null;
-            growthStage: components["schemas"]["HomeGrowthStageDto"] | null;
-            reportSummary: components["schemas"]["HomeReportSummaryDto"] | null;
-            notifications: components["schemas"]["HomeNotificationsDto"];
-        };
-        NotificationListItemDto: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            type: "mission_reminder" | "mission_feedback" | "weekly_report_ready" | "roadmap_update" | "mental_check_reminder" | "chat_follow_up" | "system_notice";
-            title: string;
-            body: string;
-            /** @enum {string} */
-            actionType: "none" | "open_home" | "open_mission" | "open_roadmap" | "open_chat" | "open_report" | "url";
-            /** @enum {string|null} */
-            targetType: "mission" | "mission_execution" | "weekly_report" | "child" | "chat_session" | "url" | null;
-            /** Format: uuid */
-            targetId: string | null;
-            targetUrl: string | null;
-            /** @enum {string} */
-            priority: "normal" | "high";
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            readAt: string | null;
-        };
-        NotificationListResponseDto: {
-            items: components["schemas"]["NotificationListItemDto"][];
-        };
-        MarkAllNotificationsReadResponseDto: {
-            /** @example 3 */
-            updatedCount: number;
-        };
-        UpdateChildDto: {
-            /** @example 김유스 */
-            name?: string;
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2023-04-20
-             */
-            birthDate?: string;
-            /** @enum {string} */
-            gender?: "female" | "male";
-            notes?: string | null;
-            displayOrder?: number;
-        };
-        ChildResponseDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 김유스 */
-            name: string;
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2023-04-20
-             */
-            birthDate: string;
-            /** @enum {string} */
-            gender: "female" | "male";
-            notes: string | null;
-            avatarUrl: string | null;
-            /** @example 0 */
-            displayOrder: number;
-        };
+  schemas: {
+    ParentDto: {
+      /** @example 홍길동 */
+      name: string;
+      /**
+       * @description ISO date (YYYY-MM-DD)
+       * @example 1990-01-01
+       */
+      birthDate: string;
+      /** @enum {string} */
+      gender: "female" | "male";
+      /**
+       * @description 직장 유무 (선택)
+       * @enum {string|null}
+       */
+      workStatus?: "working" | "full_time_caregiver" | null;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    ChildInputDto: {
+      /** @example 김유스 */
+      name: string;
+      /** @example 2024-01-02 */
+      birthDate: string;
+      /** @enum {string} */
+      gender: "female" | "male";
+      /** @description 특이사항 자유 텍스트 (알레르기·발달 이슈 등). AI 챗봇 컨텍스트로 소비. */
+      notes?: string;
+    };
+    AppUsageSlotDto: {
+      /** @enum {string} */
+      dayOfWeek: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+      /** @enum {string} */
+      slot: "morning" | "afternoon" | "evening" | "night" | "all_day";
+    };
+    CompleteOnboardingDto: {
+      parent: components["schemas"]["ParentDto"];
+      children: components["schemas"]["ChildInputDto"][];
+      /** @description 앱 사용 시간대 (요일 × 시간대). 빈 배열 허용 — 향후 정책 확정. */
+      appUsage: components["schemas"]["AppUsageSlotDto"][];
+    };
+    GenerateWeeklyReportsDto: {
+      /**
+       * @description 생성할 주차의 월요일. YYYY-MM-DD. 없으면 직전 완료 주차
+       * @example 2026-05-04
+       */
+      weekStart?: string;
+      /**
+       * @description 기존 리포트가 있을 때 삭제 후 재생성할지 여부
+       * @default false
+       */
+      forceRegenerate: boolean;
+      /**
+       * @description 생성 대상만 계산하고 DB 쓰기/알림 생성을 하지 않을지 여부
+       * @default false
+       */
+      dryRun: boolean;
+    };
+    WeeklyReportSelectedChildDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 김유스 */
+      name: string;
+      /** @example 만3세 */
+      ageLabel: string;
+    };
+    WeeklyReportHeadlineDto: {
+      /** @example 나는 잘하고 있는가? */
+      question: string;
+      /** @example 지금 충분히 잘하고 계십니다. */
+      title: string;
+      body: string | null;
+    };
+    WeeklyReportDayDto: {
+      /** @enum {string} */
+      weekday: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+      /** @enum {string} */
+      label: "월" | "화" | "수" | "목" | "금" | "토" | "일";
+      completedCount: number;
+      completed: boolean;
+    };
+    WeeklyReportMissionSummaryDto: {
+      days: components["schemas"]["WeeklyReportDayDto"][];
+      totalDurationSeconds: number;
+      /** @example 1시간 17분 */
+      totalDurationLabel: string;
+      childPositiveReactionRate: number;
+    };
+    WeeklyReportKeywordDto: {
+      /** @enum {number} */
+      rank: 1 | 2 | 3;
+      /** @example 공룡 */
+      keyword: string;
+    };
+    WeeklyReportKeywordEmptyStateDto: {
+      /** @example 아직 키워드가 충분하지 않아요 */
+      title: string;
+      description: string;
+    };
+    WeeklyReportBestMomentDto: {
+      /** Format: uuid */
+      id: string;
+      order: number;
+      /** @example 순수한 기쁨 */
+      label?: string;
+      title: string;
+      body: string;
+    };
+    WeeklyReportInnerStateDto: {
+      psychologicalEnergy: number;
+      /** @example 기분 전환을 위한 팁 */
+      tipTitle: string;
+      tipBody?: string;
+    };
+    WeeklyReportAiActionSuggestionDto: {
+      /** @example 미래 행동 제안 (AI 기반) */
+      title: string;
+      body: string;
+    };
+    WeeklyReportDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 2026-05-04 */
+      weekStart: string;
+      /** @example 2026-05-10 */
+      weekEnd: string;
+      /** Format: date-time */
+      generatedAt: string;
+      headline: components["schemas"]["WeeklyReportHeadlineDto"];
+      missionSummary: components["schemas"]["WeeklyReportMissionSummaryDto"];
+      topKeywords: components["schemas"]["WeeklyReportKeywordDto"][];
+      keywordEmptyState:
+        | components["schemas"]["WeeklyReportKeywordEmptyStateDto"]
+        | null;
+      bestMoments: components["schemas"]["WeeklyReportBestMomentDto"][];
+      innerState: components["schemas"]["WeeklyReportInnerStateDto"];
+      aiActionSuggestion: components["schemas"]["WeeklyReportAiActionSuggestionDto"];
+    };
+    WeeklyReportEmptyStateDto: {
+      /** @enum {string} */
+      reason:
+        | "no_mission_yet"
+        | "no_mission_for_week"
+        | "report_generation_pending";
+      /** @example 아직 주간 리포트가 없습니다 */
+      title: string;
+      description: string;
+      /** @example 미션 시작하기 */
+      ctaLabel: string;
+      /** @example /mission */
+      ctaHref: string;
+    };
+    WeeklyReportCurrentResponseDto: {
+      selectedChild: components["schemas"]["WeeklyReportSelectedChildDto"];
+      report: components["schemas"]["WeeklyReportDetailDto"] | null;
+      emptyState: components["schemas"]["WeeklyReportEmptyStateDto"] | null;
+    };
+    HomeChildDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 김유스 */
+      name: string;
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2023-04-20
+       */
+      birthDate: string;
+      /** @example 만3세 */
+      ageLabel: string;
+      /** @example 0 */
+      displayOrder: number;
+    };
+    HomeMoodDto: {
+      /**
+       * @example 4
+       * @enum {number}
+       */
+      level: 1 | 2 | 3 | 4 | 5;
+      /** @example 😊 */
+      emoji: string;
+    };
+    HomeWeekDayDto: {
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2026-05-13
+       */
+      date: string;
+      /**
+       * @example 수
+       * @enum {string}
+       */
+      weekdayLabel: "월" | "화" | "수" | "목" | "금" | "토" | "일";
+      /** @example 13 */
+      dayOfMonth: number;
+      isToday: boolean;
+      mood?: components["schemas"]["HomeMoodDto"];
+      missionCompleted?: boolean;
+    };
+    HomeWeekDto: {
+      /** @example 5월 */
+      monthLabel: string;
+      /** @example 2주차 */
+      weekOfMonthLabel: string;
+      days: components["schemas"]["HomeWeekDayDto"][];
+    };
+    HomeRecommendedMissionDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 아이 10분 가까워지기 */
+      subThemeLabel: string;
+      /** @example 아이와 눈을 마주치며 이야기를 해보아요 */
+      title: string;
+      /** @example 10 */
+      durationMinutes: number;
+      /** @enum {string} */
+      status: "not_started" | "in_progress" | "completed";
+    };
+    HomeGrowthStageDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 자아 형성기 */
+      name: string;
+      summary: string;
+    };
+    HomeReportSummaryDto: {
+      /** @example 84 */
+      monthTogetherDaysPercent: number;
+      /** @example 10 */
+      completedDays: number;
+      /** @example 12 */
+      elapsedDays: number;
+      /** @example 이번 달 함께한 날 */
+      label: string;
+    };
+    HomeNotificationSummaryItemDto: {
+      /** Format: uuid */
+      id: string;
+      title: string;
+      body: string;
+      /** @enum {string} */
+      actionType:
+        | "none"
+        | "open_home"
+        | "open_mission"
+        | "open_roadmap"
+        | "open_chat"
+        | "open_report"
+        | "url";
+      /** @enum {string|null} */
+      targetType:
+        | "mission"
+        | "mission_execution"
+        | "weekly_report"
+        | "child"
+        | "chat_session"
+        | "url"
+        | null;
+      /** Format: uuid */
+      targetId: string | null;
+      targetUrl: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      readAt: string | null;
+    };
+    HomeNotificationsDto: {
+      /** @example 2 */
+      unreadCount: number;
+      latest: components["schemas"]["HomeNotificationSummaryItemDto"][];
+    };
+    HomeDashboardDto: {
+      selectedChild: components["schemas"]["HomeChildDto"];
+      children: components["schemas"]["HomeChildDto"][];
+      week: components["schemas"]["HomeWeekDto"];
+      recommendedMission:
+        | components["schemas"]["HomeRecommendedMissionDto"]
+        | null;
+      growthStage: components["schemas"]["HomeGrowthStageDto"] | null;
+      reportSummary: components["schemas"]["HomeReportSummaryDto"] | null;
+      notifications: components["schemas"]["HomeNotificationsDto"];
+    };
+    NotificationListItemDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      type:
+        | "mission_reminder"
+        | "mission_feedback"
+        | "weekly_report_ready"
+        | "roadmap_update"
+        | "mental_check_reminder"
+        | "chat_follow_up"
+        | "system_notice";
+      title: string;
+      body: string;
+      /** @enum {string} */
+      actionType:
+        | "none"
+        | "open_home"
+        | "open_mission"
+        | "open_roadmap"
+        | "open_chat"
+        | "open_report"
+        | "url";
+      /** @enum {string|null} */
+      targetType:
+        | "mission"
+        | "mission_execution"
+        | "weekly_report"
+        | "child"
+        | "chat_session"
+        | "url"
+        | null;
+      /** Format: uuid */
+      targetId: string | null;
+      targetUrl: string | null;
+      /** @enum {string} */
+      priority: "normal" | "high";
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      readAt: string | null;
+    };
+    NotificationListResponseDto: {
+      items: components["schemas"]["NotificationListItemDto"][];
+    };
+    MarkAllNotificationsReadResponseDto: {
+      /** @example 3 */
+      updatedCount: number;
+    };
+    UpdateChildDto: {
+      /** @example 김유스 */
+      name?: string;
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2023-04-20
+       */
+      birthDate?: string;
+      /** @enum {string} */
+      gender?: "female" | "male";
+      notes?: string | null;
+      displayOrder?: number;
+    };
+    ChildResponseDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 김유스 */
+      name: string;
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2023-04-20
+       */
+      birthDate: string;
+      /** @enum {string} */
+      gender: "female" | "male";
+      notes: string | null;
+      avatarUrl: string | null;
+      /** @example 0 */
+      displayOrder: number;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AppController_getHello: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  AppController_getHello: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    OnboardingController_complete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CompleteOnboardingDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+        content?: never;
+      };
     };
-    UsersController_getMe: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  OnboardingController_complete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    AdminController_listUsers: {
-        parameters: {
-            query?: {
-                /** @description 온보딩 필터. default true (완료자만) */
-                onboarded?: "true" | "false" | "all";
-                /** @description 이름 LIKE 검색 */
-                q?: string;
-                /** @description 1-based */
-                page?: number;
-                /** @description 페이지당 항목 */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CompleteOnboardingDto"];
+      };
     };
-    HomeController_getHome: {
-        parameters: {
-            query?: {
-                childId?: string;
-                /** @description 홈 기준일. YYYY-MM-DD */
-                date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HomeDashboardDto"];
-                };
-            };
-        };
+        content?: never;
+      };
     };
-    NotificationsController_list: {
-        parameters: {
-            query?: {
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationListResponseDto"];
-                };
-            };
-        };
+  };
+  UsersController_getMe: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    NotificationsController_markAllRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MarkAllNotificationsReadResponseDto"];
-                };
-            };
-        };
+        content?: never;
+      };
     };
-    NotificationsController_markRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationListItemDto"];
-                };
-            };
-        };
+  };
+  AdminController_listUsers: {
+    parameters: {
+      query?: {
+        /** @description 온보딩 필터. default true (완료자만) */
+        onboarded?: "true" | "false" | "all";
+        /** @description 이름 LIKE 검색 */
+        q?: string;
+        /** @description 1-based */
+        page?: number;
+        /** @description 페이지당 항목 */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    ChildrenController_deleteChild: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+        content?: never;
+      };
     };
-    ChildrenController_updateChild: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateChildDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChildResponseDto"];
-                };
-            };
-        };
+  };
+  AdminController_generateWeeklyReports: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["GenerateWeeklyReportsDto"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WeeklyReportsController_getCurrent: {
+    parameters: {
+      query?: {
+        childId?: string;
+        /** @description 조회할 주차의 월요일. YYYY-MM-DD */
+        weekStart?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WeeklyReportCurrentResponseDto"];
+        };
+      };
+    };
+  };
+  WeeklyReportsController_getById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WeeklyReportDetailDto"];
+        };
+      };
+    };
+  };
+  HomeController_getHome: {
+    parameters: {
+      query?: {
+        childId?: string;
+        /** @description 홈 기준일. YYYY-MM-DD */
+        date?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HomeDashboardDto"];
+        };
+      };
+    };
+  };
+  NotificationsController_list: {
+    parameters: {
+      query?: {
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationListResponseDto"];
+        };
+      };
+    };
+  };
+  NotificationsController_markAllRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MarkAllNotificationsReadResponseDto"];
+        };
+      };
+    };
+  };
+  NotificationsController_markRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationListItemDto"];
+        };
+      };
+    };
+  };
+  ChildrenController_deleteChild: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ChildrenController_updateChild: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateChildDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ChildResponseDto"];
+        };
+      };
+    };
+  };
 }

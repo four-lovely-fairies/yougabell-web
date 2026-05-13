@@ -10,9 +10,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "App"
-        ]
+        "tags": ["App"]
       }
     },
     "/onboarding/complete": {
@@ -41,9 +39,7 @@
           }
         ],
         "summary": "온보딩 일괄 완료",
-        "tags": [
-          "onboarding"
-        ]
+        "tags": ["onboarding"]
       }
     },
     "/me": {
@@ -62,9 +58,7 @@
           }
         ],
         "summary": "본인 정보 조회",
-        "tags": [
-          "users"
-        ]
+        "tags": ["users"]
       }
     },
     "/admin/users": {
@@ -79,11 +73,7 @@
             "description": "온보딩 필터. default true (완료자만)",
             "schema": {
               "type": "string",
-              "enum": [
-                "true",
-                "false",
-                "all"
-              ]
+              "enum": ["true", "false", "all"]
             }
           },
           {
@@ -130,9 +120,113 @@
           }
         ],
         "summary": "사용자 목록 (운영자)",
-        "tags": [
-          "admin"
-        ]
+        "tags": ["admin"]
+      }
+    },
+    "/admin/weekly-reports/generate": {
+      "post": {
+        "description": "지정한 주차 또는 직전 완료 주차의 주간 리포트를 자녀별로 생성한다.",
+        "operationId": "AdminController_generateWeeklyReports",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateWeeklyReportsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "주간 리포트 수동 생성 (운영자)",
+        "tags": ["admin"]
+      }
+    },
+    "/weekly-reports/current": {
+      "get": {
+        "operationId": "WeeklyReportsController_getCurrent",
+        "parameters": [
+          {
+            "name": "childId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "weekStart",
+            "required": false,
+            "in": "query",
+            "description": "조회할 주차의 월요일. YYYY-MM-DD",
+            "schema": {
+              "example": "2026-05-04",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyReportCurrentResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["weekly-reports"]
+      }
+    },
+    "/weekly-reports/{id}": {
+      "get": {
+        "operationId": "WeeklyReportsController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyReportDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["weekly-reports"]
       }
     },
     "/home": {
@@ -176,9 +270,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "home"
-        ]
+        "tags": ["home"]
       }
     },
     "/notifications": {
@@ -212,9 +304,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "notifications"
-        ]
+        "tags": ["notifications"]
       }
     },
     "/notifications/read-all": {
@@ -238,9 +328,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "notifications"
-        ]
+        "tags": ["notifications"]
       }
     },
     "/notifications/{id}/read": {
@@ -274,9 +362,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "notifications"
-        ]
+        "tags": ["notifications"]
       }
     },
     "/children/{id}": {
@@ -320,9 +406,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "children"
-        ]
+        "tags": ["children"]
       },
       "delete": {
         "operationId": "ChildrenController_deleteChild",
@@ -347,9 +431,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "children"
-        ]
+        "tags": ["children"]
       }
     }
   },
@@ -386,26 +468,16 @@
           },
           "gender": {
             "type": "string",
-            "enum": [
-              "female",
-              "male"
-            ]
+            "enum": ["female", "male"]
           },
           "workStatus": {
             "type": "string",
-            "enum": [
-              "working",
-              "full_time_caregiver"
-            ],
+            "enum": ["working", "full_time_caregiver"],
             "nullable": true,
             "description": "직장 유무 (선택)"
           }
         },
-        "required": [
-          "name",
-          "birthDate",
-          "gender"
-        ]
+        "required": ["name", "birthDate", "gender"]
       },
       "ChildInputDto": {
         "type": "object",
@@ -422,10 +494,7 @@
           },
           "gender": {
             "type": "string",
-            "enum": [
-              "female",
-              "male"
-            ]
+            "enum": ["female", "male"]
           },
           "notes": {
             "type": "string",
@@ -433,42 +502,21 @@
             "maxLength": 1000
           }
         },
-        "required": [
-          "name",
-          "birthDate",
-          "gender"
-        ]
+        "required": ["name", "birthDate", "gender"]
       },
       "AppUsageSlotDto": {
         "type": "object",
         "properties": {
           "dayOfWeek": {
             "type": "string",
-            "enum": [
-              "mon",
-              "tue",
-              "wed",
-              "thu",
-              "fri",
-              "sat",
-              "sun"
-            ]
+            "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
           },
           "slot": {
             "type": "string",
-            "enum": [
-              "morning",
-              "afternoon",
-              "evening",
-              "night",
-              "all_day"
-            ]
+            "enum": ["morning", "afternoon", "evening", "night", "all_day"]
           }
         },
-        "required": [
-          "dayOfWeek",
-          "slot"
-        ]
+        "required": ["dayOfWeek", "slot"]
       },
       "CompleteOnboardingDto": {
         "type": "object",
@@ -491,11 +539,319 @@
             }
           }
         },
+        "required": ["parent", "children", "appUsage"]
+      },
+      "GenerateWeeklyReportsDto": {
+        "type": "object",
+        "properties": {
+          "weekStart": {
+            "type": "string",
+            "example": "2026-05-04",
+            "description": "생성할 주차의 월요일. YYYY-MM-DD. 없으면 직전 완료 주차"
+          },
+          "forceRegenerate": {
+            "type": "boolean",
+            "default": false,
+            "description": "기존 리포트가 있을 때 삭제 후 재생성할지 여부"
+          },
+          "dryRun": {
+            "type": "boolean",
+            "default": false,
+            "description": "생성 대상만 계산하고 DB 쓰기/알림 생성을 하지 않을지 여부"
+          }
+        }
+      },
+      "WeeklyReportSelectedChildDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "김유스"
+          },
+          "ageLabel": {
+            "type": "string",
+            "example": "만3세"
+          }
+        },
+        "required": ["id", "name", "ageLabel"]
+      },
+      "WeeklyReportHeadlineDto": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "example": "나는 잘하고 있는가?"
+          },
+          "title": {
+            "type": "string",
+            "example": "지금 충분히 잘하고 계십니다."
+          },
+          "body": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": ["question", "title", "body"]
+      },
+      "WeeklyReportDayDto": {
+        "type": "object",
+        "properties": {
+          "weekday": {
+            "type": "string",
+            "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+          },
+          "label": {
+            "type": "string",
+            "enum": ["월", "화", "수", "목", "금", "토", "일"]
+          },
+          "completedCount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        },
+        "required": ["weekday", "label", "completedCount", "completed"]
+      },
+      "WeeklyReportMissionSummaryDto": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeeklyReportDayDto"
+            }
+          },
+          "totalDurationSeconds": {
+            "type": "number",
+            "minimum": 0
+          },
+          "totalDurationLabel": {
+            "type": "string",
+            "example": "1시간 17분"
+          },
+          "childPositiveReactionRate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          }
+        },
         "required": [
-          "parent",
-          "children",
-          "appUsage"
+          "days",
+          "totalDurationSeconds",
+          "totalDurationLabel",
+          "childPositiveReactionRate"
         ]
+      },
+      "WeeklyReportKeywordDto": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "number",
+            "enum": [1, 2, 3]
+          },
+          "keyword": {
+            "type": "string",
+            "example": "공룡"
+          }
+        },
+        "required": ["rank", "keyword"]
+      },
+      "WeeklyReportKeywordEmptyStateDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "아직 키워드가 충분하지 않아요"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": ["title", "description"]
+      },
+      "WeeklyReportBestMomentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order": {
+            "type": "number",
+            "minimum": 1
+          },
+          "label": {
+            "type": "string",
+            "example": "순수한 기쁨"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "order", "title", "body"]
+      },
+      "WeeklyReportInnerStateDto": {
+        "type": "object",
+        "properties": {
+          "psychologicalEnergy": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "tipTitle": {
+            "type": "string",
+            "example": "기분 전환을 위한 팁"
+          },
+          "tipBody": {
+            "type": "string"
+          }
+        },
+        "required": ["psychologicalEnergy", "tipTitle"]
+      },
+      "WeeklyReportAiActionSuggestionDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "미래 행동 제안 (AI 기반)"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": ["title", "body"]
+      },
+      "WeeklyReportDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "weekStart": {
+            "type": "string",
+            "example": "2026-05-04"
+          },
+          "weekEnd": {
+            "type": "string",
+            "example": "2026-05-10"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "headline": {
+            "$ref": "#/components/schemas/WeeklyReportHeadlineDto"
+          },
+          "missionSummary": {
+            "$ref": "#/components/schemas/WeeklyReportMissionSummaryDto"
+          },
+          "topKeywords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeeklyReportKeywordDto"
+            }
+          },
+          "keywordEmptyState": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WeeklyReportKeywordEmptyStateDto"
+              }
+            ]
+          },
+          "bestMoments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeeklyReportBestMomentDto"
+            }
+          },
+          "innerState": {
+            "$ref": "#/components/schemas/WeeklyReportInnerStateDto"
+          },
+          "aiActionSuggestion": {
+            "$ref": "#/components/schemas/WeeklyReportAiActionSuggestionDto"
+          }
+        },
+        "required": [
+          "id",
+          "weekStart",
+          "weekEnd",
+          "generatedAt",
+          "headline",
+          "missionSummary",
+          "topKeywords",
+          "keywordEmptyState",
+          "bestMoments",
+          "innerState",
+          "aiActionSuggestion"
+        ]
+      },
+      "WeeklyReportEmptyStateDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "enum": [
+              "no_mission_yet",
+              "no_mission_for_week",
+              "report_generation_pending"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "example": "아직 주간 리포트가 없습니다"
+          },
+          "description": {
+            "type": "string"
+          },
+          "ctaLabel": {
+            "type": "string",
+            "example": "미션 시작하기"
+          },
+          "ctaHref": {
+            "type": "string",
+            "example": "/mission"
+          }
+        },
+        "required": ["reason", "title", "description", "ctaLabel", "ctaHref"]
+      },
+      "WeeklyReportCurrentResponseDto": {
+        "type": "object",
+        "properties": {
+          "selectedChild": {
+            "$ref": "#/components/schemas/WeeklyReportSelectedChildDto"
+          },
+          "report": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WeeklyReportDetailDto"
+              }
+            ]
+          },
+          "emptyState": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WeeklyReportEmptyStateDto"
+              }
+            ]
+          }
+        },
+        "required": ["selectedChild", "report", "emptyState"]
       },
       "HomeChildDto": {
         "type": "object",
@@ -522,26 +878,14 @@
             "example": 0
           }
         },
-        "required": [
-          "id",
-          "name",
-          "birthDate",
-          "ageLabel",
-          "displayOrder"
-        ]
+        "required": ["id", "name", "birthDate", "ageLabel", "displayOrder"]
       },
       "HomeMoodDto": {
         "type": "object",
         "properties": {
           "level": {
             "type": "number",
-            "enum": [
-              1,
-              2,
-              3,
-              4,
-              5
-            ],
+            "enum": [1, 2, 3, 4, 5],
             "example": 4
           },
           "emoji": {
@@ -549,10 +893,7 @@
             "example": "😊"
           }
         },
-        "required": [
-          "level",
-          "emoji"
-        ]
+        "required": ["level", "emoji"]
       },
       "HomeWeekDayDto": {
         "type": "object",
@@ -564,15 +905,7 @@
           },
           "weekdayLabel": {
             "type": "string",
-            "enum": [
-              "월",
-              "화",
-              "수",
-              "목",
-              "금",
-              "토",
-              "일"
-            ],
+            "enum": ["월", "화", "수", "목", "금", "토", "일"],
             "example": "수"
           },
           "dayOfMonth": {
@@ -589,12 +922,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "date",
-          "weekdayLabel",
-          "dayOfMonth",
-          "isToday"
-        ]
+        "required": ["date", "weekdayLabel", "dayOfMonth", "isToday"]
       },
       "HomeWeekDto": {
         "type": "object",
@@ -614,11 +942,7 @@
             }
           }
         },
-        "required": [
-          "monthLabel",
-          "weekOfMonthLabel",
-          "days"
-        ]
+        "required": ["monthLabel", "weekOfMonthLabel", "days"]
       },
       "HomeRecommendedMissionDto": {
         "type": "object",
@@ -641,11 +965,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "not_started",
-              "in_progress",
-              "completed"
-            ]
+            "enum": ["not_started", "in_progress", "completed"]
           }
         },
         "required": [
@@ -671,11 +991,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "name",
-          "summary"
-        ]
+        "required": ["id", "name", "summary"]
       },
       "HomeReportSummaryDto": {
         "type": "object",
@@ -791,10 +1107,7 @@
             }
           }
         },
-        "required": [
-          "unreadCount",
-          "latest"
-        ]
+        "required": ["unreadCount", "latest"]
       },
       "HomeDashboardDto": {
         "type": "object",
@@ -912,10 +1225,7 @@
           },
           "priority": {
             "type": "string",
-            "enum": [
-              "normal",
-              "high"
-            ]
+            "enum": ["normal", "high"]
           },
           "createdAt": {
             "type": "string",
@@ -951,9 +1261,7 @@
             }
           }
         },
-        "required": [
-          "items"
-        ]
+        "required": ["items"]
       },
       "MarkAllNotificationsReadResponseDto": {
         "type": "object",
@@ -964,9 +1272,7 @@
             "minimum": 0
           }
         },
-        "required": [
-          "updatedCount"
-        ]
+        "required": ["updatedCount"]
       },
       "UpdateChildDto": {
         "type": "object",
@@ -984,10 +1290,7 @@
           },
           "gender": {
             "type": "string",
-            "enum": [
-              "female",
-              "male"
-            ]
+            "enum": ["female", "male"]
           },
           "notes": {
             "type": "string",
@@ -1018,10 +1321,7 @@
           },
           "gender": {
             "type": "string",
-            "enum": [
-              "female",
-              "male"
-            ]
+            "enum": ["female", "male"]
           },
           "notes": {
             "type": "string",
