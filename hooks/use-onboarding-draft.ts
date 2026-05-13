@@ -3,7 +3,7 @@
 import { useCallback, useSyncExternalStore } from "react";
 import type { OnboardingDraft } from "@/lib/types";
 
-const STORAGE_KEY = "onboarding:draft:v2";
+const STORAGE_KEY = "onboarding:draft:v3";
 
 type Patch = Partial<Omit<OnboardingDraft, "schemaVersion" | "updatedAt">>;
 
@@ -13,14 +13,13 @@ function readDraft(): OnboardingDraft | null {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as OnboardingDraft;
-    if (parsed.schemaVersion !== 2) return null; // 구버전 폐기
+    if (parsed.schemaVersion !== 3) return null;
     return parsed;
   } catch {
     return null;
   }
 }
 
-// snapshot 동일성 보장 — 같은 raw string이면 동일 객체 반환 (useSyncExternalStore 요구사항)
 let cachedRaw: string | null = null;
 let cachedDraft: OnboardingDraft | null = null;
 
@@ -61,11 +60,11 @@ export function useOnboardingDraft() {
   const patch = useCallback((next: Patch) => {
     const prev = readDraft();
     const merged: OnboardingDraft = {
-      schemaVersion: 2,
+      schemaVersion: 3,
       lastStep: next.lastStep ?? prev?.lastStep ?? "intro",
       parent: next.parent ?? prev?.parent,
       children: next.children ?? prev?.children,
-      appUsage: next.appUsage ?? prev?.appUsage,
+      notification: next.notification ?? prev?.notification,
       updatedAt: new Date().toISOString(),
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
