@@ -2,19 +2,33 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AppUsageMatrix } from "@/components/onboarding/app-usage-matrix";
+import { NotificationSlotPicker } from "@/components/onboarding/notification-slot-picker";
+import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
+import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
-import type { AppUsageSlot } from "@/lib/types";
+import type { NotificationPreference } from "@/lib/types";
+
+function isValid(
+  pref: NotificationPreference | null,
+): pref is NotificationPreference {
+  if (!pref) return false;
+  if (pref.slot === "custom") return Boolean(pref.time);
+  return true;
+}
 
 export default function AppUsagePage() {
   const router = useRouter();
   const { draft, patch } = useOnboardingDraft();
-  const [slots, setSlots] = useState<AppUsageSlot[]>(draft?.appUsage ?? []);
+  const [pref, setPref] = useState<NotificationPreference | null>(
+    draft?.notification ?? null,
+  );
 
   const back = () => router.push("/onboarding/children");
+  const close = () => router.push("/");
   const submit = () => {
-    patch({ appUsage: slots, lastStep: "app-usage" });
+    if (!isValid(pref)) return;
+    patch({ notification: pref, lastStep: "app-usage" });
     track({ type: "onboarding_step_complete", step: "app_usage" });
     router.push("/onboarding/done");
   };
@@ -25,36 +39,45 @@ export default function AppUsagePage() {
         e.preventDefault();
         submit();
       }}
-      className="flex flex-col flex-1 gap-6"
+      className="flex flex-col flex-1"
     >
-      <header>
-        <h1 className="text-2xl font-semibold">앱 사용 시간대</h1>
-        <p className="text-sm text-zinc-600 mt-1">
-          요일별로 앱 알림을 받기 좋은 시간대를 선택해주세요.
-        </p>
-        <p className="text-xs text-amber-700 mt-2">
-          ⚠ 디자인 재검토 중 — 매트릭스 UI는 placeholder입니다.
+      <OnboardingHeader variant="close" onAction={close} />
+
+      <header className="mt-2 mb-6 flex flex-col gap-2">
+        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+          알림을 받고싶으신
+          <br />
+          시간대를 선택해 주세요
+        </h1>
+        <p className="text-sm text-gray-500 leading-[1.4]">
+          주간 리포트, 하루 10분 놀이 등
+          <br />
+          육아에 필요한 정보 알림만 보내드려요.
         </p>
       </header>
 
-      <AppUsageMatrix value={slots} onChange={setSlots} />
+      <NotificationSlotPicker value={pref} onChange={setPref} />
 
-      <div className="flex-1" />
+      <div className="flex-1 min-h-6" />
 
-      <div className="flex gap-3">
-        <button
+      <div className="flex gap-3 pt-2">
+        <Button
           type="button"
+          size="full"
+          variant="outline"
+          className="flex-1"
           onClick={back}
-          className="flex-1 h-14 rounded-2xl border border-zinc-300 text-zinc-700 font-medium"
         >
           이전
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
-          className="flex-1 h-14 rounded-2xl bg-zinc-900 text-white font-medium"
+          size="full"
+          className="flex-[2]"
+          disabled={!isValid(pref)}
         >
-          완료
-        </button>
+          알림 설정완료
+        </Button>
       </div>
     </form>
   );

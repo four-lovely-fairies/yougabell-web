@@ -2,8 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DateTriple } from "@/components/onboarding/date-triple";
+import { ClearCircleIcon } from "@/components/icons";
+import { DateInput } from "@/components/onboarding/date-input";
 import { SegmentedToggle } from "@/components/onboarding/segmented-toggle";
+import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
+import { Input } from "@/components/ui/input";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import type { Gender, ParentDraft, WorkStatus } from "@/lib/types";
@@ -13,8 +18,7 @@ export default function ParentPage() {
   const { draft, patch } = useOnboardingDraft();
   const [parent, setParent] = useState<ParentDraft>(draft?.parent ?? {});
 
-  const canSubmit =
-    parent.name && parent.birthDate && parent.gender;
+  const canSubmit = Boolean(parent.name && parent.birthDate && parent.gender);
 
   const update = (next: Partial<ParentDraft>) =>
     setParent((prev) => ({ ...prev, ...next }));
@@ -35,74 +39,99 @@ export default function ParentPage() {
         e.preventDefault();
         submit();
       }}
-      className="flex flex-col flex-1 gap-6"
+      className="flex flex-col flex-1"
     >
-      <header>
-        <h1 className="text-2xl font-semibold">본인 정보</h1>
-        <p className="text-sm text-zinc-600 mt-1">
-          회원님에 대해 알려주세요.
-        </p>
+      <OnboardingHeader variant="back" />
+
+      <header className="mt-2 mb-7">
+        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+          프로필 정보를
+          <br />
+          입력해 주세요
+        </h1>
       </header>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">이름 *</label>
-        <input
-          type="text"
-          maxLength={30}
-          required
-          placeholder="이름을 입력하세요"
-          value={parent.name ?? ""}
-          onChange={(e) => update({ name: e.target.value })}
-          className="w-full h-12 px-4 rounded-xl border border-zinc-300 bg-white"
-        />
+      <div className="flex flex-col gap-5">
+        <Field label="이름" required>
+          <Input
+            type="text"
+            maxLength={30}
+            required
+            placeholder="이름을 입력하세요"
+            value={parent.name ?? ""}
+            onChange={(e) => update({ name: e.target.value })}
+            trailing={
+              parent.name ? (
+                <IconButton
+                  label="이름 지우기"
+                  onClick={() => update({ name: "" })}
+                  className="w-6 h-6 m-0 text-gray-300"
+                >
+                  <ClearCircleIcon size={20} />
+                </IconButton>
+              ) : null
+            }
+          />
+        </Field>
+
+        <Field label="생년월일" required>
+          <DateInput
+            value={parent.birthDate}
+            onChange={(iso) => update({ birthDate: iso })}
+          />
+        </Field>
+
+        <Field label="성별" required>
+          <SegmentedToggle<Gender>
+            ariaLabel="본인 성별"
+            options={[
+              { value: "female", label: "여자" },
+              { value: "male", label: "남자" },
+            ]}
+            value={parent.gender ?? null}
+            onChange={(v) => update({ gender: v ?? undefined })}
+          />
+        </Field>
+
+        <Field label="직장 유무">
+          <SegmentedToggle<WorkStatus>
+            ariaLabel="직장 유무"
+            allowDeselect
+            options={[
+              { value: "working", label: "일을 하고 있어요" },
+              { value: "full_time_caregiver", label: "전업 가정인이에요" },
+            ]}
+            value={parent.workStatus ?? null}
+            onChange={(v) => update({ workStatus: v })}
+          />
+        </Field>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">생년월일 *</label>
-        <DateTriple
-          value={parent.birthDate}
-          onChange={(iso) => update({ birthDate: iso })}
-        />
-      </div>
+      <div className="flex-1 min-h-8" />
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">성별 *</label>
-        <SegmentedToggle<Gender>
-          ariaLabel="본인 성별"
-          options={[
-            { value: "female", label: "여성" },
-            { value: "male", label: "남성" },
-          ]}
-          value={parent.gender ?? null}
-          onChange={(v) => update({ gender: v ?? undefined })}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">
-          직장 유무 <span className="text-zinc-400 font-normal">(선택)</span>
-        </label>
-        <SegmentedToggle<WorkStatus>
-          ariaLabel="직장 유무"
-          allowDeselect
-          options={[
-            { value: "working", label: "일을 하고 있어요" },
-            { value: "full_time_caregiver", label: "전업 가정인이에요" },
-          ]}
-          value={parent.workStatus ?? null}
-          onChange={(v) => update({ workStatus: v })}
-        />
-      </div>
-
-      <div className="flex-1" />
-
-      <button
-        type="submit"
-        disabled={!canSubmit}
-        className="h-14 rounded-2xl bg-zinc-900 text-white font-medium disabled:bg-zinc-300"
-      >
+      <Button type="submit" size="full" disabled={!canSubmit}>
         다음
-      </button>
+      </Button>
     </form>
+  );
+}
+
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-sm font-medium text-gray-800">
+        {label}
+        {required ? <span className="text-error-600 ml-0.5">*</span> : null}
+      </span>
+      {children}
+    </div>
   );
 }

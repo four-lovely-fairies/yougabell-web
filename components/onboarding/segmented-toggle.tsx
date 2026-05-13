@@ -20,11 +20,7 @@ export function SegmentedToggle<T extends string>({
   ariaLabel,
 }: SegmentedToggleProps<T>) {
   return (
-    <div
-      role="radiogroup"
-      aria-label={ariaLabel}
-      className="flex gap-3 w-full"
-    >
+    <div role="radiogroup" aria-label={ariaLabel} className="flex gap-3 w-full">
       {options.map((opt) => {
         const selected = value === opt.value;
         return (
@@ -37,10 +33,10 @@ export function SegmentedToggle<T extends string>({
               onChange(allowDeselect && selected ? null : opt.value)
             }
             className={cn(
-              "flex-1 h-12 rounded-xl border text-sm font-medium transition-colors",
+              "flex-1 h-12 rounded-m border text-sm font-medium transition-colors",
               selected
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400",
+                ? "border-primary-300 bg-primary-50 text-gray-800"
+                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300",
             )}
           >
             {opt.label}

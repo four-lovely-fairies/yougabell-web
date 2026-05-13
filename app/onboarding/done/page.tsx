@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { ApiError, api } from "@/lib/api";
@@ -16,11 +17,14 @@ function buildPayload(
   if (!draft) return null;
   const p = draft.parent;
   const children = draft.children ?? [];
+  const notification = draft.notification;
   if (!p?.name || !p.birthDate || !p.gender) return null;
   if (children.length < 1) return null;
   for (const c of children) {
     if (!c.name || !c.birthDate || !c.gender) return null;
   }
+  if (!notification) return null;
+  if (notification.slot === "custom" && !notification.time) return null;
   return {
     parent: {
       name: p.name,
@@ -34,7 +38,7 @@ function buildPayload(
       gender: c.gender!,
       notes: c.notes,
     })),
-    appUsage: draft.appUsage ?? [],
+    notification,
   };
 }
 
@@ -81,14 +85,34 @@ export default function DonePage() {
   if (draft && !payload) {
     return (
       <div className="flex flex-col items-center justify-center flex-1 text-center gap-4">
-        <div className="text-4xl">⚠️</div>
-        <p className="text-zinc-700">
+        <p className="text-gray-700">
           입력값이 부족합니다. 이전 단계로 돌아가세요.
         </p>
+        <Button onClick={() => router.push("/onboarding/parent")}>
+          이전 단계로
+        </Button>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 text-center gap-4">
+        <p className="text-gray-700">{error}</p>
+        <Button
+          onClick={() => {
+            submittedRef.current = false;
+            setStatus("submitting");
+            setError(null);
+            setAttempt((a) => a + 1);
+          }}
+        >
+          다시 시도
+        </Button>
         <button
           type="button"
           onClick={() => router.push("/onboarding/parent")}
-          className="h-12 px-6 rounded-xl border border-zinc-300"
+          className="text-sm text-gray-500"
         >
           이전 단계로
         </button>
@@ -97,50 +121,41 @@ export default function DonePage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 text-center gap-4">
-      {status === "submitting" && (
-        <>
-          <div className="text-4xl">⏳</div>
-          <p className="text-zinc-700">저장 중...</p>
-        </>
-      )}
-      {status === "success" && (
-        <>
-          <div className="text-4xl">🎉</div>
-          <p className="text-zinc-700">완료! 홈으로 이동합니다.</p>
-        </>
-      )}
-      {status === "already" && (
-        <>
-          <div className="text-4xl">✅</div>
-          <p className="text-zinc-700">이미 완료된 온보딩입니다.</p>
-        </>
-      )}
-      {status === "error" && (
-        <>
-          <div className="text-4xl">⚠️</div>
-          <p className="text-zinc-700">{error}</p>
-          <button
-            type="button"
-            onClick={() => {
-              submittedRef.current = false;
-              setStatus("submitting");
-              setError(null);
-              setAttempt((a) => a + 1);
-            }}
-            className="h-12 px-6 rounded-xl border border-zinc-300"
-          >
-            다시 시도
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push("/onboarding/parent")}
-            className="text-sm text-zinc-500"
-          >
-            이전 단계로
-          </button>
-        </>
-      )}
+    <div className="flex flex-col items-center justify-center flex-1 text-center gap-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+          {status === "already" ? (
+            "이미 완료된 온보딩입니다"
+          ) : status === "success" ? (
+            "준비가 끝났어요"
+          ) : (
+            <>
+              맞춤 미션과 마일스톤을
+              <br />
+              생성하고 있어요
+            </>
+          )}
+        </h1>
+        <p className="text-sm text-gray-500">잠시만 기다려주세요!</p>
+      </div>
+      <LoadingDots />
+    </div>
+  );
+}
+
+function LoadingDots() {
+  return (
+    <div className="flex items-center gap-2" aria-label="로딩 중" role="status">
+      {[0, 1, 2, 3].map((i) => (
+        <span
+          key={i}
+          className="size-2 rounded-full bg-primary-500 motion-safe:animate-pulse"
+          style={{
+            opacity: 0.3 + i * 0.2,
+            animationDelay: `${i * 160}ms`,
+          }}
+        />
+      ))}
     </div>
   );
 }
