@@ -1,23 +1,20 @@
-import { NextResponse } from "next/server";
+import { updateSession } from "./lib/supabase/middleware";
+import type { NextRequest } from "next/server";
 
 /**
- * 온보딩 게이트 — placeholder.
+ * Supabase 세션을 매 요청마다 새로고침해 Server Component·라우트 핸들러가
+ * 최신 access_token으로 동작하도록 한다.
  *
- * TODO(auth): Supabase 세션 cookie + `GET /me` 결과(onboardedAt)로 분기.
- * 의도된 동작:
- *   - 인증 사용자 중 me.onboardedAt == null → /onboarding/* 외 차단 → /onboarding/intro
- *   - 인증 사용자 중 me.onboardedAt != null → /onboarding/* 진입 차단 → /
- *   - 비인증 → /login (별도 task)
- *
- * 현재는 라우팅만 통과시키고 게이트는 클라이언트 측 흐름 가정.
+ * 온보딩 게이트(미완료자 강제 /onboarding, 완료자 /onboarding 차단)는
+ * Server Component에서 `fetchServerMe()` 결과로 redirect — middleware는 라우팅 분기 X.
  */
-export function proxy() {
-  return NextResponse.next();
+export async function proxy(request: NextRequest) {
+  const { response } = await updateSession(request);
+  return response;
 }
 
 export const config = {
   matcher: [
-    // /_next, /api, 정적 자산은 proxy 제외
-    "/((?!_next|favicon.ico|.*\\.).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
