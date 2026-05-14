@@ -1,6 +1,7 @@
 import createClient from "openapi-fetch";
 import type { paths } from "./generated/api-types";
 import { getDemoHomeDashboard, type HomeDashboard } from "./home-data";
+import { createSupabaseBrowserClient } from "./supabase/client";
 import type { CompleteOnboardingPayload, MeResponse } from "./types";
 import type {
   WeeklyReportCurrent,
@@ -13,13 +14,17 @@ const BASE_URL =
 const openApiClient = createClient<paths>({ baseUrl: BASE_URL });
 
 /**
- * TODO(auth): Supabase 세션에서 토큰을 추출해 Authorization 헤더로 전달.
- * 현재는 api의 JwtAuthGuard placeholder에 맞춰 x-user-id 헤더로 임시 인증.
+ * Supabase 브라우저 세션에서 access_token을 꺼내 Authorization 헤더 구성.
+ * 서버 컴포넌트/SSR에서는 호출하지 말 것 — 별도 server helper가 필요.
  */
-function authHeaders(): Record<string, string> {
+async function authHeaders(): Promise<Record<string, string>> {
   if (typeof window === "undefined") return {};
-  const tempUserId = window.localStorage.getItem("dev:userId");
-  return tempUserId ? { "x-user-id": tempUserId } : {};
+  const supabase = createSupabaseBrowserClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const token = session?.access_token;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export type HomeLoadState = {
@@ -46,11 +51,12 @@ async function request<T>(
   init?: RequestInit & { json?: unknown },
 ): Promise<T> {
   const { json, headers, ...rest } = init ?? {};
+  const auth = await authHeaders();
   const res = await fetch(`${BASE_URL}${path}`, {
     ...rest,
     headers: {
       "Content-Type": "application/json",
-      ...authHeaders(),
+      ...auth,
       ...(headers as Record<string, string> | undefined),
     },
     body: json !== undefined ? JSON.stringify(json) : undefined,
@@ -84,9 +90,9 @@ export const api = {
 export const loadHomeDashboard = async (
   childId?: string | null,
 ): Promise<HomeLoadState> => {
-  const headers = authHeaders();
+  const headers = await authHeaders();
 
-  if (!headers["x-user-id"]) {
+  if (!headers.Authorization) {
     return {
       data: getDemoHomeDashboard(),
       source: "demo",
@@ -137,9 +143,9 @@ export const loadWeeklyReport = async ({
   childId?: string | null;
   reportId?: string | null;
 } = {}): Promise<WeeklyReportLoadState> => {
-  const headers = authHeaders();
+  const headers = await authHeaders();
 
-  if (!headers["x-user-id"]) {
+  if (!headers.Authorization) {
     return {
       data: null,
       error: {
