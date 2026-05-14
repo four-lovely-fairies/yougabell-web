@@ -2,9 +2,9 @@
 
 import {
   Baby,
+  BarChart3,
   Bell,
   Bot,
-  Check,
   ChevronDown,
   HeartPulse,
   Home,
@@ -12,7 +12,6 @@ import {
   MessageCircle,
   MoreHorizontal,
   Play,
-  Trophy,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -21,6 +20,7 @@ import {
   setStoredSelectedChildId,
   type HomeLoadState,
 } from "@/lib/api";
+import type { ReactNode } from "react";
 import type {
   HomeChild,
   HomeDashboard as HomeDashboardData,
@@ -28,12 +28,6 @@ import type {
 } from "@/lib/home-data";
 
 type Modal = "children" | "notifications" | null;
-
-const reportCards = [
-  { label: "5월 3주차", percent: 84, active: true },
-  { label: "5월 2주차", percent: 72, active: false },
-  { label: "5월 1주차", percent: 68, active: false },
-];
 
 export const HomeDashboard = () => {
   const [state, setState] = useState<HomeLoadState | null>(null);
@@ -307,48 +301,98 @@ const ReportSummaryCard = ({
 }: {
   summary: HomeDashboardData["reportSummary"];
 }) => {
-  const currentPercent = summary?.monthTogetherDaysPercent ?? 0;
-  const cards = reportCards.map((card, index) =>
-    index === 0 ? { ...card, percent: currentPercent } : card,
-  );
-
   return (
     <section className="h-[129px] w-[343px] rounded-[48px] border border-[rgba(208,194,211,0.1)] bg-[#f0e5ef] px-[15px] pb-[17px] pt-[15px]">
       <div className="flex h-6 items-center gap-3">
-        <Trophy className="size-[18px] text-[#3a0057]" aria-hidden />
+        <BarChart3 className="size-[18px] text-[#3a0057]" aria-hidden />
         <div className="flex flex-1 items-center justify-between">
-          <h2 className="text-base font-bold leading-6 text-[#1f1a21]">
-            주간 미션 수행률
+          <h2 className="min-w-0 truncate text-base font-bold leading-6 text-[#1f1a21]">
+            {summary?.title ?? "지난주 아이와 함께한 놀이 시간"}
           </h2>
           <button
             type="button"
+            onClick={() => {
+              window.location.href = summary?.reportId
+                ? `/weekly-report?reportId=${summary.reportId}`
+                : "/weekly-report";
+            }}
             className="text-[10px] font-bold leading-[15px] uppercase text-[#4d4351]"
           >
             더 알아보기
           </button>
         </div>
       </div>
-      <div className="mt-[7px] flex h-[77px] gap-3 overflow-hidden">
-        {cards.map((card) => (
-          <div
-            key={card.label}
-            className={`flex h-[73px] min-w-[100px] flex-col gap-1 rounded-[32px] border border-[rgba(208,194,211,0.1)] bg-white/60 p-[13px] ${
-              card.active ? "" : "opacity-70"
-            }`}
-          >
-            <span className="text-[10px] font-bold leading-[15px] text-[#4d4351]">
-              {card.label}
-            </span>
-            <span className="flex items-center gap-1 text-lg font-black leading-7 text-[#3a0057]">
-              {card.percent}%
-              {card.active ? (
-                <Check className="h-[7px] w-3 text-[#3a0057]" aria-hidden />
-              ) : null}
-            </span>
-          </div>
-        ))}
-      </div>
+      {summary ? (
+        <div className="mt-[7px] grid h-[68px] grid-cols-2 gap-4">
+          <WeeklyReportMetricCard
+            label="누적 놀이 수행시간"
+            value={<DurationValue label={summary.totalDurationLabel} />}
+            tone="purple"
+          />
+          <WeeklyReportMetricCard
+            label="아이 반응 긍정률"
+            value={`${summary.childPositiveReactionRate}%`}
+            tone="gold"
+          />
+        </div>
+      ) : (
+        <div className="mt-[7px] flex h-[68px] items-center rounded-[32px] bg-[#fff7fc] px-4">
+          <p className="text-xs font-semibold leading-4 text-[#715380]">
+            지난주 리포트가 아직 없어요. 이번 주 미션을 완료하면 다음 리포트에서
+            놀이 시간과 아이 반응을 확인할 수 있어요.
+          </p>
+        </div>
+      )}
     </section>
+  );
+};
+
+const WeeklyReportMetricCard = ({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: ReactNode;
+  tone: "purple" | "gold";
+}) => (
+  <div className="flex h-[68px] min-w-0 flex-col gap-1 rounded-[32px] bg-[#fff7fc] px-4 pb-4 pt-[11px]">
+    <span className="truncate text-xs font-semibold leading-4 text-[#715380]">
+      {label}
+    </span>
+    <span
+      className={`flex min-w-0 items-baseline gap-1 text-2xl font-bold leading-8 ${
+        tone === "purple" ? "text-[#5a0084]" : "text-[#c5995f]"
+      }`}
+    >
+      {value}
+    </span>
+  </div>
+);
+
+const DurationValue = ({ label }: { label: string }) => {
+  const parts = label.match(/^(?:(\d+)시간)?(?:\s*)?(?:(\d+)분)?$/);
+
+  if (!parts) {
+    return <span className="text-[22px] leading-8">{label}</span>;
+  }
+
+  const [, hours, minutes] = parts;
+  return (
+    <>
+      {hours ? (
+        <>
+          <span>{hours}</span>
+          <span className="text-sm leading-5">시간</span>
+        </>
+      ) : null}
+      {minutes ? (
+        <>
+          <span>{minutes}</span>
+          <span className="text-sm leading-5">분</span>
+        </>
+      ) : null}
+    </>
   );
 };
 

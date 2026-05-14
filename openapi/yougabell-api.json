@@ -10,7 +10,9 @@
             "description": ""
           }
         },
-        "tags": ["App"]
+        "tags": [
+          "App"
+        ]
       }
     },
     "/onboarding/complete": {
@@ -39,12 +41,14 @@
           }
         ],
         "summary": "온보딩 일괄 완료",
-        "tags": ["onboarding"]
+        "tags": [
+          "onboarding"
+        ]
       }
     },
     "/me": {
       "get": {
-        "description": "User 본인 + children + appUsageSlots 포함. onboardedAt이 null이면 미완료.",
+        "description": "User 본인 + children + 알림 시간대(notificationSlot/notificationTime) 포함. onboardedAt이 null이면 미완료.",
         "operationId": "UsersController_getMe",
         "parameters": [],
         "responses": {
@@ -58,7 +62,9 @@
           }
         ],
         "summary": "본인 정보 조회",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/admin/users": {
@@ -73,7 +79,11 @@
             "description": "온보딩 필터. default true (완료자만)",
             "schema": {
               "type": "string",
-              "enum": ["true", "false", "all"]
+              "enum": [
+                "true",
+                "false",
+                "all"
+              ]
             }
           },
           {
@@ -120,7 +130,9 @@
           }
         ],
         "summary": "사용자 목록 (운영자)",
-        "tags": ["admin"]
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/admin/weekly-reports/generate": {
@@ -149,7 +161,9 @@
           }
         ],
         "summary": "주간 리포트 수동 생성 (운영자)",
-        "tags": ["admin"]
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/weekly-reports/current": {
@@ -193,7 +207,9 @@
             "bearer": []
           }
         ],
-        "tags": ["weekly-reports"]
+        "tags": [
+          "weekly-reports"
+        ]
       }
     },
     "/weekly-reports/{id}": {
@@ -226,7 +242,9 @@
             "bearer": []
           }
         ],
-        "tags": ["weekly-reports"]
+        "tags": [
+          "weekly-reports"
+        ]
       }
     },
     "/home": {
@@ -270,7 +288,9 @@
             "bearer": []
           }
         ],
-        "tags": ["home"]
+        "tags": [
+          "home"
+        ]
       }
     },
     "/notifications": {
@@ -304,7 +324,9 @@
             "bearer": []
           }
         ],
-        "tags": ["notifications"]
+        "tags": [
+          "notifications"
+        ]
       }
     },
     "/notifications/read-all": {
@@ -328,7 +350,9 @@
             "bearer": []
           }
         ],
-        "tags": ["notifications"]
+        "tags": [
+          "notifications"
+        ]
       }
     },
     "/notifications/{id}/read": {
@@ -362,7 +386,9 @@
             "bearer": []
           }
         ],
-        "tags": ["notifications"]
+        "tags": [
+          "notifications"
+        ]
       }
     },
     "/children/{id}": {
@@ -406,7 +432,9 @@
             "bearer": []
           }
         ],
-        "tags": ["children"]
+        "tags": [
+          "children"
+        ]
       },
       "delete": {
         "operationId": "ChildrenController_deleteChild",
@@ -431,7 +459,447 @@
             "bearer": []
           }
         ],
-        "tags": ["children"]
+        "tags": [
+          "children"
+        ]
+      }
+    },
+    "/admin/categories": {
+      "get": {
+        "operationId": "MilestoneCategoriesController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MilestoneCategoryResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/categories"
+        ]
+      }
+    },
+    "/admin/milestones": {
+      "get": {
+        "operationId": "MilestonesController_list",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ageMonths",
+            "required": false,
+            "in": "query",
+            "description": "월령 N이 [ageMonthsFrom, ageMonthsTo] 범위 안인 마일스톤만",
+            "schema": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListMilestonesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/milestones"
+        ]
+      },
+      "post": {
+        "operationId": "MilestonesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMilestoneDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MilestoneResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/milestones"
+        ]
+      }
+    },
+    "/admin/milestones/{id}": {
+      "patch": {
+        "operationId": "MilestonesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMilestoneDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MilestoneResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/milestones"
+        ]
+      },
+      "delete": {
+        "operationId": "MilestonesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin/milestones"
+        ]
+      }
+    },
+    "/admin/growth-stages": {
+      "get": {
+        "operationId": "GrowthStagesController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GrowthStageResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/growth-stages"
+        ]
+      },
+      "post": {
+        "operationId": "GrowthStagesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGrowthStageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrowthStageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/growth-stages"
+        ]
+      }
+    },
+    "/admin/growth-stages/{id}": {
+      "patch": {
+        "operationId": "GrowthStagesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGrowthStageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrowthStageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/growth-stages"
+        ]
+      },
+      "delete": {
+        "operationId": "GrowthStagesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin/growth-stages"
+        ]
+      }
+    },
+    "/admin/missions": {
+      "get": {
+        "operationId": "MissionsController_list",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ageMonths",
+            "required": false,
+            "in": "query",
+            "description": "월령 N이 [recommendedAgeMonthsMin, recommendedAgeMonthsMax] 안인 미션만",
+            "schema": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListMissionsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/missions"
+        ]
+      },
+      "post": {
+        "operationId": "MissionsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMissionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/missions"
+        ]
+      }
+    },
+    "/admin/missions/{id}": {
+      "patch": {
+        "operationId": "MissionsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMissionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin/missions"
+        ]
+      },
+      "delete": {
+        "operationId": "MissionsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin/missions"
+        ]
       }
     }
   },
@@ -468,16 +936,26 @@
           },
           "gender": {
             "type": "string",
-            "enum": ["female", "male"]
+            "enum": [
+              "female",
+              "male"
+            ]
           },
           "workStatus": {
             "type": "string",
-            "enum": ["working", "full_time_caregiver"],
+            "enum": [
+              "working",
+              "full_time_caregiver"
+            ],
             "nullable": true,
             "description": "직장 유무 (선택)"
           }
         },
-        "required": ["name", "birthDate", "gender"]
+        "required": [
+          "name",
+          "birthDate",
+          "gender"
+        ]
       },
       "ChildInputDto": {
         "type": "object",
@@ -494,7 +972,10 @@
           },
           "gender": {
             "type": "string",
-            "enum": ["female", "male"]
+            "enum": [
+              "female",
+              "male"
+            ]
           },
           "notes": {
             "type": "string",
@@ -502,21 +983,35 @@
             "maxLength": 1000
           }
         },
-        "required": ["name", "birthDate", "gender"]
+        "required": [
+          "name",
+          "birthDate",
+          "gender"
+        ]
       },
-      "AppUsageSlotDto": {
+      "NotificationPreferenceDto": {
         "type": "object",
         "properties": {
-          "dayOfWeek": {
-            "type": "string",
-            "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-          },
           "slot": {
             "type": "string",
-            "enum": ["morning", "afternoon", "evening", "night", "all_day"]
+            "enum": [
+              "morning",
+              "afternoon",
+              "evening",
+              "night",
+              "custom"
+            ],
+            "description": "preset(오전/오후/저녁/밤) 또는 custom(직접 입력). custom일 때 time 필수."
+          },
+          "time": {
+            "type": "string",
+            "example": "08:00",
+            "description": "HH:MM (24h). custom일 때 필수, preset일 때 선택 — 미지정 시 시간대 디폴트."
           }
         },
-        "required": ["dayOfWeek", "slot"]
+        "required": [
+          "slot"
+        ]
       },
       "CompleteOnboardingDto": {
         "type": "object",
@@ -531,15 +1026,20 @@
               "$ref": "#/components/schemas/ChildInputDto"
             }
           },
-          "appUsage": {
-            "description": "앱 사용 시간대 (요일 × 시간대). 빈 배열 허용 — 향후 정책 확정.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AppUsageSlotDto"
-            }
+          "notification": {
+            "description": "알림 시간대 (단일 선택, custom 옵션 포함).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NotificationPreferenceDto"
+              }
+            ]
           }
         },
-        "required": ["parent", "children", "appUsage"]
+        "required": [
+          "parent",
+          "children",
+          "notification"
+        ]
       },
       "GenerateWeeklyReportsDto": {
         "type": "object",
@@ -577,7 +1077,11 @@
             "example": "만3세"
           }
         },
-        "required": ["id", "name", "ageLabel"]
+        "required": [
+          "id",
+          "name",
+          "ageLabel"
+        ]
       },
       "WeeklyReportHeadlineDto": {
         "type": "object",
@@ -595,18 +1099,38 @@
             "nullable": true
           }
         },
-        "required": ["question", "title", "body"]
+        "required": [
+          "question",
+          "title",
+          "body"
+        ]
       },
       "WeeklyReportDayDto": {
         "type": "object",
         "properties": {
           "weekday": {
             "type": "string",
-            "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+            "enum": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
           },
           "label": {
             "type": "string",
-            "enum": ["월", "화", "수", "목", "금", "토", "일"]
+            "enum": [
+              "월",
+              "화",
+              "수",
+              "목",
+              "금",
+              "토",
+              "일"
+            ]
           },
           "completedCount": {
             "type": "number",
@@ -616,7 +1140,12 @@
             "type": "boolean"
           }
         },
-        "required": ["weekday", "label", "completedCount", "completed"]
+        "required": [
+          "weekday",
+          "label",
+          "completedCount",
+          "completed"
+        ]
       },
       "WeeklyReportMissionSummaryDto": {
         "type": "object",
@@ -653,14 +1182,21 @@
         "properties": {
           "rank": {
             "type": "number",
-            "enum": [1, 2, 3]
+            "enum": [
+              1,
+              2,
+              3
+            ]
           },
           "keyword": {
             "type": "string",
             "example": "공룡"
           }
         },
-        "required": ["rank", "keyword"]
+        "required": [
+          "rank",
+          "keyword"
+        ]
       },
       "WeeklyReportKeywordEmptyStateDto": {
         "type": "object",
@@ -673,7 +1209,10 @@
             "type": "string"
           }
         },
-        "required": ["title", "description"]
+        "required": [
+          "title",
+          "description"
+        ]
       },
       "WeeklyReportBestMomentDto": {
         "type": "object",
@@ -697,7 +1236,12 @@
             "type": "string"
           }
         },
-        "required": ["id", "order", "title", "body"]
+        "required": [
+          "id",
+          "order",
+          "title",
+          "body"
+        ]
       },
       "WeeklyReportInnerStateDto": {
         "type": "object",
@@ -715,7 +1259,10 @@
             "type": "string"
           }
         },
-        "required": ["psychologicalEnergy", "tipTitle"]
+        "required": [
+          "psychologicalEnergy",
+          "tipTitle"
+        ]
       },
       "WeeklyReportAiActionSuggestionDto": {
         "type": "object",
@@ -728,7 +1275,10 @@
             "type": "string"
           }
         },
-        "required": ["title", "body"]
+        "required": [
+          "title",
+          "body"
+        ]
       },
       "WeeklyReportDetailDto": {
         "type": "object",
@@ -824,7 +1374,13 @@
             "example": "/mission"
           }
         },
-        "required": ["reason", "title", "description", "ctaLabel", "ctaHref"]
+        "required": [
+          "reason",
+          "title",
+          "description",
+          "ctaLabel",
+          "ctaHref"
+        ]
       },
       "WeeklyReportCurrentResponseDto": {
         "type": "object",
@@ -851,7 +1407,11 @@
             ]
           }
         },
-        "required": ["selectedChild", "report", "emptyState"]
+        "required": [
+          "selectedChild",
+          "report",
+          "emptyState"
+        ]
       },
       "HomeChildDto": {
         "type": "object",
@@ -878,14 +1438,26 @@
             "example": 0
           }
         },
-        "required": ["id", "name", "birthDate", "ageLabel", "displayOrder"]
+        "required": [
+          "id",
+          "name",
+          "birthDate",
+          "ageLabel",
+          "displayOrder"
+        ]
       },
       "HomeMoodDto": {
         "type": "object",
         "properties": {
           "level": {
             "type": "number",
-            "enum": [1, 2, 3, 4, 5],
+            "enum": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
             "example": 4
           },
           "emoji": {
@@ -893,7 +1465,10 @@
             "example": "😊"
           }
         },
-        "required": ["level", "emoji"]
+        "required": [
+          "level",
+          "emoji"
+        ]
       },
       "HomeWeekDayDto": {
         "type": "object",
@@ -905,7 +1480,15 @@
           },
           "weekdayLabel": {
             "type": "string",
-            "enum": ["월", "화", "수", "목", "금", "토", "일"],
+            "enum": [
+              "월",
+              "화",
+              "수",
+              "목",
+              "금",
+              "토",
+              "일"
+            ],
             "example": "수"
           },
           "dayOfMonth": {
@@ -922,7 +1505,12 @@
             "type": "boolean"
           }
         },
-        "required": ["date", "weekdayLabel", "dayOfMonth", "isToday"]
+        "required": [
+          "date",
+          "weekdayLabel",
+          "dayOfMonth",
+          "isToday"
+        ]
       },
       "HomeWeekDto": {
         "type": "object",
@@ -942,7 +1530,11 @@
             }
           }
         },
-        "required": ["monthLabel", "weekOfMonthLabel", "days"]
+        "required": [
+          "monthLabel",
+          "weekOfMonthLabel",
+          "days"
+        ]
       },
       "HomeRecommendedMissionDto": {
         "type": "object",
@@ -965,7 +1557,11 @@
           },
           "status": {
             "type": "string",
-            "enum": ["not_started", "in_progress", "completed"]
+            "enum": [
+              "not_started",
+              "in_progress",
+              "completed"
+            ]
           }
         },
         "required": [
@@ -991,37 +1587,57 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "summary"]
+        "required": [
+          "id",
+          "name",
+          "summary"
+        ]
       },
       "HomeReportSummaryDto": {
         "type": "object",
         "properties": {
-          "monthTogetherDaysPercent": {
-            "type": "number",
-            "example": 84,
-            "minimum": 0,
-            "maximum": 100
+          "reportId": {
+            "type": "string",
+            "format": "uuid"
           },
-          "completedDays": {
+          "weekStart": {
+            "type": "string",
+            "example": "2026-05-04",
+            "description": "ISO date YYYY-MM-DD"
+          },
+          "weekEnd": {
+            "type": "string",
+            "example": "2026-05-10",
+            "description": "ISO date YYYY-MM-DD"
+          },
+          "title": {
+            "type": "string",
+            "example": "지난주 아이와 함께한 놀이 시간"
+          },
+          "totalDurationSeconds": {
             "type": "number",
-            "example": 10,
+            "example": 4620,
             "minimum": 0
           },
-          "elapsedDays": {
-            "type": "number",
-            "example": 12,
-            "minimum": 1
-          },
-          "label": {
+          "totalDurationLabel": {
             "type": "string",
-            "example": "이번 달 함께한 날"
+            "example": "1시간 17분"
+          },
+          "childPositiveReactionRate": {
+            "type": "number",
+            "example": 92,
+            "minimum": 0,
+            "maximum": 100
           }
         },
         "required": [
-          "monthTogetherDaysPercent",
-          "completedDays",
-          "elapsedDays",
-          "label"
+          "reportId",
+          "weekStart",
+          "weekEnd",
+          "title",
+          "totalDurationSeconds",
+          "totalDurationLabel",
+          "childPositiveReactionRate"
         ]
       },
       "HomeNotificationSummaryItemDto": {
@@ -1107,7 +1723,10 @@
             }
           }
         },
-        "required": ["unreadCount", "latest"]
+        "required": [
+          "unreadCount",
+          "latest"
+        ]
       },
       "HomeDashboardDto": {
         "type": "object",
@@ -1225,7 +1844,10 @@
           },
           "priority": {
             "type": "string",
-            "enum": ["normal", "high"]
+            "enum": [
+              "normal",
+              "high"
+            ]
           },
           "createdAt": {
             "type": "string",
@@ -1261,7 +1883,9 @@
             }
           }
         },
-        "required": ["items"]
+        "required": [
+          "items"
+        ]
       },
       "MarkAllNotificationsReadResponseDto": {
         "type": "object",
@@ -1272,7 +1896,9 @@
             "minimum": 0
           }
         },
-        "required": ["updatedCount"]
+        "required": [
+          "updatedCount"
+        ]
       },
       "UpdateChildDto": {
         "type": "object",
@@ -1290,7 +1916,10 @@
           },
           "gender": {
             "type": "string",
-            "enum": ["female", "male"]
+            "enum": [
+              "female",
+              "male"
+            ]
           },
           "notes": {
             "type": "string",
@@ -1321,7 +1950,10 @@
           },
           "gender": {
             "type": "string",
-            "enum": ["female", "male"]
+            "enum": [
+              "female",
+              "male"
+            ]
           },
           "notes": {
             "type": "string",
@@ -1345,6 +1977,472 @@
           "avatarUrl",
           "displayOrder"
         ]
+      },
+      "MilestoneCategoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "emotion"
+          },
+          "label": {
+            "type": "string",
+            "example": "정서"
+          },
+          "iconKey": {
+            "type": "string",
+            "example": "heart"
+          },
+          "color": {
+            "type": "string",
+            "example": "#FFB3C7"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "iconKey",
+          "color",
+          "displayOrder"
+        ]
+      },
+      "MilestoneResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "ageMonthsFrom": {
+            "type": "number"
+          },
+          "ageMonthsTo": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "displayOrder": {
+            "type": "number",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "categoryId",
+          "ageMonthsFrom",
+          "ageMonthsTo",
+          "title",
+          "description",
+          "displayOrder",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ListMilestonesResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MilestoneResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ]
+      },
+      "CreateMilestoneDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "example": "emotion"
+          },
+          "ageMonthsFrom": {
+            "type": "number",
+            "minimum": 0,
+            "example": 12
+          },
+          "ageMonthsTo": {
+            "type": "number",
+            "minimum": 0,
+            "example": 18
+          },
+          "title": {
+            "type": "string",
+            "example": "낯선 사람을 경계한다"
+          },
+          "description": {
+            "type": "string",
+            "example": "낯선 환경·낯선 사람에 경계심을 보입니다."
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "categoryId",
+          "ageMonthsFrom",
+          "ageMonthsTo",
+          "description"
+        ]
+      },
+      "UpdateMilestoneDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string"
+          },
+          "ageMonthsFrom": {
+            "type": "number",
+            "minimum": 0
+          },
+          "ageMonthsTo": {
+            "type": "number",
+            "minimum": 0
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "displayOrder": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "GrowthStageResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ageMonthsFrom": {
+            "type": "number"
+          },
+          "ageMonthsTo": {
+            "type": "number"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ageMonthsFrom",
+          "ageMonthsTo",
+          "summary"
+        ]
+      },
+      "CreateGrowthStageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "self-formation",
+            "description": "slug (lowercase, 영문/숫자/하이픈)"
+          },
+          "name": {
+            "type": "string",
+            "example": "자아 형성기"
+          },
+          "ageMonthsFrom": {
+            "type": "number",
+            "minimum": 0,
+            "example": 0
+          },
+          "ageMonthsTo": {
+            "type": "number",
+            "minimum": 0,
+            "example": 12
+          },
+          "summary": {
+            "type": "string",
+            "example": "아이가 \"나\"라는 인식을 만들어가는 시기"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ageMonthsFrom",
+          "ageMonthsTo",
+          "summary"
+        ]
+      },
+      "UpdateGrowthStageDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ageMonthsFrom": {
+            "type": "number",
+            "minimum": 0
+          },
+          "ageMonthsTo": {
+            "type": "number",
+            "minimum": 0
+          },
+          "summary": {
+            "type": "string"
+          }
+        }
+      },
+      "MissionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "shortTitle": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "durationMinutes": {
+            "type": "number"
+          },
+          "effect": {
+            "type": "string"
+          },
+          "subThemeLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "recommendedAgeMonthsMin": {
+            "type": "number",
+            "nullable": true
+          },
+          "recommendedAgeMonthsMax": {
+            "type": "number",
+            "nullable": true
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "videoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "categoryId",
+          "title",
+          "shortTitle",
+          "description",
+          "durationMinutes",
+          "effect",
+          "subThemeLabel",
+          "recommendedAgeMonthsMin",
+          "recommendedAgeMonthsMax",
+          "thumbnailUrl",
+          "videoUrl",
+          "tags",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ListMissionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MissionResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ]
+      },
+      "CreateMissionDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "example": "play"
+          },
+          "title": {
+            "type": "string",
+            "example": "아이와 10분 가까워지기"
+          },
+          "shortTitle": {
+            "type": "string",
+            "example": "10분 아이컨텍"
+          },
+          "description": {
+            "type": "string"
+          },
+          "durationMinutes": {
+            "type": "number",
+            "minimum": 1,
+            "example": 10
+          },
+          "effect": {
+            "type": "string",
+            "example": "정서적 안정감"
+          },
+          "subThemeLabel": {
+            "type": "string",
+            "example": "아이와 가까워지기"
+          },
+          "recommendedAgeMonthsMin": {
+            "type": "number",
+            "minimum": 0
+          },
+          "recommendedAgeMonthsMax": {
+            "type": "number",
+            "minimum": 0
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "videoUrl": {
+            "type": "string"
+          },
+          "tags": {
+            "example": [
+              "감정",
+              "말놀이"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "categoryId",
+          "title",
+          "shortTitle",
+          "description",
+          "durationMinutes",
+          "effect"
+        ]
+      },
+      "UpdateMissionDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "shortTitle": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "durationMinutes": {
+            "type": "number",
+            "minimum": 1
+          },
+          "effect": {
+            "type": "string"
+          },
+          "subThemeLabel": {
+            "type": "string"
+          },
+          "recommendedAgeMonthsMin": {
+            "type": "number",
+            "minimum": 0
+          },
+          "recommendedAgeMonthsMax": {
+            "type": "number",
+            "minimum": 0
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "videoUrl": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       }
     }
   }

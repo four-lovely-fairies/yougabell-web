@@ -95,10 +95,13 @@ export const getDemoHomeDashboard = (): HomeDashboard => ({
       "아이의 독립심이 싹트고 있어요. 스스로 선택할 기회를 조금씩 넓혀주세요.",
   },
   reportSummary: {
-    monthTogetherDaysPercent: 84,
-    completedDays: 10,
-    elapsedDays: 12,
-    label: "이번 달 함께한 날",
+    reportId: "demo-report",
+    weekStart: "2026-05-04",
+    weekEnd: "2026-05-10",
+    title: "지난주 아이와 함께한 놀이 시간",
+    totalDurationSeconds: 4620,
+    totalDurationLabel: "1시간 17분",
+    childPositiveReactionRate: 92,
   },
   notifications: {
     unreadCount: 2,
