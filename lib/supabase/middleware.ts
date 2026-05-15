@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * - setAll 콜백 시그니처는 @supabase/ssr 최신 패턴(`(cookiesToSet, headers)`)을 따른다.
  */
 export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: { headers: request.headers },
   });
 

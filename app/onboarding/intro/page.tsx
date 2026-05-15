@@ -26,7 +26,7 @@ export default function IntroPage() {
           이전에 작성하다 만 온보딩이 있습니다.
         </p>
         <div className="flex flex-col gap-3 mt-2">
-          <Button size="full" onClick={() => router.push("/onboarding/parent")}>
+          <Button size="full" onClick={() => router.push("/onboarding/consent")}>
             이어서 작성하기
           </Button>
           <Button
@@ -82,7 +82,8 @@ export default function IntroPage() {
           type="button"
           onClick={() => {
             track({ type: "onboarding_skip", from: "intro" });
-            router.push("/onboarding/parent");
+            // TODO(auth): Apple/Supabase 로그인 통합 후 인증 후 consent로 이동.
+            router.push("/onboarding/consent");
           }}
           className="w-full h-[52px] rounded-xl bg-gray-800 text-white font-medium text-base flex items-center justify-center gap-2 backdrop-blur"
         >

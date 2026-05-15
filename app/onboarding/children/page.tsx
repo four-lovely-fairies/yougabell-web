@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { PlusIcon } from "@/components/icons";
+import { PlusIcon, TrashIcon } from "@/components/icons";
 import { ChildCardForm, ChildRow } from "@/components/onboarding/child-card";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
@@ -66,12 +66,19 @@ export default function ChildrenPage() {
   const allValid = children.length >= 1 && children.every(isValid);
   const canProceed = allValid && editingId === null;
 
-  const back = () => router.push("/onboarding/parent");
+  // 흐름 분기: 알림 허용 시 app-usage에서, 거부 시 notification에서 진입.
+  const back = () => {
+    const previous =
+      draft?.notificationPermission === "granted"
+        ? "/onboarding/app-usage"
+        : "/onboarding/notification";
+    router.push(previous);
+  };
   const submit = () => {
     if (!canProceed) return;
     patch({ children, lastStep: "children" });
     track({ type: "onboarding_step_complete", step: "children" });
-    router.push("/onboarding/app-usage");
+    router.push("/onboarding/done");
   };
 
   return (
@@ -118,19 +125,22 @@ export default function ChildrenPage() {
           );
         })}
 
+        {/* Figma 2146:4948 — dashed 1.358px, rounded 16, 보라 #b69cfe / text #9572ff */}
         <button
           type="button"
           onClick={addChild}
           disabled={!canAddChild}
           className={cn(
-            "h-12 flex items-center justify-center gap-2 rounded-md border-2 border-dashed transition-colors",
+            "flex h-[52px] items-center justify-center gap-[7px] rounded-2xl border-[1.358px] border-dashed transition-colors",
             !canAddChild
-              ? "border-gray-200 text-gray-300 cursor-not-allowed"
-              : "border-primary-300 text-primary-500 hover:bg-primary-50",
+              ? "cursor-not-allowed border-gray-200 text-gray-300"
+              : "border-[#b69cfe] text-[#9572ff] hover:bg-primary-50",
           )}
         >
-          <PlusIcon size={18} />
-          <span className="text-sm font-semibold">자녀 추가</span>
+          <PlusIcon size={20} />
+          <span className="text-sm font-medium tracking-[-0.3px]">
+            자녀 추가
+          </span>
         </button>
       </div>
 
@@ -147,7 +157,7 @@ export default function ChildrenPage() {
         </Button>
       ) : (
         <Button type="submit" size="full" disabled={!canProceed}>
-          다음
+          저장
         </Button>
       )}
 
@@ -168,6 +178,7 @@ function DeleteConfirm({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
+  // Figma 2146:5045 — 중앙 정렬 모달 (334w / icon + 본문 + 취소·삭제하기)
   return (
     <div
       role="dialog"
@@ -176,14 +187,21 @@ function DeleteConfirm({
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-xs rounded-lg bg-white p-6 flex flex-col gap-4"
+        className="flex w-full max-w-[334px] flex-col rounded-2xl bg-white"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-base font-semibold text-gray-800">
-          자녀 정보를 삭제할까요?
-        </h2>
-        <p className="text-sm text-gray-500">삭제 후에는 되돌릴 수 없습니다.</p>
-        <div className="flex gap-3 mt-2">
+        <div className="flex flex-col items-center gap-5 px-4 pt-6 pb-4">
+          <div
+            aria-hidden
+            className="flex size-[68px] items-center justify-center rounded-full bg-error-50 text-error-600"
+          >
+            <TrashIcon size={32} />
+          </div>
+          <p className="text-base font-semibold text-gray-800">
+            자녀 정보를 삭제하시겠습니까?
+          </p>
+        </div>
+        <div className="flex gap-2 px-4 pb-4">
           <Button
             size="md"
             variant="outline"
@@ -193,7 +211,7 @@ function DeleteConfirm({
             취소
           </Button>
           <Button size="md" className="flex-1" onClick={onConfirm}>
-            삭제
+            삭제하기
           </Button>
         </div>
       </div>

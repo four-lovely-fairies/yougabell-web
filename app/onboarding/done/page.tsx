@@ -23,8 +23,8 @@ function buildPayload(
   for (const c of children) {
     if (!c.name || !c.birthDate || !c.gender) return null;
   }
-  if (!notification) return null;
-  if (notification.slot === "custom" && !notification.time) return null;
+  // v4 흐름: 알림 거부(notificationPermission==="denied") 시 시간대 없음. notification 옵셔널.
+  if (notification?.slot === "custom" && !notification.time) return null;
   return {
     parent: {
       name: p.name,
@@ -38,7 +38,7 @@ function buildPayload(
       gender: c.gender!,
       notes: c.notes,
     })),
-    notification,
+    notification: notification ?? undefined,
   };
 }
 
@@ -120,9 +120,19 @@ export default function DonePage() {
     );
   }
 
+  // Figma 2146:4771 — 배경 ellipse 데코 + 헤더 + 4 dots 펄스
   return (
-    <div className="flex flex-col items-center justify-center flex-1 text-center gap-6">
-      <div className="flex flex-col gap-2">
+    <div className="relative flex flex-1 flex-col items-center justify-center gap-6 text-center">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-40 -top-32 size-[349px] rounded-full bg-primary-100 opacity-60 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-24 top-[252px] h-[253px] w-[564px] rounded-full bg-primary-100 opacity-50 blur-3xl"
+      />
+
+      <div className="relative z-10 flex flex-col gap-2">
         <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
           {status === "already" ? (
             "이미 완료된 온보딩입니다"
@@ -138,7 +148,9 @@ export default function DonePage() {
         </h1>
         <p className="text-sm text-gray-500">잠시만 기다려주세요!</p>
       </div>
-      <LoadingDots />
+      <div className="relative z-10">
+        <LoadingDots />
+      </div>
     </div>
   );
 }
