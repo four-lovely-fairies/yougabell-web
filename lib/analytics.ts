@@ -6,7 +6,13 @@ export type OnboardingEvent =
   | { type: "onboarding_skip"; from: string }
   | {
       type: "onboarding_step_complete";
-      step: "parent" | "children" | "app_usage";
+      step:
+        | "consent"
+        | "parent"
+        | "interest"
+        | "notification"
+        | "app_usage"
+        | "children";
     }
   | { type: "onboarding_work_status_filled" }
   | { type: "onboarding_finish" };
