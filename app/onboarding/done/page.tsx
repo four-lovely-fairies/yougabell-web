@@ -9,7 +9,9 @@ import { ApiError, api } from "@/lib/api";
 import { notifyMobile } from "@/lib/native-bridge";
 import type { CompleteOnboardingPayload, OnboardingDraft } from "@/lib/types";
 
-type Status = "submitting" | "success" | "error" | "already";
+type Status = "submitting" | "success" | "error" | "already" | "timeout";
+
+const SUBMIT_TIMEOUT_MS = 15_000;
 
 function buildPayload(
   draft: OnboardingDraft | null,
@@ -23,7 +25,6 @@ function buildPayload(
   for (const c of children) {
     if (!c.name || !c.birthDate || !c.gender) return null;
   }
-  // v4 흐름: 알림 거부(notificationPermission==="denied") 시 시간대 없음. notification 옵셔널.
   if (notification?.slot === "custom" && !notification.time) return null;
   return {
     parent: {
@@ -56,9 +57,17 @@ export default function DonePage() {
     if (submittedRef.current) return;
     submittedRef.current = true;
 
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+      setStatus("timeout");
+    }, SUBMIT_TIMEOUT_MS);
+
     api
       .completeOnboarding(payload)
       .then((me) => {
+        if (cancelled) return;
+        window.clearTimeout(timeoutId);
         clear();
         track({ type: "onboarding_finish" });
         notifyMobile({
@@ -69,6 +78,8 @@ export default function DonePage() {
         setTimeout(() => router.replace("/"), 800);
       })
       .catch((e: unknown) => {
+        if (cancelled) return;
+        window.clearTimeout(timeoutId);
         if (e instanceof ApiError && e.status === 409) {
           clear();
           setStatus("already");
@@ -80,59 +91,67 @@ export default function DonePage() {
         setStatus("error");
         setError(message);
       });
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [payload, attempt, clear, router]);
+
+  const retry = () => {
+    submittedRef.current = false;
+    setStatus("submitting");
+    setError(null);
+    setAttempt((a) => a + 1);
+  };
 
   if (draft && !payload) {
     return (
-      <div className="flex flex-col items-center justify-center flex-1 text-center gap-4">
+      <LoadingScreen variant="error">
         <p className="text-gray-700">
           입력값이 부족합니다. 이전 단계로 돌아가세요.
         </p>
-        <Button onClick={() => router.replace("/onboarding/app-usage")}>
+        <Button onClick={() => router.replace("/onboarding/children")}>
           이전 단계로
         </Button>
-      </div>
+      </LoadingScreen>
     );
   }
 
-  if (status === "error") {
+  if (status === "error" || status === "timeout") {
+    const title =
+      status === "timeout"
+        ? "응답이 너무 오래 걸려요"
+        : "저장 중 문제가 발생했어요";
+    const desc =
+      status === "timeout"
+        ? "네트워크 상태를 확인하고 다시 시도해주세요."
+        : (error ?? "잠시 후 다시 시도해주세요.");
     return (
-      <div className="flex flex-col items-center justify-center flex-1 text-center gap-4">
-        <p className="text-gray-700">{error}</p>
-        <Button
-          onClick={() => {
-            submittedRef.current = false;
-            setStatus("submitting");
-            setError(null);
-            setAttempt((a) => a + 1);
-          }}
-        >
-          다시 시도
-        </Button>
-        <button
-          type="button"
-          onClick={() => router.replace("/onboarding/app-usage")}
-          className="text-sm text-gray-500"
-        >
-          이전 단계로
-        </button>
-      </div>
+      <LoadingScreen variant="error">
+        <div className="flex flex-col items-center gap-2">
+          <h2 className="text-lg font-bold text-gray-800">{title}</h2>
+          <p className="text-sm text-gray-500">{desc}</p>
+        </div>
+        <div className="flex flex-col gap-2 w-full max-w-[280px]">
+          <Button size="full" onClick={retry}>
+            다시 시도
+          </Button>
+          <button
+            type="button"
+            onClick={() => router.replace("/onboarding/children")}
+            className="h-12 text-sm font-medium text-gray-500"
+          >
+            이전 단계로
+          </button>
+        </div>
+      </LoadingScreen>
     );
   }
 
-  // Figma 2146:4771 — 배경 ellipse 데코 + 헤더 + 4 dots 펄스
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-center gap-6 text-center">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-40 -top-32 size-[349px] rounded-full bg-primary-100 opacity-60 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-24 top-[252px] h-[253px] w-[564px] rounded-full bg-primary-100 opacity-50 blur-3xl"
-      />
-
-      <div className="relative z-10 flex flex-col gap-2">
+    <LoadingScreen>
+      <div className="flex flex-col items-center gap-5">
         <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
           {status === "already" ? (
             "이미 완료된 온보딩입니다"
@@ -146,25 +165,68 @@ export default function DonePage() {
             </>
           )}
         </h1>
-        <p className="text-sm text-gray-500">잠시만 기다려주세요!</p>
+        <p className="text-sm font-medium text-gray-500">잠시만 기다려주세요!</p>
       </div>
-      <div className="relative z-10">
+      <div className="mt-10">
         <LoadingDots />
+      </div>
+    </LoadingScreen>
+  );
+}
+
+/**
+ * 로딩 화면 컨테이너 — Figma 2146:4771.
+ * 보라 ellipse 2개를 배경에 흩뿌리고 콘텐츠를 중앙 정렬.
+ */
+function LoadingScreen({
+  children,
+  variant = "default",
+}: {
+  children: React.ReactNode;
+  variant?: "default" | "error";
+}) {
+  return (
+    <div className="relative flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+      {/* 큰 ellipse: 좌상단 회전 */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-40 -top-32 size-[420px] -rotate-6 rounded-full bg-primary-200/60 blur-[80px]"
+      />
+      {/* 큰 ellipse: 중앙 하단 */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-24 top-1/2 h-[260px] w-[564px] rounded-full bg-primary-100/70 blur-[80px]"
+      />
+      <div
+        className={cnVariant(
+          "relative z-10 flex flex-col items-center",
+          variant === "default" ? "gap-10" : "gap-6",
+        )}
+      >
+        {children}
       </div>
     </div>
   );
 }
 
+function cnVariant(...parts: string[]): string {
+  return parts.filter(Boolean).join(" ");
+}
+
+/**
+ * Figma 2146:4781 Group 33924 — 작은 점 4개, 오른쪽으로 갈수록 진해지는 wave 효과.
+ */
 function LoadingDots() {
   return (
     <div className="flex items-center gap-2" aria-label="로딩 중" role="status">
       {[0, 1, 2, 3].map((i) => (
         <span
           key={i}
-          className="size-2 rounded-full bg-primary-500 motion-safe:animate-pulse"
+          className="size-1.5 rounded-full bg-primary-500 motion-safe:animate-pulse"
           style={{
             opacity: 0.3 + i * 0.2,
-            animationDelay: `${i * 160}ms`,
+            animationDelay: `${i * 180}ms`,
+            animationDuration: "1.2s",
           }}
         />
       ))}
