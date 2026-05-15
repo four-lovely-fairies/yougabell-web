@@ -24,13 +24,16 @@ export default function AppUsagePage() {
     draft?.notification ?? null,
   );
 
-  const back = () => router.push("/onboarding/children");
-  const close = () => router.push("/");
+  // 디자인 2146:4530은 우상단 X만 노출 (back 없음). X는 시간대 skip → 자녀 정보로 직행.
+  const close = () => {
+    patch({ notificationPermission: "denied", lastStep: "app-usage" });
+    router.push("/onboarding/children");
+  };
   const submit = () => {
     if (!isValid(pref)) return;
     patch({ notification: pref, lastStep: "app-usage" });
     track({ type: "onboarding_step_complete", step: "app_usage" });
-    router.push("/onboarding/done");
+    router.push("/onboarding/children");
   };
 
   return (
@@ -60,25 +63,9 @@ export default function AppUsagePage() {
 
       <div className="flex-1 min-h-6" />
 
-      <div className="flex gap-3 pt-2">
-        <Button
-          type="button"
-          size="full"
-          variant="outline"
-          className="flex-1"
-          onClick={back}
-        >
-          이전
-        </Button>
-        <Button
-          type="submit"
-          size="full"
-          className="flex-[2]"
-          disabled={!isValid(pref)}
-        >
-          알림 설정완료
-        </Button>
-      </div>
+      <Button type="submit" size="full" disabled={!isValid(pref)}>
+        알림 설정완료
+      </Button>
     </form>
   );
 }

@@ -30,7 +30,7 @@ export default function ParentPage() {
     if (parent.workStatus !== undefined && parent.workStatus !== null) {
       track({ type: "onboarding_work_status_filled" });
     }
-    router.push("/onboarding/children");
+    router.push("/onboarding/interest");
   };
 
   return (

@@ -34,7 +34,7 @@ export function ChildCardForm({
   const patch = (next: Partial<ChildDraft>) => onChange({ ...child, ...next });
 
   return (
-    <div className="rounded-lg border border-gray-100 p-5 flex flex-col gap-5 bg-white">
+    <div className="flex flex-col gap-4 rounded-[20px] border border-[#f2f1f0] bg-white p-5">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-800">
           자녀 {index + 1}
@@ -114,26 +114,33 @@ export function ChildRow({ child, onEdit, onDelete }: ChildRowProps) {
   const g = genderLabel(child.gender);
   const d = formatDate(child.birthDate);
   return (
-    <div className="flex items-center h-12 px-4 rounded-md bg-gray-50">
-      <span className="flex-1 text-sm text-gray-800 truncate">
-        {g ? <span className="text-gray-500 mr-2">{g}</span> : null}
-        {child.name}
-        {d ? <span className="text-gray-500 ml-1">({d})</span> : null}
+    // Figma 2146:5015 — h-[55px], rounded-16, bg gray-50(#f6f6f6) + border #e9e9e9
+    <div className="flex h-[55px] items-center rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+      <span className="flex flex-1 items-center gap-2.5 text-sm text-gray-800">
+        {g ? (
+          <span className="font-semibold text-gray-800">{g}</span>
+        ) : null}
+        <span className="truncate">
+          {child.name}
+          {d ? (
+            <span className="ml-1 font-normal text-gray-800">({d})</span>
+          ) : null}
+        </span>
       </span>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2.5">
         <IconButton
           label="자녀 정보 편집"
           onClick={onEdit}
-          className="w-9 h-9 text-gray-700"
+          className="size-5 text-gray-700"
         >
-          <PencilIcon size={18} />
+          <PencilIcon size={20} />
         </IconButton>
         <IconButton
           label="자녀 삭제"
           onClick={onDelete}
-          className="w-9 h-9 text-gray-700"
+          className="size-5 text-gray-700"
         >
-          <TrashIcon size={18} />
+          <TrashIcon size={20} />
         </IconButton>
       </div>
     </div>
