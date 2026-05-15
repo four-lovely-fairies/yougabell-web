@@ -23,11 +23,6 @@ const HOME_ICON_PATHS = {
   headerNotification: "/icons/figma/home/header-notification.svg",
   headerSettings: "/icons/figma/home/header-settings.svg",
   moodPlus: "/icons/figma/home/mood-plus.svg",
-  navAi: "/icons/figma/home/nav-ai.svg",
-  navHome: "/icons/figma/home/nav-home.svg",
-  navPlay: "/icons/figma/home/nav-play.svg",
-  navRoadmap: "/icons/figma/home/nav-roadmap.svg",
-  navWeeklyReport: "/icons/figma/home/nav-weekly-report.svg",
   reportSummary: "/icons/figma/home/report-summary.svg",
 } as const;
 
@@ -80,47 +75,38 @@ export const HomeDashboard = () => {
   };
 
   return (
-    <main className="min-h-dvh overflow-x-hidden bg-[#d9c4e3] text-[#1f1a21]">
-      <div className="relative mx-auto min-h-dvh w-full max-w-[390px] overflow-hidden bg-[rgba(90,0,132,0.23)] pb-[calc(82px+env(safe-area-inset-bottom))]">
-        <div
-          className="absolute bottom-0 left-0 top-[165px] w-[391px] rounded-t-[30px] bg-[#fff7fc]"
-          aria-hidden
-        />
-        <TopAppBar
-          child={selectedChild}
-          unreadCount={data.notifications.unreadCount}
-          onOpenChildren={() => setModal("children")}
-          onOpenNotifications={() => setModal("notifications")}
-        />
-        <div className="relative z-10 flex flex-col items-center gap-[31px] px-6 pt-24">
-          <WeeklyCalendar data={data} />
-          <TodayMissionCard
-            mission={data.recommendedMission}
-            loading={loading}
-          />
-          <DashboardCards
-            stage={data.growthStage}
-            summary={data.reportSummary}
-          />
-        </div>
-        <BottomNav />
-        {modal === "children" ? (
-          <ChildSwitcherSheet
-            childItems={data.children}
-            selectedChildId={selectedChild.id}
-            onClose={() => setModal(null)}
-            onSelect={onSelectChild}
-          />
-        ) : null}
-        {modal === "notifications" ? (
-          <NotificationModal
-            notifications={data.notifications.latest}
-            unreadCount={data.notifications.unreadCount}
-            onClose={() => setModal(null)}
-          />
-        ) : null}
+    <>
+      <div
+        className="absolute bottom-0 left-0 right-0 top-[165px] rounded-t-[30px] bg-[#fff7fc]"
+        aria-hidden
+      />
+      <TopAppBar
+        child={selectedChild}
+        unreadCount={data.notifications.unreadCount}
+        onOpenChildren={() => setModal("children")}
+        onOpenNotifications={() => setModal("notifications")}
+      />
+      <div className="relative z-10 flex flex-col items-center gap-[31px] px-6 pb-10 pt-24">
+        <WeeklyCalendar data={data} />
+        <TodayMissionCard mission={data.recommendedMission} loading={loading} />
+        <DashboardCards stage={data.growthStage} summary={data.reportSummary} />
       </div>
-    </main>
+      {modal === "children" ? (
+        <ChildSwitcherSheet
+          childItems={data.children}
+          selectedChildId={selectedChild.id}
+          onClose={() => setModal(null)}
+          onSelect={onSelectChild}
+        />
+      ) : null}
+      {modal === "notifications" ? (
+        <NotificationModal
+          notifications={data.notifications.latest}
+          unreadCount={data.notifications.unreadCount}
+          onClose={() => setModal(null)}
+        />
+      ) : null}
+    </>
   );
 };
 
@@ -569,69 +555,6 @@ const NotificationModal = ({
   </div>
 );
 
-const BottomNav = () => {
-  const items = [
-    {
-      label: "홈",
-      iconSrc: HOME_ICON_PATHS.navHome,
-      iconClassName: "h-[18px] w-4",
-      active: true,
-      href: "/",
-    },
-    {
-      label: "10분 놀이",
-      iconSrc: HOME_ICON_PATHS.navPlay,
-      iconClassName: "h-5 w-[18px]",
-    },
-    {
-      label: "성장 로드맵",
-      iconSrc: HOME_ICON_PATHS.navRoadmap,
-      iconClassName: "size-[18px]",
-    },
-    {
-      label: "ai 상담",
-      iconSrc: HOME_ICON_PATHS.navAi,
-      iconClassName: "h-[19px] w-[22px]",
-    },
-    {
-      label: "주간 리포트",
-      iconSrc: HOME_ICON_PATHS.navWeeklyReport,
-      iconClassName: "size-[18px]",
-      href: "/weekly-report",
-    },
-  ];
-  return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto h-[82px] max-w-[390px] rounded-t-[48px] bg-[rgba(252,247,252,0.9)] pt-[13px] shadow-[0_-4px_40px_rgba(27,28,27,0.04)] backdrop-blur-xl">
-      <div className="flex w-full items-center justify-center">
-        {items.map((item) => (
-          <button
-            key={item.label}
-            type="button"
-            onClick={() => {
-              if (item.href && item.href !== window.location.pathname) {
-                window.location.href = item.href;
-              }
-            }}
-            aria-current={item.active ? "page" : undefined}
-            className={`flex h-[55px] w-[77px] flex-col items-center justify-center px-3 py-2 text-[10px] font-bold leading-[15px] ${
-              item.active
-                ? "rounded-full bg-[#f8dcff] text-[#3c2d46]"
-                : "text-[#a093a1]"
-            }`}
-          >
-            <FigmaIcon
-              src={item.iconSrc}
-              alt=""
-              className={`shrink-0 ${item.iconClassName}`}
-            />
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </div>
-    </nav>
-  );
-};
-
 const FigmaIcon = ({
   src,
   alt,
@@ -645,10 +568,10 @@ const FigmaIcon = ({
 );
 
 const HomeSkeleton = () => (
-  <main className="flex min-h-screen items-center justify-center bg-[var(--surface-muted)]">
+  <div className="flex min-h-dvh items-center justify-center bg-[var(--surface-muted)]">
     <MoreHorizontal
       className="size-8 animate-pulse text-[var(--primary)]"
       aria-label="홈 불러오는 중"
     />
-  </main>
+  </div>
 );

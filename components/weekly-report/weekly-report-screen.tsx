@@ -87,24 +87,16 @@ export const WeeklyReportScreen = () => {
   };
 
   return (
-    <main className="min-h-screen bg-[#e7e7ea] text-[#262626]">
-      <div className="mx-auto flex min-h-screen w-full max-w-[390px] flex-col bg-[#fdfdfe]">
-        <WeeklyReportHeader onBack={goBack} />
-        {loading ? (
-          <WeeklyReportSkeleton />
-        ) : state?.error ? (
-          <WeeklyReportError error={state.error} onRetry={load} />
-        ) : state?.data ? (
-          <WeeklyReportContent
-            data={state.data}
-            onStartMission={startMission}
-          />
-        ) : null}
-        <div className="flex h-[21px] shrink-0 items-center justify-center pb-2">
-          <span className="h-[5px] w-[139px] rounded-full bg-black" />
-        </div>
-      </div>
-    </main>
+    <div className="flex min-h-dvh flex-col bg-[#fdfdfe] text-[#262626]">
+      <WeeklyReportHeader onBack={goBack} />
+      {loading ? (
+        <WeeklyReportSkeleton />
+      ) : state?.error ? (
+        <WeeklyReportError error={state.error} onRetry={load} />
+      ) : state?.data ? (
+        <WeeklyReportContent data={state.data} onStartMission={startMission} />
+      ) : null}
+    </div>
   );
 };
 
