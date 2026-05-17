@@ -127,7 +127,7 @@ export function DateBottomSheet({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-white rounded-t-[32px] flex flex-col"
+        className="w-full max-w-[390px] bg-white rounded-t-[32px] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between px-6 pt-7 pb-4">
