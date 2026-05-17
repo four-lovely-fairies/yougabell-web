@@ -9,6 +9,8 @@ type Props = {
   onChange: (iso: string) => void;
   yearMin?: number;
   yearMax?: number;
+  /** value 없을 때 휠 시작 위치. 미지정 시 today를 yearMin/yearMax 범위로 clamp. */
+  defaultYear?: number;
   placeholder?: string;
 };
 
@@ -24,6 +26,7 @@ export function DateInput({
   onChange,
   yearMin,
   yearMax,
+  defaultYear,
   placeholder = "선택",
 }: Props) {
   const id = useId();
@@ -55,6 +58,7 @@ export function DateInput({
           onConfirm={onChange}
           yearMin={yearMin}
           yearMax={yearMax}
+          defaultYear={defaultYear}
         />
       )}
     </>

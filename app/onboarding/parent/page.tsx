@@ -78,8 +78,11 @@ export default function ParentPage() {
           <DateInput
             value={parent.birthDate}
             onChange={(iso) => update({ birthDate: iso })}
-            // 부모는 만 25세 이상만 — 올해 - 25 이전 출생
-            yearMax={new Date().getFullYear() - 25}
+            // 부모 연령 범위 — 만 18세 이상 ~ 만 70세 이하
+            yearMin={new Date().getFullYear() - 70}
+            yearMax={new Date().getFullYear() - 18}
+            // 시작 위치: 만 30세 기준 (가장 흔한 부모 연령대)
+            defaultYear={new Date().getFullYear() - 30}
           />
         </Field>
 
