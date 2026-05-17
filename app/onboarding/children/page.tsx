@@ -187,25 +187,25 @@ function DeleteConfirm({
       onClick={onCancel}
     >
       <div
-        className="flex w-full max-w-[334px] flex-col rounded-2xl bg-white"
+        className="flex w-full max-w-[334px] flex-col rounded-[20px] bg-white"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex flex-col items-center gap-5 px-4 pt-6 pb-4">
+        <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
           <div
             aria-hidden
             className="flex size-[68px] items-center justify-center rounded-full bg-error-50 text-error-600"
           >
             <TrashIcon size={32} />
           </div>
-          <p className="text-base font-semibold text-gray-800">
+          <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
             자녀 정보를 삭제하시겠습니까?
           </p>
         </div>
-        <div className="flex gap-2 px-4 pb-4">
+        <div className="flex gap-1.5 px-4 pt-4 pb-5">
           <Button
             size="md"
+            className="flex-1 bg-gray-50 text-gray-800 hover:bg-gray-100"
             variant="outline"
-            className="flex-1"
             onClick={onCancel}
           >
             취소
