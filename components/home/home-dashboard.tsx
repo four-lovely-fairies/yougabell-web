@@ -25,7 +25,7 @@ const HOME_ICON_PATHS = {
   moodBad: '/icons/figma/mission-feedback/bad.svg',
   moodGood: '/icons/figma/mission-feedback/good.svg',
   moodNeutral: '/icons/figma/mission-feedback/neutral.svg',
-  plus: '/icons/figma/home/plus.svg',
+  moodPlus: '/icons/figma/home/mood-plus.svg',
   moodVeryBad: '/icons/figma/mission-feedback/very-bad.svg',
   moodVeryGood: '/icons/figma/mission-feedback/very-good.svg',
 } as const;
@@ -238,7 +238,10 @@ const MoodBadge = ({
   if (day.isToday) {
     return (
       <div className="flex size-8 items-center justify-center rounded-full bg-[#262626] leading-none text-white">
-        <FigmaIcon src={HOME_ICON_PATHS.plus} alt="today's mood selection" />
+        <FigmaIcon
+          src={HOME_ICON_PATHS.moodPlus}
+          alt="today's mood selection"
+        />
       </div>
     );
   }
