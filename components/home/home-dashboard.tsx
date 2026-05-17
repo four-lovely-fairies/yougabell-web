@@ -8,7 +8,6 @@ import {
   setStoredSelectedChildId,
   type HomeLoadState,
 } from "@/lib/api";
-import type { ReactNode } from "react";
 import type {
   HomeChild,
   HomeDashboard as HomeDashboardData,
@@ -22,9 +21,16 @@ const HOME_ICON_PATHS = {
   growthStage: "/icons/figma/home/growth-stage.svg",
   headerNotification: "/icons/figma/home/header-notification.svg",
   headerSettings: "/icons/figma/home/header-settings.svg",
-  moodPlus: "/icons/figma/home/mood-plus.svg",
-  reportSummary: "/icons/figma/home/report-summary.svg",
+  missionIllustration: "/images/figma/home/mission-illustration.svg",
 } as const;
+
+const MOOD_STYLES = [
+  "bg-[#b7e0ff]",
+  "bg-[#ffa0b7]",
+  "bg-[#ffe0a3]",
+  "bg-[#d9f1b5]",
+  "bg-[#dcd6ff]",
+] as const;
 
 export const HomeDashboard = () => {
   const [state, setState] = useState<HomeLoadState | null>(null);
@@ -76,20 +82,22 @@ export const HomeDashboard = () => {
 
   return (
     <>
-      <div
-        className="absolute bottom-0 left-0 right-0 top-[165px] rounded-t-[30px] bg-[#fff7fc]"
-        aria-hidden
-      />
-      <TopAppBar
-        child={selectedChild}
-        unreadCount={data.notifications.unreadCount}
-        onOpenChildren={() => setModal("children")}
-        onOpenNotifications={() => setModal("notifications")}
-      />
-      <div className="relative z-10 flex flex-col items-center gap-[31px] px-6 pb-10 pt-24">
-        <WeeklyCalendar data={data} />
-        <TodayMissionCard mission={data.recommendedMission} loading={loading} />
-        <DashboardCards stage={data.growthStage} summary={data.reportSummary} />
+      <div className="relative min-h-dvh bg-[#fdfdfe] px-5 pb-9 pt-[47px] text-[#262626]">
+        <TopAppBar
+          child={selectedChild}
+          unreadCount={data.notifications.unreadCount}
+          onOpenChildren={() => setModal("children")}
+          onOpenNotifications={() => setModal("notifications")}
+        />
+        <div className="mt-4 flex flex-col gap-5">
+          <WeeklyCalendar data={data} />
+          <TodayMissionCard
+            mission={data.recommendedMission}
+            loading={loading}
+          />
+          <GrowthStageCard stage={data.growthStage} />
+          <ReportSummaryCard summary={data.reportSummary} />
+        </div>
       </div>
       {modal === "children" ? (
         <ChildSwitcherSheet
@@ -121,124 +129,126 @@ const TopAppBar = ({
   onOpenChildren: () => void;
   onOpenNotifications: () => void;
 }) => (
-  <header className="absolute inset-x-0 top-0 z-30 flex h-[72px] items-center justify-between bg-[#d9c4e3] px-6 py-4 shadow-[0_4px_20px_rgba(27,28,27,0.06)] backdrop-blur-xl">
+  <header className="flex h-14 items-center justify-between">
     <button
       type="button"
       onClick={onOpenChildren}
-      className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-[#f5d9ff] p-0.5"
-      aria-label="아이 선택"
-      aria-haspopup="dialog"
-    >
-      <span className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-[#fff7fc] text-sm font-bold text-[#3a0057]">
-        {child.name.slice(0, 1)}
-      </span>
-    </button>
-    <button
-      type="button"
-      onClick={onOpenChildren}
-      className="absolute left-1/2 top-6 flex h-6 w-[114px] -translate-x-1/2 items-center justify-center gap-1 rounded-[31px] bg-[#fff7fc] px-2 text-[13px] font-bold leading-[15px] text-black"
+      className="flex items-center gap-1 text-sm font-medium leading-[1.4] text-[#262626]"
       aria-label="아이 목록 열기"
       aria-haspopup="dialog"
     >
-      <span className="truncate">
+      <span className="max-w-[180px] truncate">
         {child.name} ({child.ageLabel})
       </span>
       <FigmaIcon
         src={HOME_ICON_PATHS.childSwitcherChevron}
         alt=""
-        className="size-3 shrink-0"
+        className="size-4"
       />
     </button>
-    <div className="flex w-[103px] items-center justify-end gap-4 text-[#3a0057]">
+    <div className="flex items-center">
       <button
         type="button"
-        onClick={onOpenNotifications}
-        className="relative flex h-5 w-[37px] items-center justify-end"
-        aria-label="알림 열기"
-      >
-        <FigmaIcon
-          src={HOME_ICON_PATHS.headerNotification}
-          alt=""
-          className="h-5 w-4"
-        />
-        {unreadCount > 0 ? (
-          <span className="absolute right-0 top-0 size-2 rounded-full bg-[#ec003f]" />
-        ) : null}
-      </button>
-      <button
-        type="button"
-        className="flex size-6 items-center justify-center"
+        className="flex size-11 items-center justify-center"
         aria-label="설정"
       >
         <FigmaIcon
           src={HOME_ICON_PATHS.headerSettings}
           alt=""
-          className="size-5"
+          className="size-6"
         />
+      </button>
+      <button
+        type="button"
+        onClick={onOpenNotifications}
+        className="relative flex size-11 items-center justify-center"
+        aria-label="알림 열기"
+      >
+        <FigmaIcon
+          src={HOME_ICON_PATHS.headerNotification}
+          alt=""
+          className="size-6"
+        />
+        {unreadCount > 0 ? (
+          <span className="absolute right-2 top-2 size-2 rounded-full bg-[#ec003f]" />
+        ) : null}
       </button>
     </div>
   </header>
 );
 
 const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
-  <section className="w-[342px]" data-node-id="2169:4436">
-    <div className="flex h-7 items-center justify-between pr-4 drop-shadow-[0_0_2.5px_rgba(0,0,0,0.25)]">
-      <div>
-        <h1 className="text-lg font-bold leading-7 text-[#1f1a21]">
-          {data.week.monthLabel}
-        </h1>
-      </div>
-      <p className="text-sm font-medium leading-5 text-[#715380]">
+  <section>
+    <div className="flex items-center justify-between">
+      <h1 className="text-[20px] font-extrabold leading-7 tracking-normal text-[#262626]">
+        {monthHeadingLabel(data.week)}
+      </h1>
+      <p className="text-sm font-medium leading-5 text-[#434343]">
         {data.week.weekOfMonthLabel}
       </p>
     </div>
-    <div className="ml-1.5 mt-[13px] flex w-[330px] flex-col gap-0.5">
-      <div className="flex h-[68px] items-start overflow-hidden">
-        {data.week.days.map((day) => (
-          <button
-            key={day.date}
-            type="button"
-            className={`relative mr-[-12px] flex h-[66px] shrink-0 flex-col items-center justify-center rounded-[48px] ${
-              day.isToday
-                ? "w-[63px] bg-[#3a0057] text-white"
-                : "w-14 bg-[#f6eaf5] text-[#4d4351]"
+    <div className="mt-5 grid grid-cols-7 gap-[6px]">
+      {data.week.days.map((day) => (
+        <div
+          key={day.date}
+          className={`flex flex-col items-center gap-1 rounded-2xl px-2 pb-3 pt-2 ${
+            day.isToday ? "bg-[#9572ff] text-white" : ""
+          }`}
+        >
+          <span
+            className={`text-[9px] font-bold leading-none ${
+              day.isToday ? "text-white" : "text-[#c4c4c4]"
             }`}
           >
-            {day.isToday ? (
-              <span className="absolute left-1/2 top-1 size-1 -translate-x-1/2 rounded-full bg-white" />
-            ) : null}
-            <span className="pb-1 text-[10px] font-bold uppercase leading-[15px]">
-              {day.weekdayLabel}
-            </span>
-            <span
-              className={`font-bold leading-7 ${day.isToday ? "text-xl" : "text-lg"}`}
-            >
-              {day.dayOfMonth}
-            </span>
-          </button>
-        ))}
-      </div>
-      <div className="flex h-8 w-[319px] items-start gap-[13px] px-[11px]">
-        {data.week.days.map((day) => (
-          <button
-            key={`${day.date}-mood`}
-            type="button"
-            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-xl font-bold leading-none text-black shadow-[0_1px_1px_rgba(0,0,0,0.05)]"
-            aria-label={`${day.weekdayLabel} 마음 체크`}
+            {day.weekdayLabel}
+          </span>
+          <span
+            className={`text-sm font-bold leading-none ${
+              day.isToday ? "text-white" : "text-[#262626]"
+            }`}
           >
-            {day.mood?.emoji ?? (
-              <FigmaIcon
-                src={HOME_ICON_PATHS.moodPlus}
-                alt=""
-                className="size-[10.5px]"
-              />
-            )}
-          </button>
-        ))}
-      </div>
+            {day.dayOfMonth}
+          </span>
+        </div>
+      ))}
+    </div>
+    <div className="mt-[10px] grid grid-cols-7 gap-[8px]">
+      {data.week.days.map((day, index) => (
+        <div key={`${day.date}-mood`} className="flex justify-center">
+          <MoodBadge day={day} index={index} />
+        </div>
+      ))}
     </div>
   </section>
 );
+
+const MoodBadge = ({
+  day,
+  index,
+}: {
+  day: HomeDashboardData["week"]["days"][number];
+  index: number;
+}) => {
+  if (day.mood?.emoji) {
+    return (
+      <div
+        className={`flex size-8 items-center justify-center rounded-full text-[17px] ${MOOD_STYLES[index % MOOD_STYLES.length]}`}
+      >
+        {day.mood.emoji}
+      </div>
+    );
+  }
+
+  if (day.isToday) {
+    return (
+      <div className="flex size-8 items-center justify-center rounded-full bg-[#262626] text-[24px] leading-none text-white">
+        +
+      </div>
+    );
+  }
+
+  return <div className="size-8 rounded-full bg-[#e9e9e9]" aria-hidden />;
+};
 
 const TodayMissionCard = ({
   mission,
@@ -247,45 +257,34 @@ const TodayMissionCard = ({
   mission: HomeDashboardData["recommendedMission"];
   loading: boolean;
 }) => (
-  <section
-    className="flex h-[234px] w-[342px] flex-col items-start rounded-[48px] border border-[rgba(208,194,211,0.1)] bg-[#fcf0fb] px-[25px] pb-1 pt-[7px]"
-    data-node-id="2169:4511"
-  >
-    <div className="flex h-0.5 w-full justify-center">
-      <span className="h-0.5 w-8 rounded-full bg-[rgba(58,0,87,0.16)]" />
+  <section className="rounded-[24px] bg-white p-6 shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]">
+    <span className="inline-flex rounded-full bg-[#f6f6f6] px-[10px] py-[5px] text-xs font-medium leading-[1.4] text-[#262626]">
+      {mission?.subThemeLabel ?? "아이 10분 가까워지기"}
+    </span>
+    <div className="mt-[13px] flex items-center justify-between gap-4">
+      <h2 className="text-[20px] font-bold leading-[1.4] tracking-normal text-[#262626]">
+        {splitMissionTitle(
+          mission?.title ?? "아이와 눈을 마주치며 이야기를 해보아요",
+        ).map((line) => (
+          <span key={line} className="block whitespace-pre-wrap">
+            {line}
+          </span>
+        ))}
+      </h2>
+      <img
+        src={HOME_ICON_PATHS.missionIllustration}
+        alt=""
+        className="h-[60px] w-[84px] shrink-0"
+        aria-hidden
+      />
     </div>
-    <div className="mt-4 flex h-[173px] w-full flex-col rounded-[42px] bg-white px-6 pb-6 pt-6 shadow-[0_1px_1px_rgba(0,0,0,0.05)]">
-      <div className="min-w-0">
-        <span className="inline-flex h-[23px] items-center rounded-full bg-[#f6eaf5] px-3 text-[10px] font-bold leading-[15px] text-[#3a0057]">
-          {mission?.subThemeLabel ?? "아이 10분 가까워지기"}
-        </span>
-        <h2 className="mt-1 max-w-[300px] text-[20px] font-extrabold leading-[25px] text-[#1f1a21]">
-          {mission?.title ?? "오늘은 쉬어가도 좋아요"}
-        </h2>
-      </div>
-      <button
-        type="button"
-        disabled={!mission || loading}
-        className="mt-auto flex h-14 w-full items-center justify-center rounded-[32px] bg-[linear-gradient(167deg,#3a0057_0%,#ce80f8_100%)] text-base font-bold leading-6 text-white disabled:bg-[#cdbbd4]"
-      >
-        시작하기
-      </button>
-    </div>
-  </section>
-);
-
-const DashboardCards = ({
-  stage,
-  summary,
-}: {
-  stage: HomeDashboardData["growthStage"];
-  summary: HomeDashboardData["reportSummary"];
-}) => (
-  <section className="flex w-[385px] justify-center" data-node-id="2169:4523">
-    <div className="flex w-[343px] flex-col gap-[13px]">
-      <GrowthStageCard stage={stage} />
-      <ReportSummaryCard summary={summary} />
-    </div>
+    <button
+      type="button"
+      disabled={!mission || loading}
+      className="mt-[13px] flex h-12 w-full items-center justify-center rounded-2xl bg-[#9572ff] text-base font-medium leading-6 text-white disabled:bg-[#cfc3ff]"
+    >
+      미션 시작하기
+    </button>
   </section>
 );
 
@@ -294,16 +293,20 @@ const GrowthStageCard = ({
 }: {
   stage: HomeDashboardData["growthStage"];
 }) => (
-  <section className="h-[108px] w-[343px] rounded-[48px] border border-[rgba(208,194,211,0.1)] bg-[#f5d9ff] px-[15px] pb-[17px] pt-[15px]">
-    <div className="flex h-6 items-center gap-[5px]">
-      <FigmaIcon src={HOME_ICON_PATHS.growthStage} alt="" className="h-3 w-6" />
-      <h2 className="text-base font-bold leading-6 text-[#583b67]">
+  <section className="rounded-[33px] bg-white p-6 shadow-[0_4px_10px_rgba(0,0,0,0.04)]">
+    <div className="flex items-center gap-1">
+      <FigmaIcon
+        src={HOME_ICON_PATHS.growthStage}
+        alt=""
+        className="size-5 shrink-0"
+      />
+      <h2 className="text-xs font-bold leading-[1.4] text-[#262626]">
         현재 상황 [ {stage?.name ?? "확인 중"} ]
       </h2>
     </div>
-    <p className="mt-1.5 max-h-12 overflow-hidden text-[12px] font-medium leading-4 text-[#583b67]">
+    <p className="mt-3 text-sm font-medium leading-[1.8] text-[#555]">
       {stage?.summary ??
-        "아이의 독립심이 싹트고 있어요. 따뜻한 인내심이 아이의 자존감을 만듭니다."}
+        '아이의 독립심이 싹트고 있어요. "내가 할래!"라는 말은 성장의 건강한 신호입니다.'}
     </p>
   </section>
 );
@@ -312,77 +315,47 @@ const ReportSummaryCard = ({
   summary,
 }: {
   summary: HomeDashboardData["reportSummary"];
-}) => {
-  return (
-    <section className="h-[129px] w-[343px] rounded-[48px] border border-[rgba(208,194,211,0.1)] bg-[#f0e5ef] px-[15px] pb-[17px] pt-[15px]">
-      <div className="flex h-6 items-center gap-3">
-        <FigmaIcon
-          src={HOME_ICON_PATHS.reportSummary}
-          alt=""
-          className="size-[18px]"
-        />
-        <div className="flex flex-1 items-center justify-between">
-          <h2 className="min-w-0 pr-2 text-[16px] font-bold leading-6 text-[#1f1a21]">
-            {summary?.title ?? "지난주 아이와 함께한 놀이 시간"}
-          </h2>
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href = summary?.reportId
-                ? `/weekly-report?reportId=${summary.reportId}`
-                : "/weekly-report";
-            }}
-            className="shrink-0 text-[10px] font-bold leading-[15px] text-[#4d4351]"
-          >
-            더 알아보기
-          </button>
-        </div>
-      </div>
+}) => (
+  <section className="grid grid-cols-2 gap-2">
+    <SummaryMetricCard label="지난주 놀이 수행시간">
       {summary ? (
-        <div className="mt-[7px] grid h-[68px] grid-cols-2 gap-4">
-          <WeeklyReportMetricCard
-            label="누적 놀이 수행시간"
-            value={<DurationValue label={summary.totalDurationLabel} />}
-            tone="purple"
-          />
-          <WeeklyReportMetricCard
-            label="아이 반응 긍정률"
-            value={`${summary.childPositiveReactionRate}%`}
-            tone="gold"
-          />
+        <DurationValue label={summary.totalDurationLabel} />
+      ) : (
+        <span className="text-[14px] font-medium leading-5 text-[#9d9d9d]">
+          기록 없음
+        </span>
+      )}
+    </SummaryMetricCard>
+    <SummaryMetricCard label="아이 반응 긍정률">
+      {summary ? (
+        <div className="flex items-center justify-center gap-1 text-[#262626]">
+          <span className="text-[18px] text-[#9572ff]">◔</span>
+          <span className="text-[24px] font-extrabold leading-8">
+            {summary.childPositiveReactionRate}
+          </span>
+          <span className="text-[14px] font-medium leading-5">%</span>
         </div>
       ) : (
-        <div className="mt-[7px] flex h-[68px] items-center rounded-[32px] bg-[#fff7fc] px-4">
-          <p className="text-xs font-semibold leading-4 text-[#715380]">
-            지난주 리포트가 아직 없어요. 이번 주 미션을 완료하면 다음 리포트에서
-            놀이 시간과 아이 반응을 확인할 수 있어요.
-          </p>
-        </div>
+        <span className="text-[14px] font-medium leading-5 text-[#9d9d9d]">
+          기록 없음
+        </span>
       )}
-    </section>
-  );
-};
+    </SummaryMetricCard>
+  </section>
+);
 
-const WeeklyReportMetricCard = ({
+const SummaryMetricCard = ({
   label,
-  value,
-  tone,
+  children,
 }: {
   label: string;
-  value: ReactNode;
-  tone: "purple" | "gold";
+  children: React.ReactNode;
 }) => (
-  <div className="flex h-[68px] min-w-0 flex-col gap-1 overflow-hidden rounded-[32px] bg-[#fff7fc] px-4 pb-4 pt-[11px]">
-    <span className="text-[12px] font-semibold leading-4 text-[#715380]">
+  <div className="flex min-h-[96px] flex-col items-center justify-center rounded-[24px] bg-white px-4 py-3 shadow-[0_4px_10px_rgba(0,0,0,0.04)]">
+    <p className="text-center text-xs font-medium leading-[1.4] text-[#7b7b7b]">
       {label}
-    </span>
-    <span
-      className={`flex min-w-0 flex-wrap items-baseline gap-x-1 gap-y-0 text-[24px] font-bold leading-8 ${
-        tone === "purple" ? "text-[#5a0084]" : "text-[#c5995f]"
-      }`}
-    >
-      {value}
-    </span>
+    </p>
+    <div className="mt-2">{children}</div>
   </div>
 );
 
@@ -390,25 +363,29 @@ const DurationValue = ({ label }: { label: string }) => {
   const parts = label.match(/^(?:(\d+)시간)?(?:\s*)?(?:(\d+)분)?$/);
 
   if (!parts) {
-    return <span className="text-[24px] leading-8">{label}</span>;
+    return (
+      <span className="text-[22px] font-extrabold leading-8">{label}</span>
+    );
   }
 
   const [, hours, minutes] = parts;
   return (
-    <>
+    <div className="flex items-baseline justify-center gap-1 text-[#262626]">
       {hours ? (
         <>
-          <span>{hours}</span>
-          <span className="text-[14px] leading-5">시간</span>
+          <span className="text-[22px] font-extrabold leading-8">{hours}</span>
+          <span className="text-[14px] font-medium leading-5">시간</span>
         </>
       ) : null}
       {minutes ? (
         <>
-          <span>{minutes}</span>
-          <span className="text-[14px] leading-5">분</span>
+          <span className="text-[22px] font-extrabold leading-8">
+            {hours ? ` ${minutes}` : minutes}
+          </span>
+          <span className="text-[14px] font-medium leading-5">분</span>
         </>
       ) : null}
-    </>
+    </div>
   );
 };
 
@@ -424,76 +401,38 @@ const ChildSwitcherSheet = ({
   onSelect: (child: HomeChild) => void;
 }) => (
   <div
-    className="fixed inset-0 z-40 bg-[rgba(104,104,104,0.53)]"
+    className="fixed inset-0 z-40 bg-[rgba(38,38,38,0.24)]"
     role="dialog"
     aria-modal="true"
     onClick={onClose}
   >
-    <div className="relative mx-auto h-[874px] w-full max-w-[390px]">
-      <button
-        type="button"
-        onClick={onClose}
-        onMouseDown={(event) => event.stopPropagation()}
-        className="absolute left-1/2 top-6 flex h-6 w-[114px] -translate-x-1/2 items-center justify-center gap-1 rounded-[31px] bg-[#fff7fc] px-2 text-[13px] font-bold leading-[15px] text-black"
-        aria-label="아이 목록 닫기"
-      >
-        <span className="truncate">
-          {childItems.find((child) => child.id === selectedChildId)?.name ??
-            "아이"}{" "}
-          (
-          {childItems.find((child) => child.id === selectedChildId)?.ageLabel ??
-            ""}
-          )
-        </span>
-        <FigmaIcon
-          src={HOME_ICON_PATHS.childSwitcherChevron}
-          alt=""
-          className="size-3 shrink-0"
-        />
-      </button>
-      <div
-        className="absolute left-1/2 top-[66px] h-[180px] w-[340px] -translate-x-1/2 overflow-hidden rounded-[50px] bg-white shadow-[0_4px_17.4px_rgba(0,0,0,0.25)]"
-        onClick={(event) => event.stopPropagation()}
-      >
-        {childItems.map((child, index) => {
-          const selected = child.id === selectedChildId;
-          return (
-            <div
-              key={child.id}
-              className={`relative flex h-[90px] items-center px-[22px] ${
-                selected || index === 0 ? "bg-[#d9c4e3]" : "bg-white"
-              } ${index === 0 ? "rounded-t-[50px]" : ""}`}
-            >
-              <button
-                type="button"
-                className="flex min-w-0 flex-1 items-center gap-5 text-left"
-                onClick={() => onSelect(child)}
-              >
-                <span className="flex size-[45px] shrink-0 items-center justify-center rounded-full bg-[#fff7fc] text-[#3a0057]">
-                  <Baby className="size-7" aria-hidden />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-base font-bold leading-[15px] text-black">
-                    {child.name}
-                  </span>
-                  <span className="mt-[7px] block truncate text-xs font-medium leading-[15px] text-black">
-                    {child.ageLabel} ({new Date(child.birthDate).getFullYear()}
-                    년생)
-                  </span>
-                </span>
-              </button>
-              <div className="ml-3 flex shrink-0 items-center gap-4 text-[13px] leading-[13px] text-black">
-                <button type="button" className="underline">
-                  수정
-                </button>
-                <button type="button" className="underline">
-                  삭제
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+    <div className="absolute inset-x-5 top-[104px] rounded-[28px] bg-white p-3 shadow-[0_12px_30px_rgba(0,0,0,0.14)]">
+      {childItems.map((child) => {
+        const selected = child.id === selectedChildId;
+
+        return (
+          <button
+            key={child.id}
+            type="button"
+            onClick={() => onSelect(child)}
+            className={`flex w-full items-center gap-4 rounded-[20px] px-4 py-3 text-left ${
+              selected ? "bg-[#f6f6f6]" : ""
+            }`}
+          >
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#f3eeff] text-[#9572ff]">
+              <Baby className="size-6" aria-hidden />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-bold leading-5 text-[#262626]">
+                {child.name}
+              </span>
+              <span className="block truncate text-xs font-medium leading-[1.4] text-[#7b7b7b]">
+                {child.ageLabel} ({new Date(child.birthDate).getFullYear()}년생)
+              </span>
+            </span>
+          </button>
+        );
+      })}
     </div>
   </div>
 );
@@ -508,45 +447,48 @@ const NotificationModal = ({
   onClose: () => void;
 }) => (
   <div
-    className="fixed inset-0 z-40 bg-black/30"
+    className="fixed inset-0 z-40 bg-[rgba(38,38,38,0.24)]"
     role="dialog"
     aria-modal="true"
     onClick={onClose}
   >
     <div
-      className="absolute inset-x-4 top-[calc(72px+env(safe-area-inset-top))] mx-auto max-w-[398px] rounded-[24px] bg-[var(--surface)] p-5 shadow-xl"
+      className="absolute inset-x-5 top-[104px] rounded-[28px] bg-white p-5 shadow-[0_12px_30px_rgba(0,0,0,0.14)]"
       onClick={(event) => event.stopPropagation()}
     >
-      <div className="mb-4 flex items-center justify-between">
+      <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-lg font-bold">알림</h2>
-          <p className="text-sm text-[var(--text-tertiary)]">
+          <h2 className="text-lg font-bold leading-6 text-[#262626]">알림</h2>
+          <p className="mt-1 text-sm font-medium leading-5 text-[#7b7b7b]">
             읽지 않은 알림 {unreadCount}개
           </p>
         </div>
         <button
           type="button"
-          className="text-sm font-bold text-[var(--primary)]"
+          onClick={onClose}
+          className="text-sm font-medium leading-5 text-[#9572ff]"
         >
-          모두 읽음
+          닫기
         </button>
       </div>
-      <div className="space-y-3">
+      <div className="mt-4 space-y-3">
         {notifications.length > 0 ? (
           notifications.map((notification) => (
             <button
               key={notification.id}
               type="button"
-              className="w-full rounded-xl bg-[var(--surface-muted)] p-4 text-left"
+              className="w-full rounded-[20px] bg-[#f6f6f6] p-4 text-left"
             >
-              <p className="font-bold">{notification.title}</p>
-              <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
+              <p className="text-sm font-bold leading-5 text-[#262626]">
+                {notification.title}
+              </p>
+              <p className="mt-1 text-sm leading-5 text-[#555]">
                 {notification.body}
               </p>
             </button>
           ))
         ) : (
-          <p className="rounded-xl bg-[var(--surface-muted)] p-5 text-center text-sm text-[var(--text-secondary)]">
+          <p className="rounded-[20px] bg-[#f6f6f6] p-5 text-center text-sm font-medium leading-5 text-[#7b7b7b]">
             아직 새 알림이 없어요
           </p>
         )}
@@ -568,10 +510,34 @@ const FigmaIcon = ({
 );
 
 const HomeSkeleton = () => (
-  <div className="flex min-h-dvh items-center justify-center bg-[var(--surface-muted)]">
+  <div className="flex min-h-dvh items-center justify-center bg-[#fdfdfe]">
     <MoreHorizontal
-      className="size-8 animate-pulse text-[var(--primary)]"
+      className="size-8 animate-pulse text-[#9572ff]"
       aria-label="홈 불러오는 중"
     />
   </div>
 );
+
+function splitMissionTitle(title: string): string[] {
+  if (title.includes("\n")) {
+    return title.split("\n");
+  }
+
+  const parts = title.split(" ");
+  if (parts.length <= 3) {
+    return [title];
+  }
+
+  const pivot = Math.ceil(parts.length / 2);
+  return [parts.slice(0, pivot).join(" "), parts.slice(pivot).join(" ")];
+}
+
+function monthHeadingLabel(week: HomeDashboardData["week"]): string {
+  const baseDate = week.days[0]?.date;
+  if (!baseDate) {
+    return week.monthLabel;
+  }
+
+  const [year] = baseDate.split("-");
+  return `${year}년 ${week.monthLabel}`;
+}
