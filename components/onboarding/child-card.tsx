@@ -71,8 +71,8 @@ export function ChildCardForm({
           value={child.birthDate}
           onChange={(iso) => patch({ birthDate: iso })}
           placeholder="아이의 생년월일을 입력해 주세요."
-          // 자녀 연령: 만 0 ~ 만 7세. 시작은 만 2세(가장 흔한 영유아 입력 시점).
-          yearMin={new Date().getFullYear() - 7}
+          // 자녀 연령: 만 0 ~ 만 15세(중학생까지). 시작은 만 2세(가장 흔한 영유아 입력 시점).
+          yearMin={new Date().getFullYear() - 15}
           yearMax={new Date().getFullYear()}
           defaultYear={new Date().getFullYear() - 2}
         />
