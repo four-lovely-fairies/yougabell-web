@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { PlusIcon, TrashIcon } from "@/components/icons";
+import { PlusIcon } from "@/components/icons";
 import { ChildCardForm, ChildRow } from "@/components/onboarding/child-card";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
@@ -191,12 +191,16 @@ function DeleteConfirm({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
-          <div
+          {/* Figma 2146:5045 image 598 — 82×67 마스코트 캐릭터 */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/onboarding/intro.png"
+            alt=""
             aria-hidden
-            className="flex size-[68px] items-center justify-center rounded-full bg-error-50 text-error-600"
-          >
-            <TrashIcon size={32} />
-          </div>
+            width={82}
+            height={67}
+            className="h-[67px] w-[82px] object-contain"
+          />
           <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
             자녀 정보를 삭제하시겠습니까?
           </p>
