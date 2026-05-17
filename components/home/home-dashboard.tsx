@@ -1,6 +1,6 @@
 'use client';
 
-import { Baby, MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getStoredSelectedChildId,
@@ -400,36 +400,54 @@ const ChildSwitcherSheet = ({
   onSelect: (child: HomeChild) => void;
 }) => (
   <div
-    className="fixed inset-0 z-40 bg-[rgba(38,38,38,0.24)]"
+    className="fixed inset-0 z-40"
     role="dialog"
     aria-modal="true"
     onClick={onClose}
   >
-    <div className="absolute inset-x-5 top-[104px] rounded-[28px] bg-white p-3 shadow-[0_12px_30px_rgba(0,0,0,0.14)]">
+    <div
+      className="absolute left-5 top-[108px] w-[260px] overflow-hidden rounded-[32px] border border-[#ebecf0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] md:left-[calc(50%-175px)]"
+      onClick={(event) => event.stopPropagation()}
+    >
       {childItems.map((child) => {
         const selected = child.id === selectedChildId;
 
         return (
-          <button
+          <div
             key={child.id}
-            type="button"
-            onClick={() => onSelect(child)}
-            className={`flex w-full items-center gap-4 rounded-[20px] px-4 py-3 text-left ${
-              selected ? 'bg-[#f6f6f6]' : ''
+            className={`flex items-center justify-between px-6 py-5 ${
+              selected ? 'bg-[#efe7ff]' : 'bg-white'
             }`}
           >
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#f3eeff] text-[#9572ff]">
-              <Baby className="size-6" aria-hidden />
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-bold leading-5 text-[#262626]">
+            <button
+              type="button"
+              onClick={() => onSelect(child)}
+              className="min-w-0 flex-1 text-left"
+            >
+              <span className="block truncate text-sm font-bold leading-[1.4] text-[#1f2127]">
                 {child.name}
               </span>
-              <span className="block truncate text-xs font-medium leading-[1.4] text-[#7b7b7b]">
+              <span className="block truncate text-xs font-normal leading-[1.4] text-[#6f7885]">
                 {child.ageLabel} ({new Date(child.birthDate).getFullYear()}년생)
               </span>
-            </span>
-          </button>
+            </button>
+            <div className="ml-4 flex shrink-0 items-center gap-2 text-[#262626]">
+              <button
+                type="button"
+                className="flex size-5 items-center justify-center"
+                aria-label={`${child.name} 수정`}
+              >
+                <Pencil className="size-4" aria-hidden />
+              </button>
+              <button
+                type="button"
+                className="flex size-5 items-center justify-center"
+                aria-label={`${child.name} 삭제`}
+              >
+                <Trash2 className="size-4" aria-hidden />
+              </button>
+            </div>
+          </div>
         );
       })}
     </div>
