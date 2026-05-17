@@ -56,14 +56,14 @@ export function TimeBottomSheet({ initialTime, onClose, onConfirm }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/20"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-end bg-black/20"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="time-sheet-title"
     >
       <div
-        className="rounded-t-3xl bg-white pb-5 pt-7"
+        className="w-full max-w-[390px] rounded-t-3xl bg-white pb-5 pt-7"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between px-6 pb-4">
