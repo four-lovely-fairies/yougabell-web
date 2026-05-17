@@ -21,8 +21,8 @@ const button = cva(
       },
       size: {
         md: "h-12 px-5 text-[15px] rounded-md",
-        lg: "h-14 px-6 text-base rounded-lg",
-        full: "h-14 w-full text-base rounded-lg",
+        lg: "h-14 px-6 text-base rounded-2xl",
+        full: "h-14 w-full text-base rounded-2xl",
       },
     },
     defaultVariants: { variant: "primary", size: "lg" },
