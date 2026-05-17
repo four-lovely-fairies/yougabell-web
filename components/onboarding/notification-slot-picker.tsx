@@ -50,7 +50,7 @@ export function NotificationSlotPicker({ value, onChange }: Props) {
               onClick={() => select(slot)}
               aria-pressed={selected}
               className={cn(
-                "flex h-[61px] items-center gap-3 rounded-lg border px-4 text-left transition-colors",
+                "flex h-[61px] items-center gap-3 rounded-2xl border pl-3 pr-4 text-left transition-colors",
                 selected
                   ? "border-primary-300 bg-primary-50"
                   : "border-gray-200 bg-white hover:border-gray-300",
