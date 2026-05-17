@@ -20,9 +20,9 @@ const button = cva(
         ghost: "bg-transparent text-gray-600 hover:bg-gray-50",
       },
       size: {
-        md: "h-12 px-5 text-[15px] rounded-md",
-        lg: "h-14 px-6 text-base rounded-lg",
-        full: "h-14 w-full text-base rounded-lg",
+        md: "h-12 px-5 text-[15px] rounded-xl",
+        lg: "h-14 px-6 text-base rounded-2xl",
+        full: "h-14 w-full text-base rounded-2xl",
       },
     },
     defaultVariants: { variant: "primary", size: "lg" },

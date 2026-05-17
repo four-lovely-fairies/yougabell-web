@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { PlusIcon, TrashIcon } from "@/components/icons";
+import { PlusIcon } from "@/components/icons";
 import { ChildCardForm, ChildRow } from "@/components/onboarding/child-card";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
@@ -187,25 +187,29 @@ function DeleteConfirm({
       onClick={onCancel}
     >
       <div
-        className="flex w-full max-w-[334px] flex-col rounded-2xl bg-white"
+        className="flex w-full max-w-[334px] flex-col rounded-[20px] bg-white"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex flex-col items-center gap-5 px-4 pt-6 pb-4">
-          <div
+        <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
+          {/* Figma 2146:5045 image 598 — 82×67 마스코트 캐릭터 */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/onboarding/intro.png"
+            alt=""
             aria-hidden
-            className="flex size-[68px] items-center justify-center rounded-full bg-error-50 text-error-600"
-          >
-            <TrashIcon size={32} />
-          </div>
-          <p className="text-base font-semibold text-gray-800">
+            width={82}
+            height={67}
+            className="h-[67px] w-[82px] object-contain"
+          />
+          <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
             자녀 정보를 삭제하시겠습니까?
           </p>
         </div>
-        <div className="flex gap-2 px-4 pb-4">
+        <div className="flex gap-1.5 px-4 pt-4 pb-5">
           <Button
             size="md"
+            className="flex-1 bg-gray-50 text-gray-800 hover:bg-gray-100"
             variant="outline"
-            className="flex-1"
             onClick={onCancel}
           >
             취소

@@ -51,8 +51,8 @@ export function ChildCardForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-800">
-          이름 <span className="text-error-600">*</span>
+        <label className="text-xs font-medium text-gray-800">
+          이름 <span className="font-bold text-error-600">*</span>
         </label>
         <Input
           type="text"
@@ -64,8 +64,8 @@ export function ChildCardForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-800">
-          생년월일 <span className="text-error-600">*</span>
+        <label className="text-xs font-medium text-gray-800">
+          생년월일 <span className="font-bold text-error-600">*</span>
         </label>
         <DateInput
           value={child.birthDate}
@@ -79,8 +79,8 @@ export function ChildCardForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-800">
-          성별 <span className="text-error-600">*</span>
+        <label className="text-xs font-medium text-gray-800">
+          성별 <span className="font-bold text-error-600">*</span>
         </label>
         <SegmentedToggle
           ariaLabel="자녀 성별"
@@ -94,14 +94,14 @@ export function ChildCardForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-800">특이사항</label>
+        <label className="text-xs font-medium text-gray-800">특이사항</label>
         <textarea
           rows={2}
           maxLength={1000}
           placeholder="식품 알레르기, 질병, 복용 중인 약 등"
           value={child.notes ?? ""}
           onChange={(e) => patch({ notes: e.target.value })}
-          className="w-full px-4 py-3 rounded-md border border-gray-200 bg-white resize-none text-gray-800 placeholder:text-gray-400 focus:border-primary-500 outline-none"
+          className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white resize-none text-sm text-gray-800 placeholder:text-gray-400 focus:border-primary-500 outline-none"
         />
       </div>
     </div>
