@@ -11,6 +11,8 @@ type Props = {
   onConfirm: (iso: string) => void;
   yearMin?: number;
   yearMax?: number;
+  /** value 없을 때 휠 시작 위치. 미지정 시 today를 [yearMin, yearMax]로 clamp. */
+  defaultYear?: number;
   title?: string;
 };
 
@@ -50,14 +52,21 @@ export function DateBottomSheet({
   onConfirm,
   yearMin = 1900,
   yearMax = new Date().getFullYear(),
+  defaultYear,
   title = "생년월일을 선택하세요",
 }: Props) {
   const initial = (() => {
     const v = parseIso(value);
     if (v) return v;
     const today = new Date();
+    // value 없을 때 시작 위치:
+    // 1) defaultYear 명시되어 있으면 그 값을 [yearMin, yearMax]로 clamp
+    // 2) 아니면 today.getFullYear()를 동일하게 clamp
+    //    → yearMax<today면 yearMax부터 보임 (1900 fallback 방지)
+    const baseYear = defaultYear ?? today.getFullYear();
+    const y = Math.min(yearMax, Math.max(yearMin, baseYear));
     return {
-      y: today.getFullYear(),
+      y,
       m: today.getMonth() + 1,
       d: today.getDate(),
     };
