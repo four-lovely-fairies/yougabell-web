@@ -22,15 +22,12 @@ const HOME_ICON_PATHS = {
   headerNotification: "/icons/figma/home/header-notification.svg",
   headerSettings: "/icons/figma/home/header-settings.svg",
   missionIllustration: "/images/figma/home/mission-illustration.svg",
+  moodBad: "/icons/figma/mission-feedback/bad.svg",
+  moodGood: "/icons/figma/mission-feedback/good.svg",
+  moodNeutral: "/icons/figma/mission-feedback/neutral.svg",
+  moodVeryBad: "/icons/figma/mission-feedback/very-bad.svg",
+  moodVeryGood: "/icons/figma/mission-feedback/very-good.svg",
 } as const;
-
-const MOOD_STYLES = [
-  "bg-[#b7e0ff]",
-  "bg-[#ffa0b7]",
-  "bg-[#ffe0a3]",
-  "bg-[#d9f1b5]",
-  "bg-[#dcd6ff]",
-] as const;
 
 export const HomeDashboard = () => {
   const [state, setState] = useState<HomeLoadState | null>(null);
@@ -213,29 +210,23 @@ const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
       ))}
     </div>
     <div className="mt-[10px] grid grid-cols-7 gap-[8px]">
-      {data.week.days.map((day, index) => (
+      {data.week.days.map((day) => (
         <div key={`${day.date}-mood`} className="flex justify-center">
-          <MoodBadge day={day} index={index} />
+          <MoodBadge day={day} />
         </div>
       ))}
     </div>
   </section>
 );
 
-const MoodBadge = ({
-  day,
-  index,
-}: {
-  day: HomeDashboardData["week"]["days"][number];
-  index: number;
-}) => {
-  if (day.mood?.emoji) {
+const MoodBadge = ({ day }: { day: HomeDashboardData["week"]["days"][number] }) => {
+  if (day.mood?.level) {
     return (
-      <div
-        className={`flex size-8 items-center justify-center rounded-full text-[17px] ${MOOD_STYLES[index % MOOD_STYLES.length]}`}
-      >
-        {day.mood.emoji}
-      </div>
+      <FigmaIcon
+        src={moodIconPath(day.mood.level)}
+        alt=""
+        className="size-8 shrink-0"
+      />
     );
   }
 
@@ -540,4 +531,19 @@ function monthHeadingLabel(week: HomeDashboardData["week"]): string {
 
   const [year] = baseDate.split("-");
   return `${year}년 ${week.monthLabel}`;
+}
+
+function moodIconPath(level: 1 | 2 | 3 | 4 | 5): string {
+  switch (level) {
+    case 1:
+      return HOME_ICON_PATHS.moodVeryBad;
+    case 2:
+      return HOME_ICON_PATHS.moodBad;
+    case 3:
+      return HOME_ICON_PATHS.moodNeutral;
+    case 4:
+      return HOME_ICON_PATHS.moodGood;
+    case 5:
+      return HOME_ICON_PATHS.moodVeryGood;
+  }
 }
