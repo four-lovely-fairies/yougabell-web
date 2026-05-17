@@ -98,7 +98,7 @@ export default function ParentPage() {
           />
         </Field>
 
-        <Field label="직장 유무">
+        <Field label="직장 유무" required>
           <SegmentedToggle<WorkStatus>
             ariaLabel="직장 유무"
             allowDeselect

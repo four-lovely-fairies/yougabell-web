@@ -103,7 +103,7 @@ export function DateWheel({
             )}
           >
             {item}
-            {suffix}
+            {isSelected ? suffix : ""}
           </div>
         );
       })}
