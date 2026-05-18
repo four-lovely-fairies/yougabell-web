@@ -134,7 +134,7 @@ export default function ChildrenPage() {
             "flex h-13 items-center justify-center gap-[7px] rounded-2xl border-[1.358px] border-dashed transition-colors",
             !canAddChild
               ? "cursor-not-allowed border-gray-200 text-gray-300"
-              : "border-[#b69cfe] text-[#9572ff] hover:bg-primary-50",
+              : "border-[#dab2ff] text-[#9349f4] hover:bg-[#efe7ff]",
           )}
         >
           <PlusIcon size={20} />
@@ -157,7 +157,7 @@ export default function ChildrenPage() {
         </Button>
       ) : (
         <Button type="submit" size="full" disabled={!canProceed}>
-          저장
+          다음
         </Button>
       )}
 
