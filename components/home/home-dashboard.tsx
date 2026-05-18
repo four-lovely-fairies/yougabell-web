@@ -210,7 +210,7 @@ const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
         </div>
       ))}
     </div>
-    <div className="mt-[10px] grid grid-cols-7 gap-[8px]">
+    <div className="mt-[10px] grid grid-cols-7 gap-2">
       {data.week.days.map((day) => (
         <div key={`${day.date}-mood`} className="flex justify-center">
           <MoodBadge day={day} />
@@ -273,7 +273,7 @@ const TodayMissionCard = ({
       <img
         src={HOME_ICON_PATHS.missionIllustration}
         alt=""
-        className="h-[60px] w-[84px] shrink-0"
+        className="h-15 w-21 shrink-0"
         aria-hidden
       />
     </div>
@@ -350,7 +350,7 @@ const SummaryMetricCard = ({
   label: string;
   children: React.ReactNode;
 }) => (
-  <div className="flex min-h-[96px] flex-col items-center justify-center rounded-[24px] bg-white px-4 py-3 shadow-[0_4px_10px_rgba(0,0,0,0.04)]">
+  <div className="flex min-h-24 flex-col items-center justify-center rounded-[24px] bg-white px-4 py-3 shadow-[0_4px_10px_rgba(0,0,0,0.04)]">
     <p className="text-center text-xs font-medium leading-[1.4] text-[#7b7b7b]">
       {label}
     </p>
@@ -494,7 +494,7 @@ const NotificationModal = ({
             <button
               key={notification.id}
               type="button"
-              className="w-full rounded-[20px] bg-[#f6f6f6] p-4 text-left"
+              className="w-full rounded-xl bg-[#f6f6f6] p-4 text-left"
             >
               <p className="text-sm font-bold leading-5 text-[#262626]">
                 {notification.title}
@@ -505,7 +505,7 @@ const NotificationModal = ({
             </button>
           ))
         ) : (
-          <p className="rounded-[20px] bg-[#f6f6f6] p-5 text-center text-sm font-medium leading-5 text-[#7b7b7b]">
+          <p className="rounded-xl bg-[#f6f6f6] p-5 text-center text-sm font-medium leading-5 text-[#7b7b7b]">
             아직 새 알림이 없어요
           </p>
         )}

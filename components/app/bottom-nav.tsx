@@ -74,7 +74,7 @@ export const BottomNav = () => {
                   }
                 }}
                 aria-current={active ? 'page' : undefined}
-                className={`flex h-[56px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[999px] py-1 text-xs leading-[1.4] ${
+                className={`flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full py-1 text-xs leading-[1.4] ${
                   active ? 'bg-[#e9e9e9] text-[#262626]' : 'text-[#9d9d9d]'
                 }`}
               >

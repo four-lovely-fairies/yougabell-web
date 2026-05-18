@@ -190,12 +190,12 @@ function LoadingScreen({
       {/* 큰 ellipse: 좌상단 회전 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-40 -top-32 size-[420px] -rotate-6 rounded-full bg-primary-200/60 blur-[80px]"
+        className="pointer-events-none absolute -left-40 -top-32 h-81.75 w-87.25 rotate-[-5.78deg] rounded-full bg-primary-200/60 blur-[80px]"
       />
       {/* 큰 ellipse: 중앙 하단 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-24 top-1/2 h-[260px] w-[564px] rounded-full bg-primary-100/70 blur-[80px]"
+        className="pointer-events-none absolute -left-24 top-1/2 h-[253px] w-[564px] rounded-full bg-primary-100/70 blur-[80px]"
       />
       <div
         className={cnVariant(

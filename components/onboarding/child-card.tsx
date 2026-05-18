@@ -34,7 +34,7 @@ export function ChildCardForm({
   const patch = (next: Partial<ChildDraft>) => onChange({ ...child, ...next });
 
   return (
-    <div className="flex flex-col gap-4 rounded-[20px] border border-[#f2f1f0] bg-white p-5">
+    <div className="flex flex-col gap-4 rounded-xl border border-[#f2f1f0] bg-white p-5">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-800">
           자녀 {index + 1}
@@ -52,7 +52,7 @@ export function ChildCardForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-gray-800">
-          이름 <span className="font-bold text-error-600">*</span>
+          이름 <span className="font-bold text-[#ff5050]">*</span>
         </label>
         <Input
           type="text"
@@ -65,7 +65,7 @@ export function ChildCardForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-gray-800">
-          생년월일 <span className="font-bold text-error-600">*</span>
+          생년월일 <span className="font-bold text-[#ff5050]">*</span>
         </label>
         <DateInput
           value={child.birthDate}
@@ -80,10 +80,11 @@ export function ChildCardForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-gray-800">
-          성별 <span className="font-bold text-error-600">*</span>
+          성별 <span className="font-bold text-[#ff5050]">*</span>
         </label>
         <SegmentedToggle
           ariaLabel="자녀 성별"
+          selectedTone="brand"
           options={[
             { value: "female", label: "여아" },
             { value: "male", label: "남아" },
@@ -101,7 +102,7 @@ export function ChildCardForm({
           placeholder="식품 알레르기, 질병, 복용 중인 약 등"
           value={child.notes ?? ""}
           onChange={(e) => patch({ notes: e.target.value })}
-          className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white resize-none text-sm text-gray-800 placeholder:text-gray-400 focus:border-primary-500 outline-none"
+          className="w-full px-4 py-3 rounded-2xl border border-[#e9e9e9] bg-white resize-none text-sm text-gray-800 placeholder:text-gray-400 focus:border-[#9572ff] outline-none"
         />
       </div>
     </div>

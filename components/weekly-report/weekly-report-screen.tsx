@@ -233,7 +233,7 @@ const ReportSection = ({
 );
 
 const ReportCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-[20px] bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]">
+  <div className="rounded-xl bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]">
     {children}
   </div>
 );
@@ -247,7 +247,7 @@ const StatCard = ({
   value: string;
   type: "duration" | "percent";
 }) => (
-  <div className="flex min-h-[88px] flex-col items-center justify-center gap-3 rounded-[20px] bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]">
+  <div className="flex min-h-22 flex-col items-center justify-center gap-3 rounded-xl bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]">
     <p className="whitespace-nowrap text-xs font-medium leading-[17px] text-[#7b7b7b]">
       {label}
     </p>
@@ -297,7 +297,7 @@ const KeywordSection = ({ report }: { report: WeeklyReportDetail }) => (
         })}
       </div>
     ) : report.keywordEmptyState ? (
-      <div className="rounded-[20px] bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]">
+      <div className="rounded-xl bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]">
         <p className="text-sm font-bold leading-5">
           {report.keywordEmptyState.title}
         </p>
@@ -372,7 +372,7 @@ const InnerStateSection = ({ report }: { report: WeeklyReportDetail }) => (
         aria-valuemax={100}
       >
         <div
-          className="h-full rounded-[4px] bg-[#9572ff]"
+          className="h-full rounded-xs bg-[#9572ff]"
           style={{ width: `${report.innerState.psychologicalEnergy}%` }}
         />
       </div>
@@ -426,7 +426,7 @@ const WeeklyReportError = ({
   onRetry: () => void;
 }) => (
   <div className="flex min-h-[720px] flex-1 flex-col items-center justify-center gap-6 px-8 pb-20 text-center">
-    <div className="size-[96px] rounded-full bg-[#fff1f2]" aria-hidden />
+    <div className="size-24 rounded-full bg-[#fff1f2]" aria-hidden />
     <div>
       <h2 className="text-lg font-bold leading-[25px]">
         주간 리포트를 불러오지 못했습니다
@@ -449,7 +449,7 @@ const WeeklyReportSkeleton = () => (
     {Array.from({ length: 5 }).map((_, index) => (
       <div key={index} className="space-y-3">
         <div className="h-6 w-40 animate-pulse rounded-full bg-[#eeeeee]" />
-        <div className="h-32 animate-pulse rounded-[20px] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]" />
+        <div className="h-32 animate-pulse rounded-xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]" />
       </div>
     ))}
   </div>

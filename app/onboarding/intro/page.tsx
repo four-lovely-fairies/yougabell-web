@@ -67,7 +67,7 @@ export default function IntroPage() {
     <div className="relative flex flex-1 flex-col">
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-40 -top-32 size-[320px] rounded-full bg-primary-100 opacity-70 blur-3xl"
+        className="pointer-events-none absolute -left-40 -top-32 h-81.75 w-87.25 rotate-[-5.78deg] rounded-full bg-primary-100 opacity-70 blur-3xl"
       />
       <div
         aria-hidden
@@ -87,15 +87,17 @@ export default function IntroPage() {
         </p>
       </div>
 
+      {/* Figma 2146:4252 image 598 — sprite의 한 캐릭터 영역만 crop 노출 */}
       <div className="relative z-10 flex flex-1 items-center justify-center">
-        <img
-          src="/onboarding/intro.png"
-          alt=""
-          aria-hidden
-          width={152}
-          height={124}
-          className="h-[124px] w-[152px] object-contain"
-        />
+        <div className="relative h-31 w-38 overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/onboarding/intro.png"
+            alt=""
+            aria-hidden
+            className="absolute left-[-145.57%] top-[-16.11%] h-[381.08%] w-[381.22%] max-w-none"
+          />
+        </div>
       </div>
 
       <div className="relative z-10 flex flex-col gap-3 px-5 pb-5">
@@ -128,7 +130,7 @@ export default function IntroPage() {
               setIsGooglePending(false);
             }
           }}
-          className="flex h-[52px] w-full items-center justify-between rounded-[12px] border border-gray-200 bg-white px-4 disabled:opacity-60"
+          className="flex h-13 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-4 disabled:opacity-60"
         >
           <GoogleIcon size={20} />
           <span className="text-base font-medium leading-[1.4] text-gray-800">
@@ -142,7 +144,7 @@ export default function IntroPage() {
             track({ type: "onboarding_skip", from: "intro" });
             router.push("/onboarding/parent");
           }}
-          className="flex h-[52px] w-full items-center justify-between rounded-[12px] bg-gray-900 px-4 text-white"
+          className="flex h-13 w-full items-center justify-between rounded-md bg-gray-900 px-4 text-white"
         >
           <AppleIcon size={20} />
           <span className="text-base font-medium leading-[1.4]">

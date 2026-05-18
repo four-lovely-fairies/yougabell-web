@@ -88,6 +88,14 @@ export function DateWheel({
       <div style={{ height: ITEM_HEIGHT * CENTER_OFFSET }} aria-hidden />
       {items.map((item, i) => {
         const isSelected = i === safeIndex;
+        // 선택 항목에서 멀어질수록 점차 옅어지는 휠 picker fade (Figma 2146:4348)
+        const distance = Math.abs(i - safeIndex);
+        const tone =
+          distance === 0
+            ? "font-medium text-gray-800"
+            : distance === 1
+              ? "text-gray-500"
+              : "text-gray-300";
         return (
           <div
             key={item}
@@ -97,9 +105,7 @@ export function DateWheel({
             style={{ height: ITEM_HEIGHT }}
             className={cn(
               "snap-center flex items-center justify-center text-[20px] leading-none tabular-nums",
-              isSelected
-                ? "font-semibold text-gray-800"
-                : "text-gray-400",
+              tone,
             )}
           >
             {item}
