@@ -208,7 +208,7 @@ function DeleteConfirm({
         <div className="flex gap-1.5 px-4 pt-4 pb-5">
           <Button
             size="md"
-            className="flex-1 bg-gray-50 text-gray-800 hover:bg-gray-100"
+            className="flex-1 bg-[#f2f3f5] text-gray-800 hover:bg-gray-100"
             variant="outline"
             onClick={onCancel}
           >
