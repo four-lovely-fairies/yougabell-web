@@ -84,6 +84,7 @@ export function ChildCardForm({
         </label>
         <SegmentedToggle
           ariaLabel="자녀 성별"
+          selectedTone="brand"
           options={[
             { value: "female", label: "여아" },
             { value: "male", label: "남아" },
