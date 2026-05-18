@@ -101,7 +101,7 @@ export function ChildCardForm({
           placeholder="식품 알레르기, 질병, 복용 중인 약 등"
           value={child.notes ?? ""}
           onChange={(e) => patch({ notes: e.target.value })}
-          className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white resize-none text-sm text-gray-800 placeholder:text-gray-400 focus:border-primary-500 outline-none"
+          className="w-full px-4 py-3 rounded-2xl border border-[#e9e9e9] bg-white resize-none text-sm text-gray-800 placeholder:text-gray-400 focus:border-[#9572ff] outline-none"
         />
       </div>
     </div>
