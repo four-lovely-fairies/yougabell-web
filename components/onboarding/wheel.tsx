@@ -80,6 +80,14 @@ export function Wheel<T extends string | number>({
       <div style={{ height: ITEM_HEIGHT * CENTER_OFFSET }} aria-hidden />
       {items.map((item, i) => {
         const isSelected = i === safeIndex;
+        // 선택 항목에서 멀어질수록 점차 옅어지는 휠 picker fade (Figma 2146:4582)
+        const distance = Math.abs(i - safeIndex);
+        const tone =
+          distance === 0
+            ? "font-medium text-gray-800"
+            : distance === 1
+              ? "text-gray-500"
+              : "text-gray-300";
         return (
           <div
             key={String(item)}
@@ -89,7 +97,7 @@ export function Wheel<T extends string | number>({
             style={{ height: ITEM_HEIGHT }}
             className={cn(
               "flex snap-center items-center justify-center text-[20px] leading-none tabular-nums",
-              isSelected ? "font-semibold text-gray-800" : "text-gray-400",
+              tone,
             )}
           >
             {format(item)}

@@ -52,7 +52,7 @@ export function ChildCardForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-gray-800">
-          이름 <span className="font-bold text-error-600">*</span>
+          이름 <span className="font-bold text-[#ff5050]">*</span>
         </label>
         <Input
           type="text"
@@ -65,7 +65,7 @@ export function ChildCardForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-gray-800">
-          생년월일 <span className="font-bold text-error-600">*</span>
+          생년월일 <span className="font-bold text-[#ff5050]">*</span>
         </label>
         <DateInput
           value={child.birthDate}
@@ -80,7 +80,7 @@ export function ChildCardForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-gray-800">
-          성별 <span className="font-bold text-error-600">*</span>
+          성별 <span className="font-bold text-[#ff5050]">*</span>
         </label>
         <SegmentedToggle
           ariaLabel="자녀 성별"

@@ -67,7 +67,7 @@ export default function IntroPage() {
     <div className="relative flex flex-1 flex-col">
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-40 -top-32 size-[320px] rounded-full bg-primary-100 opacity-70 blur-3xl"
+        className="pointer-events-none absolute -left-40 -top-32 h-81.75 w-87.25 rotate-[-5.78deg] rounded-full bg-primary-100 opacity-70 blur-3xl"
       />
       <div
         aria-hidden
