@@ -34,7 +34,7 @@ export function ChildCardForm({
   const patch = (next: Partial<ChildDraft>) => onChange({ ...child, ...next });
 
   return (
-    <div className="flex flex-col gap-4 rounded-[20px] border border-[#f2f1f0] bg-white p-5">
+    <div className="flex flex-col gap-4 rounded-xl border border-[#f2f1f0] bg-white p-5">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-800">
           자녀 {index + 1}

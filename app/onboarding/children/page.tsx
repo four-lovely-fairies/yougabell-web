@@ -187,7 +187,7 @@ function DeleteConfirm({
       onClick={onCancel}
     >
       <div
-        className="flex w-full max-w-[334px] flex-col rounded-[20px] bg-white"
+        className="flex w-full max-w-[334px] flex-col rounded-xl bg-white"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
