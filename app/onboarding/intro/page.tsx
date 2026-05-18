@@ -87,15 +87,17 @@ export default function IntroPage() {
         </p>
       </div>
 
+      {/* Figma 2146:4252 image 598 — sprite의 한 캐릭터 영역만 crop 노출 */}
       <div className="relative z-10 flex flex-1 items-center justify-center">
-        <img
-          src="/onboarding/intro.png"
-          alt=""
-          aria-hidden
-          width={152}
-          height={124}
-          className="h-[124px] w-[152px] object-contain"
-        />
+        <div className="relative h-[124px] w-[152px] overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/onboarding/intro.png"
+            alt=""
+            aria-hidden
+            className="absolute left-[-145.57%] top-[-16.11%] h-[381.08%] w-[381.22%] max-w-none"
+          />
+        </div>
       </div>
 
       <div className="relative z-10 flex flex-col gap-3 px-5 pb-5">

@@ -191,16 +191,16 @@ function DeleteConfirm({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
-          {/* Figma 2146:5045 image 598 — 82×67 마스코트 캐릭터 */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/onboarding/intro.png"
-            alt=""
-            aria-hidden
-            width={82}
-            height={67}
-            className="h-[67px] w-[82px] object-contain"
-          />
+          {/* Figma 2146:5045 image 598 — sprite의 한 캐릭터 영역만 crop 노출(82×67) */}
+          <div className="relative h-[67px] w-[82px] overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/onboarding/intro.png"
+              alt=""
+              aria-hidden
+              className="absolute left-[-23.76%] top-[-20.27%] h-[381.08%] w-[381.22%] max-w-none"
+            />
+          </div>
           <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
             자녀 정보를 삭제하시겠습니까?
           </p>
