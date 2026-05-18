@@ -131,7 +131,7 @@ export default function ChildrenPage() {
           onClick={addChild}
           disabled={!canAddChild}
           className={cn(
-            "flex h-[52px] items-center justify-center gap-[7px] rounded-2xl border-[1.358px] border-dashed transition-colors",
+            "flex h-13 items-center justify-center gap-[7px] rounded-2xl border-[1.358px] border-dashed transition-colors",
             !canAddChild
               ? "cursor-not-allowed border-gray-200 text-gray-300"
               : "border-[#b69cfe] text-[#9572ff] hover:bg-primary-50",

@@ -89,7 +89,7 @@ export default function IntroPage() {
 
       {/* Figma 2146:4252 image 598 — sprite의 한 캐릭터 영역만 crop 노출 */}
       <div className="relative z-10 flex flex-1 items-center justify-center">
-        <div className="relative h-[124px] w-[152px] overflow-hidden">
+        <div className="relative h-31 w-38 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/onboarding/intro.png"
@@ -130,7 +130,7 @@ export default function IntroPage() {
               setIsGooglePending(false);
             }
           }}
-          className="flex h-[52px] w-full items-center justify-between rounded-[12px] border border-gray-200 bg-white px-4 disabled:opacity-60"
+          className="flex h-13 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-4 disabled:opacity-60"
         >
           <GoogleIcon size={20} />
           <span className="text-base font-medium leading-[1.4] text-gray-800">
@@ -144,7 +144,7 @@ export default function IntroPage() {
             track({ type: "onboarding_skip", from: "intro" });
             router.push("/onboarding/parent");
           }}
-          className="flex h-[52px] w-full items-center justify-between rounded-[12px] bg-gray-900 px-4 text-white"
+          className="flex h-13 w-full items-center justify-between rounded-md bg-gray-900 px-4 text-white"
         >
           <AppleIcon size={20} />
           <span className="text-base font-medium leading-[1.4]">
