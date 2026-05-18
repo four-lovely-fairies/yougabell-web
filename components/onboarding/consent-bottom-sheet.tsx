@@ -64,7 +64,7 @@ export function ConsentBottomSheet({ initial, onClose, onConfirm }: Props) {
           <button
             type="button"
             onClick={toggleAll}
-            className="flex w-full items-center gap-2 rounded-2xl bg-gray-50 p-4 text-left"
+            className="flex w-full items-center gap-2 rounded-2xl bg-[#f8f9fb] p-4 text-left"
             aria-pressed={allChecked}
           >
             <CheckMark filled={allChecked} />
@@ -129,9 +129,9 @@ function CheckMark({
   return (
     <span
       className={cn(
-        "flex size-5 items-center justify-center rounded-full",
+        "flex size-5 items-center justify-center rounded-sm",
         filled && active && "bg-gray-800 text-white",
-        !filled && active && "text-primary-500",
+        !filled && active && "text-[#9572ff]",
         !active && "text-gray-300",
       )}
     >
