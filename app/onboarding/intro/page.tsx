@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppleIcon, GoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
@@ -14,26 +14,28 @@ export default function IntroPage() {
   const { isDirty, clear } = useOnboardingDraft();
   const [startFresh, setStartFresh] = useState(false);
   const [isGooglePending, setIsGooglePending] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [oauthRequestError, setOauthRequestError] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     track({ type: "onboarding_intro_view" });
   }, []);
 
-  useEffect(() => {
+  const authCallbackError = useMemo(() => {
     const error = searchParams.get("error");
     if (!error) {
-      setAuthError(null);
-      return;
+      return null;
     }
 
     if (error === "oauth_failed" || error === "session_exchange_failed") {
-      setAuthError("구글 로그인 연결에 실패했습니다. 다시 시도해주세요.");
-      return;
+      return "구글 로그인 연결에 실패했습니다. 다시 시도해주세요.";
     }
 
-    setAuthError("로그인 처리 중 문제가 발생했습니다.");
+    return "로그인 처리 중 문제가 발생했습니다.";
   }, [searchParams]);
+
+  const authError = oauthRequestError ?? authCallbackError;
 
   if (isDirty && !startFresh) {
     return (
@@ -77,8 +79,7 @@ export default function IntroPage() {
       <div className="relative z-10 flex flex-col items-center gap-5 pt-20 text-center">
         <h1 className="text-[24px] font-bold leading-[1.4] text-gray-800">
           워킹맘의 하루를
-          <br />
-          더 의미있게
+          <br />더 의미있게
         </h1>
         <p className="text-sm font-medium leading-[1.4] text-gray-500">
           바쁜 일상 속에서도
@@ -108,12 +109,15 @@ export default function IntroPage() {
           type="button"
           disabled={isGooglePending}
           onClick={async () => {
-            setAuthError(null);
+            setOauthRequestError(null);
             setIsGooglePending(true);
             track({ type: "onboarding_google_sign_in_click" });
 
             const supabase = createSupabaseBrowserClient();
-            const redirectTo = new URL("/auth/callback", window.location.origin);
+            const redirectTo = new URL(
+              "/auth/callback",
+              window.location.origin,
+            );
             redirectTo.searchParams.set("next", "/onboarding/parent");
 
             const { error } = await supabase.auth.signInWithOAuth({
@@ -124,7 +128,9 @@ export default function IntroPage() {
             });
 
             if (error) {
-              setAuthError("구글 로그인 연결에 실패했습니다. 다시 시도해주세요.");
+              setOauthRequestError(
+                "구글 로그인 연결에 실패했습니다. 다시 시도해주세요.",
+              );
               setIsGooglePending(false);
             }
           }}

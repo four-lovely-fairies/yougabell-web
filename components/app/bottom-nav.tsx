@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from "next/navigation";
 
 const NAV_ICON_PATHS = {
-  ai: '/icons/figma/home/nav-ai.svg',
-  home: '/icons/figma/home/nav-home.svg',
-  play: '/icons/figma/home/nav-play.svg',
-  roadmap: '/icons/figma/home/nav-roadmap.svg',
-  weeklyReport: '/icons/figma/home/nav-weekly-report.svg',
+  ai: "/icons/figma/home/nav-ai.svg",
+  home: "/icons/figma/home/nav-home.svg",
+  play: "/icons/figma/home/nav-play.svg",
+  roadmap: "/icons/figma/home/nav-roadmap.svg",
+  weeklyReport: "/icons/figma/home/nav-weekly-report.svg",
 } as const;
 
 type BottomNavItem = {
@@ -20,36 +20,37 @@ type BottomNavItem = {
 
 const items: BottomNavItem[] = [
   {
-    label: '홈',
-    href: '/',
+    label: "홈",
+    href: "/",
     iconSrc: NAV_ICON_PATHS.home,
-    iconClassName: 'h-[18px] w-4',
-    matches: (pathname: string) => pathname === '/',
+    iconClassName: "h-[18px] w-4",
+    matches: (pathname: string) => pathname === "/",
   },
   {
-    label: '10분 놀이',
+    label: "10분 놀이",
+    href: "/mission",
     iconSrc: NAV_ICON_PATHS.play,
-    iconClassName: 'h-5 w-[18px]',
-    matches: () => false,
+    iconClassName: "h-5 w-[18px]",
+    matches: (pathname: string) => pathname.startsWith("/mission"),
   },
   {
-    label: '성장 로드맵',
+    label: "성장 로드맵",
     iconSrc: NAV_ICON_PATHS.roadmap,
-    iconClassName: 'size-[18px]',
+    iconClassName: "size-[18px]",
     matches: () => false,
   },
   {
-    label: 'AI 상담',
+    label: "AI 상담",
     iconSrc: NAV_ICON_PATHS.ai,
-    iconClassName: 'h-[19px] w-[22px]',
+    iconClassName: "h-[19px] w-[22px]",
     matches: () => false,
   },
   {
-    label: '리포트',
-    href: '/weekly-report',
+    label: "리포트",
+    href: "/weekly-report",
     iconSrc: NAV_ICON_PATHS.weeklyReport,
-    iconClassName: 'size-[18px]',
-    matches: (pathname: string) => pathname.startsWith('/weekly-report'),
+    iconClassName: "size-[18px]",
+    matches: (pathname: string) => pathname.startsWith("/weekly-report"),
   },
 ] as const;
 
@@ -73,9 +74,9 @@ export const BottomNav = () => {
                     router.push(item.href);
                   }
                 }}
-                aria-current={active ? 'page' : undefined}
+                aria-current={active ? "page" : undefined}
                 className={`flex h-[56px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[999px] py-1 text-xs leading-[1.4] ${
-                  active ? 'bg-[#e9e9e9] text-[#262626]' : 'text-[#9d9d9d]'
+                  active ? "bg-[#e9e9e9] text-[#262626]" : "text-[#9d9d9d]"
                 }`}
               >
                 <img
@@ -84,7 +85,7 @@ export const BottomNav = () => {
                   className={`shrink-0 ${item.iconClassName}`}
                   aria-hidden
                 />
-                <span className={active ? 'font-medium' : 'font-normal'}>
+                <span className={active ? "font-medium" : "font-normal"}>
                   {item.label}
                 </span>
               </button>
