@@ -2,11 +2,21 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import type { ReadonlyURLSearchParams } from "next/navigation";
 import { AppleIcon, GoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+
+function deriveAuthError(params: ReadonlyURLSearchParams): string | null {
+  const error = params.get("error");
+  if (!error) return null;
+  if (error === "oauth_failed" || error === "session_exchange_failed") {
+    return "구글 로그인 연결에 실패했습니다. 다시 시도해주세요.";
+  }
+  return "로그인 처리 중 문제가 발생했습니다.";
+}
 
 export default function IntroPage() {
   const router = useRouter();
@@ -14,26 +24,22 @@ export default function IntroPage() {
   const { isDirty, clear } = useOnboardingDraft();
   const [startFresh, setStartFresh] = useState(false);
   const [isGooglePending, setIsGooglePending] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  // authError는 두 source를 합친다:
+  // (1) callback URL의 ?error 파라미터 — searchParams 변경 시 derive
+  // (2) OAuth 시도 직후 결과 — onClick에서 set
+  // searchParams가 바뀐 순간만 그 값을 반영하기 위해 React 19 render-time 조건부 setState 패턴 사용.
+  const [authError, setAuthError] = useState<string | null>(() =>
+    deriveAuthError(searchParams),
+  );
+  const [lastSyncedParams, setLastSyncedParams] = useState(searchParams);
+  if (lastSyncedParams !== searchParams) {
+    setLastSyncedParams(searchParams);
+    setAuthError(deriveAuthError(searchParams));
+  }
 
   useEffect(() => {
     track({ type: "onboarding_intro_view" });
   }, []);
-
-  useEffect(() => {
-    const error = searchParams.get("error");
-    if (!error) {
-      setAuthError(null);
-      return;
-    }
-
-    if (error === "oauth_failed" || error === "session_exchange_failed") {
-      setAuthError("구글 로그인 연결에 실패했습니다. 다시 시도해주세요.");
-      return;
-    }
-
-    setAuthError("로그인 처리 중 문제가 발생했습니다.");
-  }, [searchParams]);
 
   if (isDirty && !startFresh) {
     return (
@@ -71,7 +77,7 @@ export default function IntroPage() {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-24 top-[230px] h-[253px] w-[564px] rounded-full bg-primary-100 opacity-50 blur-2xl"
+        className="pointer-events-none absolute -left-24 top-57.5 h-63.25 w-141 rounded-full bg-primary-100 opacity-50 blur-2xl"
       />
 
       <div className="relative z-10 flex flex-col items-center gap-5 pt-20 text-center">
