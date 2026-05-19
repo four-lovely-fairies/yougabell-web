@@ -1,13 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 import { InterestCard } from "@/components/onboarding/interest-card";
 import { Button } from "@/components/ui/button";
 import { api, ApiError } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import {
+  INTEREST_API_TO_WEB,
   INTEREST_EMOJI,
   INTEREST_LABEL,
   INTEREST_WEB_TO_API,
@@ -33,6 +34,17 @@ export default function SettingsInterestsPage() {
   const [selected, setSelected] = useState<InterestId[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const me = await api.getMe();
+        setSelected((me.interests ?? []).map((id) => INTEREST_API_TO_WEB[id]));
+      } catch {
+        // hydrate 실패 — 빈 상태로 시작
+      }
+    })();
+  }, []);
 
   const toggle = (id: InterestId) => {
     setSelected((prev) => {
@@ -65,7 +77,7 @@ export default function SettingsInterestsPage() {
         e.preventDefault();
         void submit();
       }}
-      className="flex flex-1 flex-col"
+      className="flex flex-1 flex-col px-5 pb-5"
     >
       <OnboardingHeader variant="back" />
 
