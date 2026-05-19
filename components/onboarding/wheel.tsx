@@ -30,23 +30,29 @@ export function Wheel<T extends string | number>({
 }: Props<T>) {
   const ref = useRef<HTMLDivElement>(null);
   const ignoreScrollRef = useRef(false);
+  const firstSyncRef = useRef(true);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
   const valueIndex = items.indexOf(value);
   const safeIndex = valueIndex >= 0 ? valueIndex : 0;
 
+  // 첫 sync는 instant, 이후 외부 변경(클릭 등)은 smooth scroll로 부드럽게 한 칸씩 이동.
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     const target = safeIndex * ITEM_HEIGHT;
-    if (el.scrollTop !== target) {
-      ignoreScrollRef.current = true;
+    if (el.scrollTop === target) return;
+    ignoreScrollRef.current = true;
+    if (firstSyncRef.current) {
       el.scrollTop = target;
-      window.setTimeout(() => {
-        ignoreScrollRef.current = false;
-      }, 200);
+      firstSyncRef.current = false;
+    } else {
+      el.scrollTo({ top: target, behavior: "smooth" });
     }
+    window.setTimeout(() => {
+      ignoreScrollRef.current = false;
+    }, 400);
   }, [safeIndex]);
 
   useLayoutEffect(() => {
@@ -75,7 +81,7 @@ export function Wheel<T extends string | number>({
       role="listbox"
       aria-label={ariaLabel}
       style={{ width, height: ITEM_HEIGHT * VISIBLE }}
-      className="no-scrollbar relative snap-y snap-mandatory overflow-y-scroll"
+      className="no-scrollbar relative snap-y snap-mandatory scroll-smooth overflow-y-scroll"
     >
       <div style={{ height: ITEM_HEIGHT * CENTER_OFFSET }} aria-hidden />
       {items.map((item, i) => {
@@ -89,19 +95,25 @@ export function Wheel<T extends string | number>({
               ? "text-gray-500"
               : "text-gray-300";
         return (
-          <div
+          <button
             key={String(item)}
+            type="button"
             role="option"
             aria-selected={isSelected}
             data-index={i}
+            // 보이는 항목 클릭 시 그 값으로 변경 → smooth scroll로 정렬
+            onClick={() => {
+              if (item !== value) onChange(item);
+            }}
             style={{ height: ITEM_HEIGHT }}
             className={cn(
-              "flex snap-center items-center justify-center text-[20px] leading-none tabular-nums",
+              "flex w-full snap-center items-center justify-center text-[20px] leading-none tabular-nums outline-none",
               tone,
+              !isSelected && "cursor-pointer",
             )}
           >
             {format(item)}
-          </div>
+          </button>
         );
       })}
       <div style={{ height: ITEM_HEIGHT * CENTER_OFFSET }} aria-hidden />
