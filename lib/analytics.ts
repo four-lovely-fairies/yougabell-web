@@ -16,9 +16,28 @@ export type OnboardingEvent =
         | "children";
     }
   | { type: "onboarding_work_status_filled" }
+  | { type: "onboarding_skip"; from: "intro" }
   | { type: "onboarding_finish" };
 
-export function track(event: OnboardingEvent): void {
+// 설정 화면 이벤트 (docs/features/20260519-settings.md §6).
+export type SettingsEvent =
+  | { type: "settings_open" }
+  | {
+      type: "settings_notification_change";
+      notificationType: "play_10min" | "weekly_report";
+      enabled: boolean;
+    }
+  | { type: "settings_interests_save"; count: number }
+  | { type: "settings_parent_save" }
+  | { type: "settings_child_add" }
+  | { type: "settings_child_update"; childId: string }
+  | { type: "settings_child_delete"; childId: string }
+  | { type: "settings_logout" }
+  | { type: "settings_account_delete_confirm" };
+
+export type AnalyticsEvent = OnboardingEvent | SettingsEvent;
+
+export function track(event: AnalyticsEvent): void {
   if (typeof window === "undefined") return;
   if (process.env.NODE_ENV !== "production") {
     console.info("[analytics]", event.type, event);
