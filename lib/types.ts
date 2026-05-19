@@ -89,6 +89,8 @@ export type CompleteOnboardingPayload = {
   }>;
   // v4 흐름: 알림 권한 거부 시 미전송. server는 null로 저장(별도 task — 현재 DTO required).
   notification?: NotificationPreference;
+  // 관심 주제(최대 3개). api는 snake_case(ApiInterestId) 기대 — web의 kebab id에서 변환.
+  interests?: ApiInterestId[];
 };
 
 export type ApiInterestId =
