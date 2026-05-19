@@ -1,6 +1,11 @@
 import createClient from "openapi-fetch";
 import type { paths } from "./generated/api-types";
 import { getDemoHomeDashboard, type HomeDashboard } from "./home-data";
+import {
+  getDemoCurrentMission,
+  type CurrentMissionResponse,
+  type MissionExecutionSnapshot,
+} from "./mission-data";
 import { createSupabaseBrowserClient } from "./supabase/client";
 import type { CompleteOnboardingPayload, MeResponse } from "./types";
 import type {
@@ -12,6 +17,7 @@ import type {
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
 const openApiClient = createClient<paths>({ baseUrl: BASE_URL });
+const DEMO_MISSION_STORAGE_KEY = "mission:demo-snapshot";
 
 /**
  * Supabase 브라우저 세션에서 access_token을 꺼내 Authorization 헤더 구성.
@@ -46,6 +52,12 @@ export type WeeklyReportLoadState =
       };
     };
 
+export type MissionLoadState = {
+  data: CurrentMissionResponse;
+  source: "api" | "demo";
+  message?: string;
+};
+
 async function request<T>(
   path: string,
   init?: RequestInit & { json?: unknown },
@@ -77,6 +89,12 @@ export class ApiError extends Error {
     super(`API ${status}`);
   }
 }
+
+type MissionExecutionAction =
+  | "pause"
+  | "resume"
+  | "complete"
+  | "early_complete";
 
 export const api = {
   getMe: () => request<MeResponse>("/me"),
@@ -205,6 +223,157 @@ export const loadWeeklyReport = async ({
   }
 };
 
+export const loadCurrentMission = async (
+  childId?: string | null,
+): Promise<MissionLoadState> => {
+  const headers = await authHeaders();
+
+  if (!headers.Authorization) {
+    return {
+      data: getDemoCurrentMission(),
+      source: "demo",
+      message: "로그인 세션이 연결되면 실제 미션 데이터를 표시합니다.",
+    };
+  }
+
+  try {
+    const query = childId ? `?childId=${encodeURIComponent(childId)}` : "";
+    const data = await request<CurrentMissionResponse>(
+      `/missions/current${query}`,
+      {
+        method: "GET",
+        headers,
+      },
+    );
+
+    return {
+      data,
+      source: "api",
+    };
+  } catch (error) {
+    const message =
+      error instanceof ApiError
+        ? `API 응답을 가져오지 못해 샘플 미션을 표시합니다. (${error.status})`
+        : "API 서버에 연결할 수 없어 샘플 미션을 표시합니다.";
+
+    return {
+      data: getDemoCurrentMission(),
+      source: "demo",
+      message,
+    };
+  }
+};
+
+export const startMissionExecution = async ({
+  childId,
+  missionId,
+  durationMinutes,
+}: {
+  childId: string;
+  missionId: string;
+  durationMinutes: number;
+}): Promise<{
+  execution: MissionExecutionSnapshot;
+  source: "api" | "demo";
+}> => {
+  const headers = await authHeaders();
+
+  if (!headers.Authorization) {
+    const execution = createDemoMissionExecution({
+      childId,
+      missionId,
+      durationMinutes,
+    });
+    persistDemoMissionExecution(execution);
+    return { execution, source: "demo" };
+  }
+
+  const data = await request<{ execution: MissionExecutionSnapshot }>(
+    "/mission-executions",
+    {
+      method: "POST",
+      headers,
+      json: { childId, missionId },
+    },
+  );
+
+  return { execution: data.execution, source: "api" };
+};
+
+export const loadMissionExecution = async ({
+  childId,
+  executionId,
+  mode,
+}: {
+  childId?: string | null;
+  executionId?: string | null;
+  mode?: "api" | "demo" | null;
+}): Promise<{
+  execution: MissionExecutionSnapshot | null;
+  source: "api" | "demo";
+}> => {
+  if (mode === "demo") {
+    return {
+      execution: readDemoMissionExecution(executionId),
+      source: "demo",
+    };
+  }
+
+  const headers = await authHeaders();
+  if (!headers.Authorization) {
+    return {
+      execution: readDemoMissionExecution(executionId),
+      source: "demo",
+    };
+  }
+
+  const query = childId ? `?childId=${encodeURIComponent(childId)}` : "";
+  const data = await request<{ execution: MissionExecutionSnapshot | null }>(
+    `/mission-executions/active${query}`,
+    {
+      method: "GET",
+      headers,
+    },
+  );
+
+  return { execution: data.execution, source: "api" };
+};
+
+export const applyMissionExecutionAction = async ({
+  executionId,
+  action,
+  mode,
+}: {
+  executionId: string;
+  action: MissionExecutionAction;
+  mode?: "api" | "demo" | null;
+}): Promise<{
+  execution: MissionExecutionSnapshot | null;
+  source: "api" | "demo";
+}> => {
+  if (mode === "demo") {
+    const execution = applyDemoMissionAction(executionId, action);
+    return { execution, source: "demo" };
+  }
+
+  const headers = await authHeaders();
+  if (!headers.Authorization) {
+    const execution = applyDemoMissionAction(executionId, action);
+    return { execution, source: "demo" };
+  }
+
+  const data = await request<{ execution: MissionExecutionSnapshot | null }>(
+    `/mission-executions/${executionId}/action`,
+    {
+      method: "POST",
+      headers,
+      json: { action },
+    },
+  );
+
+  return { execution: data.execution, source: "api" };
+};
+
 function toWeeklyReportViewData(
   data: WeeklyReportCurrent | WeeklyReportDetail,
 ): WeeklyReportViewData {
@@ -229,3 +398,127 @@ export const getStoredSelectedChildId = () => {
 export const setStoredSelectedChildId = (childId: string) => {
   window.localStorage.setItem("home:selected-child-id", childId);
 };
+
+function createDemoMissionExecution({
+  childId,
+  missionId,
+  durationMinutes,
+}: {
+  childId: string;
+  missionId: string;
+  durationMinutes: number;
+}): MissionExecutionSnapshot {
+  const now = new Date();
+
+  return {
+    id: `demo-execution-${missionId}`,
+    missionId,
+    childId,
+    status: "in_progress",
+    startedAt: now.toISOString(),
+    activeSegmentStartedAt: now.toISOString(),
+    pausedAt: null,
+    durationMinutes,
+    elapsedSeconds: 0,
+    remainingSeconds: durationMinutes * 60,
+    serverNow: now.toISOString(),
+  };
+}
+
+function readDemoMissionExecution(executionId?: string | null) {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const raw = window.sessionStorage.getItem(DEMO_MISSION_STORAGE_KEY);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as MissionExecutionSnapshot;
+    if (executionId && parsed.id !== executionId) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function persistDemoMissionExecution(
+  execution: MissionExecutionSnapshot | null,
+) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!execution) {
+    window.sessionStorage.removeItem(DEMO_MISSION_STORAGE_KEY);
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    DEMO_MISSION_STORAGE_KEY,
+    JSON.stringify(execution),
+  );
+}
+
+function applyDemoMissionAction(
+  executionId: string,
+  action: MissionExecutionAction,
+) {
+  const current = readDemoMissionExecution(executionId);
+  if (!current) {
+    return null;
+  }
+
+  const now = new Date();
+  const totalSeconds = current.durationMinutes * 60;
+  const elapsedSeconds = getDemoElapsedSeconds(current, now);
+
+  if (action === "pause") {
+    const next = {
+      ...current,
+      status: "paused" as const,
+      activeSegmentStartedAt: null,
+      pausedAt: now.toISOString(),
+      elapsedSeconds,
+      remainingSeconds: Math.max(0, totalSeconds - elapsedSeconds),
+      serverNow: now.toISOString(),
+    };
+    persistDemoMissionExecution(next);
+    return next;
+  }
+
+  if (action === "resume") {
+    const next = {
+      ...current,
+      status: "in_progress" as const,
+      activeSegmentStartedAt: now.toISOString(),
+      pausedAt: null,
+      serverNow: now.toISOString(),
+    };
+    persistDemoMissionExecution(next);
+    return next;
+  }
+
+  persistDemoMissionExecution(null);
+  return null;
+}
+
+function getDemoElapsedSeconds(execution: MissionExecutionSnapshot, now: Date) {
+  if (execution.status !== "in_progress" || !execution.activeSegmentStartedAt) {
+    return execution.elapsedSeconds;
+  }
+
+  const segmentElapsedSeconds = Math.max(
+    0,
+    Math.floor(
+      (now.getTime() - new Date(execution.activeSegmentStartedAt).getTime()) /
+        1000,
+    ),
+  );
+
+  return execution.elapsedSeconds + segmentElapsedSeconds;
+}

@@ -1,8 +1,8 @@
 "use client";
 
+import type { ReadonlyURLSearchParams } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { ReadonlyURLSearchParams } from "next/navigation";
 import { AppleIcon, GoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
@@ -83,8 +83,7 @@ export default function IntroPage() {
       <div className="relative z-10 flex flex-col items-center gap-5 pt-20 text-center">
         <h1 className="text-[24px] font-bold leading-[1.4] text-gray-800">
           워킹맘의 하루를
-          <br />
-          더 의미있게
+          <br />더 의미있게
         </h1>
         <p className="text-sm font-medium leading-[1.4] text-gray-500">
           바쁜 일상 속에서도
@@ -121,7 +120,10 @@ export default function IntroPage() {
             track({ type: "onboarding_google_sign_in_click" });
 
             const supabase = createSupabaseBrowserClient();
-            const redirectTo = new URL("/auth/callback", window.location.origin);
+            const redirectTo = new URL(
+              "/auth/callback",
+              window.location.origin,
+            );
             redirectTo.searchParams.set("next", "/onboarding/parent");
 
             const { error } = await supabase.auth.signInWithOAuth({
@@ -132,7 +134,9 @@ export default function IntroPage() {
             });
 
             if (error) {
-              setAuthError("구글 로그인 연결에 실패했습니다. 다시 시도해주세요.");
+              setAuthError(
+                "구글 로그인 연결에 실패했습니다. 다시 시도해주세요.",
+              );
               setIsGooglePending(false);
             }
           }}
