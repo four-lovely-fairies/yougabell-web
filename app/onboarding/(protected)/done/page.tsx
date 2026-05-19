@@ -7,7 +7,11 @@ import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { ApiError, api } from "@/lib/api";
 import { notifyMobile } from "@/lib/native-bridge";
-import type { CompleteOnboardingPayload, OnboardingDraft } from "@/lib/types";
+import {
+  INTEREST_WEB_TO_API,
+  type CompleteOnboardingPayload,
+  type OnboardingDraft,
+} from "@/lib/types";
 
 type Status = "submitting" | "success" | "error" | "already" | "timeout";
 
@@ -20,6 +24,7 @@ function buildPayload(
   const p = draft.parent;
   const children = draft.children ?? [];
   const notification = draft.notification;
+  const interests = draft.interests ?? [];
   if (!p?.name || !p.birthDate || !p.gender) return null;
   if (children.length < 1) return null;
   for (const c of children) {
@@ -40,6 +45,7 @@ function buildPayload(
       notes: c.notes,
     })),
     notification: notification ?? undefined,
+    interests: interests.map((id) => INTEREST_WEB_TO_API[id]),
   };
 }
 
