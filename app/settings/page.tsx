@@ -38,7 +38,7 @@ export default function SettingsPage() {
         const me = await api.getMe();
         setInterests(me.interests ?? []);
       } catch {
-        // interests fetch 실패 — 빈 칩 표시
+        // interests fetch 실패 — 빈 칩
       }
     })();
   }, []);
@@ -51,79 +51,170 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col pb-10">
-      <header className="flex items-center justify-between px-5 py-4">
-        <div className="flex items-center gap-2">
+    <div className="flex flex-col">
+      {/* Figma 2395:8866 헤더 — h-78 px-20 */}
+      <header className="flex h-[78px] items-center justify-between px-5">
+        <div className="flex w-[182.5px] items-center gap-2">
           <SettingsIcon className="size-6 text-gray-800" />
-          <h1 className="text-xl font-bold text-gray-800">설정</h1>
+          <h1 className="text-xl font-bold tracking-[-0.4px] text-gray-800">
+            설정
+          </h1>
         </div>
         <button
           type="button"
           onClick={() => router.back()}
           aria-label="닫기"
-          className="-mr-1 p-1 text-gray-700"
+          className="flex size-11 items-center justify-center text-gray-700"
         >
           <X className="size-6" />
         </button>
       </header>
 
-      <Section title="설정">
-        <Row
-          href="/settings/notifications"
-          icon={Bell}
-          title="미션 알림"
-          subtitle="오늘의 제안을 놓치지 마세요"
-        />
-        <Row
-          href="/settings/interests"
-          icon={Flag}
-          title="관심사 수정"
-          subtitle={`${interests.length}개 선택됨`}
-          extra={
-            interests.length > 0 ? (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {interests.map((id) => (
-                  <span
-                    key={id}
-                    className="rounded-full bg-[#efe7ff] px-2.5 py-1 text-xs font-medium text-[#9572ff]"
-                  >
-                    #{INTEREST_LABEL[INTEREST_API_TO_WEB[id]]}
-                  </span>
-                ))}
-              </div>
-            ) : null
-          }
-        />
-      </Section>
+      {/* Figma 2395:8873 본문 — pt-20 pb-40 px-20, 섹션 gap-24 */}
+      <div className="flex flex-col gap-6 px-5 pt-5 pb-10">
+        <Section title="설정">
+          <Row
+            href="/settings/notifications"
+            icon={Bell}
+            title="미션 알림"
+            subtitle="오늘의 제안을 놓치지 마세요"
+            divider
+          />
+          <Row
+            href="/settings/interests"
+            icon={Flag}
+            title="관심사 수정"
+            subtitle={`${interests.length}개 선택됨`}
+            extra={
+              interests.length > 0 ? (
+                <div className="flex flex-wrap gap-2 pl-9 pt-1">
+                  {interests.map((id) => (
+                    <span
+                      key={id}
+                      className="rounded-full bg-[#efe7ff] px-2 py-1 text-xs font-medium leading-[1.4] text-[#7850ff]"
+                    >
+                      #{INTEREST_LABEL[INTEREST_API_TO_WEB[id]]}
+                    </span>
+                  ))}
+                </div>
+              ) : null
+            }
+          />
+        </Section>
 
-      <Section title="설정">
-        <Row href="/settings/profile" icon={User} title="내 프로필 수정" />
-        <Row
-          href="/settings/children"
-          icon={Smile}
-          title="아이 프로필 추가/수정"
-        />
-      </Section>
+        <Section title="설정">
+          <Row
+            href="/settings/profile"
+            icon={User}
+            title="내 프로필 수정"
+            divider
+          />
+          <Row
+            href="/settings/children"
+            icon={Smile}
+            title="아이 프로필 추가/수정"
+          />
+        </Section>
 
-      <Section title="계정 및 구독">
-        <Row
-          onClick={() => setDeletingAccount(true)}
-          icon={UserMinus}
-          title="계정 탈퇴"
-        />
-        <Row onClick={onLogout} icon={LogOut} title="로그아웃" />
-      </Section>
+        <Section title="계정 및 구독">
+          <Row
+            onClick={() => setDeletingAccount(true)}
+            icon={UserMinus}
+            title="계정 탈퇴"
+            divider
+          />
+          <Row onClick={onLogout} icon={LogOut} title="로그아웃" />
+        </Section>
 
-      <Section title="기타">
-        <Row href="/policy/privacy" icon={FileText} title="개인정보 보호정책" />
-        <Row href="/policy/terms" icon={ScrollText} title="서비스 약관" />
-      </Section>
+        <Section title="기타">
+          <Row
+            href="/policy/privacy"
+            icon={FileText}
+            title="개인정보 보호정책"
+            divider
+          />
+          <Row href="/policy/terms" icon={ScrollText} title="서비스 약관" />
+        </Section>
+      </div>
 
       {deletingAccount ? (
         <DeleteAccountModal onClose={() => setDeletingAccount(false)} />
       ) : null}
     </div>
   );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-base font-bold leading-[1.4] text-gray-800">
+        {title}
+      </h2>
+      <div className="flex flex-col">{children}</div>
+    </section>
+  );
+}
+
+type RowProps = {
+  icon: ComponentType<{ className?: string }>;
+  title: string;
+  subtitle?: string;
+  extra?: ReactNode;
+  divider?: boolean;
+} & ({ href: string; onClick?: never } | { onClick: () => void; href?: never });
+
+function Row({
+  icon: Icon,
+  title,
+  subtitle,
+  extra,
+  divider,
+  ...action
+}: RowProps) {
+  const body = (
+    <div className="flex w-full items-center justify-between py-4">
+      <div className="flex items-center gap-3">
+        <Icon className="size-6 shrink-0 text-gray-700" />
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-medium leading-[1.4] text-gray-800">
+            {title}
+          </span>
+          {subtitle ? (
+            <span className="text-xs leading-[1.4] text-gray-500">
+              {subtitle}
+            </span>
+          ) : null}
+        </div>
+      </div>
+      <ChevronRight className="size-6 shrink-0 text-gray-400" />
+    </div>
+  );
+  const inner = (
+    <>
+      {"href" in action && action.href ? (
+        <Link href={action.href} className="block">
+          {body}
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={action.onClick}
+          className="block w-full text-left"
+        >
+          {body}
+        </button>
+      )}
+      {extra}
+      {divider ? <div className="h-px bg-gray-100" /> : null}
+    </>
+  );
+  return inner;
 }
 
 function DeleteAccountModal({ onClose }: { onClose: () => void }) {
@@ -137,7 +228,6 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
     try {
       await api.deleteAccount();
       track({ type: "settings_account_delete_confirm" });
-      // soft delete 후 세션 종료
       const supabase = createSupabaseBrowserClient();
       await supabase.auth.signOut();
       router.replace("/onboarding/intro");
@@ -201,60 +291,5 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
         </div>
       </div>
     </div>
-  );
-}
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="flex flex-col">
-      <h2 className="px-5 pt-5 pb-2 text-sm font-bold text-gray-800">
-        {title}
-      </h2>
-      <div className="flex flex-col">{children}</div>
-    </section>
-  );
-}
-
-type RowProps = {
-  icon: ComponentType<{ className?: string }>;
-  title: string;
-  subtitle?: string;
-  extra?: ReactNode;
-} & ({ href: string; onClick?: never } | { onClick: () => void; href?: never });
-
-function Row({ icon: Icon, title, subtitle, extra, ...action }: RowProps) {
-  const content = (
-    <>
-      <Icon className="size-6 shrink-0 text-gray-700" />
-      <div className="flex flex-1 flex-col">
-        <span className="text-base font-medium text-gray-800">{title}</span>
-        {subtitle ? (
-          <span className="mt-0.5 text-xs text-gray-500">{subtitle}</span>
-        ) : null}
-        {extra}
-      </div>
-      <ChevronRight className="size-6 shrink-0 text-gray-400" />
-    </>
-  );
-  const className =
-    "flex w-full items-start gap-3 border-b border-gray-100 px-5 py-4 text-left transition-colors hover:bg-gray-50";
-
-  if ("href" in action && action.href) {
-    return (
-      <Link href={action.href} className={className}>
-        {content}
-      </Link>
-    );
-  }
-  return (
-    <button type="button" onClick={action.onClick} className={className}>
-      {content}
-    </button>
   );
 }
