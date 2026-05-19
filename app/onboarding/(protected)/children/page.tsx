@@ -131,10 +131,10 @@ export default function ChildrenPage() {
           onClick={addChild}
           disabled={!canAddChild}
           className={cn(
-            "flex h-13 items-center justify-center gap-[7px] rounded-2xl border-[1.358px] border-dashed transition-colors",
+            "flex h-[52px] items-center justify-center gap-[7px] rounded-2xl border-[1.358px] border-dashed transition-colors",
             !canAddChild
               ? "cursor-not-allowed border-gray-200 text-gray-300"
-              : "border-[#dab2ff] text-[#9349f4] hover:bg-[#efe7ff]",
+              : "border-[#b69cfe] text-[#9572ff] hover:bg-primary-50",
           )}
         >
           <PlusIcon size={20} />
@@ -157,7 +157,7 @@ export default function ChildrenPage() {
         </Button>
       ) : (
         <Button type="submit" size="full" disabled={!canProceed}>
-          다음
+          저장
         </Button>
       )}
 
@@ -187,20 +187,20 @@ function DeleteConfirm({
       onClick={onCancel}
     >
       <div
-        className="flex w-full max-w-[334px] flex-col rounded-xl bg-white"
+        className="flex w-full max-w-[334px] flex-col rounded-[20px] bg-white"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
-          {/* Figma 2146:5045 image 598 — sprite의 한 캐릭터 영역만 crop 노출(82×67) */}
-          <div className="relative h-[67px] w-[82px] overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/onboarding/intro.png"
-              alt=""
-              aria-hidden
-              className="absolute left-[-23.76%] top-[-20.27%] h-[381.08%] w-[381.22%] max-w-none"
-            />
-          </div>
+          {/* Figma 2146:5045 image 598 — 82×67 마스코트 캐릭터 */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/onboarding/intro.png"
+            alt=""
+            aria-hidden
+            width={82}
+            height={67}
+            className="h-[67px] w-[82px] object-contain"
+          />
           <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
             자녀 정보를 삭제하시겠습니까?
           </p>
@@ -208,7 +208,7 @@ function DeleteConfirm({
         <div className="flex gap-1.5 px-4 pt-4 pb-5">
           <Button
             size="md"
-            className="flex-1 bg-[#f2f3f5] text-gray-800 hover:bg-gray-100"
+            className="flex-1 bg-gray-50 text-gray-800 hover:bg-gray-100"
             variant="outline"
             onClick={onCancel}
           >

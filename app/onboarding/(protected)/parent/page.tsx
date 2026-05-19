@@ -135,7 +135,7 @@ function Field({
       <span className="text-xs font-medium leading-[1.4] text-gray-800">
         {label}
         {required ? (
-          <span className="text-[#ff5050] font-bold ml-0.5">*</span>
+          <span className="text-error-600 font-bold ml-0.5">*</span>
         ) : null}
       </span>
       {children}

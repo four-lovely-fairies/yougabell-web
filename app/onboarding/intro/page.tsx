@@ -2,20 +2,18 @@
 
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppleIcon, GoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
+import { buildOAuthRedirectTo, getOAuthErrorMessage } from "@/lib/auth-oauth";
 import { track } from "@/lib/analytics";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
+type OAuthProvider = "google" | "apple";
+
 function deriveAuthError(params: ReadonlyURLSearchParams): string | null {
-  const error = params.get("error");
-  if (!error) return null;
-  if (error === "oauth_failed" || error === "session_exchange_failed") {
-    return "구글 로그인 연결에 실패했습니다. 다시 시도해주세요.";
-  }
-  return "로그인 처리 중 문제가 발생했습니다.";
+  return getOAuthErrorMessage(params.get("error"));
 }
 
 export default function IntroPage() {
@@ -23,23 +21,49 @@ export default function IntroPage() {
   const searchParams = useSearchParams();
   const { isDirty, clear } = useOnboardingDraft();
   const [startFresh, setStartFresh] = useState(false);
-  const [isGooglePending, setIsGooglePending] = useState(false);
-  // authError는 두 source를 합친다:
-  // (1) callback URL의 ?error 파라미터 — searchParams 변경 시 derive
-  // (2) OAuth 시도 직후 결과 — onClick에서 set
-  // searchParams가 바뀐 순간만 그 값을 반영하기 위해 React 19 render-time 조건부 setState 패턴 사용.
-  const [authError, setAuthError] = useState<string | null>(() =>
-    deriveAuthError(searchParams),
+  const [pendingProvider, setPendingProvider] = useState<OAuthProvider | null>(
+    null,
   );
-  const [lastSyncedParams, setLastSyncedParams] = useState(searchParams);
-  if (lastSyncedParams !== searchParams) {
-    setLastSyncedParams(searchParams);
-    setAuthError(deriveAuthError(searchParams));
-  }
+  const [oauthRequestError, setOauthRequestError] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     track({ type: "onboarding_intro_view" });
   }, []);
+
+  const authCallbackError = useMemo(() => {
+    return deriveAuthError(searchParams);
+  }, [searchParams]);
+
+  const authError = oauthRequestError ?? authCallbackError;
+
+  async function handleOAuthSignIn(provider: OAuthProvider) {
+    setOauthRequestError(null);
+    setPendingProvider(provider);
+    track({
+      type:
+        provider === "google"
+          ? "onboarding_google_sign_in_click"
+          : "onboarding_apple_sign_in_click",
+    });
+
+    const supabase = createSupabaseBrowserClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: buildOAuthRedirectTo(
+          window.location.origin,
+          "/onboarding/parent",
+        ),
+      },
+    });
+
+    if (error) {
+      setOauthRequestError("로그인 연결에 실패했습니다. 다시 시도해주세요.");
+      setPendingProvider(null);
+    }
+  }
 
   if (isDirty && !startFresh) {
     return (
@@ -92,7 +116,6 @@ export default function IntroPage() {
         </p>
       </div>
 
-      {/* Figma 2146:4252 image 598 — sprite의 한 캐릭터 영역만 crop 노출 */}
       <div className="relative z-10 flex flex-1 items-center justify-center">
         <div className="relative h-31 w-38 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -113,52 +136,25 @@ export default function IntroPage() {
         ) : null}
         <button
           type="button"
-          disabled={isGooglePending}
-          onClick={async () => {
-            setAuthError(null);
-            setIsGooglePending(true);
-            track({ type: "onboarding_google_sign_in_click" });
-
-            const supabase = createSupabaseBrowserClient();
-            const redirectTo = new URL(
-              "/auth/callback",
-              window.location.origin,
-            );
-            redirectTo.searchParams.set("next", "/onboarding/parent");
-
-            const { error } = await supabase.auth.signInWithOAuth({
-              provider: "google",
-              options: {
-                redirectTo: redirectTo.toString(),
-              },
-            });
-
-            if (error) {
-              setAuthError(
-                "구글 로그인 연결에 실패했습니다. 다시 시도해주세요.",
-              );
-              setIsGooglePending(false);
-            }
-          }}
-          className="flex h-13 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-4 disabled:opacity-60"
+          disabled={pendingProvider !== null}
+          onClick={() => void handleOAuthSignIn("google")}
+          className="flex h-[52px] w-full items-center justify-between rounded-[12px] border border-gray-200 bg-white px-4 disabled:opacity-60"
         >
           <GoogleIcon size={20} />
           <span className="text-base font-medium leading-[1.4] text-gray-800">
-            {isGooglePending ? "연결 중..." : "Google로 계속하기"}
+            {pendingProvider === "google" ? "연결 중..." : "Google로 계속하기"}
           </span>
           <span aria-hidden className="size-6" />
         </button>
         <button
           type="button"
-          onClick={() => {
-            track({ type: "onboarding_skip", from: "intro" });
-            router.push("/onboarding/parent");
-          }}
-          className="flex h-13 w-full items-center justify-between rounded-md bg-gray-900 px-4 text-white"
+          disabled={pendingProvider !== null}
+          onClick={() => void handleOAuthSignIn("apple")}
+          className="flex h-[52px] w-full items-center justify-between rounded-[12px] bg-gray-900 px-4 text-white disabled:opacity-60"
         >
           <AppleIcon size={20} />
           <span className="text-base font-medium leading-[1.4]">
-            Apple로 계속하기
+            {pendingProvider === "apple" ? "연결 중..." : "Apple로 계속하기"}
           </span>
           <span aria-hidden className="size-6" />
         </button>
