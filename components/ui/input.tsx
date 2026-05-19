@@ -17,8 +17,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       className={cn(
         "flex items-center h-12 px-4 rounded-2xl bg-white border transition-colors",
         invalid
-          ? "border-error-600"
-          : "border-gray-200 focus-within:border-primary-500",
+          ? "border-[#ff5050]"
+          : "border-[#e9e9e9] focus-within:border-[#9572ff]",
         className,
       )}
     >

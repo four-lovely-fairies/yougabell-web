@@ -52,7 +52,7 @@ const items: BottomNavItem[] = [
     iconClassName: "size-[18px]",
     matches: (pathname: string) => pathname.startsWith("/weekly-report"),
   },
-] as const;
+];
 
 export const BottomNav = () => {
   const pathname = usePathname();
