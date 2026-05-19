@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 // 좌우 padding(20px)도 layout이 책임 → 모든 page가 자동으로 정렬된 콘텐츠 영역을 가짐.
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const me = await fetchServerMe();
-  // 이미 온보딩 완료한 사용자는 홈으로. 미인증·미온보딩은 통과.
+  // 이미 온보딩 완료한 사용자는 홈으로. intro 공개 여부는 하위 route group이 처리한다.
   if (me?.onboardedAt) {
     redirect("/");
   }

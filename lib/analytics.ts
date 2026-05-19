@@ -4,7 +4,7 @@
 export type OnboardingEvent =
   | { type: "onboarding_intro_view"; page?: number }
   | { type: "onboarding_google_sign_in_click" }
-  | { type: "onboarding_skip"; from: string }
+  | { type: "onboarding_apple_sign_in_click" }
   | {
       type: "onboarding_step_complete";
       step:
