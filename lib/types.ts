@@ -91,13 +91,32 @@ export type CompleteOnboardingPayload = {
   notification?: NotificationPreference;
 };
 
+export type ApiInterestId =
+  | "working_parent"
+  | "home_care"
+  | "language"
+  | "social"
+  | "physical"
+  | "cognition";
+
+export type NotificationPreferenceType = "play_10min" | "weekly_report";
+
+export type NotificationPreferenceRow = {
+  id: string;
+  type: NotificationPreferenceType;
+  enabled: boolean;
+  time: string;
+};
+
 export type MeResponse = {
   id: string;
   name: string;
   birthDate: string;
   gender: Gender;
   workStatus: WorkStatus | null;
+  interests: ApiInterestId[];
   onboardedAt: string | null;
+  deletedAt: string | null;
   children: Array<{
     id: string;
     name: string;
@@ -105,7 +124,45 @@ export type MeResponse = {
     gender: Gender;
     notes: string | null;
   }>;
-  notification: NotificationPreference | null;
+  notificationPreferences: NotificationPreferenceRow[];
+  notification?: NotificationPreference | null; // deprecated 호환
+};
+
+// 온보딩의 web InterestId(kebab) ↔ api의 ApiInterestId(snake) 매핑.
+export const INTEREST_WEB_TO_API: Record<InterestId, ApiInterestId> = {
+  "working-parent": "working_parent",
+  "home-care": "home_care",
+  language: "language",
+  social: "social",
+  physical: "physical",
+  cognition: "cognition",
+};
+
+export const INTEREST_API_TO_WEB: Record<ApiInterestId, InterestId> = {
+  working_parent: "working-parent",
+  home_care: "home-care",
+  language: "language",
+  social: "social",
+  physical: "physical",
+  cognition: "cognition",
+};
+
+export const INTEREST_LABEL: Record<InterestId, string> = {
+  "working-parent": "워킹맘·대디",
+  "home-care": "가정보육·집놀이",
+  language: "말문터지기",
+  social: "사회성·또래관계",
+  physical: "신체발달·에너지발산",
+  cognition: "똑똑한인지학습",
+};
+
+export const INTEREST_EMOJI: Record<InterestId, string> = {
+  "working-parent": "🤱🏻",
+  "home-care": "🏠",
+  language: "🗣️",
+  social: "👥",
+  physical: "⚡️",
+  cognition: "📖",
 };
 
 export const NOTIFICATION_SLOT_META: Record<

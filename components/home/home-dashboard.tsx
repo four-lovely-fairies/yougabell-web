@@ -148,8 +148,8 @@ const TopAppBar = ({
       />
     </button>
     <div className="flex items-center">
-      <button
-        type="button"
+      <a
+        href="/settings"
         className="flex size-11 items-center justify-center"
         aria-label="설정"
       >
@@ -158,7 +158,7 @@ const TopAppBar = ({
           alt=""
           className="size-6"
         />
-      </button>
+      </a>
       <button
         type="button"
         onClick={onOpenNotifications}
