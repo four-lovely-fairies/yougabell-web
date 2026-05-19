@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ChevronDown, Pause, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ApiError,
   applyMissionExecutionAction,
@@ -164,7 +164,8 @@ export function MissionTimerScreen({
   );
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [tick, setTick] = useState(() => Date.now());
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(10 * 60);
   const completeTriggeredRef = useRef(false);
 
   useEffect(() => {
@@ -186,10 +187,15 @@ export function MissionTimerScreen({
         return;
       }
 
+      setActionError(null);
       setSnapshot(executionResult.execution);
       setMissionState(missionResult);
       setLoading(false);
-      setTick(Date.now());
+      setRemainingSeconds(
+        executionResult.execution
+          ? computeRemainingSeconds(executionResult.execution, Date.now())
+          : missionResult.data.mission.durationMinutes * 60,
+      );
 
       if (!executionResult.execution) {
         router.replace("/mission");
@@ -209,7 +215,7 @@ export function MissionTimerScreen({
     }
 
     const interval = window.setInterval(() => {
-      setTick(Date.now());
+      setRemainingSeconds((current) => Math.max(0, current - 1));
     }, 1000);
 
     return () => {
@@ -218,12 +224,6 @@ export function MissionTimerScreen({
   }, [snapshot?.status]);
 
   const totalSeconds = (snapshot?.durationMinutes ?? 10) * 60;
-  const remainingSeconds = useMemo(() => {
-    if (!snapshot) {
-      return totalSeconds;
-    }
-    return computeRemainingSeconds(snapshot, tick);
-  }, [snapshot, tick, totalSeconds]);
   const progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 0;
   const childLabel = missionState
     ? `${missionState.data.selectedChild.name} (${missionState.data.selectedChild.ageLabel})`
@@ -239,6 +239,22 @@ export function MissionTimerScreen({
         return;
       }
 
+      const startedAt = Date.now();
+      const previousSnapshot = snapshot;
+      const previousRemainingSeconds = remainingSeconds;
+      const optimisticState = createOptimisticState(
+        snapshot,
+        action,
+        remainingSeconds,
+        startedAt,
+      );
+
+      if (optimisticState) {
+        setSnapshot(optimisticState.snapshot);
+        setRemainingSeconds(optimisticState.remainingSeconds);
+      }
+
+      setActionError(null);
       setActionLoading(true);
       try {
         const result = await applyMissionExecutionAction({
@@ -249,15 +265,43 @@ export function MissionTimerScreen({
 
         if (result.execution) {
           setSnapshot(result.execution);
-          setTick(Date.now());
+          if (action !== "pause" && action !== "resume") {
+            setRemainingSeconds(
+              computeRemainingSeconds(result.execution, Date.now()),
+            );
+          }
           completeTriggeredRef.current = false;
           return;
         }
 
         router.replace("/");
       } catch (error) {
+        const selectedChildId = getStoredSelectedChildId();
+        const resynced = await loadMissionExecution({
+          childId: selectedChildId,
+          executionId: snapshot.id,
+          mode,
+        }).catch(() => null);
+
+        if (resynced?.execution) {
+          setSnapshot(resynced.execution);
+          setRemainingSeconds(
+            computeRemainingSeconds(resynced.execution, Date.now()),
+          );
+        } else {
+          setSnapshot(previousSnapshot);
+          setRemainingSeconds(previousRemainingSeconds);
+        }
+
+        setActionError(
+          action === "pause"
+            ? "잠시 멈추는 데 실패했어요. 다시 시도해주세요."
+            : action === "resume"
+              ? "다시 시작하는 데 실패했어요. 다시 시도해주세요."
+              : "미션 상태를 업데이트하지 못했어요.",
+        );
+
         if (error instanceof ApiError) {
-          router.replace("/");
           return;
         }
         throw error;
@@ -265,7 +309,7 @@ export function MissionTimerScreen({
         setActionLoading(false);
       }
     },
-    [actionLoading, mode, router, snapshot],
+    [actionLoading, mode, remainingSeconds, router, snapshot],
   );
 
   useEffect(() => {
@@ -298,6 +342,11 @@ export function MissionTimerScreen({
         </div>
 
         <div className="flex flex-col items-center gap-[15px]">
+          {actionError ? (
+            <p className="text-center text-sm font-medium leading-[1.4] text-[#ff5c5c]">
+              {actionError}
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={() =>
@@ -369,11 +418,13 @@ function MissionMetaRow({ label, value }: { label: string; value: string }) {
 }
 
 function TimerRing({ progress }: { progress: number }) {
+  const outerSize = 273;
+  const ringThickness = 26;
   const safeProgress = Math.max(0, Math.min(1, progress));
   const angle = safeProgress * 360;
-  const knobRadians = (angle - 90) * (Math.PI / 180);
-  const radius = 136 / 2;
-  const center = 136;
+  const knobRadians = (180 + angle) * (Math.PI / 180);
+  const center = outerSize / 2;
+  const radius = center - ringThickness / 2;
   const knobX = center + Math.cos(knobRadians) * radius;
   const knobY = center + Math.sin(knobRadians) * radius;
 
@@ -440,6 +491,47 @@ function computeRemainingSeconds(
     0,
     totalSeconds - (snapshot.elapsedSeconds + segmentElapsedSeconds),
   );
+}
+
+function createOptimisticState(
+  snapshot: MissionExecutionSnapshot,
+  action: "pause" | "resume" | "complete" | "early_complete",
+  remainingSeconds: number,
+  nowMs: number,
+) {
+  const nowIso = new Date(nowMs).toISOString();
+
+  if (action === "pause" && snapshot.status === "in_progress") {
+    const totalSeconds = snapshot.durationMinutes * 60;
+
+    return {
+      snapshot: {
+        ...snapshot,
+        status: "paused" as const,
+        activeSegmentStartedAt: null,
+        pausedAt: nowIso,
+        elapsedSeconds: Math.max(0, totalSeconds - remainingSeconds),
+        remainingSeconds,
+        serverNow: nowIso,
+      },
+      remainingSeconds,
+    };
+  }
+
+  if (action === "resume" && snapshot.status === "paused") {
+    return {
+      snapshot: {
+        ...snapshot,
+        status: "in_progress" as const,
+        activeSegmentStartedAt: nowIso,
+        pausedAt: null,
+        serverNow: nowIso,
+      },
+      remainingSeconds,
+    };
+  }
+
+  return null;
 }
 
 function formatTimer(seconds: number) {
