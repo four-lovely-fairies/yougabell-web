@@ -86,7 +86,7 @@ export default function SettingsNotificationsPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col px-5 pb-10">
       <OnboardingHeader variant="back" />
 
       <header className="py-6">

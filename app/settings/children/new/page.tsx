@@ -47,7 +47,7 @@ export default function SettingsChildrenNewPage() {
         e.preventDefault();
         void submit();
       }}
-      className="flex flex-1 flex-col"
+      className="flex flex-1 flex-col px-5 pb-5"
     >
       <OnboardingHeader variant="back" />
 
