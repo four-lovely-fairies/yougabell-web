@@ -3,7 +3,10 @@ import type { paths } from "./generated/api-types";
 import { getDemoHomeDashboard, type HomeDashboard } from "./home-data";
 import {
   getDemoCurrentMission,
+  getDemoMissionEffect,
   type CurrentMissionResponse,
+  type MissionExecutionEffect,
+  type MissionFeedbackDraft,
   type MissionExecutionSnapshot,
 } from "./mission-data";
 import { createSupabaseBrowserClient } from "./supabase/client";
@@ -24,6 +27,8 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
 const openApiClient = createClient<paths>({ baseUrl: BASE_URL });
 const DEMO_MISSION_STORAGE_KEY = "mission:demo-snapshot";
+const DEMO_MISSION_EFFECT_STORAGE_KEY = "mission:demo-effect";
+const MISSION_FEEDBACK_DRAFT_STORAGE_KEY = "mission-feedback-draft";
 
 /**
  * Supabase 브라우저 세션에서 access_token을 꺼내 Authorization 헤더 구성.
@@ -60,6 +65,12 @@ export type WeeklyReportLoadState =
 
 export type MissionLoadState = {
   data: CurrentMissionResponse;
+  source: "api" | "demo";
+  message?: string;
+};
+
+export type MissionEffectLoadState = {
+  data: MissionExecutionEffect;
   source: "api" | "demo";
   message?: string;
 };
@@ -419,6 +430,110 @@ export const applyMissionExecutionAction = async ({
   return { execution: data.execution, source: "api" };
 };
 
+export const loadMissionExecutionEffect = async ({
+  executionId,
+  mode,
+}: {
+  executionId: string;
+  mode?: "api" | "demo" | null;
+}): Promise<MissionEffectLoadState> => {
+  if (mode === "demo") {
+    return {
+      data: readDemoMissionEffect(executionId) ?? getDemoMissionEffect(),
+      source: "demo",
+    };
+  }
+
+  const headers = await authHeaders();
+  if (!headers.Authorization) {
+    return {
+      data: readDemoMissionEffect(executionId) ?? getDemoMissionEffect(),
+      source: "demo",
+      message: "로그인 세션이 연결되면 실제 미션 효과 데이터를 표시합니다.",
+    };
+  }
+
+  const data = await request<MissionExecutionEffect>(
+    `/mission-executions/${executionId}/effect`,
+    {
+      method: "GET",
+      headers,
+    },
+  );
+
+  return { data, source: "api" };
+};
+
+export const submitMissionFeedback = async ({
+  executionId,
+  draft,
+  mode,
+}: {
+  executionId: string;
+  draft: MissionFeedbackDraft;
+  mode?: "api" | "demo" | null;
+}) => {
+  if (mode === "demo") {
+    clearMissionFeedbackDraft(executionId);
+    return {
+      feedback: {
+        id: `demo-feedback-${executionId}`,
+        executionId,
+        childReaction: draft.childReaction ?? 3,
+        parentEnergy: draft.parentEnergy ?? 5,
+        missionSatisfaction: draft.missionSatisfaction ?? 3,
+        note: draft.note || null,
+        keywords: normalizeDraftKeywords(draft.note),
+        createdAt: new Date().toISOString(),
+      },
+      source: "demo" as const,
+    };
+  }
+
+  const headers = await authHeaders();
+  if (!headers.Authorization) {
+    clearMissionFeedbackDraft(executionId);
+    return {
+      feedback: {
+        id: `demo-feedback-${executionId}`,
+        executionId,
+        childReaction: draft.childReaction ?? 3,
+        parentEnergy: draft.parentEnergy ?? 5,
+        missionSatisfaction: draft.missionSatisfaction ?? 3,
+        note: draft.note || null,
+        keywords: normalizeDraftKeywords(draft.note),
+        createdAt: new Date().toISOString(),
+      },
+      source: "demo" as const,
+    };
+  }
+
+  const data = await request<{
+    feedback: {
+      id: string;
+      executionId: string;
+      childReaction: number;
+      parentEnergy: number;
+      missionSatisfaction: number;
+      note: string | null;
+      keywords: string[];
+      createdAt: string;
+    };
+  }>(`/mission-executions/${executionId}/feedback`, {
+    method: "PUT",
+    headers,
+    json: {
+      childReaction: draft.childReaction,
+      parentEnergy: draft.parentEnergy,
+      missionSatisfaction: draft.missionSatisfaction,
+      note: draft.note || null,
+    },
+  });
+
+  clearMissionFeedbackDraft(executionId);
+  return { ...data, source: "api" as const };
+};
+
 function toWeeklyReportViewData(
   data: WeeklyReportCurrent | WeeklyReportDetail,
 ): WeeklyReportViewData {
@@ -509,6 +624,40 @@ function persistDemoMissionExecution(
   );
 }
 
+function readDemoMissionEffect(executionId: string) {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const raw = window.sessionStorage.getItem(DEMO_MISSION_EFFECT_STORAGE_KEY);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as MissionExecutionEffect;
+    return parsed.execution.id === executionId ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistDemoMissionEffect(effect: MissionExecutionEffect | null) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!effect) {
+    window.sessionStorage.removeItem(DEMO_MISSION_EFFECT_STORAGE_KEY);
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    DEMO_MISSION_EFFECT_STORAGE_KEY,
+    JSON.stringify(effect),
+  );
+}
+
 function applyDemoMissionAction(
   executionId: string,
   action: MissionExecutionAction,
@@ -548,6 +697,17 @@ function applyDemoMissionAction(
     return next;
   }
 
+  persistDemoMissionEffect({
+    execution: {
+      id: current.id,
+      status: action === "early_complete" ? "early_completed" : "completed",
+      completedAt: now.toISOString(),
+      actualDurationSeconds:
+        action === "early_complete" ? elapsedSeconds : totalSeconds,
+      wasEarlyCompleted: action === "early_complete",
+    },
+    mission: getDemoMissionEffect().mission,
+  });
   persistDemoMissionExecution(null);
   return null;
 }
@@ -566,4 +726,59 @@ function getDemoElapsedSeconds(execution: MissionExecutionSnapshot, now: Date) {
   );
 
   return execution.elapsedSeconds + segmentElapsedSeconds;
+}
+
+export function getMissionFeedbackDraftStorageKey(executionId: string) {
+  return `${MISSION_FEEDBACK_DRAFT_STORAGE_KEY}:${executionId}`;
+}
+
+export function readMissionFeedbackDraft(
+  executionId: string,
+): MissionFeedbackDraft | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const raw = window.sessionStorage.getItem(
+    getMissionFeedbackDraftStorageKey(executionId),
+  );
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as MissionFeedbackDraft;
+  } catch {
+    return null;
+  }
+}
+
+export function persistMissionFeedbackDraft(
+  executionId: string,
+  draft: MissionFeedbackDraft,
+) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    getMissionFeedbackDraftStorageKey(executionId),
+    JSON.stringify(draft),
+  );
+}
+
+export function clearMissionFeedbackDraft(executionId: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.removeItem(getMissionFeedbackDraftStorageKey(executionId));
+}
+
+function normalizeDraftKeywords(note: string) {
+  return note
+    .split(/[\n,\s]+/u)
+    .map((keyword) => keyword.trim())
+    .filter(Boolean)
+    .slice(0, 10);
 }
