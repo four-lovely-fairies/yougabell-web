@@ -13,6 +13,7 @@ export type CurrentMissionDetail = {
   durationLabel: string;
   categoryLabel: string;
   sourceLabel: string;
+  status: "not_started" | "in_progress" | "completed";
 };
 
 export type ActiveMissionExecution = {
@@ -46,6 +47,30 @@ export type MissionExecutionSnapshot = {
   serverNow: string;
 };
 
+export type MissionExecutionEffect = {
+  execution: {
+    id: string;
+    status: "completed" | "early_completed";
+    completedAt: string;
+    actualDurationSeconds: number;
+    wasEarlyCompleted: boolean;
+  };
+  mission: {
+    id: string;
+    title: string;
+    effect: string;
+    goal: string | null;
+    subThemeLabel: string | null;
+  };
+};
+
+export type MissionFeedbackDraft = {
+  childReaction: number | null;
+  parentEnergy: number | null;
+  missionSatisfaction: number | null;
+  note: string;
+};
+
 export const getDemoCurrentMission = (): CurrentMissionResponse => ({
   selectedChild: {
     id: "demo-child-youse",
@@ -62,6 +87,25 @@ export const getDemoCurrentMission = (): CurrentMissionResponse => ({
     durationLabel: "10분",
     categoryLabel: "언어발달",
     sourceLabel: "CDC",
+    status: "not_started",
   },
   activeExecution: null,
+});
+
+export const getDemoMissionEffect = (): MissionExecutionEffect => ({
+  execution: {
+    id: "demo-execution-demo-mission",
+    status: "completed",
+    completedAt: new Date().toISOString(),
+    actualDurationSeconds: 600,
+    wasEarlyCompleted: false,
+  },
+  mission: {
+    id: "demo-mission",
+    title: "짝짜꿍 노래 게임",
+    effect:
+      "아이와 손을 맞추고 눈을 마주치는 반복이 아이의 정서적 안정감과 상호작용 집중력을 높여줘요.",
+    goal: "또래와 함께 놀이하는 초기 사회성",
+    subThemeLabel: "아이와 10분 가까워지기",
+  },
 });

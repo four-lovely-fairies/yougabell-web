@@ -1,34 +1,34 @@
-"use client";
+'use client';
 
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getStoredSelectedChildId,
   loadHomeDashboard,
   setStoredSelectedChildId,
   type HomeLoadState,
-} from "@/lib/api";
+} from '@/lib/api';
 import type {
   HomeChild,
   HomeDashboard as HomeDashboardData,
   HomeNotification,
-} from "@/lib/home-data";
+} from '@/lib/home-data';
 
-type Modal = "children" | "notifications" | null;
+type Modal = 'children' | 'notifications' | null;
 
 const HOME_ICON_PATHS = {
-  childSwitcherChevron: "/icons/figma/home/child-switcher-chevron.svg",
-  growthStage: "/icons/figma/home/growth-stage.svg",
-  headerNotification: "/icons/figma/home/header-notification.svg",
-  headerSettings: "/icons/figma/home/header-settings.svg",
-  missionIllustration: "/images/figma/home/mission-illustration.svg",
-  moodBad: "/icons/figma/mission-feedback/bad.svg",
-  moodGood: "/icons/figma/mission-feedback/good.svg",
-  moodNeutral: "/icons/figma/mission-feedback/neutral.svg",
-  moodPlus: "/icons/figma/home/mood-plus.svg",
-  moodVeryBad: "/icons/figma/mission-feedback/very-bad.svg",
-  moodVeryGood: "/icons/figma/mission-feedback/very-good.svg",
+  childSwitcherChevron: '/icons/figma/home/child-switcher-chevron.svg',
+  growthStage: '/icons/figma/home/growth-stage.svg',
+  headerNotification: '/icons/figma/home/header-notification.svg',
+  headerSettings: '/icons/figma/home/header-settings.svg',
+  missionIllustration: '/images/figma/home/mission-illustration.svg',
+  moodBad: '/icons/figma/mission-feedback/bad.svg',
+  moodGood: '/icons/figma/mission-feedback/good.svg',
+  moodNeutral: '/icons/figma/mission-feedback/neutral.svg',
+  moodPlus: '/icons/figma/home/mood-plus.svg',
+  moodVeryBad: '/icons/figma/mission-feedback/very-bad.svg',
+  moodVeryGood: '/icons/figma/mission-feedback/very-good.svg',
 } as const;
 
 export const HomeDashboard = () => {
@@ -73,6 +73,8 @@ export const HomeDashboard = () => {
 
   if (!data || !selectedChild) return <HomeSkeleton />;
 
+  console.log(data);
+
   const onSelectChild = (child: HomeChild) => {
     setStoredSelectedChildId(child.id);
     setSelectedChildId(child.id);
@@ -86,21 +88,21 @@ export const HomeDashboard = () => {
         <TopAppBar
           child={selectedChild}
           unreadCount={data.notifications.unreadCount}
-          onOpenChildren={() => setModal("children")}
-          onOpenNotifications={() => setModal("notifications")}
+          onOpenChildren={() => setModal('children')}
+          onOpenNotifications={() => setModal('notifications')}
         />
         <div className="mt-4 flex flex-col gap-5">
           <WeeklyCalendar data={data} />
           <TodayMissionCard
             mission={data.recommendedMission}
             loading={loading}
-            onStart={() => router.push("/mission")}
+            onStart={() => router.push('/mission')}
           />
           <GrowthStageCard stage={data.growthStage} />
           <ReportSummaryCard summary={data.reportSummary} />
         </div>
       </div>
-      {modal === "children" ? (
+      {modal === 'children' ? (
         <ChildSwitcherSheet
           childItems={data.children}
           selectedChildId={selectedChild.id}
@@ -108,7 +110,7 @@ export const HomeDashboard = () => {
           onSelect={onSelectChild}
         />
       ) : null}
-      {modal === "notifications" ? (
+      {modal === 'notifications' ? (
         <NotificationModal
           notifications={data.notifications.latest}
           unreadCount={data.notifications.unreadCount}
@@ -193,19 +195,19 @@ const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
         <div
           key={day.date}
           className={`flex flex-col items-center gap-1 rounded-2xl px-2 pb-3 pt-2 ${
-            day.isToday ? "bg-[#9572ff] text-white" : ""
+            day.isToday ? 'bg-[#9572ff] text-white' : ''
           }`}
         >
           <span
             className={`text-[9px] font-bold leading-none ${
-              day.isToday ? "text-white" : "text-[#c4c4c4]"
+              day.isToday ? 'text-white' : 'text-[#c4c4c4]'
             }`}
           >
             {day.weekdayLabel}
           </span>
           <span
             className={`text-sm font-bold leading-none ${
-              day.isToday ? "text-white" : "text-[#262626]"
+              day.isToday ? 'text-white' : 'text-[#262626]'
             }`}
           >
             {day.dayOfMonth}
@@ -226,7 +228,7 @@ const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
 const MoodBadge = ({
   day,
 }: {
-  day: HomeDashboardData["week"]["days"][number];
+  day: HomeDashboardData['week']['days'][number];
 }) => {
   if (day.mood?.level) {
     return (
@@ -257,46 +259,51 @@ const TodayMissionCard = ({
   loading,
   onStart,
 }: {
-  mission: HomeDashboardData["recommendedMission"];
+  mission: HomeDashboardData['recommendedMission'];
   loading: boolean;
   onStart: () => void;
-}) => (
-  <section className="rounded-[24px] bg-white p-6 shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]">
-    <span className="inline-flex rounded-full bg-[#f6f6f6] px-[10px] py-[5px] text-xs font-medium leading-[1.4] text-[#262626]">
-      아이와 {mission?.durationMinutes ?? 10}분 가까워지기
-    </span>
-    <div className="mt-[13px] flex items-center justify-between gap-4">
-      <h2 className="text-[20px] font-bold leading-[1.4] tracking-normal text-[#262626]">
-        {splitMissionTitle(
-          mission?.title ?? "아이와 눈을 마주치며 이야기를 해보아요",
-        ).map((line) => (
-          <span key={line} className="block whitespace-pre-wrap">
-            {line}
-          </span>
-        ))}
-      </h2>
-      <img
-        src={HOME_ICON_PATHS.missionIllustration}
-        alt=""
-        className="h-15 w-21 shrink-0"
-        aria-hidden
-      />
-    </div>
-    <button
-      type="button"
-      onClick={onStart}
-      disabled={!mission || loading}
-      className="mt-[13px] flex h-12 w-full items-center justify-center rounded-2xl bg-[#9572ff] text-base font-medium leading-6 text-white disabled:bg-[#cfc3ff]"
-    >
-      미션 시작하기
-    </button>
-  </section>
-);
+}) => {
+  const isCompleted = mission?.status === 'completed';
+  const buttonLabel = isCompleted ? '미션 완료' : '미션 시작하기';
+
+  return (
+    <section className="rounded-[24px] bg-white p-6 shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]">
+      <span className="inline-flex rounded-full bg-[#f6f6f6] px-[10px] py-[5px] text-xs font-medium leading-[1.4] text-[#262626]">
+        아이와 {mission?.durationMinutes ?? 10}분 가까워지기
+      </span>
+      <div className="mt-[13px] flex items-center justify-between gap-4">
+        <h2 className="text-[20px] font-bold leading-[1.4] tracking-normal text-[#262626]">
+          {splitMissionTitle(
+            mission?.title ?? '아이와 눈을 마주치며 이야기를 해보아요',
+          ).map((line) => (
+            <span key={line} className="block whitespace-pre-wrap">
+              {line}
+            </span>
+          ))}
+        </h2>
+        <img
+          src={HOME_ICON_PATHS.missionIllustration}
+          alt=""
+          className="h-15 w-21 shrink-0"
+          aria-hidden
+        />
+      </div>
+      <button
+        type="button"
+        onClick={onStart}
+        disabled={!mission || loading || isCompleted}
+        className="mt-[13px] flex h-12 w-full items-center justify-center rounded-2xl bg-[#9572ff] text-base font-medium leading-6 text-white disabled:bg-[#e9e9e9] disabled:text-[#555]"
+      >
+        {buttonLabel}
+      </button>
+    </section>
+  );
+};
 
 const GrowthStageCard = ({
   stage,
 }: {
-  stage: HomeDashboardData["growthStage"];
+  stage: HomeDashboardData['growthStage'];
 }) => (
   <section className="rounded-[33px] bg-white p-6 shadow-[0_4px_10px_rgba(0,0,0,0.04)]">
     <div className="flex items-center gap-1">
@@ -306,7 +313,7 @@ const GrowthStageCard = ({
         className="size-5 shrink-0"
       />
       <h2 className="text-xs font-bold leading-[1.4] text-[#262626]">
-        현재 상황 [ {stage?.name ?? "확인 중"} ]
+        현재 상황 [ {stage?.name ?? '확인 중'} ]
       </h2>
     </div>
     <p className="mt-3 text-sm font-medium leading-[1.8] text-[#555]">
@@ -319,7 +326,7 @@ const GrowthStageCard = ({
 const ReportSummaryCard = ({
   summary,
 }: {
-  summary: HomeDashboardData["reportSummary"];
+  summary: HomeDashboardData['reportSummary'];
 }) => (
   <section className="grid grid-cols-2 gap-2">
     <SummaryMetricCard label="지난주 놀이 수행시간">
@@ -422,7 +429,7 @@ const ChildSwitcherSheet = ({
           <div
             key={child.id}
             className={`flex items-center justify-between px-6 py-5 ${
-              selected ? "bg-[#efe7ff]" : "bg-white"
+              selected ? 'bg-[#efe7ff]' : 'bg-white'
             }`}
           >
             <button
@@ -529,7 +536,7 @@ const FigmaIcon = ({
   alt: string;
   className?: string;
 }) => (
-  <img src={src} alt={alt} className={className} aria-hidden={alt === ""} />
+  <img src={src} alt={alt} className={className} aria-hidden={alt === ''} />
 );
 
 const HomeSkeleton = () => (
@@ -542,26 +549,26 @@ const HomeSkeleton = () => (
 );
 
 function splitMissionTitle(title: string): string[] {
-  if (title.includes("\n")) {
-    return title.split("\n");
+  if (title.includes('\n')) {
+    return title.split('\n');
   }
 
-  const parts = title.split(" ");
+  const parts = title.split(' ');
   if (parts.length <= 3) {
     return [title];
   }
 
   const pivot = Math.ceil(parts.length / 2);
-  return [parts.slice(0, pivot).join(" "), parts.slice(pivot).join(" ")];
+  return [parts.slice(0, pivot).join(' '), parts.slice(pivot).join(' ')];
 }
 
-function monthHeadingLabel(week: HomeDashboardData["week"]): string {
+function monthHeadingLabel(week: HomeDashboardData['week']): string {
   const baseDate = week.days[0]?.date;
   if (!baseDate) {
     return week.monthLabel;
   }
 
-  const [year] = baseDate.split("-");
+  const [year] = baseDate.split('-');
   return `${year}년 ${week.monthLabel}`;
 }
 
