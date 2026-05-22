@@ -142,6 +142,9 @@ export const api = {
     }),
   deleteAccount: (reason?: string) =>
     request<void>("/me", { method: "DELETE", json: { reason } }),
+  // [임시] 온보딩 재진입 — 회원 정보 초기화 (User row 삭제, cascade)
+  resetOnboarding: () =>
+    request<void>("/me/reset-onboarding", { method: "POST" }),
   addChild: (body: {
     name: string;
     birthDate: string;
