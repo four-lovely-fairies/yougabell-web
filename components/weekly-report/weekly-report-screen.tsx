@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Sparkles,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import {
   getStoredSelectedChildId,
@@ -43,6 +44,7 @@ const keywordStyles = [
 ];
 
 export const WeeklyReportScreen = () => {
+  const router = useRouter();
   const [state, setState] = useState<WeeklyReportLoadState | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -76,14 +78,14 @@ export const WeeklyReportScreen = () => {
 
   const goBack = () => {
     if (window.history.length > 1) {
-      window.history.back();
+      router.back();
       return;
     }
-    window.location.href = "/";
+    router.push("/");
   };
 
   const startMission = () => {
-    window.location.href = "/mission";
+    router.push("/mission");
   };
 
   return (
