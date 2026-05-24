@@ -62,6 +62,21 @@ export default function IntroPage() {
     );
 
     const unsubscribe = subscribeToNativeMessages((message) => {
+      if (message.type === "SUPABASE_SESSION_SYNC") {
+        void (async () => {
+          await supabase.auth.setSession({
+            access_token: message.payload.accessToken,
+            refresh_token: message.payload.refreshToken,
+          });
+          setPendingProvider(null);
+          router.replace("/onboarding/parent");
+        })();
+      }
+
+      if (message.type === "SUPABASE_SESSION_CLEARED") {
+        setPendingProvider(null);
+      }
+
       if (
         message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR" ||
         message.type === "NATIVE_APPLE_SIGN_IN_ERROR"
