@@ -100,19 +100,26 @@ export default function IntroPage() {
     });
 
     const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithOAuth({
+    const isNative = isNativeWebView();
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: buildOAuthRedirectTo(
           window.location.origin,
           "/onboarding/parent",
         ),
+        skipBrowserRedirect: isNative,
       },
     });
 
     if (error) {
       setOauthRequestError("로그인 연결에 실패했습니다. 다시 시도해주세요.");
       setPendingProvider(null);
+      return;
+    }
+
+    if (isNative && data?.url) {
+      window.location.assign(data.url);
     }
   }
 
