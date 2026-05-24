@@ -27,6 +27,8 @@ pnpm dev
 - Supabase Auth로 로그인 (`@supabase/ssr`)
 - API 호출은 `yougabell-api`로 (BFF는 가벼운 프록시 정도)
 - Expo WebView에서 띄워지므로 **하단 시스템 영역(SafeArea) 고려 필요**
+- WebView 안 Google 로그인은 native로 위임하고, mobile이 주입한 Supabase 세션을 수신해 복원
+- WebView 안 Apple 로그인도 native 브리지로 위임하고, mobile이 주입한 Supabase 세션을 수신해 복원
 
 ## Hosting
 

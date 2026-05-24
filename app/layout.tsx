@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { NativeSessionBridge } from "@/components/app/native-session-bridge";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-gray-0 text-gray-800 font-sans">
+        <NativeSessionBridge />
         {children}
       </body>
     </html>
