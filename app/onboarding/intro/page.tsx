@@ -3,7 +3,7 @@
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppleIcon, GoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
@@ -11,6 +11,7 @@ import { buildOAuthRedirectTo, getOAuthErrorMessage } from "@/lib/auth-oauth";
 import { track } from "@/lib/analytics";
 import {
   isNativeWebView,
+  notifyMobile,
   subscribeToNativeMessages,
 } from "@/lib/native-bridge";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -32,6 +33,14 @@ export default function IntroPage() {
   const [oauthRequestError, setOauthRequestError] = useState<string | null>(
     null,
   );
+  const nativeFallbackTimerRef = useRef<number | null>(null);
+
+  const clearNativeFallbackTimer = () => {
+    if (nativeFallbackTimerRef.current !== null) {
+      window.clearTimeout(nativeFallbackTimerRef.current);
+      nativeFallbackTimerRef.current = null;
+    }
+  };
 
   useEffect(() => {
     track({ type: "onboarding_intro_view" });
@@ -54,9 +63,10 @@ export default function IntroPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       (_event: AuthChangeEvent, session: Session | null) => {
-      if (!session) return;
-      setPendingProvider(null);
-      router.replace("/onboarding/parent");
+        if (!session) return;
+        clearNativeFallbackTimer();
+        setPendingProvider(null);
+        router.replace("/onboarding/parent");
       },
     );
 
@@ -65,6 +75,7 @@ export default function IntroPage() {
         message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR" ||
         message.type === "NATIVE_APPLE_SIGN_IN_ERROR"
       ) {
+        clearNativeFallbackTimer();
         setOauthRequestError(message.payload.message);
         setPendingProvider(null);
       }
@@ -73,11 +84,13 @@ export default function IntroPage() {
         message.type === "NATIVE_GOOGLE_SIGN_IN_CANCELLED" ||
         message.type === "NATIVE_APPLE_SIGN_IN_CANCELLED"
       ) {
+        clearNativeFallbackTimer();
         setPendingProvider(null);
       }
     });
 
     return () => {
+      clearNativeFallbackTimer();
       subscription.unsubscribe();
       unsubscribe();
     };
@@ -119,6 +132,20 @@ export default function IntroPage() {
     }
 
     if (isNative && data?.url) {
+      notifyMobile({
+        type:
+          provider === "google"
+            ? "REQUEST_NATIVE_GOOGLE_SIGN_IN"
+            : "REQUEST_NATIVE_APPLE_SIGN_IN",
+      });
+
+      nativeFallbackTimerRef.current = window.setTimeout(() => {
+        window.location.assign(data.url);
+      }, 300);
+      return;
+    }
+
+    if (data?.url) {
       window.location.assign(data.url);
     }
   }
