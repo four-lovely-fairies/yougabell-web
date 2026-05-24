@@ -3,7 +3,7 @@
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppleIcon, GoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
@@ -33,14 +33,6 @@ export default function IntroPage() {
   const [oauthRequestError, setOauthRequestError] = useState<string | null>(
     null,
   );
-  const nativeFallbackTimerRef = useRef<number | null>(null);
-
-  const clearNativeFallbackTimer = () => {
-    if (nativeFallbackTimerRef.current !== null) {
-      window.clearTimeout(nativeFallbackTimerRef.current);
-      nativeFallbackTimerRef.current = null;
-    }
-  };
 
   useEffect(() => {
     track({ type: "onboarding_intro_view" });
@@ -64,7 +56,6 @@ export default function IntroPage() {
     } = supabase.auth.onAuthStateChange(
       (_event: AuthChangeEvent, session: Session | null) => {
         if (!session) return;
-        clearNativeFallbackTimer();
         setPendingProvider(null);
         router.replace("/onboarding/parent");
       },
@@ -75,7 +66,6 @@ export default function IntroPage() {
         message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR" ||
         message.type === "NATIVE_APPLE_SIGN_IN_ERROR"
       ) {
-        clearNativeFallbackTimer();
         setOauthRequestError(message.payload.message);
         setPendingProvider(null);
       }
@@ -84,13 +74,11 @@ export default function IntroPage() {
         message.type === "NATIVE_GOOGLE_SIGN_IN_CANCELLED" ||
         message.type === "NATIVE_APPLE_SIGN_IN_CANCELLED"
       ) {
-        clearNativeFallbackTimer();
         setPendingProvider(null);
       }
     });
 
     return () => {
-      clearNativeFallbackTimer();
       subscription.unsubscribe();
       unsubscribe();
     };
@@ -112,41 +100,30 @@ export default function IntroPage() {
           : "onboarding_apple_sign_in_click",
     });
 
-    const supabase = createSupabaseBrowserClient();
-    const isNative = isNativeWebView();
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: buildOAuthRedirectTo(
-          window.location.origin,
-          "/onboarding/parent",
-        ),
-        skipBrowserRedirect: isNative,
-      },
-    });
-
-    if (error) {
-      setOauthRequestError("로그인 연결에 실패했습니다. 다시 시도해주세요.");
-      setPendingProvider(null);
-      return;
-    }
-
-    if (isNative && data?.url) {
+    if (isNativeWebView()) {
       notifyMobile({
         type:
           provider === "google"
             ? "REQUEST_NATIVE_GOOGLE_SIGN_IN"
             : "REQUEST_NATIVE_APPLE_SIGN_IN",
       });
-
-      nativeFallbackTimerRef.current = window.setTimeout(() => {
-        window.location.assign(data.url);
-      }, 300);
       return;
     }
 
-    if (data?.url) {
-      window.location.assign(data.url);
+    const supabase = createSupabaseBrowserClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: buildOAuthRedirectTo(
+          window.location.origin,
+          "/onboarding/parent",
+        ),
+      },
+    });
+
+    if (error) {
+      setOauthRequestError("로그인 연결에 실패했습니다. 다시 시도해주세요.");
+      setPendingProvider(null);
     }
   }
 
