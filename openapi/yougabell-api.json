@@ -48,7 +48,7 @@
     },
     "/me": {
       "get": {
-        "description": "User 본인 + children + 알림 시간대(notificationSlot/notificationTime) 포함. onboardedAt이 null이면 미완료.",
+        "description": "User + children(deletedAt 필터) + notificationPreferences 포함. onboardedAt이 null이면 미완료.",
         "operationId": "UsersController_getMe",
         "parameters": [],
         "responses": {
@@ -62,6 +62,163 @@
           }
         ],
         "summary": "본인 정보 조회",
+        "tags": [
+          "users"
+        ]
+      },
+      "delete": {
+        "description": "soft delete (deletedAt set). 30일 후 cron으로 hard delete + cascade.",
+        "operationId": "UsersController_deleteAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "계정 탈퇴 (Figma 2395:8988)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/me/parent": {
+      "patch": {
+        "description": "부분 갱신. name·birthDate·gender·workStatus 중 일부.",
+        "operationId": "UsersController_updateParent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "본인 정보 수정 (Figma 2395:9320)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/me/interests": {
+      "patch": {
+        "description": "최대 3개로 일괄 교체.",
+        "operationId": "UsersController_updateInterests",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInterestsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "관심 주제 수정 (Figma 2395:9162)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/me/notifications/{type}": {
+      "patch": {
+        "description": "play_10min(10분 놀이) 또는 weekly_report(주간 리포트) preference를 upsert.",
+        "operationId": "UsersController_upsertNotification",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "description": "알림 종류.",
+            "schema": {
+              "enum": [
+                "play_10min",
+                "weekly_report"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertNotificationPreferenceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "알림 종류별 enabled+time 설정 (Figma 2395:9126)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/me/reset-onboarding": {
+      "post": {
+        "description": "개발/테스트 전용. User row를 삭제해 Child·NotificationPreference 등 cascade 정리. Supabase 세션은 그대로이므로 클라이언트에서 signOut + /onboarding/intro 이동 필요.",
+        "operationId": "UsersController_resetOnboarding",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "[임시] 온보딩 재진입을 위한 회원 정보 초기화",
         "tags": [
           "users"
         ]
@@ -391,6 +548,43 @@
         ]
       }
     },
+    "/children": {
+      "post": {
+        "operationId": "ChildrenController_createChild",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChildDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "자녀 추가 (Figma 2395:9454)",
+        "tags": [
+          "children"
+        ]
+      }
+    },
     "/children/{id}": {
       "patch": {
         "operationId": "ChildrenController_updateChild",
@@ -511,22 +705,21 @@
             }
           },
           {
-            "name": "page",
+            "name": "cursor",
             "required": false,
             "in": "query",
+            "description": "cursor pagination — 이전 응답의 nextCursor(uuid)",
             "schema": {
-              "minimum": 1,
-              "default": 1,
-              "type": "number"
+              "type": "string"
             }
           },
           {
-            "name": "pageSize",
+            "name": "take",
             "required": false,
             "in": "query",
             "schema": {
               "minimum": 1,
-              "default": 20,
+              "default": 50,
               "type": "number"
             }
           }
@@ -775,22 +968,21 @@
             }
           },
           {
-            "name": "page",
+            "name": "cursor",
             "required": false,
             "in": "query",
+            "description": "cursor pagination — 이전 응답의 nextCursor(uuid)",
             "schema": {
-              "minimum": 1,
-              "default": 1,
-              "type": "number"
+              "type": "string"
             }
           },
           {
-            "name": "pageSize",
+            "name": "take",
             "required": false,
             "in": "query",
             "schema": {
               "minimum": 1,
-              "default": 20,
+              "default": 50,
               "type": "number"
             }
           }
@@ -899,6 +1091,287 @@
         },
         "tags": [
           "admin/missions"
+        ]
+      }
+    },
+    "/missions/current": {
+      "get": {
+        "operationId": "MissionFlowController_getCurrentMission",
+        "parameters": [
+          {
+            "name": "childId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCurrentMissionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/mission-executions": {
+      "post": {
+        "operationId": "MissionFlowController_startMissionExecution",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartMissionExecutionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionExecutionSnapshotResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/mission-executions/active": {
+      "get": {
+        "operationId": "MissionFlowController_getActiveMissionExecution",
+        "parameters": [
+          {
+            "name": "childId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionExecutionSnapshotResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/mission-executions/{id}/action": {
+      "post": {
+        "operationId": "MissionFlowController_applyMissionExecutionAction",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MissionExecutionActionBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionExecutionSnapshotResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/mission-executions/{id}/effect": {
+      "get": {
+        "operationId": "MissionFlowController_getMissionExecutionEffect",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMissionExecutionEffectResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/mission-executions/{id}/feedback": {
+      "put": {
+        "operationId": "MissionFlowController_upsertMissionFeedback",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertMissionFeedbackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpsertMissionFeedbackResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/me/roadmap": {
+      "get": {
+        "operationId": "RoadmapController_get",
+        "parameters": [
+          {
+            "name": "childId",
+            "required": false,
+            "in": "query",
+            "description": "자녀 ID. 미지정 시 첫 번째 활성 자녀.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "targetMonth",
+            "required": false,
+            "in": "query",
+            "description": "조회 대상 월령. 미지정 시 자녀 현재 월령. CDC 체크포인트가 아니면 가장 가까운 하단 월령으로 보정.",
+            "schema": {
+              "minimum": 0,
+              "maximum": 84,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoadmapResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me/roadmap"
         ]
       }
     }
@@ -1027,19 +1500,122 @@
             }
           },
           "notification": {
-            "description": "알림 시간대 (단일 선택, custom 옵션 포함).",
+            "description": "알림 시간대 (단일 선택, custom 옵션 포함). 권한 거부 또는 skip 시 미전송 가능.",
             "allOf": [
               {
                 "$ref": "#/components/schemas/NotificationPreferenceDto"
               }
             ]
+          },
+          "interests": {
+            "type": "array",
+            "description": "관심 주제 (최대 3개). 온보딩 02-04 화면(Figma 2146:4467) 결과.",
+            "example": [
+              "working_parent",
+              "language"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "working_parent",
+                "home_care",
+                "language",
+                "social",
+                "physical",
+                "cognition"
+              ]
+            }
           }
         },
         "required": [
           "parent",
-          "children",
-          "notification"
+          "children"
         ]
+      },
+      "UpdateParentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "홍길동",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1990-01-01",
+            "description": "ISO date"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "female",
+              "male"
+            ]
+          },
+          "workStatus": {
+            "type": "string",
+            "enum": [
+              "working",
+              "full_time_caregiver"
+            ],
+            "nullable": true
+          }
+        }
+      },
+      "UpdateInterestsDto": {
+        "type": "object",
+        "properties": {
+          "interests": {
+            "type": "array",
+            "description": "관심 주제 ID 목록 (최대 3개)",
+            "example": [
+              "working_parent",
+              "language"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "working_parent",
+                "home_care",
+                "language",
+                "social",
+                "physical",
+                "cognition"
+              ]
+            }
+          }
+        },
+        "required": [
+          "interests"
+        ]
+      },
+      "UpsertNotificationPreferenceDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "time": {
+            "type": "string",
+            "example": "19:00",
+            "description": "HH:MM (24h). 미지정 시 기존 값 유지(없으면 기본 09:00)."
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "DeleteAccountDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "탈퇴 사유 (선택, 자유 텍스트). 통계·CS 용도.",
+            "maxLength": 500
+          }
+        }
       },
       "GenerateWeeklyReportsDto": {
         "type": "object",
@@ -1900,7 +2476,7 @@
           "updatedCount"
         ]
       },
-      "UpdateChildDto": {
+      "CreateChildDto": {
         "type": "object",
         "properties": {
           "name": {
@@ -1925,12 +2501,13 @@
             "type": "string",
             "nullable": true,
             "maxLength": 1000
-          },
-          "displayOrder": {
-            "type": "number",
-            "minimum": 0
           }
-        }
+        },
+        "required": [
+          "name",
+          "birthDate",
+          "gender"
+        ]
       },
       "ChildResponseDto": {
         "type": "object",
@@ -1977,6 +2554,38 @@
           "avatarUrl",
           "displayOrder"
         ]
+      },
+      "UpdateChildDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "김유스",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2023-04-20",
+            "description": "ISO date YYYY-MM-DD"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "female",
+              "male"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1000
+          },
+          "displayOrder": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
       },
       "MilestoneCategoryResponseDto": {
         "type": "object",
@@ -2067,21 +2676,14 @@
               "$ref": "#/components/schemas/MilestoneResponseDto"
             }
           },
-          "total": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "items",
-          "total",
-          "page",
-          "pageSize"
+          "nextCursor"
         ]
       },
       "CreateMilestoneDto": {
@@ -2228,6 +2830,25 @@
           }
         }
       },
+      "MissionSourceDto": {
+        "type": "object",
+        "properties": {
+          "citation": {
+            "type": "string",
+            "example": "CDC. (2023). Developmental Milestones: 12 Months."
+          },
+          "url": {
+            "type": "string",
+            "example": "https://cdc.gov/ncbddd/actearly"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "citation"
+        ]
+      },
       "MissionResponseDto": {
         "type": "object",
         "properties": {
@@ -2257,6 +2878,10 @@
             "type": "string",
             "nullable": true
           },
+          "goal": {
+            "type": "string",
+            "nullable": true
+          },
           "recommendedAgeMonthsMin": {
             "type": "number",
             "nullable": true
@@ -2279,6 +2904,12 @@
               "type": "string"
             }
           },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MissionSourceDto"
+            }
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -2297,11 +2928,13 @@
           "durationMinutes",
           "effect",
           "subThemeLabel",
+          "goal",
           "recommendedAgeMonthsMin",
           "recommendedAgeMonthsMax",
           "thumbnailUrl",
           "videoUrl",
           "tags",
+          "sources",
           "createdAt",
           "updatedAt"
         ]
@@ -2315,21 +2948,14 @@
               "$ref": "#/components/schemas/MissionResponseDto"
             }
           },
-          "total": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "items",
-          "total",
-          "page",
-          "pageSize"
+          "nextCursor"
         ]
       },
       "CreateMissionDto": {
@@ -2363,6 +2989,10 @@
             "type": "string",
             "example": "아이와 가까워지기"
           },
+          "goal": {
+            "type": "string",
+            "example": "또래와 함께 놀이하는 초기 사회성"
+          },
           "recommendedAgeMonthsMin": {
             "type": "number",
             "minimum": 0
@@ -2385,6 +3015,12 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MissionSourceDto"
             }
           }
         },
@@ -2422,6 +3058,9 @@
           "subThemeLabel": {
             "type": "string"
           },
+          "goal": {
+            "type": "string"
+          },
           "recommendedAgeMonthsMin": {
             "type": "number",
             "minimum": 0
@@ -2441,8 +3080,666 @@
             "items": {
               "type": "string"
             }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MissionSourceDto"
+            }
           }
         }
+      },
+      "MissionSelectedChildDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ageLabel": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ageLabel"
+        ]
+      },
+      "CurrentMissionDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subThemeLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "durationMinutes": {
+            "type": "number",
+            "minimum": 1
+          },
+          "durationLabel": {
+            "type": "string"
+          },
+          "categoryLabel": {
+            "type": "string"
+          },
+          "sourceLabel": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "not_started",
+              "in_progress",
+              "completed"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "subThemeLabel",
+          "title",
+          "description",
+          "durationMinutes",
+          "durationLabel",
+          "categoryLabel",
+          "sourceLabel",
+          "status"
+        ]
+      },
+      "ActiveMissionExecutionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "in_progress",
+              "paused"
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "activeSegmentStartedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pausedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "durationMinutes": {
+            "type": "number",
+            "minimum": 1
+          },
+          "elapsedSeconds": {
+            "type": "number",
+            "minimum": 0
+          },
+          "remainingSeconds": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "startedAt",
+          "activeSegmentStartedAt",
+          "pausedAt",
+          "durationMinutes",
+          "elapsedSeconds",
+          "remainingSeconds"
+        ]
+      },
+      "GetCurrentMissionResponseDto": {
+        "type": "object",
+        "properties": {
+          "selectedChild": {
+            "$ref": "#/components/schemas/MissionSelectedChildDto"
+          },
+          "mission": {
+            "$ref": "#/components/schemas/CurrentMissionDetailDto"
+          },
+          "activeExecution": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ActiveMissionExecutionDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "selectedChild",
+          "mission",
+          "activeExecution"
+        ]
+      },
+      "StartMissionExecutionDto": {
+        "type": "object",
+        "properties": {
+          "childId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "missionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "childId",
+          "missionId"
+        ]
+      },
+      "MissionExecutionSnapshotDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "missionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "childId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "in_progress",
+              "paused"
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "activeSegmentStartedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pausedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "durationMinutes": {
+            "type": "number",
+            "minimum": 1
+          },
+          "elapsedSeconds": {
+            "type": "number",
+            "minimum": 0
+          },
+          "remainingSeconds": {
+            "type": "number",
+            "minimum": 0
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "missionId",
+          "childId",
+          "status",
+          "startedAt",
+          "activeSegmentStartedAt",
+          "pausedAt",
+          "durationMinutes",
+          "elapsedSeconds",
+          "remainingSeconds",
+          "serverNow"
+        ]
+      },
+      "MissionExecutionSnapshotResponseDto": {
+        "type": "object",
+        "properties": {
+          "execution": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MissionExecutionSnapshotDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "execution"
+        ]
+      },
+      "MissionExecutionActionBodyDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "pause",
+              "resume",
+              "complete",
+              "early_complete"
+            ]
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "MissionExecutionEffectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "early_completed"
+            ]
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actualDurationSeconds": {
+            "type": "number",
+            "minimum": 0
+          },
+          "wasEarlyCompleted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "completedAt",
+          "actualDurationSeconds",
+          "wasEarlyCompleted"
+        ]
+      },
+      "MissionEffectDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "effect": {
+            "type": "string"
+          },
+          "goal": {
+            "type": "string",
+            "nullable": true
+          },
+          "subThemeLabel": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "effect",
+          "goal",
+          "subThemeLabel"
+        ]
+      },
+      "GetMissionExecutionEffectResponseDto": {
+        "type": "object",
+        "properties": {
+          "execution": {
+            "$ref": "#/components/schemas/MissionExecutionEffectDto"
+          },
+          "mission": {
+            "$ref": "#/components/schemas/MissionEffectDetailDto"
+          }
+        },
+        "required": [
+          "execution",
+          "mission"
+        ]
+      },
+      "UpsertMissionFeedbackDto": {
+        "type": "object",
+        "properties": {
+          "childReaction": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "parentEnergy": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "missionSatisfaction": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "childReaction",
+          "parentEnergy",
+          "missionSatisfaction"
+        ]
+      },
+      "MissionFeedbackResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "executionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "childReaction": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "parentEnergy": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "missionSatisfaction": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "executionId",
+          "childReaction",
+          "parentEnergy",
+          "missionSatisfaction",
+          "note",
+          "keywords",
+          "createdAt"
+        ]
+      },
+      "UpsertMissionFeedbackResponseDto": {
+        "type": "object",
+        "properties": {
+          "feedback": {
+            "$ref": "#/components/schemas/MissionFeedbackResponseDto"
+          }
+        },
+        "required": [
+          "feedback"
+        ]
+      },
+      "RoadmapChildDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "김유스"
+          },
+          "ageMonths": {
+            "type": "number",
+            "example": 4,
+            "minimum": 0
+          },
+          "ageLabel": {
+            "type": "string",
+            "example": "4개월 차"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ageMonths",
+          "ageLabel"
+        ]
+      },
+      "RoadmapStageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "self-formation"
+          },
+          "name": {
+            "type": "string",
+            "example": "자아 형성기"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "summary"
+        ]
+      },
+      "RoadmapMonthTabRangeDto": {
+        "type": "object",
+        "properties": {
+          "prev": {
+            "type": "number",
+            "nullable": true,
+            "example": null,
+            "description": "좌 chevron 이동 대상. null이면 비활성."
+          },
+          "next": {
+            "type": "number",
+            "nullable": true,
+            "example": 15,
+            "description": "우 chevron 이동 대상. null이면 비활성."
+          }
+        },
+        "required": [
+          "prev",
+          "next"
+        ]
+      },
+      "RoadmapMilestoneSourceDto": {
+        "type": "object",
+        "properties": {
+          "citation": {
+            "type": "string",
+            "example": "CDC"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "citation",
+          "url"
+        ]
+      },
+      "RoadmapMilestoneItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string",
+            "example": "말을 걸거나 들어 올리면 차분해진다. 상대의 얼굴을 바라본다."
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoadmapMilestoneSourceDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "sources"
+        ]
+      },
+      "RoadmapCategoryGroupDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "enum": [
+              "social",
+              "language",
+              "cognitive",
+              "physical"
+            ]
+          },
+          "categoryLabel": {
+            "type": "string",
+            "example": "사회성"
+          },
+          "iconKey": {
+            "type": "string",
+            "example": "groups"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoadmapMilestoneItemDto"
+            }
+          }
+        },
+        "required": [
+          "categoryId",
+          "categoryLabel",
+          "iconKey",
+          "items"
+        ]
+      },
+      "RoadmapSourceTooltipDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "example": "CDC, AAP, 국민건강보험, 보건복지부 등 세계 소아과 전문의들이 가장 많이 참고하는 데이터를 바탕으로 설계된 발달 지표입니다."
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "RoadmapResponseDto": {
+        "type": "object",
+        "properties": {
+          "child": {
+            "$ref": "#/components/schemas/RoadmapChildDto"
+          },
+          "stage": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RoadmapStageDto"
+              }
+            ]
+          },
+          "targetMonth": {
+            "type": "number",
+            "example": 4,
+            "description": "조회된 (보정 후) 대상 월령"
+          },
+          "monthTabs": {
+            "example": [
+              2,
+              4,
+              6,
+              9,
+              12
+            ],
+            "description": "월령 탭에 노출할 5개 CDC 체크포인트",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "monthTabRange": {
+            "$ref": "#/components/schemas/RoadmapMonthTabRangeDto"
+          },
+          "milestonesByCategory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoadmapCategoryGroupDto"
+            }
+          },
+          "sourceTooltip": {
+            "$ref": "#/components/schemas/RoadmapSourceTooltipDto"
+          }
+        },
+        "required": [
+          "child",
+          "stage",
+          "targetMonth",
+          "monthTabs",
+          "monthTabRange",
+          "milestonesByCategory",
+          "sourceTooltip"
+        ]
       }
     }
   }
