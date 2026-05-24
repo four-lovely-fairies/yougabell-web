@@ -28,6 +28,7 @@ pnpm lint         # eslint
 - **API 호출**: `yougabell-api` OpenAPI 코드젠 클라이언트 사용. Prisma 직접 import 금지.
 - **인증**: `@supabase/ssr`로 쿠키 기반 세션. JWT는 API 호출 시 Bearer 헤더로.
 - **모바일 WebView Google 로그인**: web이 직접 OAuth를 시작하지 않는다. `lib/native-bridge.ts`를 통해 mobile에 위임하고, 주입된 Supabase 세션을 복원한다.
+- **모바일 WebView Apple 로그인**: web이 직접 OAuth를 시작하지 않는다. iOS는 native Apple Authentication, Android는 외부 보안 브라우저 Apple OAuth를 mobile이 수행한다.
 - **BFF는 가볍게**: 도메인 로직은 API에. Next route handler는 프록시·이미지 변환·캐시 정도만.
 - **컴포넌트 파일명**: kebab-case (`nav-bar.tsx`), 함수형 + `const`, Server Component 기본.
 

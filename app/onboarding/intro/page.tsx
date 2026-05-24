@@ -62,12 +62,18 @@ export default function IntroPage() {
     );
 
     const unsubscribe = subscribeToNativeMessages((message) => {
-      if (message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR") {
+      if (
+        message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR" ||
+        message.type === "NATIVE_APPLE_SIGN_IN_ERROR"
+      ) {
         setOauthRequestError(message.payload.message);
         setPendingProvider(null);
       }
 
-      if (message.type === "NATIVE_GOOGLE_SIGN_IN_CANCELLED") {
+      if (
+        message.type === "NATIVE_GOOGLE_SIGN_IN_CANCELLED" ||
+        message.type === "NATIVE_APPLE_SIGN_IN_CANCELLED"
+      ) {
         setPendingProvider(null);
       }
     });
@@ -94,8 +100,13 @@ export default function IntroPage() {
           : "onboarding_apple_sign_in_click",
     });
 
-    if (provider === "google" && isNativeWebView()) {
-      notifyMobile({ type: "REQUEST_NATIVE_GOOGLE_SIGN_IN" });
+    if (isNativeWebView()) {
+      notifyMobile({
+        type:
+          provider === "google"
+            ? "REQUEST_NATIVE_GOOGLE_SIGN_IN"
+            : "REQUEST_NATIVE_APPLE_SIGN_IN",
+      });
       return;
     }
 

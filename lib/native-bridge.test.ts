@@ -45,4 +45,17 @@ void describe("native bridge parser", () => {
       },
     );
   });
+
+  void it("accepts a native apple error payload", () => {
+    assert.deepEqual(
+      parseNativeMessage({
+        type: "NATIVE_APPLE_SIGN_IN_ERROR",
+        payload: { message: "로그인 실패" },
+      }),
+      {
+        type: "NATIVE_APPLE_SIGN_IN_ERROR",
+        payload: { message: "로그인 실패" },
+      },
+    );
+  });
 });

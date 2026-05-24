@@ -30,6 +30,8 @@ export function NativeSessionBridge() {
             return;
           case "NATIVE_GOOGLE_SIGN_IN_CANCELLED":
           case "NATIVE_GOOGLE_SIGN_IN_ERROR":
+          case "NATIVE_APPLE_SIGN_IN_CANCELLED":
+          case "NATIVE_APPLE_SIGN_IN_ERROR":
             return;
           default:
             return;

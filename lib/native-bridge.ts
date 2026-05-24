@@ -6,6 +6,7 @@ export const NATIVE_WEBVIEW_EVENT_NAME = "yougabell-native-message";
 export type WebToNativeMessage =
   | { type: "WEB_READY" }
   | { type: "REQUEST_NATIVE_GOOGLE_SIGN_IN" }
+  | { type: "REQUEST_NATIVE_APPLE_SIGN_IN" }
   | { type: "ONBOARDING_COMPLETE"; payload: { userId: string } }
   | { type: "REQUEST_PUSH_PERMISSION" }
   | { type: "LOGOUT" };
@@ -17,7 +18,9 @@ export type NativeToWebMessage =
     }
   | { type: "SUPABASE_SESSION_CLEARED" }
   | { type: "NATIVE_GOOGLE_SIGN_IN_CANCELLED" }
-  | { type: "NATIVE_GOOGLE_SIGN_IN_ERROR"; payload: { message: string } };
+  | { type: "NATIVE_GOOGLE_SIGN_IN_ERROR"; payload: { message: string } }
+  | { type: "NATIVE_APPLE_SIGN_IN_CANCELLED" }
+  | { type: "NATIVE_APPLE_SIGN_IN_ERROR"; payload: { message: string } };
 
 declare global {
   interface Window {
@@ -53,6 +56,7 @@ export function parseNativeMessage(
   switch (candidate.type) {
     case "SUPABASE_SESSION_CLEARED":
     case "NATIVE_GOOGLE_SIGN_IN_CANCELLED":
+    case "NATIVE_APPLE_SIGN_IN_CANCELLED":
       return candidate as NativeToWebMessage;
     case "SUPABASE_SESSION_SYNC":
       if (
@@ -65,6 +69,7 @@ export function parseNativeMessage(
       }
       return null;
     case "NATIVE_GOOGLE_SIGN_IN_ERROR":
+    case "NATIVE_APPLE_SIGN_IN_ERROR":
       if (
         candidate.payload &&
         typeof candidate.payload === "object" &&
