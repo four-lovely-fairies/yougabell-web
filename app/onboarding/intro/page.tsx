@@ -1,5 +1,6 @@
 "use client";
 
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -8,6 +9,11 @@ import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { buildOAuthRedirectTo, getOAuthErrorMessage } from "@/lib/auth-oauth";
 import { track } from "@/lib/analytics";
+import {
+  isNativeWebView,
+  notifyMobile,
+  subscribeToNativeMessages,
+} from "@/lib/native-bridge";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type OAuthProvider = "google" | "apple";
@@ -32,6 +38,46 @@ export default function IntroPage() {
     track({ type: "onboarding_intro_view" });
   }, []);
 
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+
+    if (!isNativeWebView()) {
+      return;
+    }
+
+    void supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
+      if (data.session) {
+        router.replace("/onboarding/parent");
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+      if (!session) return;
+      setPendingProvider(null);
+      router.replace("/onboarding/parent");
+      },
+    );
+
+    const unsubscribe = subscribeToNativeMessages((message) => {
+      if (message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR") {
+        setOauthRequestError(message.payload.message);
+        setPendingProvider(null);
+      }
+
+      if (message.type === "NATIVE_GOOGLE_SIGN_IN_CANCELLED") {
+        setPendingProvider(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      unsubscribe();
+    };
+  }, [router]);
+
   const authCallbackError = useMemo(() => {
     return deriveAuthError(searchParams);
   }, [searchParams]);
@@ -47,6 +93,11 @@ export default function IntroPage() {
           ? "onboarding_google_sign_in_click"
           : "onboarding_apple_sign_in_click",
     });
+
+    if (provider === "google" && isNativeWebView()) {
+      notifyMobile({ type: "REQUEST_NATIVE_GOOGLE_SIGN_IN" });
+      return;
+    }
 
     const supabase = createSupabaseBrowserClient();
     const { error } = await supabase.auth.signInWithOAuth({
