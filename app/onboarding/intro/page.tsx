@@ -11,7 +11,6 @@ import { buildOAuthRedirectTo, getOAuthErrorMessage } from "@/lib/auth-oauth";
 import { track } from "@/lib/analytics";
 import {
   isNativeWebView,
-  notifyMobile,
   subscribeToNativeMessages,
 } from "@/lib/native-bridge";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -99,16 +98,6 @@ export default function IntroPage() {
           ? "onboarding_google_sign_in_click"
           : "onboarding_apple_sign_in_click",
     });
-
-    if (isNativeWebView()) {
-      notifyMobile({
-        type:
-          provider === "google"
-            ? "REQUEST_NATIVE_GOOGLE_SIGN_IN"
-            : "REQUEST_NATIVE_APPLE_SIGN_IN",
-      });
-      return;
-    }
 
     const supabase = createSupabaseBrowserClient();
     const { error } = await supabase.auth.signInWithOAuth({
