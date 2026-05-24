@@ -32,10 +32,13 @@ declare global {
 }
 
 export function isNativeWebView(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
   return (
-    typeof window !== "undefined" &&
-    window.__YOUGABELL_NATIVE__ === true &&
-    typeof window.ReactNativeWebView?.postMessage === "function"
+    typeof window.ReactNativeWebView?.postMessage === "function" ||
+    window.__YOUGABELL_NATIVE__ === true
   );
 }
 
