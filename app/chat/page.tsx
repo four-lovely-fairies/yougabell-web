@@ -3,54 +3,42 @@
 import { ArrowLeft, ArrowUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { loadChat, sendChatMessage } from "@/lib/api";
+import {
+  QUICK_REPLIES,
+  type ChatMessage as ChatMessageDto,
+  type ChatMessageCard,
+} from "@/lib/chat-data";
 
-type AssistantCard = { title: string; body: string };
-
-type ChatMessage =
-  | { id: string; role: "user"; content: string }
-  | {
-      id: string;
-      role: "assistant";
-      content: string;
-      cards?: AssistantCard[];
-      trailing?: string;
-    }
-  | { id: string; role: "assistant"; loading: true };
-
-const QUICK_REPLIES = [
-  "떼스는 아이 관리 및 교육법",
-  "수면 조언",
-  "Morning Routine",
-];
-
-// Figma 채팅-03 (2395:12602) 데모 응답.
-const DEMO_REPLY: Omit<
-  Extract<ChatMessage, { role: "assistant"; content: string }>,
-  "id" | "role"
-> = {
-  content:
-    "그 '딱 하나만 더'라는 요청이 얼마나 진을 빼놓는지 저도 잘 알고 있습니다. 이건 아이들이 아주 흔히 겪는 단계이기도 하죠. 지금 아이는 잠들기 전 부모님과 더 연결되고 싶어 하면서, 동시에 규칙의 경계가 어디까지인지 시험해보고 있는 중입니다.",
-  cards: [
-    {
-      title: "잠자리 티켓",
-      body: "아이가 마지막으로 물을 마시거나 한 번 더 안아달라고 할 때 쓸 수 있는 '실물 티켓' 한 장을 주세요. 티켓을 사용하고 나면, 그 이후의 규칙은 아주 단호하게 지켜야 합니다.",
-    },
-    {
-      title: "정서적 연결 고리",
-      body: "본격적인 잠자리 루틴을 시작하기 전, 아이와 10분 정도 '특별한 시간'을 가져보세요. 아이의 정서적 허기를 미리 채워줌으로써 심리적인 안정감을 주는 방법입니다.",
-    },
-  ],
-  trailing:
-    "그 '딱 하나만 더'라는 요청이 얼마나 진을 빼놓는지 저도 잘 알고 있습니다. 이건 아이들이 아주 흔히 겪는 단계이기도 하죠. 지금 아이는 잠들기 전 부모님과 더 연결되고 싶어 하면서, 동시에 규칙의 경계가 어디까지인지 시험해보고 있는 중입니다.",
-};
+type LoadingMessage = { kind: "loading"; id: string };
+type RenderedMessage = ({ kind: "message" } & ChatMessageDto) | LoadingMessage;
 
 export default function ChatPage() {
   const router = useRouter();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<RenderedMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const idRef = useRef(0);
+
+  useEffect(() => {
+    let active = true;
+    void loadChat().then((state) => {
+      if (!active) return;
+      const incoming: RenderedMessage[] = state.data.messages.map((m) => ({
+        kind: "message",
+        ...m,
+      }));
+      setMessages(incoming);
+      if (state.source === "empty" && state.message) {
+        setErrorBanner(state.message);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -59,36 +47,51 @@ export default function ChatPage() {
     });
   }, [messages]);
 
-  const send = (raw: string) => {
+  const send = async (raw: string) => {
     const text = raw.trim();
     if (!text || busy) return;
 
-    const userId = `u-${++idRef.current}`;
-    const loadingId = `l-${++idRef.current}`;
+    const optimisticUserId = `local-u-${++idRef.current}`;
+    const loadingId = `local-l-${++idRef.current}`;
     setMessages((prev) => [
       ...prev,
-      { id: userId, role: "user", content: text },
-      { id: loadingId, role: "assistant", loading: true },
+      {
+        kind: "message",
+        id: optimisticUserId,
+        role: "user",
+        content: text,
+        sentAt: new Date().toISOString(),
+        cards: [],
+        sources: [],
+      },
+      { kind: "loading", id: loadingId },
     ]);
     setInput("");
     setBusy(true);
+    setErrorBanner(null);
 
-    window.setTimeout(() => {
+    const result = await sendChatMessage(text);
+    setBusy(false);
+
+    if (result.error) {
+      // 낙관적 user message + loading 제거 후 에러 노출
       setMessages((prev) =>
-        prev.map((m) =>
-          m.id === loadingId
-            ? {
-                id: loadingId,
-                role: "assistant",
-                content: DEMO_REPLY.content,
-                cards: DEMO_REPLY.cards,
-                trailing: DEMO_REPLY.trailing,
-              }
-            : m,
+        prev.filter(
+          (m) => m.id !== optimisticUserId && m.id !== loadingId,
         ),
       );
-      setBusy(false);
-    }, 1500);
+      setErrorBanner(result.error.message);
+      return;
+    }
+
+    // 서버 응답으로 user/assistant 교체
+    setMessages((prev) => [
+      ...prev.filter(
+        (m) => m.id !== optimisticUserId && m.id !== loadingId,
+      ),
+      { kind: "message", ...result.data.userMessage },
+      { kind: "message", ...result.data.assistantMessage },
+    ]);
   };
 
   const isEmpty = messages.length === 0;
@@ -123,6 +126,14 @@ export default function ChatPage() {
         사용자의 행동 데이터와 패턴을 기반으로 대화합니다.
       </p>
 
+      {errorBanner ? (
+        <div className="shrink-0 px-5 pb-2">
+          <p className="rounded-xl bg-[#fff1f2] px-4 py-2 text-xs leading-5 text-[#ec003f]">
+            {errorBanner}
+          </p>
+        </div>
+      ) : null}
+
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto px-5"
@@ -153,7 +164,7 @@ export default function ChatPage() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            send(input);
+            void send(input);
           }}
           className="flex h-13 items-center gap-2 rounded-full bg-[#f6f6f6] pl-5 pr-2"
         >
@@ -199,23 +210,24 @@ function EmptyState() {
   );
 }
 
-function MessageList({ messages }: { messages: ChatMessage[] }) {
+function MessageList({ messages }: { messages: RenderedMessage[] }) {
   return (
     <div className="flex flex-col gap-4 pb-4">
-      {messages.map((m) =>
-        m.role === "user" ? (
-          <UserBubble key={m.id} content={m.content} />
-        ) : "loading" in m ? (
-          <LoadingBubble key={m.id} />
-        ) : (
+      {messages.map((m) => {
+        if (m.kind === "loading") {
+          return <LoadingBubble key={m.id} />;
+        }
+        if (m.role === "user") {
+          return <UserBubble key={m.id} content={m.content} />;
+        }
+        return (
           <AssistantBubble
             key={m.id}
             content={m.content}
             cards={m.cards}
-            trailing={m.trailing}
           />
-        ),
-      )}
+        );
+      })}
     </div>
   );
 }
@@ -251,32 +263,30 @@ function LoadingBubble() {
 function AssistantBubble({
   content,
   cards,
-  trailing,
 }: {
   content: string;
-  cards?: AssistantCard[];
-  trailing?: string;
+  cards: ChatMessageCard[];
 }) {
   return (
     <div className="flex justify-start">
       <div className="flex max-w-[310px] flex-col gap-4 rounded-2xl bg-[#f1eaff] px-4 py-3">
         <p className="text-sm leading-[1.5] text-gray-800">{content}</p>
-        {cards && cards.length > 0 ? (
+        {cards.length > 0 ? (
           <div className="flex flex-col gap-4 border-l-2 border-[#a483ff] pl-3">
-            {cards.map((card) => (
-              <div key={card.title} className="flex flex-col gap-1">
-                <h4 className="text-sm font-bold leading-[1.4] text-gray-800">
-                  {card.title}
-                </h4>
-                <p className="text-sm leading-[1.5] text-gray-800">
-                  {card.body}
-                </p>
-              </div>
-            ))}
+            {cards
+              .slice()
+              .sort((a, b) => a.order - b.order)
+              .map((card) => (
+                <div key={card.id} className="flex flex-col gap-1">
+                  <h4 className="text-sm font-bold leading-[1.4] text-gray-800">
+                    {card.title}
+                  </h4>
+                  <p className="text-sm leading-[1.5] text-gray-800">
+                    {card.body}
+                  </p>
+                </div>
+              ))}
           </div>
-        ) : null}
-        {trailing ? (
-          <p className="text-sm leading-[1.5] text-gray-800">{trailing}</p>
         ) : null}
       </div>
     </div>

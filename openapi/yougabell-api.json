@@ -1374,11 +1374,90 @@
           "me/roadmap"
         ]
       }
+    },
+    "/me/chat": {
+      "get": {
+        "operationId": "ChatController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me/chat"
+        ]
+      },
+      "delete": {
+        "operationId": "ChatController_remove",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me/chat"
+        ]
+      }
+    },
+    "/me/chat/messages": {
+      "post": {
+        "operationId": "ChatController_send",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendChatMessageRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendChatMessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me/chat"
+        ]
+      }
     }
   },
   "info": {
     "title": "Yougabell API",
-    "description": "육아밸 domain API",
+    "description": "",
     "version": "0.1.0",
     "contact": {}
   },
@@ -3739,6 +3818,202 @@
           "monthTabRange",
           "milestonesByCategory",
           "sourceTooltip"
+        ]
+      },
+      "ChatSessionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ChatMessageCardDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order": {
+            "type": "number",
+            "example": 0,
+            "minimum": 0
+          },
+          "title": {
+            "type": "string",
+            "example": "잠자리 티켓"
+          },
+          "body": {
+            "type": "string",
+            "example": "실물 티켓 한 장을 주세요..."
+          },
+          "actionType": {
+            "type": "string",
+            "enum": [
+              "none",
+              "start_mission",
+              "open_link",
+              "follow_up"
+            ],
+            "nullable": true
+          },
+          "actionPayload": {
+            "type": "object",
+            "nullable": true,
+            "description": "actionType에 따라 polymorphic"
+          }
+        },
+        "required": [
+          "id",
+          "order",
+          "title",
+          "body",
+          "actionType",
+          "actionPayload"
+        ]
+      },
+      "ChatMessageSourceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://www.cdc.gov/ncbddd/actearly/milestones"
+          },
+          "domain": {
+            "type": "string",
+            "example": "cdc.gov"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "domain",
+          "title"
+        ]
+      },
+      "ChatMessageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "example": "그 \"딱 하나만 더\"라는 요청이 얼마나 진을 빼놓는지 ..."
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatMessageCardDto"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatMessageSourceDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "content",
+          "sentAt",
+          "cards",
+          "sources"
+        ]
+      },
+      "ChatResponseDto": {
+        "type": "object",
+        "properties": {
+          "session": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatSessionDto"
+              }
+            ]
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatMessageDto"
+            }
+          }
+        },
+        "required": [
+          "session",
+          "messages"
+        ]
+      },
+      "SendChatMessageRequestDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "example": "아이가 잠들기 전 자꾸 한 번만 더 라고 해요",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "SendChatMessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "userMessage": {
+            "$ref": "#/components/schemas/ChatMessageDto"
+          },
+          "assistantMessage": {
+            "$ref": "#/components/schemas/ChatMessageDto"
+          }
+        },
+        "required": [
+          "userMessage",
+          "assistantMessage"
         ]
       }
     }

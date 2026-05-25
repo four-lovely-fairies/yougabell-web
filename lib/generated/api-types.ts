@@ -537,6 +537,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ChatController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["ChatController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/chat/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ChatController_send"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1281,6 +1313,62 @@ export interface components {
             monthTabRange: components["schemas"]["RoadmapMonthTabRangeDto"];
             milestonesByCategory: components["schemas"]["RoadmapCategoryGroupDto"][];
             sourceTooltip: components["schemas"]["RoadmapSourceTooltipDto"];
+        };
+        ChatSessionDto: {
+            /** Format: uuid */
+            id: string;
+            title: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ChatMessageCardDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example 0 */
+            order: number;
+            /** @example 잠자리 티켓 */
+            title: string;
+            /** @example 실물 티켓 한 장을 주세요... */
+            body: string;
+            /** @enum {string|null} */
+            actionType: "none" | "start_mission" | "open_link" | "follow_up" | null;
+            /** @description actionType에 따라 polymorphic */
+            actionPayload: Record<string, never> | null;
+        };
+        ChatMessageSourceDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example https://www.cdc.gov/ncbddd/actearly/milestones */
+            url: string;
+            /** @example cdc.gov */
+            domain: string;
+            title: string | null;
+        };
+        ChatMessageDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            role: "user" | "assistant";
+            /** @example 그 "딱 하나만 더"라는 요청이 얼마나 진을 빼놓는지 ... */
+            content: string;
+            /** Format: date-time */
+            sentAt: string;
+            cards: components["schemas"]["ChatMessageCardDto"][];
+            sources: components["schemas"]["ChatMessageSourceDto"][];
+        };
+        ChatResponseDto: {
+            session: components["schemas"]["ChatSessionDto"] | null;
+            messages: components["schemas"]["ChatMessageDto"][];
+        };
+        SendChatMessageRequestDto: {
+            /** @example 아이가 잠들기 전 자꾸 한 번만 더 라고 해요 */
+            content: string;
+        };
+        SendChatMessageResponseDto: {
+            userMessage: components["schemas"]["ChatMessageDto"];
+            assistantMessage: components["schemas"]["ChatMessageDto"];
         };
     };
     responses: never;
@@ -2139,6 +2227,65 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoadmapResponseDto"];
+                };
+            };
+        };
+    };
+    ChatController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatResponseDto"];
+                };
+            };
+        };
+    };
+    ChatController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ChatController_send: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendChatMessageRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SendChatMessageResponseDto"];
                 };
             };
         };
