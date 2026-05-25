@@ -42,9 +42,10 @@ const items: BottomNavItem[] = [
   },
   {
     label: "AI 상담",
+    href: "/chat",
     iconSrc: NAV_ICON_PATHS.ai,
     iconClassName: "h-[19px] w-[22px]",
-    matches: () => false,
+    matches: (pathname: string) => pathname.startsWith("/chat"),
   },
   {
     label: "리포트",
