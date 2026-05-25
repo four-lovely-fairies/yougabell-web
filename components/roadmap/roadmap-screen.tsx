@@ -293,10 +293,7 @@ const CategoryCard = ({ group }: { group: RoadmapCategoryGroup }) => {
         className={`flex size-7 shrink-0 items-center justify-center rounded-full ${styles.chipBg}`}
         aria-hidden
       >
-        <CategoryIcon
-          iconKey={group.iconKey || fallback.iconKey}
-          className={`size-5 ${styles.chipFg}`}
-        />
+        <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
       </div>
       <div className="min-w-0 flex-1">
         <h3
@@ -324,33 +321,29 @@ const CategoryCard = ({ group }: { group: RoadmapCategoryGroup }) => {
 };
 
 /**
- * Figma chip 아이콘 키(`groups`/`dictionary`/`psychology_alt`/`barefoot`)는 Material Symbols 이름.
- * lucide-react에 1:1 매칭이 없어 시각적으로 가까운 대체 컴포넌트 매핑.
- * Figma SVG export로 교체할 때까지 한시적 fallback.
+ * Figma chip 아이콘 (Material Symbols 이름). Figma 노드 2516:5396/5407/5418/5429에서 export.
+ * 알 수 없는 키는 안전한 빈 표시 (•).
  */
-const CategoryIcon = ({
-  iconKey,
-  className,
-}: {
-  iconKey: string;
-  className?: string;
-}) => {
-  const symbol = ICON_FALLBACK[iconKey] ?? "•";
-  return (
-    <span
-      className={`flex items-center justify-center text-[14px] font-bold leading-none ${className ?? ""}`}
-      aria-hidden
-    >
-      {symbol}
-    </span>
-  );
+const ICON_PATHS: Record<string, string> = {
+  groups: "/icons/figma/roadmap/groups.svg",
+  dictionary: "/icons/figma/roadmap/dictionary.svg",
+  psychology_alt: "/icons/figma/roadmap/psychology_alt.svg",
+  barefoot: "/icons/figma/roadmap/barefoot.svg",
 };
 
-const ICON_FALLBACK: Record<string, string> = {
-  groups: "👥",
-  dictionary: "abc",
-  psychology_alt: "🧠",
-  barefoot: "🦶",
+const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
+  const src = ICON_PATHS[iconKey];
+  if (!src) {
+    return (
+      <span
+        className="text-xs font-bold leading-none text-[#9d9d9d]"
+        aria-hidden
+      >
+        •
+      </span>
+    );
+  }
+  return <img src={src} alt="" className="size-5" aria-hidden />;
 };
 
 const RoadmapSkeleton = () => (
