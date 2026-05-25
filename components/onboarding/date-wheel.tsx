@@ -33,27 +33,32 @@ export function DateWheel({
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const ignoreScrollRef = useRef(false);
+  const firstSyncRef = useRef(true);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
   const valueIndex = items.indexOf(value);
   const safeIndex = valueIndex >= 0 ? valueIndex : 0;
 
-  // value 또는 items 변경 시 paint 직전 scrollTop을 selected 위치로 동기화.
-  // useLayoutEffect는 mount 후 첫 paint 이전에 실행됨 → 사용자가 잘못된 위치를 보는 시점 없음.
+  // value 또는 items 변경 시 scrollTop을 selected 위치로 동기화.
+  // - 첫 sync(mount)는 instant — 사용자가 잘못된 위치를 보는 시점 없음.
+  // - 이후 변경(클릭·외부 set)은 smooth — 한 칸씩 부드럽게 이동.
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     const target = safeIndex * ITEM_HEIGHT;
-    if (el.scrollTop !== target) {
-      // 자체 scroll로 인한 spurious onChange를 차단
-      ignoreScrollRef.current = true;
+    if (el.scrollTop === target) return;
+    ignoreScrollRef.current = true;
+    if (firstSyncRef.current) {
       el.scrollTop = target;
-      // snap 정착·debounce 시간(80ms)보다 충분히 길게 두어 안전
-      window.setTimeout(() => {
-        ignoreScrollRef.current = false;
-      }, 200);
+      firstSyncRef.current = false;
+    } else {
+      el.scrollTo({ top: target, behavior: "smooth" });
     }
+    // smooth scroll은 시간이 걸리므로 충분히 길게 ignore
+    window.setTimeout(() => {
+      ignoreScrollRef.current = false;
+    }, 400);
   }, [safeIndex]);
 
   useLayoutEffect(() => {
@@ -82,7 +87,7 @@ export function DateWheel({
       role="listbox"
       aria-label={ariaLabel}
       style={{ width, height: ITEM_HEIGHT * VISIBLE }}
-      className="overflow-y-scroll snap-y snap-mandatory no-scrollbar relative"
+      className="overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar relative"
     >
       {/* 상단 buffer — 첫 항목이 중앙에 올 수 있도록 위에 빈 공간 확보 */}
       <div style={{ height: ITEM_HEIGHT * CENTER_OFFSET }} aria-hidden />
@@ -97,20 +102,26 @@ export function DateWheel({
               ? "text-gray-500"
               : "text-gray-300";
         return (
-          <div
+          <button
             key={item}
+            type="button"
             role="option"
             aria-selected={isSelected}
             data-index={i}
+            // 보이는 항목 클릭 시 그 값으로 변경. 부모 value → useLayoutEffect가 smooth scroll로 정렬.
+            onClick={() => {
+              if (item !== value) onChange(item);
+            }}
             style={{ height: ITEM_HEIGHT }}
             className={cn(
-              "snap-center flex items-center justify-center text-[20px] leading-none tabular-nums",
+              "snap-center flex w-full items-center justify-center text-[20px] leading-none tabular-nums outline-none",
               tone,
+              !isSelected && "cursor-pointer",
             )}
           >
             {item}
             {isSelected ? suffix : ""}
-          </div>
+          </button>
         );
       })}
       {/* 하단 buffer — 마지막 항목이 중앙에 올 수 있도록 아래 빈 공간 확보 */}
