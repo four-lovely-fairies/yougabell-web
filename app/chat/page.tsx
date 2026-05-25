@@ -3,7 +3,7 @@
 import { ArrowLeft, ArrowUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { loadChat, sendChatMessage } from "@/lib/api";
+import { loadChat, streamChatMessage } from "@/lib/api";
 import {
   QUICK_REPLIES,
   type ChatMessage as ChatMessageDto,
@@ -11,7 +11,11 @@ import {
 } from "@/lib/chat-data";
 
 type LoadingMessage = { kind: "loading"; id: string };
-type RenderedMessage = ({ kind: "message" } & ChatMessageDto) | LoadingMessage;
+type StreamingMessage = { kind: "streaming"; id: string; text: string };
+type RenderedMessage =
+  | ({ kind: "message" } & ChatMessageDto)
+  | LoadingMessage
+  | StreamingMessage;
 
 export default function ChatPage() {
   const router = useRouter();
@@ -52,7 +56,8 @@ export default function ChatPage() {
     if (!text || busy) return;
 
     const optimisticUserId = `local-u-${++idRef.current}`;
-    const loadingId = `local-l-${++idRef.current}`;
+    const streamingId = `local-s-${++idRef.current}`;
+
     setMessages((prev) => [
       ...prev,
       {
@@ -64,34 +69,57 @@ export default function ChatPage() {
         cards: [],
         sources: [],
       },
-      { kind: "loading", id: loadingId },
+      { kind: "loading", id: streamingId },
     ]);
     setInput("");
     setBusy(true);
     setErrorBanner(null);
 
-    const result = await sendChatMessage(text);
+    await streamChatMessage(text, {
+      onToken: (chunk) => {
+        setMessages((prev) =>
+          prev.map((m) => {
+            if (m.id !== streamingId) return m;
+            // loading → streaming 으로 전환하며 첫 청크 누적
+            if (m.kind === "loading") {
+              return { kind: "streaming", id: streamingId, text: chunk };
+            }
+            if (m.kind === "streaming") {
+              return { ...m, text: m.text + chunk };
+            }
+            return m;
+          }),
+        );
+      },
+      onDone: (payload) => {
+        // streaming bubble을 영속화된 assistant 메시지로 교체.
+        // 낙관적 user bubble은 그대로 유지 (서버 user 메시지는 별도 fetch X — 일치 가정).
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === streamingId
+              ? {
+                  kind: "message",
+                  id: payload.messageId,
+                  role: "assistant",
+                  content: payload.content,
+                  sentAt: new Date().toISOString(),
+                  cards: payload.cards,
+                  sources: payload.sources,
+                }
+              : m,
+          ),
+        );
+      },
+      onError: (message) => {
+        setMessages((prev) =>
+          prev.filter(
+            (m) => m.id !== optimisticUserId && m.id !== streamingId,
+          ),
+        );
+        setErrorBanner(message);
+      },
+    });
     setBusy(false);
-
-    if (result.error) {
-      // 낙관적 user message + loading 제거 후 에러 노출
-      setMessages((prev) =>
-        prev.filter(
-          (m) => m.id !== optimisticUserId && m.id !== loadingId,
-        ),
-      );
-      setErrorBanner(result.error.message);
-      return;
-    }
-
-    // 서버 응답으로 user/assistant 교체
-    setMessages((prev) => [
-      ...prev.filter(
-        (m) => m.id !== optimisticUserId && m.id !== loadingId,
-      ),
-      { kind: "message", ...result.data.userMessage },
-      { kind: "message", ...result.data.assistantMessage },
-    ]);
   };
 
   const isEmpty = messages.length === 0;
@@ -217,15 +245,14 @@ function MessageList({ messages }: { messages: RenderedMessage[] }) {
         if (m.kind === "loading") {
           return <LoadingBubble key={m.id} />;
         }
+        if (m.kind === "streaming") {
+          return <StreamingBubble key={m.id} text={m.text} />;
+        }
         if (m.role === "user") {
           return <UserBubble key={m.id} content={m.content} />;
         }
         return (
-          <AssistantBubble
-            key={m.id}
-            content={m.content}
-            cards={m.cards}
-          />
+          <AssistantBubble key={m.id} content={m.content} cards={m.cards} />
         );
       })}
     </div>
@@ -255,6 +282,22 @@ function LoadingBubble() {
             />
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function StreamingBubble({ text }: { text: string }) {
+  return (
+    <div className="flex justify-start">
+      <div className="max-w-[310px] rounded-2xl bg-[#f1eaff] px-4 py-3">
+        <p className="text-sm leading-[1.5] text-gray-800">
+          {text}
+          <span
+            className="ml-0.5 inline-block size-1.5 animate-pulse rounded-full bg-[#a483ff] align-middle"
+            aria-hidden
+          />
+        </p>
       </div>
     </div>
   );

@@ -18,3 +18,28 @@ export const EMPTY_CHAT_RESPONSE: ChatResponse = {
   session: null,
   messages: [],
 };
+
+/**
+ * SSE 이벤트 — api `ChatStreamEvent`와 형태 일치 (codegen 대상 아님 — text/event-stream).
+ */
+export type ChatStreamTokenEvent = { type: "token"; data: { text: string } };
+
+export type ChatStreamDoneEvent = {
+  type: "done";
+  data: {
+    messageId: string;
+    content: string;
+    cards: ChatMessageCard[];
+    sources: ChatMessageSource[];
+  };
+};
+
+export type ChatStreamErrorEvent = {
+  type: "error";
+  data: { message: string };
+};
+
+export type ChatStreamEvent =
+  | ChatStreamTokenEvent
+  | ChatStreamDoneEvent
+  | ChatStreamErrorEvent;
