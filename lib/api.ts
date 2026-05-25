@@ -10,6 +10,11 @@ import {
   type MissionExecutionSnapshot,
 } from "./mission-data";
 import { getDemoRoadmap, type RoadmapResponse } from "./roadmap-data";
+import {
+  EMPTY_CHAT_RESPONSE,
+  type ChatResponse,
+  type SendChatMessageResponse,
+} from "./chat-data";
 import { createSupabaseBrowserClient } from "./supabase/client";
 import type {
   ApiInterestId,
@@ -81,6 +86,16 @@ export type RoadmapLoadState = {
   source: "api" | "demo";
   message?: string;
 };
+
+export type ChatLoadState = {
+  data: ChatResponse;
+  source: "api" | "empty";
+  message?: string;
+};
+
+export type SendChatMessageState =
+  | { data: SendChatMessageResponse; error: null }
+  | { data: null; error: { status: number | null; message: string } };
 
 async function request<T>(
   path: string,
@@ -217,6 +232,90 @@ export const loadHomeDashboard = async (
       source: "demo",
       message,
     };
+  }
+};
+
+export const loadChat = async (): Promise<ChatLoadState> => {
+  const headers = await authHeaders();
+
+  if (!headers.Authorization) {
+    return {
+      data: EMPTY_CHAT_RESPONSE,
+      source: "empty",
+      message: "로그인 세션이 연결되면 이전 대화를 불러옵니다.",
+    };
+  }
+
+  try {
+    const { data, error, response } = await openApiClient.GET("/me/chat", {
+      headers,
+    });
+    if (error || !data) {
+      throw new ApiError((response as Response).status, error ?? {});
+    }
+    return { data, source: "api" };
+  } catch (error) {
+    const message =
+      error instanceof ApiError
+        ? `이전 대화를 불러오지 못했어요. (${error.status})`
+        : "대화 서버에 연결할 수 없어요.";
+    return {
+      data: EMPTY_CHAT_RESPONSE,
+      source: "empty",
+      message,
+    };
+  }
+};
+
+export const sendChatMessage = async (
+  content: string,
+): Promise<SendChatMessageState> => {
+  const headers = await authHeaders();
+
+  if (!headers.Authorization) {
+    return {
+      data: null,
+      error: {
+        status: 401,
+        message: "로그인 세션이 연결되어야 메시지를 보낼 수 있어요.",
+      },
+    };
+  }
+
+  try {
+    const { data, error, response } = await openApiClient.POST(
+      "/me/chat/messages",
+      {
+        body: { content },
+        headers,
+      },
+    );
+    if (error || !data) {
+      throw new ApiError((response as Response).status, error ?? {});
+    }
+    return { data, error: null };
+  } catch (error) {
+    const status =
+      error instanceof ApiError ? error.status : null;
+    const message =
+      error instanceof ApiError
+        ? `메시지 전송에 실패했어요. (${error.status})`
+        : "메시지 전송에 실패했어요. 다시 시도해 주세요.";
+    return {
+      data: null,
+      error: { status, message },
+    };
+  }
+};
+
+export const deleteChat = async (): Promise<{ ok: boolean }> => {
+  const headers = await authHeaders();
+  if (!headers.Authorization) return { ok: false };
+  try {
+    const { response } = await openApiClient.DELETE("/me/chat", { headers });
+    return { ok: response.ok };
+  } catch {
+    return { ok: false };
   }
 };
 
