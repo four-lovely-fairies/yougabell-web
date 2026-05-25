@@ -35,9 +35,10 @@ const items: BottomNavItem[] = [
   },
   {
     label: "성장 로드맵",
+    href: "/roadmap",
     iconSrc: NAV_ICON_PATHS.roadmap,
     iconClassName: "size-[18px]",
-    matches: () => false,
+    matches: (pathname: string) => pathname.startsWith("/roadmap"),
   },
   {
     label: "AI 상담",
