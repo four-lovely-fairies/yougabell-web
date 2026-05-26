@@ -3,6 +3,7 @@
 import { ArrowLeft, ArrowUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { track } from "@/lib/analytics";
 import { loadChat, streamChatMessage } from "@/lib/api";
 import {
   QUICK_REPLIES,
@@ -17,6 +18,12 @@ type RenderedMessage =
   | LoadingMessage
   | StreamingMessage;
 
+// React Compiler가 컴포넌트 본문 안의 nowMs() 호출을 impure render hazard로 잡아서
+// 모듈 스코프 헬퍼로 분리. analytics latency 측정 전용.
+function nowMs(): number {
+  return nowMs();
+}
+
 export default function ChatPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<RenderedMessage[]>([]);
@@ -27,6 +34,7 @@ export default function ChatPage() {
   const idRef = useRef(0);
 
   useEffect(() => {
+    track({ type: "chat_open" });
     let active = true;
     void loadChat().then((state) => {
       if (!active) return;
@@ -74,9 +82,20 @@ export default function ChatPage() {
     setInput("");
     setBusy(true);
     setErrorBanner(null);
+    track({ type: "chat_message_send", length: text.length });
+
+    const sentAt = nowMs();
+    let firstTokenLogged = false;
 
     await streamChatMessage(text, {
       onToken: (chunk) => {
+        if (!firstTokenLogged) {
+          firstTokenLogged = true;
+          track({
+            type: "chat_response_first_token",
+            latencyMs: nowMs() - sentAt,
+          });
+        }
         setMessages((prev) =>
           prev.map((m) => {
             if (m.id !== streamingId) return m;
@@ -92,6 +111,12 @@ export default function ChatPage() {
         );
       },
       onDone: (payload) => {
+        track({
+          type: "chat_response_complete",
+          latencyMs: nowMs() - sentAt,
+          cardCount: payload.cards.length,
+          sourceCount: payload.sources.length,
+        });
         // streaming bubble을 영속화된 assistant 메시지로 교체.
         // 낙관적 user bubble은 그대로 유지 (서버 user 메시지는 별도 fetch X — 일치 가정).
         setMessages((prev) =>
@@ -111,6 +136,7 @@ export default function ChatPage() {
         );
       },
       onError: (message) => {
+        track({ type: "chat_response_error", reason: message });
         setMessages((prev) =>
           prev.filter(
             (m) => m.id !== optimisticUserId && m.id !== streamingId,
@@ -178,7 +204,10 @@ export default function ChatPage() {
               key={label}
               type="button"
               disabled={busy}
-              onClick={() => send(label)}
+              onClick={() => {
+                track({ type: "chat_quick_reply_use", label });
+                void send(label);
+              }}
               className="h-12 shrink-0 rounded-full border border-gray-200 px-6 text-sm font-medium leading-[1.4] text-gray-800 disabled:opacity-50"
             >
               {label}
