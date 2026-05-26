@@ -1418,42 +1418,6 @@
         ]
       }
     },
-    "/me/chat/messages": {
-      "post": {
-        "operationId": "ChatController_send",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SendChatMessageRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SendChatMessageResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "me/chat"
-        ]
-      }
-    },
     "/me/chat/messages/stream": {
       "post": {
         "operationId": "ChatController_stream",
@@ -4028,21 +3992,6 @@
         },
         "required": [
           "content"
-        ]
-      },
-      "SendChatMessageResponseDto": {
-        "type": "object",
-        "properties": {
-          "userMessage": {
-            "$ref": "#/components/schemas/ChatMessageDto"
-          },
-          "assistantMessage": {
-            "$ref": "#/components/schemas/ChatMessageDto"
-          }
-        },
-        "required": [
-          "userMessage",
-          "assistantMessage"
         ]
       }
     }

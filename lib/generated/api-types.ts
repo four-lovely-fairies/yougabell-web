@@ -553,22 +553,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/me/chat/messages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["ChatController_send"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/me/chat/messages/stream": {
         parameters: {
             query?: never;
@@ -1381,10 +1365,6 @@ export interface components {
         SendChatMessageRequestDto: {
             /** @example 아이가 잠들기 전 자꾸 한 번만 더 라고 해요 */
             content: string;
-        };
-        SendChatMessageResponseDto: {
-            userMessage: components["schemas"]["ChatMessageDto"];
-            assistantMessage: components["schemas"]["ChatMessageDto"];
         };
     };
     responses: never;
@@ -2280,29 +2260,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    ChatController_send: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SendChatMessageRequestDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SendChatMessageResponseDto"];
-                };
             };
         };
     };
