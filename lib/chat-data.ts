@@ -5,8 +5,6 @@ export type ChatMessage = components["schemas"]["ChatMessageDto"];
 export type ChatMessageCard = components["schemas"]["ChatMessageCardDto"];
 export type ChatMessageSource = components["schemas"]["ChatMessageSourceDto"];
 export type ChatSession = components["schemas"]["ChatSessionDto"];
-export type SendChatMessageResponse =
-  components["schemas"]["SendChatMessageResponseDto"];
 
 export const QUICK_REPLIES = [
   "떼스는 아이 관리 및 교육법",
