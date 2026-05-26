@@ -14,7 +14,6 @@ import {
   EMPTY_CHAT_RESPONSE,
   type ChatResponse,
   type ChatStreamEvent,
-  type SendChatMessageResponse,
 } from "./chat-data";
 import { createSupabaseBrowserClient } from "./supabase/client";
 import type {
@@ -93,10 +92,6 @@ export type ChatLoadState = {
   source: "api" | "empty";
   message?: string;
 };
-
-export type SendChatMessageState =
-  | { data: SendChatMessageResponse; error: null }
-  | { data: null; error: { status: number | null; message: string } };
 
 async function request<T>(
   path: string,
@@ -264,47 +259,6 @@ export const loadChat = async (): Promise<ChatLoadState> => {
       data: EMPTY_CHAT_RESPONSE,
       source: "empty",
       message,
-    };
-  }
-};
-
-export const sendChatMessage = async (
-  content: string,
-): Promise<SendChatMessageState> => {
-  const headers = await authHeaders();
-
-  if (!headers.Authorization) {
-    return {
-      data: null,
-      error: {
-        status: 401,
-        message: "로그인 세션이 연결되어야 메시지를 보낼 수 있어요.",
-      },
-    };
-  }
-
-  try {
-    const { data, error, response } = await openApiClient.POST(
-      "/me/chat/messages",
-      {
-        body: { content },
-        headers,
-      },
-    );
-    if (error || !data) {
-      throw new ApiError((response as Response).status, error ?? {});
-    }
-    return { data, error: null };
-  } catch (error) {
-    const status =
-      error instanceof ApiError ? error.status : null;
-    const message =
-      error instanceof ApiError
-        ? `메시지 전송에 실패했어요. (${error.status})`
-        : "메시지 전송에 실패했어요. 다시 시도해 주세요.";
-    return {
-      data: null,
-      error: { status, message },
     };
   }
 };

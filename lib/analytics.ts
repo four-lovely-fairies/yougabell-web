@@ -35,7 +35,22 @@ export type SettingsEvent =
   | { type: "settings_logout" }
   | { type: "settings_account_delete_confirm" };
 
-export type AnalyticsEvent = OnboardingEvent | SettingsEvent;
+// AI 챗봇 이벤트 (docs/features/20260525-ai-integration.md §6).
+export type ChatEvent =
+  | { type: "chat_open" }
+  | { type: "chat_message_send"; length: number }
+  | { type: "chat_response_first_token"; latencyMs: number }
+  | {
+      type: "chat_response_complete";
+      latencyMs: number;
+      cardCount: number;
+      sourceCount: number;
+    }
+  | { type: "chat_response_error"; reason: string }
+  | { type: "chat_quick_reply_use"; label: string }
+  | { type: "chat_source_link_open"; domain: string };
+
+export type AnalyticsEvent = OnboardingEvent | SettingsEvent | ChatEvent;
 
 export function track(event: AnalyticsEvent): void {
   if (typeof window === "undefined") return;
