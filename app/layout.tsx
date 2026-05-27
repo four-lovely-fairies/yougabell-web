@@ -22,9 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-gray-0 text-gray-800 font-sans">
+      <body className="min-h-full bg-[#f1f2f4] font-sans text-gray-800">
         <NativeSessionBridge />
-        {children}
+        {/* 모바일 frame — 태블릿/데스크탑에서는 가운데 정렬된 모바일 폭(430px)으로 표시 */}
+        <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.04)]">
+          {children}
+        </div>
       </body>
     </html>
   );
