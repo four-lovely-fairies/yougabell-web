@@ -18,10 +18,10 @@ type RenderedMessage =
   | LoadingMessage
   | StreamingMessage;
 
-// React Compiler가 컴포넌트 본문 안의 nowMs() 호출을 impure render hazard로 잡아서
+// React Compiler가 컴포넌트 본문 안의 Date.now() 호출을 impure render hazard로 잡아서
 // 모듈 스코프 헬퍼로 분리. analytics latency 측정 전용.
 function nowMs(): number {
-  return nowMs();
+  return Date.now();
 }
 
 export default function ChatPage() {
