@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getStoredSelectedChildId,
   loadHomeDashboard,
   setStoredSelectedChildId,
   type HomeLoadState,
-} from '@/lib/api';
+} from "@/lib/api";
 import type {
   HomeChild,
   HomeDashboard as HomeDashboardData,
   HomeNotification,
-} from '@/lib/home-data';
+} from "@/lib/home-data";
 
-type Modal = 'children' | 'notifications' | null;
+type Modal = "children" | "notifications" | null;
 
 const HOME_ICON_PATHS = {
-  childSwitcherChevron: '/icons/figma/home/child-switcher-chevron.svg',
-  growthStage: '/icons/figma/home/growth-stage.svg',
-  headerNotification: '/icons/figma/home/header-notification.svg',
-  headerSettings: '/icons/figma/home/header-settings.svg',
-  missionIllustration: '/images/figma/home/mission-illustration.svg',
-  moodBad: '/icons/figma/mission-feedback/bad.svg',
-  moodGood: '/icons/figma/mission-feedback/good.svg',
-  moodNeutral: '/icons/figma/mission-feedback/neutral.svg',
-  moodPlus: '/icons/figma/home/mood-plus.svg',
-  moodVeryBad: '/icons/figma/mission-feedback/very-bad.svg',
-  moodVeryGood: '/icons/figma/mission-feedback/very-good.svg',
+  childSwitcherChevron: "/icons/figma/home/child-switcher-chevron.svg",
+  growthStage: "/icons/figma/home/growth-stage.svg",
+  headerNotification: "/icons/figma/home/header-notification.svg",
+  headerSettings: "/icons/figma/home/header-settings.svg",
+  missionIllustration: "/images/figma/home/mission-illustration.svg",
+  moodBad: "/icons/figma/mission-feedback/bad.svg",
+  moodGood: "/icons/figma/mission-feedback/good.svg",
+  moodNeutral: "/icons/figma/mission-feedback/neutral.svg",
+  moodPlus: "/icons/figma/home/mood-plus.svg",
+  moodVeryBad: "/icons/figma/mission-feedback/very-bad.svg",
+  moodVeryGood: "/icons/figma/mission-feedback/very-good.svg",
 } as const;
 
 export const HomeDashboard = () => {
@@ -88,21 +88,21 @@ export const HomeDashboard = () => {
         <TopAppBar
           child={selectedChild}
           unreadCount={data.notifications.unreadCount}
-          onOpenChildren={() => setModal('children')}
-          onOpenNotifications={() => setModal('notifications')}
+          onOpenChildren={() => setModal("children")}
+          onOpenNotifications={() => setModal("notifications")}
         />
         <div className="mt-4 flex flex-col gap-5">
           <WeeklyCalendar data={data} />
           <TodayMissionCard
             mission={data.recommendedMission}
             loading={loading}
-            onStart={() => router.push('/mission')}
+            onStart={() => router.push("/mission")}
           />
           <GrowthStageCard stage={data.growthStage} />
           <ReportSummaryCard summary={data.reportSummary} />
         </div>
       </div>
-      {modal === 'children' ? (
+      {modal === "children" ? (
         <ChildSwitcherSheet
           childItems={data.children}
           selectedChildId={selectedChild.id}
@@ -110,7 +110,7 @@ export const HomeDashboard = () => {
           onSelect={onSelectChild}
         />
       ) : null}
-      {modal === 'notifications' ? (
+      {modal === "notifications" ? (
         <NotificationModal
           notifications={data.notifications.latest}
           unreadCount={data.notifications.unreadCount}
@@ -195,19 +195,19 @@ const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
         <div
           key={day.date}
           className={`flex flex-col items-center gap-1 rounded-2xl px-2 pb-3 pt-2 ${
-            day.isToday ? 'bg-[#9572ff] text-white' : ''
+            day.isToday ? "bg-[#9572ff] text-white" : ""
           }`}
         >
           <span
             className={`text-[9px] font-bold leading-none ${
-              day.isToday ? 'text-white' : 'text-[#c4c4c4]'
+              day.isToday ? "text-white" : "text-[#c4c4c4]"
             }`}
           >
             {day.weekdayLabel}
           </span>
           <span
             className={`text-sm font-bold leading-none ${
-              day.isToday ? 'text-white' : 'text-[#262626]'
+              day.isToday ? "text-white" : "text-[#262626]"
             }`}
           >
             {day.dayOfMonth}
@@ -228,7 +228,7 @@ const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
 const MoodBadge = ({
   day,
 }: {
-  day: HomeDashboardData['week']['days'][number];
+  day: HomeDashboardData["week"]["days"][number];
 }) => {
   if (day.mood?.level) {
     return (
@@ -259,12 +259,12 @@ const TodayMissionCard = ({
   loading,
   onStart,
 }: {
-  mission: HomeDashboardData['recommendedMission'];
+  mission: HomeDashboardData["recommendedMission"];
   loading: boolean;
   onStart: () => void;
 }) => {
-  const isCompleted = mission?.status === 'completed';
-  const buttonLabel = isCompleted ? '미션 완료' : '미션 시작하기';
+  const isCompleted = mission?.status === "completed";
+  const buttonLabel = isCompleted ? "미션 완료" : "미션 시작하기";
 
   return (
     <section className="rounded-[24px] bg-white p-6 shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]">
@@ -274,7 +274,7 @@ const TodayMissionCard = ({
       <div className="mt-[13px] flex items-center justify-between gap-4">
         <h2 className="text-[20px] font-bold leading-[1.4] tracking-normal text-[#262626]">
           {splitMissionTitle(
-            mission?.title ?? '아이와 눈을 마주치며 이야기를 해보아요',
+            mission?.title ?? "아이와 눈을 마주치며 이야기를 해보아요",
           ).map((line) => (
             <span key={line} className="block whitespace-pre-wrap">
               {line}
@@ -303,7 +303,7 @@ const TodayMissionCard = ({
 const GrowthStageCard = ({
   stage,
 }: {
-  stage: HomeDashboardData['growthStage'];
+  stage: HomeDashboardData["growthStage"];
 }) => (
   <section className="rounded-[33px] bg-white p-6 shadow-[0_4px_10px_rgba(0,0,0,0.04)]">
     <div className="flex items-center gap-1">
@@ -313,7 +313,7 @@ const GrowthStageCard = ({
         className="size-5 shrink-0"
       />
       <h2 className="text-xs font-bold leading-[1.4] text-[#262626]">
-        현재 상황 [ {stage?.name ?? '확인 중'} ]
+        현재 상황 [ {stage?.name ?? "확인 중"} ]
       </h2>
     </div>
     <p className="mt-3 text-sm font-medium leading-[1.8] text-[#555]">
@@ -326,7 +326,7 @@ const GrowthStageCard = ({
 const ReportSummaryCard = ({
   summary,
 }: {
-  summary: HomeDashboardData['reportSummary'];
+  summary: HomeDashboardData["reportSummary"];
 }) => (
   <section className="grid grid-cols-2 gap-2">
     <SummaryMetricCard label="지난주 놀이 수행시간">
@@ -418,51 +418,54 @@ const ChildSwitcherSheet = ({
     aria-modal="true"
     onClick={onClose}
   >
-    <div
-      className="absolute left-5 top-[108px] w-[260px] overflow-hidden rounded-[32px] border border-[#ebecf0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] md:left-[calc(50%-175px)]"
-      onClick={(event) => event.stopPropagation()}
-    >
-      {childItems.map((child) => {
-        const selected = child.id === selectedChildId;
+    <div className="relative mx-auto h-full w-full max-w-[430px]">
+      <div
+        className="absolute left-5 top-[108px] w-[260px] overflow-hidden rounded-[32px] border border-[#ebecf0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        {childItems.map((child) => {
+          const selected = child.id === selectedChildId;
 
-        return (
-          <div
-            key={child.id}
-            className={`flex items-center justify-between px-6 py-5 ${
-              selected ? 'bg-[#efe7ff]' : 'bg-white'
-            }`}
-          >
-            <button
-              type="button"
-              onClick={() => onSelect(child)}
-              className="min-w-0 flex-1 text-left"
+          return (
+            <div
+              key={child.id}
+              className={`flex items-center justify-between px-6 py-5 ${
+                selected ? "bg-[#efe7ff]" : "bg-white"
+              }`}
             >
-              <span className="block truncate text-sm font-bold leading-[1.4] text-[#1f2127]">
-                {child.name}
-              </span>
-              <span className="block truncate text-xs font-normal leading-[1.4] text-[#6f7885]">
-                {child.ageLabel} ({new Date(child.birthDate).getFullYear()}년생)
-              </span>
-            </button>
-            <div className="ml-4 flex shrink-0 items-center gap-2 text-[#262626]">
               <button
                 type="button"
-                className="flex size-5 items-center justify-center"
-                aria-label={`${child.name} 수정`}
+                onClick={() => onSelect(child)}
+                className="min-w-0 flex-1 text-left"
               >
-                <Pencil className="size-4" aria-hidden />
+                <span className="block truncate text-sm font-bold leading-[1.4] text-[#1f2127]">
+                  {child.name}
+                </span>
+                <span className="block truncate text-xs font-normal leading-[1.4] text-[#6f7885]">
+                  {child.ageLabel} ({new Date(child.birthDate).getFullYear()}
+                  년생)
+                </span>
               </button>
-              <button
-                type="button"
-                className="flex size-5 items-center justify-center"
-                aria-label={`${child.name} 삭제`}
-              >
-                <Trash2 className="size-4" aria-hidden />
-              </button>
+              <div className="ml-4 flex shrink-0 items-center gap-2 text-[#262626]">
+                <button
+                  type="button"
+                  className="flex size-5 items-center justify-center"
+                  aria-label={`${child.name} 수정`}
+                >
+                  <Pencil className="size-4" aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  className="flex size-5 items-center justify-center"
+                  aria-label={`${child.name} 삭제`}
+                >
+                  <Trash2 className="size-4" aria-hidden />
+                </button>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   </div>
 );
@@ -482,46 +485,48 @@ const NotificationModal = ({
     aria-modal="true"
     onClick={onClose}
   >
-    <div
-      className="absolute inset-x-5 top-[104px] rounded-[28px] bg-white p-5 shadow-[0_12px_30px_rgba(0,0,0,0.14)]"
-      onClick={(event) => event.stopPropagation()}
-    >
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-lg font-bold leading-6 text-[#262626]">알림</h2>
-          <p className="mt-1 text-sm font-medium leading-5 text-[#7b7b7b]">
-            읽지 않은 알림 {unreadCount}개
-          </p>
+    <div className="relative mx-auto h-full w-full max-w-[430px]">
+      <div
+        className="absolute inset-x-5 top-[104px] rounded-[28px] bg-white p-5 shadow-[0_12px_30px_rgba(0,0,0,0.14)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold leading-6 text-[#262626]">알림</h2>
+            <p className="mt-1 text-sm font-medium leading-5 text-[#7b7b7b]">
+              읽지 않은 알림 {unreadCount}개
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-sm font-medium leading-5 text-[#9572ff]"
+          >
+            닫기
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-sm font-medium leading-5 text-[#9572ff]"
-        >
-          닫기
-        </button>
-      </div>
-      <div className="mt-4 space-y-3">
-        {notifications.length > 0 ? (
-          notifications.map((notification) => (
-            <button
-              key={notification.id}
-              type="button"
-              className="w-full rounded-xl bg-[#f6f6f6] p-4 text-left"
-            >
-              <p className="text-sm font-bold leading-5 text-[#262626]">
-                {notification.title}
-              </p>
-              <p className="mt-1 text-sm leading-5 text-[#555]">
-                {notification.body}
-              </p>
-            </button>
-          ))
-        ) : (
-          <p className="rounded-xl bg-[#f6f6f6] p-5 text-center text-sm font-medium leading-5 text-[#7b7b7b]">
-            아직 새 알림이 없어요
-          </p>
-        )}
+        <div className="mt-4 space-y-3">
+          {notifications.length > 0 ? (
+            notifications.map((notification) => (
+              <button
+                key={notification.id}
+                type="button"
+                className="w-full rounded-xl bg-[#f6f6f6] p-4 text-left"
+              >
+                <p className="text-sm font-bold leading-5 text-[#262626]">
+                  {notification.title}
+                </p>
+                <p className="mt-1 text-sm leading-5 text-[#555]">
+                  {notification.body}
+                </p>
+              </button>
+            ))
+          ) : (
+            <p className="rounded-xl bg-[#f6f6f6] p-5 text-center text-sm font-medium leading-5 text-[#7b7b7b]">
+              아직 새 알림이 없어요
+            </p>
+          )}
+        </div>
       </div>
     </div>
   </div>
@@ -536,7 +541,7 @@ const FigmaIcon = ({
   alt: string;
   className?: string;
 }) => (
-  <img src={src} alt={alt} className={className} aria-hidden={alt === ''} />
+  <img src={src} alt={alt} className={className} aria-hidden={alt === ""} />
 );
 
 const HomeSkeleton = () => (
@@ -549,26 +554,26 @@ const HomeSkeleton = () => (
 );
 
 function splitMissionTitle(title: string): string[] {
-  if (title.includes('\n')) {
-    return title.split('\n');
+  if (title.includes("\n")) {
+    return title.split("\n");
   }
 
-  const parts = title.split(' ');
+  const parts = title.split(" ");
   if (parts.length <= 3) {
     return [title];
   }
 
   const pivot = Math.ceil(parts.length / 2);
-  return [parts.slice(0, pivot).join(' '), parts.slice(pivot).join(' ')];
+  return [parts.slice(0, pivot).join(" "), parts.slice(pivot).join(" ")];
 }
 
-function monthHeadingLabel(week: HomeDashboardData['week']): string {
+function monthHeadingLabel(week: HomeDashboardData["week"]): string {
   const baseDate = week.days[0]?.date;
   if (!baseDate) {
     return week.monthLabel;
   }
 
-  const [year] = baseDate.split('-');
+  const [year] = baseDate.split("-");
   return `${year}년 ${week.monthLabel}`;
 }
 
