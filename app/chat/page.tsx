@@ -183,7 +183,7 @@ export default function ChatPage() {
         {isEmpty ? <EmptyState /> : <MessageList messages={messages} />}
       </div>
 
-      <div className="shrink-0 overflow-x-auto px-5 pt-4">
+      <div className="shrink-0 overflow-x-auto px-5 pt-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex gap-3">
           {QUICK_REPLIES.map((label) => (
             <button
