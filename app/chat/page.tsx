@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowUp, X } from "lucide-react";
+import { ArrowLeft, ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
@@ -99,7 +99,6 @@ export default function ChatPage() {
         setMessages((prev) =>
           prev.map((m) => {
             if (m.id !== streamingId) return m;
-            // loading → streaming 으로 전환하며 첫 청크 누적
             if (m.kind === "loading") {
               return { kind: "streaming", id: streamingId, text: chunk };
             }
@@ -117,8 +116,6 @@ export default function ChatPage() {
           cardCount: payload.cards.length,
           sourceCount: payload.sources.length,
         });
-        // streaming bubble을 영속화된 assistant 메시지로 교체.
-        // 낙관적 user bubble은 그대로 유지 (서버 user 메시지는 별도 fetch X — 일치 가정).
         setMessages((prev) =>
           prev.map((m) =>
             m.id === streamingId
@@ -138,9 +135,7 @@ export default function ChatPage() {
       onError: (message) => {
         track({ type: "chat_response_error", reason: message });
         setMessages((prev) =>
-          prev.filter(
-            (m) => m.id !== optimisticUserId && m.id !== streamingId,
-          ),
+          prev.filter((m) => m.id !== optimisticUserId && m.id !== streamingId),
         );
         setErrorBanner(message);
       },
@@ -151,32 +146,24 @@ export default function ChatPage() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="flex h-dvh flex-col">
-      {/* Figma 2395:13021 Sub LNB — h-56, px-16 */}
-      <header className="flex h-14 shrink-0 items-center px-4">
+    <div className="flex h-dvh flex-col bg-[#fdfdfe]">
+      <header className="flex h-14 shrink-0 items-center justify-between px-4">
         <button
           type="button"
           onClick={() => router.back()}
           aria-label="뒤로"
-          className="flex size-11 items-center justify-center text-gray-700"
+          className="flex size-11 items-center justify-center text-[#262626]"
         >
           <ArrowLeft className="size-6" />
         </button>
-        <h1 className="flex-1 text-center text-base font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+        <h1 className="text-base font-semibold leading-[1.4] text-[#191f28]">
           Ai 챗봇
         </h1>
-        <button
-          type="button"
-          onClick={() => router.push("/")}
-          aria-label="닫기"
-          className="flex size-11 items-center justify-center text-gray-700"
-        >
-          <X className="size-6" />
-        </button>
+        {/* Figma: 좌우 균형용 placeholder (close 아이콘은 opacity-0 자리만 차지) */}
+        <span aria-hidden className="size-11" />
       </header>
 
-      {/* Figma 2395:13019 부제 — h-42, pt-12 */}
-      <p className="shrink-0 px-4 py-3 text-center text-sm leading-[1.4] text-gray-500">
+      <p className="shrink-0 px-5 py-3 text-center text-[13px] font-medium leading-[1.4] tracking-[0.2522px] text-[#667080]">
         사용자의 행동 데이터와 패턴을 기반으로 대화합니다.
       </p>
 
@@ -190,14 +177,13 @@ export default function ChatPage() {
 
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-5"
+        className="flex-1 overflow-y-auto"
         aria-live="polite"
       >
         {isEmpty ? <EmptyState /> : <MessageList messages={messages} />}
       </div>
 
-      {/* Quick replies — Figma 2396:4751 */}
-      <div className="shrink-0 overflow-x-auto px-5 py-4">
+      <div className="shrink-0 overflow-x-auto px-5 pt-4">
         <div className="flex gap-3">
           {QUICK_REPLIES.map((label) => (
             <button
@@ -208,7 +194,7 @@ export default function ChatPage() {
                 track({ type: "chat_quick_reply_use", label });
                 void send(label);
               }}
-              className="h-12 shrink-0 rounded-full border border-gray-200 px-6 text-sm font-medium leading-[1.4] text-gray-800 disabled:opacity-50"
+              className="shrink-0 whitespace-nowrap rounded-full bg-[#f6f6f6] px-6 py-3.5 text-sm font-medium leading-[1.4] text-[#262626] disabled:opacity-50"
             >
               {label}
             </button>
@@ -216,14 +202,13 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Input — Figma 2395:13142 */}
-      <div className="shrink-0 px-5 pb-[max(20px,env(safe-area-inset-bottom))]">
+      <div className="shrink-0 px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             void send(input);
           }}
-          className="flex h-13 items-center gap-2 rounded-full bg-[#f6f6f6] pl-5 pr-2"
+          className="flex items-center justify-between gap-2 rounded-[48px] bg-white px-5 py-3.5 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04),0px_4px_24px_0px_rgba(0,0,0,0.04)]"
         >
           <input
             type="text"
@@ -231,15 +216,15 @@ export default function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="궁금한 점을 입력해주세요."
             disabled={busy}
-            className="h-full flex-1 bg-transparent text-sm leading-[1.4] text-gray-800 placeholder:text-gray-500 focus:outline-none disabled:opacity-50"
+            className="flex-1 bg-transparent text-sm leading-[1.4] text-[#262626] placeholder:text-[#9d9d9d] focus:outline-none disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={busy || !input.trim()}
             aria-label="전송"
-            className="flex size-9 items-center justify-center rounded-full bg-gray-800 text-white disabled:bg-gray-300"
+            className="flex size-6 shrink-0 items-center justify-center rounded-full bg-black text-white disabled:bg-[#c4c4c4]"
           >
-            <ArrowUp className="size-5" />
+            <ArrowUp className="size-5" strokeWidth={2.5} />
           </button>
         </form>
       </div>
@@ -249,16 +234,15 @@ export default function ChatPage() {
 
 function EmptyState() {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-5 pb-10">
-      {/* Figma 2396:5003 — image 599 마스코트 */}
+    <div className="flex h-full flex-col items-center justify-center gap-9 px-5">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/chat/empty-mascot.png"
         alt=""
         aria-hidden
-        className="h-30 w-30 object-contain"
+        className="size-30 object-contain"
       />
-      <p className="text-center text-lg font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+      <p className="text-center text-lg font-bold leading-[1.4] text-[#262626]">
         궁금한점을 모두
         <br />
         물어보세요.
@@ -269,7 +253,7 @@ function EmptyState() {
 
 function MessageList({ messages }: { messages: RenderedMessage[] }) {
   return (
-    <div className="flex flex-col gap-4 pb-4">
+    <div className="flex flex-col">
       {messages.map((m) => {
         if (m.kind === "loading") {
           return <LoadingBubble key={m.id} />;
@@ -290,8 +274,8 @@ function MessageList({ messages }: { messages: RenderedMessage[] }) {
 
 function UserBubble({ content }: { content: string }) {
   return (
-    <div className="flex justify-end">
-      <div className="max-w-[260px] rounded-2xl bg-[#f1eaff] px-4 py-3 text-sm leading-[1.5] text-gray-800">
+    <div className="flex justify-end px-5 py-2.5">
+      <div className="max-w-[260px] rounded-2xl bg-[#f6f6f6] px-4 py-3 text-sm leading-[1.4] text-[#262626]">
         {content}
       </div>
     </div>
@@ -300,13 +284,13 @@ function UserBubble({ content }: { content: string }) {
 
 function LoadingBubble() {
   return (
-    <div className="flex justify-start">
-      <div className="rounded-2xl bg-[#f1eaff] px-5 py-3">
-        <div className="flex items-center gap-1.5">
+    <div className="flex justify-start px-5 py-2.5">
+      <div className="rounded-2xl bg-[#f5f1ff] px-4 py-3">
+        <div className="flex h-[25px] w-[42px] items-center gap-[5.8px] pl-[5px]">
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="size-1.5 animate-pulse rounded-full bg-[#a483ff]"
+              className="size-[6.193px] animate-pulse rounded-full bg-[#a483ff]"
               style={{ animationDelay: `${i * 150}ms` }}
             />
           ))}
@@ -318,12 +302,12 @@ function LoadingBubble() {
 
 function StreamingBubble({ text }: { text: string }) {
   return (
-    <div className="flex justify-start">
-      <div className="max-w-[310px] rounded-2xl bg-[#f1eaff] px-4 py-3">
-        <p className="text-sm leading-[1.5] text-gray-800">
+    <div className="flex justify-start px-5 py-2.5">
+      <div className="w-[310px] rounded-2xl bg-[#f5f1ff] px-4 py-3">
+        <p className="text-sm leading-[1.4] text-[#242b37]">
           {text}
           <span
-            className="ml-0.5 inline-block size-1.5 animate-pulse rounded-full bg-[#a483ff] align-middle"
+            className="ml-0.5 inline-block size-[6.193px] animate-pulse rounded-full bg-[#a483ff] align-middle"
             aria-hidden
           />
         </p>
@@ -340,20 +324,20 @@ function AssistantBubble({
   cards: ChatMessageCard[];
 }) {
   return (
-    <div className="flex justify-start">
-      <div className="flex max-w-[310px] flex-col gap-4 rounded-2xl bg-[#f1eaff] px-4 py-3">
-        <p className="text-sm leading-[1.5] text-gray-800">{content}</p>
+    <div className="flex justify-start px-5 py-2.5">
+      <div className="flex w-[310px] flex-col gap-5 rounded-2xl bg-[#f5f1ff] px-4 py-3">
+        <p className="text-sm leading-[1.4] text-[#242b37]">{content}</p>
         {cards.length > 0 ? (
-          <div className="flex flex-col gap-4 border-l-2 border-[#a483ff] pl-3">
+          <div className="flex flex-col gap-4">
             {cards
               .slice()
               .sort((a, b) => a.order - b.order)
               .map((card) => (
                 <div key={card.id} className="flex flex-col gap-1">
-                  <h4 className="text-sm font-bold leading-[1.4] text-gray-800">
+                  <h4 className="text-sm font-bold leading-[1.4] text-[#262626]">
                     {card.title}
                   </h4>
-                  <p className="text-sm leading-[1.5] text-gray-800">
+                  <p className="text-sm leading-[1.4] text-[#4d4351]">
                     {card.body}
                   </p>
                 </div>
