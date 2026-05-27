@@ -20,18 +20,15 @@ export const RoadmapScreen = () => {
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const infoButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  const load = useCallback(
-    async (targetMonth?: number | null) => {
-      setLoading(true);
-      const next = await loadRoadmap({
-        childId: getStoredSelectedChildId(),
-        targetMonth,
-      });
-      setData(next.data);
-      setLoading(false);
-    },
-    [],
-  );
+  const load = useCallback(async (targetMonth?: number | null) => {
+    setLoading(true);
+    const next = await loadRoadmap({
+      childId: getStoredSelectedChildId(),
+      targetMonth,
+    });
+    setData(next.data);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -210,7 +207,7 @@ const MonthTabs = ({
       <div
         role="tablist"
         aria-label="월령 선택"
-        className="mt-3 flex items-center gap-2"
+        className="mt-3 flex items-center gap-1"
       >
         <button
           type="button"
@@ -222,7 +219,7 @@ const MonthTabs = ({
         >
           <ChevronLeft className="size-6" aria-hidden />
         </button>
-        <div className="flex flex-1 items-center justify-between">
+        <div className="flex flex-1 items-center justify-between gap-1">
           {tabs.map((month) => {
             const active = month === target;
             return (
@@ -233,7 +230,7 @@ const MonthTabs = ({
                 aria-selected={active}
                 onClick={() => onSelect(month)}
                 disabled={disabled}
-                className={`flex h-[33px] min-w-[50px] items-center justify-center rounded-full px-3 text-xs font-medium leading-[1.4] ${
+                className={`flex h-[33px] shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3.5 text-xs font-medium leading-[1.4] ${
                   active
                     ? "bg-[#9572ff] text-white"
                     : "bg-transparent text-[#555]"
@@ -267,15 +264,13 @@ const CategoryCardList = ({ groups }: { groups: RoadmapCategoryGroup[] }) => (
   </section>
 );
 
-const CATEGORY_CARD_STYLES: Record<
-  string,
-  { chipBg: string; chipFg: string }
-> = {
-  social: { chipBg: "bg-[#FFF1D6]", chipFg: "text-[#D08C0B]" },
-  language: { chipBg: "bg-[#E5ECFF]", chipFg: "text-[#3A66E2]" },
-  cognitive: { chipBg: "bg-[#EFE4FF]", chipFg: "text-[#7B4FE0]" },
-  physical: { chipBg: "bg-[#D6F5EC]", chipFg: "text-[#159A6F]" },
-};
+const CATEGORY_CARD_STYLES: Record<string, { chipBg: string; chipFg: string }> =
+  {
+    social: { chipBg: "bg-[#FFF1D6]", chipFg: "text-[#D08C0B]" },
+    language: { chipBg: "bg-[#E5ECFF]", chipFg: "text-[#3A66E2]" },
+    cognitive: { chipBg: "bg-[#EFE4FF]", chipFg: "text-[#7B4FE0]" },
+    physical: { chipBg: "bg-[#D6F5EC]", chipFg: "text-[#159A6F]" },
+  };
 
 const CategoryCard = ({ group }: { group: RoadmapCategoryGroup }) => {
   const styles = CATEGORY_CARD_STYLES[group.categoryId] ?? {
@@ -304,9 +299,7 @@ const CategoryCard = ({ group }: { group: RoadmapCategoryGroup }) => {
         </h3>
         <div className="mt-1 text-sm leading-[1.7] text-[#555]">
           {group.items.length === 0 ? (
-            <p className="text-[#9d9d9d]">
-              이 월령의 자료가 곧 추가됩니다.
-            </p>
+            <p className="text-[#9d9d9d]">이 월령의 자료가 곧 추가됩니다.</p>
           ) : (
             <ul className="space-y-1">
               {group.items.map((item) => (
