@@ -20,7 +20,11 @@ export type NativeToWebMessage =
   | { type: "NATIVE_GOOGLE_SIGN_IN_CANCELLED" }
   | { type: "NATIVE_GOOGLE_SIGN_IN_ERROR"; payload: { message: string } }
   | { type: "NATIVE_APPLE_SIGN_IN_CANCELLED" }
-  | { type: "NATIVE_APPLE_SIGN_IN_ERROR"; payload: { message: string } };
+  | { type: "NATIVE_APPLE_SIGN_IN_ERROR"; payload: { message: string } }
+  | {
+      type: "NATIVE_PUSH_PERMISSION_RESULT";
+      payload: { permission: "granted" | "denied" };
+    };
 
 declare global {
   interface Window {
@@ -77,6 +81,16 @@ export function parseNativeMessage(
         candidate.payload &&
         typeof candidate.payload === "object" &&
         typeof candidate.payload.message === "string"
+      ) {
+        return candidate as NativeToWebMessage;
+      }
+      return null;
+    case "NATIVE_PUSH_PERMISSION_RESULT":
+      if (
+        candidate.payload &&
+        typeof candidate.payload === "object" &&
+        (candidate.payload.permission === "granted" ||
+          candidate.payload.permission === "denied")
       ) {
         return candidate as NativeToWebMessage;
       }

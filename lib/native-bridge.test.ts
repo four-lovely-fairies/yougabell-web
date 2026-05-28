@@ -58,4 +58,17 @@ void describe("native bridge parser", () => {
       },
     );
   });
+
+  void it("accepts a native push permission result", () => {
+    assert.deepEqual(
+      parseNativeMessage({
+        type: "NATIVE_PUSH_PERMISSION_RESULT",
+        payload: { permission: "denied" },
+      }),
+      {
+        type: "NATIVE_PUSH_PERMISSION_RESULT",
+        payload: { permission: "denied" },
+      },
+    );
+  });
 });
