@@ -60,9 +60,7 @@ export function MissionIntroScreen() {
       setLoading(false);
 
       if (next.data.activeExecution?.status === 'in_progress') {
-        router.replace(
-          `/mission/timer?executionId=${next.data.activeExecution.id}&mode=${next.source}`,
-        );
+        router.replace(`/mission/timer?executionId=${next.data.activeExecution.id}`);
       }
     };
 
@@ -91,9 +89,7 @@ export function MissionIntroScreen() {
     }
 
     if (state.data.activeExecution?.status === 'paused') {
-      router.push(
-        `/mission/timer?executionId=${state.data.activeExecution.id}&mode=${state.source}`,
-      );
+      router.push(`/mission/timer?executionId=${state.data.activeExecution.id}`);
       return;
     }
 
@@ -102,11 +98,8 @@ export function MissionIntroScreen() {
       const result = await startMissionExecution({
         childId: state.data.selectedChild.id,
         missionId: state.data.mission.id,
-        durationMinutes: state.data.mission.durationMinutes,
       });
-      router.push(
-        `/mission/timer?executionId=${result.execution.id}&mode=${result.source}`,
-      );
+      router.push(`/mission/timer?executionId=${result.execution.id}`);
     } finally {
       setStarting(false);
     }
@@ -160,11 +153,6 @@ export function MissionIntroScreen() {
       </div>
 
       <div className="pb-2 pt-5">
-        {state.message ? (
-          <p className="mb-3 text-center text-xs leading-4 text-[#9d9d9d]">
-            {state.message}
-          </p>
-        ) : null}
         <button
           type="button"
           onClick={onStart}
@@ -180,10 +168,8 @@ export function MissionIntroScreen() {
 
 export function MissionTimerScreen({
   executionId,
-  mode,
 }: {
   executionId: string | null;
-  mode: 'api' | 'demo' | null;
 }) {
   const router = useRouter();
 
@@ -209,7 +195,6 @@ export function MissionTimerScreen({
         loadMissionExecution({
           childId: selectedChildId,
           executionId,
-          mode,
         }),
         loadCurrentMission(selectedChildId),
       ]);
@@ -238,7 +223,7 @@ export function MissionTimerScreen({
     return () => {
       cancelled = true;
     };
-  }, [executionId, mode, router]);
+  }, [executionId, router]);
 
   useEffect(() => {
     if (snapshot?.status !== 'in_progress') {
@@ -291,7 +276,6 @@ export function MissionTimerScreen({
         const result = await applyMissionExecutionAction({
           executionId: snapshot.id,
           action,
-          mode,
         });
 
         if (result.execution) {
@@ -305,15 +289,12 @@ export function MissionTimerScreen({
           return;
         }
 
-        router.replace(
-          `/mission/effect?executionId=${snapshot.id}&mode=${result.source}`,
-        );
+        router.replace(`/mission/effect?executionId=${snapshot.id}`);
       } catch (error) {
         const selectedChildId = getStoredSelectedChildId();
         const resynced = await loadMissionExecution({
           childId: selectedChildId,
           executionId: snapshot.id,
-          mode,
         }).catch(() => null);
 
         if (resynced?.execution) {
@@ -342,7 +323,7 @@ export function MissionTimerScreen({
         setActionLoading(false);
       }
     },
-    [actionLoading, mode, remainingSeconds, router, snapshot],
+    [actionLoading, remainingSeconds, router, snapshot],
   );
 
   useEffect(() => {
@@ -413,10 +394,8 @@ export function MissionTimerScreen({
 
 export function MissionEffectScreen({
   executionId,
-  mode,
 }: {
   executionId: string | null;
-  mode: 'api' | 'demo' | null;
 }) {
   const router = useRouter();
   const [state, setState] = useState<MissionEffectLoadState | null>(null);
@@ -440,7 +419,7 @@ export function MissionEffectScreen({
 
       try {
         const [effectResult, missionResult] = await Promise.all([
-          loadMissionExecutionEffect({ executionId, mode }),
+          loadMissionExecutionEffect({ executionId }),
           loadCurrentMission(getStoredSelectedChildId()),
         ]);
 
@@ -472,7 +451,7 @@ export function MissionEffectScreen({
     return () => {
       cancelled = true;
     };
-  }, [executionId, mode, router]);
+  }, [executionId, router]);
 
   if (loading) {
     return <MissionContentSkeleton />;
@@ -529,18 +508,11 @@ export function MissionEffectScreen({
       </div>
 
       <div className="pb-2 pt-5">
-        {state.message ? (
-          <p className="mb-3 text-center text-xs leading-4 text-[#9d9d9d]">
-            {state.message}
-          </p>
-        ) : null}
         <button
           type="button"
-          onClick={() =>
-            router.push(
-              `/mission/feedback?executionId=${executionId}&mode=${state.source}`,
-            )
-          }
+            onClick={() =>
+              router.push(`/mission/feedback?executionId=${executionId}`)
+            }
           className="flex h-[52px] w-full items-center justify-center rounded-2xl bg-[#9572ff] text-base font-medium leading-[1.4] text-white"
         >
           다음
@@ -552,10 +524,8 @@ export function MissionEffectScreen({
 
 export function MissionFeedbackScreen({
   executionId,
-  mode,
 }: {
   executionId: string | null;
-  mode: 'api' | 'demo' | null;
 }) {
   const router = useRouter();
   const [missionState, setMissionState] = useState<MissionLoadState | null>(
@@ -628,15 +598,12 @@ export function MissionFeedbackScreen({
     setSubmitting(true);
     setError(null);
     try {
-      const result = await submitMissionFeedback({
+      await submitMissionFeedback({
         executionId,
         draft,
-        mode,
       });
       clearMissionFeedbackDraft(executionId);
-      router.push(
-        `/mission/done?executionId=${executionId}&mode=${result.source}`,
-      );
+      router.push(`/mission/done?executionId=${executionId}`);
     } catch (submitError) {
       setError(
         submitError instanceof ApiError
@@ -658,9 +625,7 @@ export function MissionFeedbackScreen({
         <button
           type="button"
           onClick={() =>
-            router.push(
-              `/mission/effect?executionId=${executionId}&mode=${mode ?? missionState.source}`,
-            )
+            router.push(`/mission/effect?executionId=${executionId}`)
           }
           className="flex size-11 items-center justify-center text-[#262626]"
           aria-label="뒤로가기"
@@ -773,10 +738,8 @@ export function MissionFeedbackScreen({
 
 export function MissionDoneScreen({
   executionId,
-  mode,
 }: {
   executionId: string | null;
-  mode: 'api' | 'demo' | null;
 }) {
   const router = useRouter();
   const [state, setState] = useState<MissionEffectLoadState | null>(null);
@@ -796,7 +759,7 @@ export function MissionDoneScreen({
 
       const selectedChildId = getStoredSelectedChildId();
       const [effectResult, nextMissionState] = await Promise.all([
-        loadMissionExecutionEffect({ executionId, mode }),
+        loadMissionExecutionEffect({ executionId }),
         loadCurrentMission(selectedChildId),
       ]);
 
@@ -814,7 +777,7 @@ export function MissionDoneScreen({
     return () => {
       cancelled = true;
     };
-  }, [executionId, mode, router]);
+  }, [executionId, router]);
 
   if (loading || !state) {
     return <MissionContentSkeleton />;
@@ -839,9 +802,7 @@ export function MissionDoneScreen({
         <button
           type="button"
           onClick={() =>
-            router.push(
-              `/mission/feedback?executionId=${executionId ?? ''}&mode=${state.source}`,
-            )
+            router.push(`/mission/feedback?executionId=${executionId ?? ''}`)
           }
           className="flex size-11 items-center justify-center text-[#262626]"
           aria-label="뒤로가기"

@@ -6,7 +6,6 @@ import {
   FileText,
   Flag,
   LogOut,
-  RefreshCcw,
   ScrollText,
   Settings as SettingsIcon,
   Smile,
@@ -31,7 +30,6 @@ export default function SettingsPage() {
   const router = useRouter();
   const [interests, setInterests] = useState<ApiInterestId[]>([]);
   const [deletingAccount, setDeletingAccount] = useState(false);
-  const [resettingOnboarding, setResettingOnboarding] = useState(false);
 
   useEffect(() => {
     track({ type: "settings_open" });
@@ -137,25 +135,10 @@ export default function SettingsPage() {
           />
           <Row href="/policy/terms" icon={ScrollText} title="서비스 약관" />
         </Section>
-
-        {/* [임시] 온보딩 재테스트용. 운영 노출 전 제거. */}
-        <Section title="[임시] 개발자 도구">
-          <Row
-            onClick={() => setResettingOnboarding(true)}
-            icon={RefreshCcw}
-            title="회원 정보 초기화"
-            subtitle="온보딩을 처음부터 다시 진행합니다"
-          />
-        </Section>
       </div>
 
       {deletingAccount ? (
         <DeleteAccountModal onClose={() => setDeletingAccount(false)} />
-      ) : null}
-      {resettingOnboarding ? (
-        <ResetOnboardingModal
-          onClose={() => setResettingOnboarding(false)}
-        />
       ) : null}
     </div>
   );
@@ -232,68 +215,6 @@ function Row({
     </>
   );
   return inner;
-}
-
-function ResetOnboardingModal({ onClose }: { onClose: () => void }) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const confirm = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      await api.resetOnboarding();
-      const supabase = createSupabaseBrowserClient();
-      await supabase.auth.signOut();
-      router.replace("/onboarding/intro");
-    } catch (e) {
-      setError(
-        e instanceof ApiError ? `초기화 실패 (${e.status})` : "네트워크 오류",
-      );
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div
-      role="dialog"
-      aria-modal
-      className="fixed inset-0 z-10 flex items-center justify-center bg-black/40 px-6"
-      onClick={onClose}
-    >
-      <div
-        className="flex w-full max-w-[334px] flex-col rounded-xl bg-white"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
-          <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
-            회원 정보를 초기화할까요?
-          </p>
-          <p className="px-2 text-center text-sm leading-[1.5] text-gray-500">
-            온보딩 재진입을 위한 임시 기능입니다. 입력한 부모·아이 정보와 알림
-            설정이 삭제되고 로그아웃됩니다.
-          </p>
-        </div>
-        {error ? (
-          <p className="px-4 pb-2 text-center text-xs text-red-500">{error}</p>
-        ) : null}
-        <div className="flex flex-col gap-2 px-4 pt-2 pb-5">
-          <Button size="full" onClick={onClose} disabled={busy}>
-            취소하기
-          </Button>
-          <button
-            type="button"
-            onClick={() => void confirm()}
-            disabled={busy}
-            className="h-12 text-sm font-medium text-gray-500 disabled:opacity-50"
-          >
-            {busy ? "초기화 중..." : "초기화하기"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function DeleteAccountModal({ onClose }: { onClose: () => void }) {

@@ -16,10 +16,26 @@ const ITEMS: Array<{
   key: keyof ConsentDraft;
   label: string;
   required: boolean;
+  href: string;
 }> = [
-  { key: "service", label: "서비스 이용약관 동의 (필수)", required: true },
-  { key: "privacy", label: "개인정보 처리방침 (필수)", required: true },
-  { key: "marketing", label: "마케팅 수신동의 (선택)", required: false },
+  {
+    key: "service",
+    label: "서비스 이용약관 동의 (필수)",
+    required: true,
+    href: "/policy/terms",
+  },
+  {
+    key: "privacy",
+    label: "개인정보 처리방침 (필수)",
+    required: true,
+    href: "/policy/privacy",
+  },
+  {
+    key: "marketing",
+    label: "마케팅 수신동의 (선택)",
+    required: false,
+    href: "/policy/privacy",
+  },
 ];
 
 export function ConsentBottomSheet({ initial, onClose, onConfirm }: Props) {
@@ -91,14 +107,15 @@ export function ConsentBottomSheet({ initial, onClose, onConfirm }: Props) {
                     {item.label}
                   </span>
                 </button>
-                {/* TODO(content): 약관 본문 화면으로 이동. 1차에선 placeholder. */}
-                <button
-                  type="button"
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
                   aria-label={`${item.label} 자세히 보기`}
                   className="p-1"
                 >
                   <ChevronRight />
-                </button>
+                </a>
               </div>
             ))}
           </div>
