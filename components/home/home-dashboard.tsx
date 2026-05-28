@@ -7,6 +7,7 @@ import {
   getStoredSelectedChildId,
   loadHomeDashboard,
   setStoredSelectedChildId,
+  submitHomeMoodCheck,
   type HomeLoadState,
 } from "@/lib/api";
 import type {
@@ -15,7 +16,15 @@ import type {
   HomeNotification,
 } from "@/lib/home-data";
 
-type Modal = "children" | "notifications" | null;
+type Modal = "children" | "notifications" | "mood" | null;
+type MoodLevel = 1 | 2 | 3 | 4 | 5;
+const MOOD_OPTION_LABELS: Record<MoodLevel, string> = {
+  1: "나빠요",
+  2: "별로에요",
+  3: "보통이에요",
+  4: "좋아요!",
+  5: "최고에요!",
+};
 
 const HOME_ICON_PATHS = {
   childSwitcherChevron: "/icons/figma/home/child-switcher-chevron.svg",
@@ -37,6 +46,11 @@ export const HomeDashboard = () => {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [modal, setModal] = useState<Modal>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedMoodLevel, setSelectedMoodLevel] = useState<MoodLevel | null>(
+    null,
+  );
+  const [moodSubmitting, setMoodSubmitting] = useState(false);
+  const [moodError, setMoodError] = useState<string | null>(null);
 
   const refresh = useCallback(
     async (childId?: string | null, showLoading = true) => {
@@ -73,13 +87,46 @@ export const HomeDashboard = () => {
 
   if (!data || !selectedChild) return <HomeSkeleton />;
 
-  console.log(data);
-
   const onSelectChild = (child: HomeChild) => {
     setStoredSelectedChildId(child.id);
     setSelectedChildId(child.id);
     setModal(null);
     void refresh(child.id);
+  };
+
+  const openMoodModal = () => {
+    setSelectedMoodLevel(null);
+    setMoodError(null);
+    setModal("mood");
+  };
+
+  const closeMoodModal = () => {
+    if (moodSubmitting) return;
+    setModal(null);
+    setSelectedMoodLevel(null);
+    setMoodError(null);
+  };
+
+  const submitMood = async () => {
+    if (!selectedMoodLevel || moodSubmitting) {
+      return;
+    }
+
+    setMoodSubmitting(true);
+    setMoodError(null);
+
+    try {
+      await submitHomeMoodCheck(selectedMoodLevel);
+      await refresh(selectedChildId, false);
+      setModal(null);
+      setSelectedMoodLevel(null);
+    } catch {
+      setMoodError(
+        "오늘의 기분을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.",
+      );
+    } finally {
+      setMoodSubmitting(false);
+    }
   };
 
   return (
@@ -92,7 +139,7 @@ export const HomeDashboard = () => {
           onOpenNotifications={() => setModal("notifications")}
         />
         <div className="mt-4 flex flex-col gap-5">
-          <WeeklyCalendar data={data} />
+          <WeeklyCalendar data={data} onOpenTodayMood={openMoodModal} />
           <TodayMissionCard
             mission={data.recommendedMission}
             loading={loading}
@@ -115,6 +162,16 @@ export const HomeDashboard = () => {
           notifications={data.notifications.latest}
           unreadCount={data.notifications.unreadCount}
           onClose={() => setModal(null)}
+        />
+      ) : null}
+      {modal === "mood" ? (
+        <MoodCheckModal
+          selectedLevel={selectedMoodLevel}
+          submitting={moodSubmitting}
+          errorMessage={moodError}
+          onClose={closeMoodModal}
+          onSelectLevel={setSelectedMoodLevel}
+          onSubmit={() => void submitMood()}
         />
       ) : null}
     </>
@@ -180,7 +237,13 @@ const TopAppBar = ({
   </header>
 );
 
-const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
+const WeeklyCalendar = ({
+  data,
+  onOpenTodayMood,
+}: {
+  data: HomeDashboardData;
+  onOpenTodayMood: () => void;
+}) => (
   <section>
     <div className="flex items-center justify-between">
       <h1 className="text-[20px] font-extrabold leading-7 tracking-normal text-[#262626]">
@@ -218,7 +281,7 @@ const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
     <div className="mt-[10px] grid grid-cols-7 gap-2">
       {data.week.days.map((day) => (
         <div key={`${day.date}-mood`} className="flex justify-center">
-          <MoodBadge day={day} />
+          <MoodBadge day={day} onOpenTodayMood={onOpenTodayMood} />
         </div>
       ))}
     </div>
@@ -227,8 +290,10 @@ const WeeklyCalendar = ({ data }: { data: HomeDashboardData }) => (
 
 const MoodBadge = ({
   day,
+  onOpenTodayMood,
 }: {
   day: HomeDashboardData["week"]["days"][number];
+  onOpenTodayMood: () => void;
 }) => {
   if (day.mood?.level) {
     return (
@@ -242,12 +307,17 @@ const MoodBadge = ({
 
   if (day.isToday) {
     return (
-      <div className="flex size-8 items-center justify-center rounded-full bg-[#262626] leading-none text-white">
+      <button
+        type="button"
+        onClick={onOpenTodayMood}
+        className="flex size-8 items-center justify-center rounded-full bg-[#262626] leading-none text-white"
+        aria-label="오늘의 기분 기록하기"
+      >
         <FigmaIcon
           src={HOME_ICON_PATHS.moodPlus}
           alt="today's mood selection"
         />
-      </div>
+      </button>
     );
   }
 
@@ -526,6 +596,102 @@ const NotificationModal = ({
               아직 새 알림이 없어요
             </p>
           )}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const MoodCheckModal = ({
+  selectedLevel,
+  submitting,
+  errorMessage,
+  onClose,
+  onSelectLevel,
+  onSubmit,
+}: {
+  selectedLevel: MoodLevel | null;
+  submitting: boolean;
+  errorMessage: string | null;
+  onClose: () => void;
+  onSelectLevel: (level: MoodLevel) => void;
+  onSubmit: () => void;
+}) => (
+  <div
+    className="fixed inset-0 z-50 bg-[rgba(0,0,0,0.2)]"
+    role="dialog"
+    aria-modal="true"
+    onClick={onClose}
+  >
+    <div className="relative mx-auto flex min-h-dvh w-full max-w-[430px] items-center justify-center px-5">
+      <div
+        className="w-full max-w-[334px] rounded-[20px] bg-white px-5 pb-5 pt-6 shadow-[0_12px_30px_rgba(0,0,0,0.12)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 className="whitespace-pre-line text-center text-[24px] font-bold leading-[1.35] tracking-[-0.02em] text-[#262626]">
+          {"지금 마음의 배터리가 \n얼마나 남아있나요?"}
+        </h2>
+        <p className="mt-2 text-center text-sm font-medium leading-5 text-[#8e8e93]">
+          기록을 꾸준히 하면 리포트 작성에 도움이 돼요.
+        </p>
+        <div className="mt-6 flex items-start justify-between gap-2">
+          {(Object.keys(MOOD_OPTION_LABELS) as Array<`${MoodLevel}`>).map(
+            (levelKey) => {
+              const level = Number(levelKey) as MoodLevel;
+              const selected = selectedLevel === level;
+
+              return (
+                <button
+                  key={level}
+                  type="button"
+                  onClick={() => onSelectLevel(level)}
+                  className="flex w-[52px] flex-col items-center gap-[5px]"
+                  aria-pressed={selected}
+                >
+                  <img
+                    src={moodIconPath(level)}
+                    alt=""
+                    className={`size-10 transition ${
+                      selected ? "" : "grayscale opacity-45"
+                    }`}
+                    aria-hidden
+                  />
+                  <span
+                    className={`text-center text-[11px] font-medium leading-[1.35] ${
+                      selected ? "text-[#262626]" : "text-[#8e8e93]"
+                    }`}
+                  >
+                    {MOOD_OPTION_LABELS[level]}
+                  </span>
+                </button>
+              );
+            },
+          )}
+        </div>
+        {errorMessage ? (
+          <p className="mt-4 text-center text-xs font-medium leading-4 text-[#ec003f]">
+            {errorMessage}
+          </p>
+        ) : (
+          <div className="mt-4 h-4" aria-hidden />
+        )}
+        <div className="mt-5 flex gap-[10px]">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={submitting}
+            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-[#f2f3f5] text-base font-medium leading-6 text-[#434343] disabled:opacity-60"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={!selectedLevel || submitting}
+            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-[#9572ff] text-base font-medium leading-6 text-white disabled:bg-[#ddd7ff] disabled:text-white"
+          >
+            완료
+          </button>
         </div>
       </div>
     </div>

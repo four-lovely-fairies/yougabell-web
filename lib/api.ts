@@ -81,6 +81,12 @@ export type MissionEffectLoadState = {
   message?: string;
 };
 
+export type HomeMoodCheck = {
+  level: 1 | 2 | 3 | 4 | 5;
+  emoji: string;
+  checkedAt: string;
+};
+
 export type RoadmapLoadState = {
   data: RoadmapResponse;
   source: "api" | "demo";
@@ -231,6 +237,24 @@ export const loadHomeDashboard = async (
   }
 };
 
+export const submitHomeMoodCheck = async (
+  level: 1 | 2 | 3 | 4 | 5,
+): Promise<HomeMoodCheck> => {
+  const headers = await authHeaders();
+
+  if (!headers.Authorization) {
+    throw new ApiError(401, {
+      message: "로그인 세션이 연결되어야 오늘의 기분을 기록할 수 있습니다.",
+    });
+  }
+
+  return request<HomeMoodCheck>("/home/mood", {
+    method: "POST",
+    headers,
+    json: { level },
+  });
+};
+
 export const loadChat = async (): Promise<ChatLoadState> => {
   const headers = await authHeaders();
 
@@ -345,9 +369,7 @@ export const streamChatMessage = async (
   }
 };
 
-function parseSseEvent(
-  raw: string,
-): { type: string; data: unknown } | null {
+function parseSseEvent(raw: string): { type: string; data: unknown } | null {
   let type = "message";
   let data = "";
   for (const line of raw.split("\n")) {
@@ -990,7 +1012,9 @@ export function clearMissionFeedbackDraft(executionId: string) {
     return;
   }
 
-  window.sessionStorage.removeItem(getMissionFeedbackDraftStorageKey(executionId));
+  window.sessionStorage.removeItem(
+    getMissionFeedbackDraftStorageKey(executionId),
+  );
 }
 
 function normalizeDraftKeywords(note: string) {
