@@ -203,27 +203,6 @@
         ]
       }
     },
-    "/me/reset-onboarding": {
-      "post": {
-        "description": "개발/테스트 전용. User row를 삭제해 Child·NotificationPreference 등 cascade 정리. Supabase 세션은 그대로이므로 클라이언트에서 signOut + /onboarding/intro 이동 필요.",
-        "operationId": "UsersController_resetOnboarding",
-        "parameters": [],
-        "responses": {
-          "204": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "[임시] 온보딩 재진입을 위한 회원 정보 초기화",
-        "tags": [
-          "users"
-        ]
-      }
-    },
     "/admin/users": {
       "get": {
         "description": "온보딩 완료자 기본. q(이름 LIKE) / page / limit / onboarded 필터.",

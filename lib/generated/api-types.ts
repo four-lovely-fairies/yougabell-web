@@ -124,26 +124,6 @@ export interface paths {
         patch: operations["UsersController_upsertNotification"];
         trace?: never;
     };
-    "/me/reset-onboarding": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * [임시] 온보딩 재진입을 위한 회원 정보 초기화
-         * @description 개발/테스트 전용. User row를 삭제해 Child·NotificationPreference 등 cascade 정리. Supabase 세션은 그대로이므로 클라이언트에서 signOut + /onboarding/intro 이동 필요.
-         */
-        post: operations["UsersController_resetOnboarding"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/users": {
         parameters: {
             query?: never;
@@ -1510,23 +1490,6 @@ export interface operations {
         };
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_resetOnboarding: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
                 headers: {
                     [name: string]: unknown;
                 };
