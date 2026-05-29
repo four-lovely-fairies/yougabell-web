@@ -4,6 +4,7 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  ApiError,
   getStoredSelectedChildId,
   loadHomeDashboard,
   setStoredSelectedChildId,
@@ -15,6 +16,7 @@ import type {
   HomeDashboard as HomeDashboardData,
   HomeNotification,
 } from "@/lib/home-data";
+import { Button } from "@/components/ui/button";
 
 type Modal = "children" | "notifications" | "mood" | null;
 type MoodLevel = 1 | 2 | 3 | 4 | 5;
@@ -46,6 +48,7 @@ export const HomeDashboard = () => {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [modal, setModal] = useState<Modal>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedMoodLevel, setSelectedMoodLevel] = useState<MoodLevel | null>(
     null,
   );
@@ -55,26 +58,56 @@ export const HomeDashboard = () => {
   const refresh = useCallback(
     async (childId?: string | null, showLoading = true) => {
       if (showLoading) setLoading(true);
-      const next = await loadHomeDashboard(childId);
-      setState(next);
-      setSelectedChildId(next.data.selectedChild.id);
-      setLoading(false);
+      setLoadError(null);
+      try {
+        const next = await loadHomeDashboard(childId);
+        setState(next);
+        setSelectedChildId(next.data.selectedChild.id);
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          router.replace("/onboarding/intro");
+          return;
+        }
+
+        setLoadError(
+          "홈 정보를 불러오지 못했어요. 네트워크 연결을 확인한 뒤 다시 시도해 주세요.",
+        );
+      } finally {
+        setLoading(false);
+      }
     },
-    [],
+    [router],
   );
 
   useEffect(() => {
     let active = true;
-    void loadHomeDashboard(getStoredSelectedChildId()).then((next) => {
-      if (!active) return;
-      setState(next);
-      setSelectedChildId(next.data.selectedChild.id);
-      setLoading(false);
-    });
+    void (async () => {
+      try {
+        const next = await loadHomeDashboard(getStoredSelectedChildId());
+        if (!active) return;
+        setState(next);
+        setSelectedChildId(next.data.selectedChild.id);
+        setLoadError(null);
+      } catch (error) {
+        if (!active) return;
+        if (error instanceof ApiError && error.status === 401) {
+          router.replace("/onboarding/intro");
+          return;
+        }
+
+        setLoadError(
+          "홈 정보를 불러오지 못했어요. 네트워크 연결을 확인한 뒤 다시 시도해 주세요.",
+        );
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    })();
     return () => {
       active = false;
     };
-  }, []);
+  }, [router]);
 
   const data = state?.data;
   const selectedChild = useMemo(() => {
@@ -84,6 +117,15 @@ export const HomeDashboard = () => {
       data.selectedChild
     );
   }, [data, selectedChildId]);
+
+  if (loadError) {
+    return (
+      <HomeLoadError
+        message={loadError}
+        onRetry={() => void refresh(getStoredSelectedChildId())}
+      />
+    );
+  }
 
   if (!data || !selectedChild) return <HomeSkeleton />;
 
@@ -716,6 +758,28 @@ const HomeSkeleton = () => (
       className="size-8 animate-pulse text-[#9572ff]"
       aria-label="홈 불러오는 중"
     />
+  </div>
+);
+
+const HomeLoadError = ({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) => (
+  <div className="flex min-h-dvh items-center justify-center bg-[#fdfdfe] px-6">
+    <div className="flex w-full max-w-sm flex-col items-center gap-4 rounded-3xl bg-white p-6 text-center shadow-[0_12px_40px_rgba(149,114,255,0.12)]">
+      <div className="space-y-2">
+        <p className="text-lg font-semibold text-gray-900">
+          홈 정보를 불러오지 못했어요
+        </p>
+        <p className="text-sm leading-6 text-gray-500">{message}</p>
+      </div>
+      <Button size="full" onClick={onRetry}>
+        다시 시도
+      </Button>
+    </div>
   </div>
 );
 

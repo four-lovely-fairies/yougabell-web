@@ -62,7 +62,7 @@ export default function SettingsPage() {
         </div>
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.replace("/")}
           aria-label="닫기"
           className="flex size-11 items-center justify-center text-gray-700"
         >
