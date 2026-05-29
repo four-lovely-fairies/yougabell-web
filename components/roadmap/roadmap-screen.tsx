@@ -183,7 +183,7 @@ const MonthTabs = ({
       <div
         role="tablist"
         aria-label="월령 선택"
-        className="mt-3 flex items-center gap-1"
+        className="mt-3 flex items-center justify-center gap-1"
       >
         <button
           type="button"
@@ -195,7 +195,7 @@ const MonthTabs = ({
         >
           <ChevronLeft className="size-6" aria-hidden />
         </button>
-        <div className="flex flex-1 items-center justify-between gap-1">
+        <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto">
           {tabs.map((month) => {
             const active = month === target;
             return (
