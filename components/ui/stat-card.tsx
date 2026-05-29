@@ -19,12 +19,15 @@ export const StatCard = ({
     <Card
       padding="none"
       radius="xxl"
-      className={cn("flex flex-col gap-2 px-4 py-3", className)}
+      className={cn(
+        "flex flex-col items-center justify-center gap-2 px-4 py-3 text-center",
+        className,
+      )}
     >
       <span className="text-xs font-medium leading-[1.4] text-gray-500">
         {label}
       </span>
-      <div className="flex items-baseline gap-1">
+      <div className="flex items-baseline justify-center gap-1">
         {icon}
         {children}
       </div>

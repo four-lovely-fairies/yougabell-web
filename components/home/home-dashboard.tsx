@@ -1,8 +1,12 @@
 "use client";
 
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Flame, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Chip } from "@/components/ui/chip";
+import { SectionInfoCard } from "@/components/ui/section-info-card";
+import { StatCard, StatValue } from "@/components/ui/stat-card";
 import {
   getStoredSelectedChildId,
   loadHomeDashboard,
@@ -246,10 +250,10 @@ const WeeklyCalendar = ({
 }) => (
   <section>
     <div className="flex items-center justify-between">
-      <h1 className="text-[20px] font-extrabold leading-7 tracking-normal text-[#262626]">
+      <h1 className="font-suit text-[20px] font-extrabold leading-7 tracking-normal text-[#262626]">
         {monthHeadingLabel(data.week)}
       </h1>
-      <p className="text-sm font-medium leading-5 text-[#434343]">
+      <p className="font-suit text-sm font-medium leading-5 text-[#434343]">
         {data.week.weekOfMonthLabel}
       </p>
     </div>
@@ -258,18 +262,18 @@ const WeeklyCalendar = ({
         <div
           key={day.date}
           className={`flex flex-col items-center gap-1 rounded-2xl px-2 pb-3 pt-2 ${
-            day.isToday ? "bg-[#9572ff] text-white" : ""
+            day.isToday ? "bg-primary-300 text-white" : ""
           }`}
         >
           <span
-            className={`text-[9px] font-bold leading-none ${
+            className={`font-suit text-[9px] font-bold leading-none ${
               day.isToday ? "text-white" : "text-[#c4c4c4]"
             }`}
           >
             {day.weekdayLabel}
           </span>
           <span
-            className={`text-sm font-bold leading-none ${
+            className={`font-suit text-sm font-bold leading-none ${
               day.isToday ? "text-white" : "text-[#262626]"
             }`}
           >
@@ -334,13 +338,15 @@ const TodayMissionCard = ({
   onStart: () => void;
 }) => {
   const isCompleted = mission?.status === "completed";
-  const buttonLabel = isCompleted ? "미션 완료" : "미션 시작하기";
+  const buttonLabel = isCompleted ? "오늘의 놀이 완료" : "오늘의 놀이 시작하기";
 
   return (
-    <section className="rounded-[24px] bg-white p-6 shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]">
-      <span className="inline-flex rounded-full bg-[#f6f6f6] px-[10px] py-[5px] text-xs font-medium leading-[1.4] text-[#262626]">
-        아이와 {mission?.durationMinutes ?? 10}분 가까워지기
-      </span>
+    <Card
+      radius="xxl"
+      shadow="none"
+      className="shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]"
+    >
+      <Chip>아이와 {mission?.durationMinutes ?? 10}분 가까워지기</Chip>
       <div className="mt-[13px] flex items-center justify-between gap-4">
         <h2 className="text-[20px] font-bold leading-[1.4] tracking-normal text-[#262626]">
           {splitMissionTitle(
@@ -362,11 +368,11 @@ const TodayMissionCard = ({
         type="button"
         onClick={onStart}
         disabled={!mission || loading || isCompleted}
-        className="mt-[13px] flex h-12 w-full items-center justify-center rounded-2xl bg-[#9572ff] text-base font-medium leading-6 text-white disabled:bg-[#e9e9e9] disabled:text-[#555]"
+        className="mt-[13px] flex h-12 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-6 text-white disabled:bg-[#e9e9e9] disabled:text-[#555]"
       >
         {buttonLabel}
       </button>
-    </section>
+    </Card>
   );
 };
 
@@ -375,22 +381,20 @@ const GrowthStageCard = ({
 }: {
   stage: HomeDashboardData["growthStage"];
 }) => (
-  <section className="rounded-[33px] bg-white p-6 shadow-[0_4px_10px_rgba(0,0,0,0.04)]">
-    <div className="flex items-center gap-1">
+  <SectionInfoCard
+    icon={
       <FigmaIcon
         src={HOME_ICON_PATHS.growthStage}
         alt=""
         className="size-5 shrink-0"
       />
-      <h2 className="text-xs font-bold leading-[1.4] text-[#262626]">
-        현재 상황 [ {stage?.name ?? "확인 중"} ]
-      </h2>
-    </div>
-    <p className="mt-3 text-sm font-medium leading-[1.8] text-[#555]">
-      {stage?.summary ??
-        '아이의 독립심이 싹트고 있어요. "내가 할래!"라는 말은 성장의 건강한 신호입니다.'}
-    </p>
-  </section>
+    }
+    label={`현재 상황 [ ${stage?.name ?? "확인 중"} ]`}
+    body={
+      stage?.summary ??
+      '아이의 독립심이 싹트고 있어요. "내가 할래!"라는 말은 성장의 건강한 신호입니다.'
+    }
+  />
 );
 
 const ReportSummaryCard = ({
@@ -399,75 +403,53 @@ const ReportSummaryCard = ({
   summary: HomeDashboardData["reportSummary"];
 }) => (
   <section className="grid grid-cols-2 gap-2">
-    <SummaryMetricCard label="지난주 놀이 수행시간">
+    <StatCard label="지난주 놀이 수행시간">
       {summary ? (
         <DurationValue label={summary.totalDurationLabel} />
       ) : (
-        <span className="text-[14px] font-medium leading-5 text-[#9d9d9d]">
-          기록 없음
-        </span>
+        <NoRecord />
       )}
-    </SummaryMetricCard>
-    <SummaryMetricCard label="아이 반응 긍정률">
+    </StatCard>
+    <StatCard
+      label="아이 반응 긍정률"
+      icon={
+        summary ? (
+          <Flame
+            className="size-[18px] self-center text-primary-300"
+            fill="currentColor"
+            strokeWidth={0}
+            aria-hidden
+          />
+        ) : undefined
+      }
+    >
       {summary ? (
-        <div className="flex items-center justify-center gap-1 text-[#262626]">
-          <span className="text-[18px] text-[#9572ff]">◔</span>
-          <span className="text-[24px] font-extrabold leading-8">
-            {summary.childPositiveReactionRate}
-          </span>
-          <span className="text-[14px] font-medium leading-5">%</span>
-        </div>
+        <StatValue value={summary.childPositiveReactionRate} unit="%" />
       ) : (
-        <span className="text-[14px] font-medium leading-5 text-[#9d9d9d]">
-          기록 없음
-        </span>
+        <NoRecord />
       )}
-    </SummaryMetricCard>
+    </StatCard>
   </section>
 );
 
-const SummaryMetricCard = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) => (
-  <div className="flex min-h-24 flex-col items-center justify-center rounded-[24px] bg-white px-4 py-3 shadow-[0_4px_10px_rgba(0,0,0,0.04)]">
-    <p className="text-center text-xs font-medium leading-[1.4] text-[#7b7b7b]">
-      {label}
-    </p>
-    <div className="mt-2">{children}</div>
-  </div>
+const NoRecord = () => (
+  <span className="text-sm font-medium leading-5 text-gray-400">기록 없음</span>
 );
 
+// "1시간 17분" → StatValue 조합 (숫자는 SUIT)
 const DurationValue = ({ label }: { label: string }) => {
   const parts = label.match(/^(?:(\d+)시간)?(?:\s*)?(?:(\d+)분)?$/);
 
   if (!parts) {
-    return (
-      <span className="text-[22px] font-extrabold leading-8">{label}</span>
-    );
+    return <StatValue value={label} />;
   }
 
   const [, hours, minutes] = parts;
   return (
-    <div className="flex items-baseline justify-center gap-1 text-[#262626]">
-      {hours ? (
-        <>
-          <span className="text-[22px] font-extrabold leading-8">{hours}</span>
-          <span className="text-[14px] font-medium leading-5">시간</span>
-        </>
-      ) : null}
-      {minutes ? (
-        <>
-          <span className="text-[22px] font-extrabold leading-8">
-            {hours ? ` ${minutes}` : minutes}
-          </span>
-          <span className="text-[14px] font-medium leading-5">분</span>
-        </>
-      ) : null}
-    </div>
+    <>
+      {hours ? <StatValue value={hours} unit="시간" /> : null}
+      {minutes ? <StatValue value={minutes} unit="분" /> : null}
+    </>
   );
 };
 
