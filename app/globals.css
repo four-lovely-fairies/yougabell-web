@@ -133,6 +133,13 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* OS 상태바(노치·다이내믹 아일랜드) 안전영역 상단 패딩.
+   디바이스에선 env(safe-area-inset-top), 데스크톱(inset=0)에선 최소 12px gap.
+   Figma의 StatusBar(47px)를 헤더 높이에 박지 말고 화면 최상단 컨테이너에서 이 유틸로 대체한다. */
+@utility pt-safe {
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+
 /* scroll-snap wheel picker용 — 시스템 스크롤바 숨김 */
 .no-scrollbar {
   scrollbar-width: none;

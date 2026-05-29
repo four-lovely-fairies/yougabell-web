@@ -75,7 +75,6 @@ export const RoadmapScreen = () => {
 
   return (
     <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
-      <div className="h-11.75 shrink-0" aria-hidden />
       <AppHeader
         title="발달 로드맵"
         onBack={goBack}
