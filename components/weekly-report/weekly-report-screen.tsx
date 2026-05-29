@@ -6,13 +6,16 @@ import {
   Bot,
   CalendarDays,
   Check,
+  Flame,
   MessageSquare,
   Moon,
   RefreshCw,
-  Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Chip } from "@/components/ui/chip";
+import { StatCard, StatValue } from "@/components/ui/stat-card";
 import {
   getStoredSelectedChildId,
   loadWeeklyReport,
@@ -25,23 +28,9 @@ import {
   type WeeklyReportViewData,
 } from "@/lib/weekly-report-data";
 
-const keywordStyles = [
-  {
-    icon: CalendarDays,
-    className:
-      "bg-[#fff0d6] text-[#f9a116] shadow-[inset_0_0_10px_rgba(255,166,33,0.1)]",
-  },
-  {
-    icon: MessageSquare,
-    className:
-      "bg-[#efe4ff] text-[#9349f4] shadow-[inset_0_0_10px_rgba(147,73,244,0.1)]",
-  },
-  {
-    icon: Moon,
-    className:
-      "bg-[#e5ecff] text-[#497af4] shadow-[inset_0_0_10px_rgba(73,122,244,0.1)]",
-  },
-];
+// 키워드 칩 = 공통 Chip 토널 (Figma 15% 알파). amber/purple/blue 순. 아이콘은 후속 커스텀 SVG 대체 예정.
+const keywordTones = ["amber", "purple", "blue"] as const;
+const keywordIcons = [CalendarDays, MessageSquare, Moon];
 
 export const WeeklyReportScreen = () => {
   const router = useRouter();
@@ -173,7 +162,7 @@ const WeeklyReportDetailView = ({ report }: { report: WeeklyReportDetail }) => (
                 <span
                   className={`flex size-8 items-center justify-center rounded-full ${
                     day.completed
-                      ? "bg-[#9572ff] text-white"
+                      ? "bg-primary-300 text-white"
                       : "border border-[#d9d9d9] bg-white text-[#c4c4c4]"
                   }`}
                   aria-label={`${day.label}요일 완료 미션 ${day.completedCount}개`}
@@ -190,15 +179,13 @@ const WeeklyReportDetailView = ({ report }: { report: WeeklyReportDetail }) => (
           </div>
         </ReportCard>
         <div className="grid grid-cols-2 gap-2">
-          <StatCard
+          <DurationStat
             label="누적 미션 수행시간"
             value={report.missionSummary.totalDurationLabel}
-            type="duration"
           />
-          <StatCard
+          <PercentStat
             label="아이 반응 긍정률"
-            value={`${report.missionSummary.childPositiveReactionRate}%`}
-            type="percent"
+            value={report.missionSummary.childPositiveReactionRate}
           />
         </div>
       </div>
@@ -234,48 +221,41 @@ const ReportSection = ({
   </section>
 );
 
+// 리포트 카드 = 공통 Card (Figma: 흰배경 radius 20, shadow-1, padding 24)
 const ReportCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-xl bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]">
-    {children}
-  </div>
+  <Card>{children}</Card>
 );
 
-const StatCard = ({
-  label,
-  value,
-  type,
-}: {
-  label: string;
-  value: string;
-  type: "duration" | "percent";
-}) => (
-  <div className="flex min-h-22 flex-col items-center justify-center gap-3 rounded-xl bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]">
-    <p className="whitespace-nowrap text-xs font-medium leading-[17px] text-[#7b7b7b]">
-      {label}
-    </p>
-    {type === "duration" ? (
-      <p className="flex items-baseline justify-center gap-1 text-[#262626]">
-        {splitDurationLabel(value).map((segment) => (
-          <span key={`${segment.value}-${segment.unit}`} className="contents">
-            <span className="text-2xl font-bold leading-8">
-              {segment.value}
-            </span>
-            <span className="text-sm font-medium leading-5">
-              {segment.unit}
-            </span>
-          </span>
-        ))}
-      </p>
-    ) : (
-      <p className="flex items-center justify-center gap-1 text-[#262626]">
-        <Sparkles className="size-[18px] fill-[#9572ff] text-[#9572ff]" />
-        <span className="text-2xl font-bold leading-8">
-          {value.replace("%", "")}
-        </span>
-        <span className="text-sm font-bold leading-5">%</span>
-      </p>
-    )}
-  </div>
+// 누적 수행시간 통계 ("1시간 17분" → SUIT 32px 숫자)
+const DurationStat = ({ label, value }: { label: string; value: string }) => (
+  <StatCard label={label} align="start">
+    {splitDurationLabel(value).map((segment) => (
+      <StatValue
+        key={`${segment.value}-${segment.unit}`}
+        value={segment.value}
+        unit={segment.unit}
+        size="lg"
+      />
+    ))}
+  </StatCard>
+);
+
+// 긍정률 통계 (불꽃 + SUIT 32px + %)
+const PercentStat = ({ label, value }: { label: string; value: number }) => (
+  <StatCard
+    label={label}
+    align="start"
+    icon={
+      <Flame
+        className="size-[18px] self-center text-primary-300"
+        fill="currentColor"
+        strokeWidth={0}
+        aria-hidden
+      />
+    }
+  >
+    <StatValue value={value} unit="%" size="lg" />
+  </StatCard>
 );
 
 const KeywordSection = ({ report }: { report: WeeklyReportDetail }) => (
@@ -286,27 +266,30 @@ const KeywordSection = ({ report }: { report: WeeklyReportDetail }) => (
     {report.topKeywords.length > 0 ? (
       <div className="flex flex-wrap items-center gap-3">
         {report.topKeywords.map((keyword, index) => {
-          const style = keywordStyles[index] ?? keywordStyles[0];
+          const Icon = keywordIcons[index] ?? keywordIcons[0];
           return (
-            <span
+            <Chip
               key={`${keyword.rank}-${keyword.keyword}`}
-              className={`inline-flex h-9 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold leading-[21px] ${style.className}`}
+              shape="square"
+              tone={keywordTones[index] ?? "amber"}
+              size="md"
+              className="font-semibold"
             >
-              <style.icon className="size-3.5" aria-hidden />
+              <Icon className="size-3.5" aria-hidden />
               {keyword.keyword}
-            </span>
+            </Chip>
           );
         })}
       </div>
     ) : report.keywordEmptyState ? (
-      <div className="rounded-xl bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]">
+      <Card padding="md">
         <p className="text-sm font-bold leading-5">
           {report.keywordEmptyState.title}
         </p>
         <p className="mt-2 text-sm leading-5 text-[#7b7b7b]">
           {report.keywordEmptyState.description}
         </p>
-      </div>
+      </Card>
     ) : null}
   </section>
 );
@@ -374,7 +357,7 @@ const InnerStateSection = ({ report }: { report: WeeklyReportDetail }) => (
         aria-valuemax={100}
       >
         <div
-          className="h-full rounded-xs bg-[#9572ff]"
+          className="h-full rounded-xs bg-primary-300"
           style={{ width: `${report.innerState.psychologicalEnergy}%` }}
         />
       </div>
@@ -412,7 +395,7 @@ const WeeklyReportEmpty = ({
       <button
         type="button"
         onClick={onStartMission}
-        className="flex h-12 w-[263px] items-center justify-center rounded-2xl bg-[#9572ff] px-5 text-base font-medium leading-6 text-white"
+        className="flex h-12 w-[263px] items-center justify-center rounded-2xl bg-primary-300 px-5 text-base font-medium leading-6 text-white"
       >
         {emptyState?.ctaLabel ?? "미션 시작하기"}
       </button>
@@ -438,7 +421,7 @@ const WeeklyReportError = ({
     <button
       type="button"
       onClick={onRetry}
-      className="flex h-12 min-w-[160px] items-center justify-center gap-2 rounded-2xl bg-[#9572ff] px-5 text-base font-medium text-white"
+      className="flex h-12 min-w-[160px] items-center justify-center gap-2 rounded-2xl bg-primary-300 px-5 text-base font-medium text-white"
     >
       <RefreshCw className="size-4" aria-hidden />
       다시 시도
