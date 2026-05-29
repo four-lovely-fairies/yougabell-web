@@ -1,20 +1,16 @@
 "use client";
 
+import { AppleIcon, GoogleIcon } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
+import { track } from "@/lib/analytics";
+import { buildOAuthRedirectTo, getOAuthErrorMessage } from "@/lib/auth-oauth";
+import { isNativeWebView, notifyMobile, subscribeToNativeMessages } from "@/lib/native-bridge";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { AppleIcon, GoogleIcon } from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
-import { buildOAuthRedirectTo, getOAuthErrorMessage } from "@/lib/auth-oauth";
-import { track } from "@/lib/analytics";
-import {
-  isNativeWebView,
-  notifyMobile,
-  subscribeToNativeMessages,
-} from "@/lib/native-bridge";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type OAuthProvider = "google" | "apple";
 
@@ -27,12 +23,8 @@ export default function OnboardingIntroPage() {
   const searchParams = useSearchParams();
   const { isDirty, clear } = useOnboardingDraft();
   const [startFresh, setStartFresh] = useState(false);
-  const [pendingProvider, setPendingProvider] = useState<OAuthProvider | null>(
-    null,
-  );
-  const [oauthRequestError, setOauthRequestError] = useState<string | null>(
-    null,
-  );
+  const [pendingProvider, setPendingProvider] = useState<OAuthProvider | null>(null);
+  const [oauthRequestError, setOauthRequestError] = useState<string | null>(null);
 
   useEffect(() => {
     track({ type: "onboarding_intro_view" });
@@ -53,13 +45,11 @@ export default function OnboardingIntroPage() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (_event: AuthChangeEvent, session: Session | null) => {
-        if (!session) return;
-        setPendingProvider(null);
-        router.replace("/onboarding/parent");
-      },
-    );
+    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
+      if (!session) return;
+      setPendingProvider(null);
+      router.replace("/onboarding/parent");
+    });
 
     const unsubscribe = subscribeToNativeMessages((message) => {
       if (message.type === "SUPABASE_SESSION_SYNC") {
@@ -77,18 +67,12 @@ export default function OnboardingIntroPage() {
         setPendingProvider(null);
       }
 
-      if (
-        message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR" ||
-        message.type === "NATIVE_APPLE_SIGN_IN_ERROR"
-      ) {
+      if (message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR" || message.type === "NATIVE_APPLE_SIGN_IN_ERROR") {
         setOauthRequestError(message.payload.message);
         setPendingProvider(null);
       }
 
-      if (
-        message.type === "NATIVE_GOOGLE_SIGN_IN_CANCELLED" ||
-        message.type === "NATIVE_APPLE_SIGN_IN_CANCELLED"
-      ) {
+      if (message.type === "NATIVE_GOOGLE_SIGN_IN_CANCELLED" || message.type === "NATIVE_APPLE_SIGN_IN_CANCELLED") {
         setPendingProvider(null);
       }
     });
@@ -109,18 +93,12 @@ export default function OnboardingIntroPage() {
     setOauthRequestError(null);
     setPendingProvider(provider);
     track({
-      type:
-        provider === "google"
-          ? "onboarding_google_sign_in_click"
-          : "onboarding_apple_sign_in_click",
+      type: provider === "google" ? "onboarding_google_sign_in_click" : "onboarding_apple_sign_in_click",
     });
 
     if (isNativeWebView()) {
       notifyMobile({
-        type:
-          provider === "google"
-            ? "REQUEST_NATIVE_GOOGLE_SIGN_IN"
-            : "REQUEST_NATIVE_APPLE_SIGN_IN",
+        type: provider === "google" ? "REQUEST_NATIVE_GOOGLE_SIGN_IN" : "REQUEST_NATIVE_APPLE_SIGN_IN",
       });
       return;
     }
@@ -129,10 +107,7 @@ export default function OnboardingIntroPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: buildOAuthRedirectTo(
-          window.location.origin,
-          "/onboarding/parent",
-        ),
+        redirectTo: buildOAuthRedirectTo(window.location.origin, "/onboarding/parent"),
       },
     });
 
@@ -145,12 +120,8 @@ export default function OnboardingIntroPage() {
   if (isDirty && !startFresh) {
     return (
       <div className="flex flex-1 flex-col justify-center gap-4 px-6">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-          이어서 작성하시겠어요?
-        </h1>
-        <p className="text-sm text-gray-500">
-          이전에 작성하다 만 온보딩이 있습니다.
-        </p>
+        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">이어서 작성하시겠어요?</h1>
+        <p className="text-sm text-gray-500">이전에 작성하다 만 온보딩이 있습니다.</p>
         <div className="mt-2 flex flex-col gap-3">
           <Button size="full" onClick={() => router.push("/onboarding/parent")}>
             이어서 작성하기
@@ -206,16 +177,12 @@ export default function OnboardingIntroPage() {
       </div>
 
       <div className="relative z-10 flex flex-col gap-3 px-5 pb-5">
-        {authError ? (
-          <p className="text-center text-sm font-medium text-red-500">
-            {authError}
-          </p>
-        ) : null}
+        {authError ? <p className="text-center text-sm font-medium text-red-500">{authError}</p> : null}
         <button
           type="button"
           disabled={pendingProvider !== null}
           onClick={() => void handleOAuthSignIn("google")}
-          className="flex h-[52px] w-full items-center justify-between rounded-[12px] border border-gray-200 bg-white px-4 disabled:opacity-60"
+          className="flex h-13 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-4 disabled:opacity-60"
         >
           <GoogleIcon size={20} />
           <span className="text-base font-medium leading-[1.4] text-gray-800">
@@ -227,7 +194,7 @@ export default function OnboardingIntroPage() {
           type="button"
           disabled={pendingProvider !== null}
           onClick={() => void handleOAuthSignIn("apple")}
-          className="flex h-[52px] w-full items-center justify-between rounded-[12px] bg-gray-900 px-4 text-white disabled:opacity-60"
+          className="flex h-13 w-full items-center justify-between rounded-md bg-gray-900 px-4 text-white disabled:opacity-60"
         >
           <AppleIcon size={20} />
           <span className="text-base font-medium leading-[1.4]">
