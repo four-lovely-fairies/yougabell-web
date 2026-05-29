@@ -33,7 +33,6 @@ export default function IntroPage() {
   const [oauthRequestError, setOauthRequestError] = useState<string | null>(
     null,
   );
-  const [isAdvancingAfterSignIn, setIsAdvancingAfterSignIn] = useState(false);
 
   useEffect(() => {
     track({ type: "onboarding_intro_view" });
@@ -41,7 +40,6 @@ export default function IntroPage() {
 
   const navigateToParentStep = useEffectEvent(() => {
     if (isNativeWebView()) {
-      setIsAdvancingAfterSignIn(true);
       window.location.replace("/onboarding/parent");
       return;
     }
@@ -247,20 +245,6 @@ export default function IntroPage() {
           <span aria-hidden className="size-6" />
         </button>
       </div>
-
-      {isAdvancingAfterSignIn ? (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/92 px-6 text-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-3 border-primary-200 border-t-primary-500" />
-          <div className="space-y-1">
-            <p className="text-base font-semibold text-gray-800">
-              로그인 확인 중이에요
-            </p>
-            <p className="text-sm text-gray-500">
-              온보딩을 이어서 시작할게요.
-            </p>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
