@@ -22,7 +22,8 @@ function genderLabel(g: ChildDraft["gender"]) {
 
 function formatDate(iso?: string) {
   if (!iso) return null;
-  return iso.replace(/-/g, ".");
+  // 전체 ISO(2020-03-15T00:00:00Z) 또는 날짜(2020-03-15) 모두 yyyy.mm.dd로
+  return iso.slice(0, 10).replace(/-/g, ".");
 }
 
 export function ChildCardForm({
@@ -121,11 +122,13 @@ export function ChildRow({ child, onEdit, onDelete }: ChildRowProps) {
   return (
     // Figma 2146:5015 — h-[55px], rounded-16, bg gray-50(#f6f6f6) + border #e9e9e9
     <div className="flex h-[55px] items-center rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
-      <span className="flex flex-1 items-center gap-2.5 text-sm text-gray-800">
+      <span className="flex min-w-0 flex-1 items-center gap-2.5 text-sm text-gray-800">
         {g ? (
-          <span className="font-semibold text-gray-800">{g}</span>
+          <span className="shrink-0 whitespace-nowrap font-semibold text-gray-800">
+            {g}
+          </span>
         ) : null}
-        <span className="truncate">
+        <span className="min-w-0 truncate">
           {child.name}
           {d ? (
             <span className="ml-1 font-normal text-gray-800">({d})</span>
