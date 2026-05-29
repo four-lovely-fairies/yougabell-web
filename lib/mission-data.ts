@@ -1,6 +1,7 @@
 export type MissionSelectedChild = {
   id: string;
   name: string;
+  birthDate: string;
   ageLabel: string;
 };
 
@@ -29,6 +30,7 @@ export type ActiveMissionExecution = {
 
 export type CurrentMissionResponse = {
   selectedChild: MissionSelectedChild;
+  children: MissionSelectedChild[];
   mission: CurrentMissionDetail;
   activeExecution: ActiveMissionExecution | null;
 };

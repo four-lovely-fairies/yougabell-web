@@ -20,6 +20,7 @@ import {
   loadMissionExecution,
   persistMissionFeedbackDraft,
   readMissionFeedbackDraft,
+  setStoredSelectedChildId,
   startMissionExecution,
   submitMissionFeedback,
   type MissionLoadState,
@@ -28,6 +29,7 @@ import {
 import type {
   MissionExecutionSnapshot,
   MissionFeedbackDraft,
+  MissionSelectedChild,
 } from '@/lib/mission-data';
 
 const MISSION_IMAGE_PATH = '/images/figma/home/mission-illustration.svg';
@@ -44,12 +46,26 @@ export function MissionIntroScreen() {
   const [state, setState] = useState<MissionLoadState | null>(null);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
+  const [childSwitcherOpen, setChildSwitcherOpen] = useState(false);
+
+  const refreshMission = useCallback(
+    async (childId?: string | null) => {
+      setLoading(true);
+      const next = await loadCurrentMission(childId);
+      setState(next);
+      setLoading(false);
+
+      if (next.data.activeExecution?.status === 'in_progress') {
+        router.replace(`/mission/timer?executionId=${next.data.activeExecution.id}`);
+      }
+    },
+    [router],
+  );
 
   useEffect(() => {
     let cancelled = false;
 
     const run = async () => {
-      setLoading(true);
       const next = await loadCurrentMission(getStoredSelectedChildId());
 
       if (cancelled) {
@@ -105,6 +121,12 @@ export function MissionIntroScreen() {
     }
   };
 
+  const onSelectChild = async (child: MissionSelectedChild) => {
+    setStoredSelectedChildId(child.id);
+    setChildSwitcherOpen(false);
+    await refreshMission(child.id);
+  };
+
   if (loading || !state) {
     return <MissionIntroSkeleton />;
   }
@@ -122,6 +144,9 @@ export function MissionIntroScreen() {
       <MissionHeader
         childLabel={`${selectedChild.name} (${selectedChild.ageLabel})`}
         onBack={goBack}
+        onOpenChildren={
+          state.data.children.length > 1 ? () => setChildSwitcherOpen(true) : undefined
+        }
       />
 
       <div className="flex min-h-[calc(100dvh-103px-96px)] flex-col items-center justify-center gap-6">
@@ -162,6 +187,14 @@ export function MissionIntroScreen() {
           {ctaLabel}
         </button>
       </div>
+      {childSwitcherOpen ? (
+        <MissionChildSwitcherSheet
+          childItems={state.data.children}
+          selectedChildId={selectedChild.id}
+          onClose={() => setChildSwitcherOpen(false)}
+          onSelect={(child) => void onSelectChild(child)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -864,9 +897,11 @@ export function MissionDoneScreen({
 function MissionHeader({
   childLabel,
   onBack,
+  onOpenChildren,
 }: {
   childLabel: string;
   onBack: () => void;
+  onOpenChildren?: () => void;
 }) {
   return (
     <header className="flex h-14 items-center justify-between">
@@ -878,12 +913,74 @@ function MissionHeader({
       >
         <ArrowLeft className="size-6" aria-hidden />
       </button>
-      <div className="flex items-center gap-1 text-sm font-medium leading-[1.5] text-[#262626]">
-        <span>{childLabel}</span>
-        <ChevronDown className="size-4" aria-hidden />
-      </div>
+      {onOpenChildren ? (
+        <button
+          type="button"
+          onClick={onOpenChildren}
+          className="flex items-center gap-1 text-sm font-medium leading-[1.5] text-[#262626]"
+          aria-label="아이 목록 열기"
+          aria-haspopup="dialog"
+        >
+          <span>{childLabel}</span>
+          <ChevronDown className="size-4" aria-hidden />
+        </button>
+      ) : (
+        <div className="flex items-center gap-1 text-sm font-medium leading-[1.5] text-[#262626]">
+          <span>{childLabel}</span>
+        </div>
+      )}
       <div className="size-11 opacity-0" aria-hidden />
     </header>
+  );
+}
+
+function MissionChildSwitcherSheet({
+  childItems,
+  selectedChildId,
+  onClose,
+  onSelect,
+}: {
+  childItems: MissionSelectedChild[];
+  selectedChildId: string;
+  onClose: () => void;
+  onSelect: (child: MissionSelectedChild) => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-40"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
+      <div className="relative mx-auto h-full w-full max-w-[430px]">
+        <div
+          className="absolute left-5 top-[108px] w-[260px] overflow-hidden rounded-[32px] border border-[#ebecf0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {childItems.map((child) => {
+            const selected = child.id === selectedChildId;
+
+            return (
+              <button
+                key={child.id}
+                type="button"
+                onClick={() => onSelect(child)}
+                className={`flex w-full flex-col items-start px-6 py-5 text-left ${
+                  selected ? 'bg-[#efe7ff]' : 'bg-white'
+                }`}
+              >
+                <span className="block truncate text-sm font-bold leading-[1.4] text-[#1f2127]">
+                  {child.name}
+                </span>
+                <span className="block truncate text-xs font-normal leading-[1.4] text-[#6f7885]">
+                  {child.ageLabel} ({new Date(child.birthDate).getFullYear()}년생)
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 
