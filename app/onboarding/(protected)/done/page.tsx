@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
@@ -58,6 +58,12 @@ export default function DonePage() {
   const [attempt, setAttempt] = useState(0);
   const submittedRef = useRef(false);
 
+  const navigateToHome = useEffectEvent(() => {
+    // 온보딩 완료 직후에는 서버의 onboardedAt 판정이 바뀌므로
+    // App Router client transition 대신 전체 문서 이동으로 최신 세션/서버 상태를 읽게 한다.
+    window.location.replace("/");
+  });
+
   useEffect(() => {
     if (!payload) return;
     if (submittedRef.current) return;
@@ -81,7 +87,7 @@ export default function DonePage() {
           payload: { userId: me.id },
         });
         setStatus("success");
-        setTimeout(() => router.replace("/"), 800);
+        setTimeout(() => navigateToHome(), 800);
       })
       .catch((e: unknown) => {
         if (cancelled) return;
@@ -89,7 +95,7 @@ export default function DonePage() {
         if (e instanceof ApiError && e.status === 409) {
           clear();
           setStatus("already");
-          setTimeout(() => router.replace("/"), 800);
+          setTimeout(() => navigateToHome(), 800);
           return;
         }
         const message =
