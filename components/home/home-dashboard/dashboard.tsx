@@ -12,7 +12,7 @@ import {
 import type { HomeChild } from "@/lib/home-data";
 import { GrowthStageCard, ReportSummaryCard, TodayMissionCard } from "./cards";
 import {
-  ChildSwitcherSheet,
+  ChildSwitcherDropdown,
   MoodCheckModal,
   NotificationModal,
 } from "./modals";
@@ -130,12 +130,39 @@ export const HomeDashboard = () => {
   return (
     <>
       <div className="relative min-h-dvh bg-gray-20 px-5 pb-9 pt-safe text-gray-800">
-        <TopAppBar
-          child={selectedChild}
-          unreadCount={data.notifications.unreadCount}
-          onOpenChildren={() => setModal("children")}
-          onOpenNotifications={() => setModal("notifications")}
-        />
+        <div className="relative z-50">
+          <TopAppBar
+            child={selectedChild}
+            unreadCount={data.notifications.unreadCount}
+            onOpenChildren={() => setModal("children")}
+            onOpenNotifications={() => setModal("notifications")}
+          />
+          {modal === "children" ? (
+            <>
+              <button
+                type="button"
+                aria-label="닫기"
+                className="fixed inset-0 z-40 cursor-default"
+                onClick={() => setModal(null)}
+              />
+              <div className="absolute left-0 top-14 z-50">
+                <ChildSwitcherDropdown
+                  childItems={data.children}
+                  selectedChildId={selectedChild.id}
+                  onSelect={onSelectChild}
+                  onEdit={(child) => {
+                    setModal(null);
+                    router.push(`/settings/children/${child.id}`);
+                  }}
+                  onDelete={() => {
+                    setModal(null);
+                    router.push("/settings/children");
+                  }}
+                />
+              </div>
+            </>
+          ) : null}
+        </div>
         <div className="mt-4 flex flex-col gap-5">
           <WeeklyCalendar data={data} onOpenTodayMood={openMoodModal} />
           <TodayMissionCard
@@ -147,14 +174,6 @@ export const HomeDashboard = () => {
           <ReportSummaryCard summary={data.reportSummary} />
         </div>
       </div>
-      {modal === "children" ? (
-        <ChildSwitcherSheet
-          childItems={data.children}
-          selectedChildId={selectedChild.id}
-          onClose={() => setModal(null)}
-          onSelect={onSelectChild}
-        />
-      ) : null}
       {modal === "notifications" ? (
         <NotificationModal
           notifications={data.notifications.latest}
