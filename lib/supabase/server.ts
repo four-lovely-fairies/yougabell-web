@@ -45,7 +45,7 @@ export async function fetchServerMe(): Promise<ServerMe | null> {
   } = await supabase.auth.getSession();
   if (!session) return null;
 
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
   // API 미배포 환경(localhost) 또는 네트워크 실패 시 SSR 500 방지 — null로 폴백.
   try {
     const res = await fetch(`${base}/me`, {
