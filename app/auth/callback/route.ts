@@ -9,14 +9,14 @@ export async function GET(request: NextRequest) {
   const error = requestUrl.searchParams.get("error");
 
   if (error) {
-    const redirectUrl = new URL("/onboarding/intro", requestUrl.origin);
+    const redirectUrl = new URL("/onboarding", requestUrl.origin);
     redirectUrl.searchParams.set("error", "oauth_failed");
     return NextResponse.redirect(redirectUrl);
   }
 
   if (!code) {
     return NextResponse.redirect(
-      new URL("/onboarding/intro", requestUrl.origin),
+      new URL("/onboarding", requestUrl.origin),
     );
   }
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     await supabase.auth.exchangeCodeForSession(code);
 
   if (exchangeError) {
-    const redirectUrl = new URL("/onboarding/intro", requestUrl.origin);
+    const redirectUrl = new URL("/onboarding", requestUrl.origin);
     redirectUrl.searchParams.set("error", "session_exchange_failed");
     return NextResponse.redirect(redirectUrl);
   }

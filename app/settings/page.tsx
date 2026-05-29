@@ -47,7 +47,7 @@ export default function SettingsPage() {
     track({ type: "settings_logout" });
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
-    router.replace("/onboarding/intro");
+    router.replace("/onboarding");
   };
 
   return (
@@ -224,7 +224,7 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
       track({ type: "settings_account_delete_confirm" });
       const supabase = createSupabaseBrowserClient();
       await supabase.auth.signOut();
-      router.replace("/onboarding/intro");
+      router.replace("/onboarding");
     } catch (e) {
       const message =
         e instanceof ApiError

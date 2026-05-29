@@ -5,7 +5,7 @@ import { fetchServerMe } from "@/lib/supabase/server";
 export default async function HomePage() {
   const me = await fetchServerMe();
   if (me && !me.onboardedAt) {
-    redirect("/onboarding/intro");
+    redirect("/onboarding");
   }
 
   return <HomeDashboard />;

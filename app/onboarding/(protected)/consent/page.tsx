@@ -22,7 +22,7 @@ export default function ConsentPage() {
   return (
     <ConsentBottomSheet
       initial={draft?.consents}
-      onClose={() => router.replace("/onboarding/intro")}
+      onClose={() => router.replace("/onboarding")}
       onConfirm={handleConfirm}
     />
   );
