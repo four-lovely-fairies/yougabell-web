@@ -23,20 +23,22 @@
 
 ### 1.1 Primitive — Primary
 
-브랜드 메인 (보라-블루 계열). 한 화면 내 가장 중요한 버튼·강조 정보에 사용.
+브랜드 메인 (보라-블루 계열). **Figma Foundation(`2046:3807`) 실측값** — 한 화면 내 가장 중요한 버튼·강조 정보에 사용.
 
-| 토큰          | HEX       | 용도          |
-| ------------- | --------- | ------------- |
-| `primary.50`  | `#F1EAFF` | 배경 틴트     |
-| `primary.100` | `#D9CBFE` | 호버 배경     |
-| `primary.200` | `#C0A8FE` |               |
-| `primary.300` | `#A483FF` |               |
-| `primary.400` | `#8C65FE` |               |
-| `primary.500` | `#754AF6` | **기본 액션** |
-| `primary.600` | `#6945EF` | hover (액션)  |
-| `primary.700` | `#583CE5` | active        |
-| `primary.800` | `#4737DC` |               |
-| `primary.900` | `#2A2BCE` |               |
+| 토큰          | HEX       | 용도                     |
+| ------------- | --------- | ------------------------ |
+| `primary.50`  | `#EFE7FF` | 배경 틴트                |
+| `primary.100` | `#D4C4FE` | disabled 채움            |
+| `primary.200` | `#B69CFE` | 활성 탭 보더             |
+| `primary.300` | `#9572FF` | **기본 액션** (버튼·CTA) |
+| `primary.400` | `#7850FF` |                          |
+| `primary.500` | `#5A31F4` |                          |
+| `primary.600` | `#4C2CED` |                          |
+| `primary.700` | `#3425E4` |                          |
+| `primary.800` | `#111FDC` |                          |
+| `primary.900` | `#0013CD` |                          |
+
+> ⚠️ 2026-05 갱신: 이전 팔레트(`500 #754AF6` 등)는 출처 불명으로 폐기. **기본 액션색은 `primary.300 #9572FF`** (Figma 버튼 컴포넌트 실측). role `--primary` → `primary.300`.
 
 ### 1.2 Primitive — Grayscale
 
@@ -57,31 +59,32 @@
 
 ### 1.3 Semantic
 
-| 그룹        | 토큰                                 | HEX                                           | 용도      |
-| ----------- | ------------------------------------ | --------------------------------------------- | --------- |
-| Error       | `error.50` / `.100` / `.600`         | `#FFF1F2` / `#FB9CA7` / `#EC003F`             | 위험·오류 |
-| Information | `info.50` / `.500` / `.700` / `.800` | `#E2F4FF` / `#009CFF` / `#0565FF` / `#263FE0` | 정보·링크 |
-| Warning     | `warning.50` / `.600` / `.800`       | `#FDF3E9` / `#FBDA2B` / `#F9AB16`             | 경고      |
-| Success     | `success.50` / `.200` / `.500`       | `#E5F6ED` / `#98D8B5` / `#06B26C`             | 완료·긍정 |
+| 그룹        | 토큰                                  | HEX                                           | 용도                                                                                          |
+| ----------- | ------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Error       | `error.500` / `.50` / `.100` / `.600` | `#FF5050` / `#FFF1F2` / `#FB9CA7` / `#EC003F` | 위험·오류 (기본 `error.500 #FF5050` — Figma 컴포넌트 실측. 50/100/600은 legacy 배경·텍스트용) |
+| Information | `info.50` / `.500` / `.700` / `.800`  | `#E2F4FF` / `#009CFF` / `#0565FF` / `#263FE0` | 정보·링크                                                                                     |
+| Warning     | `warning.50` / `.600` / `.800`        | `#FDF3E9` / `#FBDA2B` / `#F9AB16`             | 경고                                                                                          |
+| Success     | `success.50` / `.200` / `.500`        | `#E5F6ED` / `#98D8B5` / `#06B26C`             | 완료·긍정                                                                                     |
 
 ### 1.4 Role 토큰 (실제 사용)
 
 코드에서는 primitive를 직접 쓰지 말고 role 토큰을 통해 사용. 다크모드·테마 변경 시 role만 갱신하면 됨.
 
-| Role               | 라이트                  | 용도                    |
-| ------------------ | ----------------------- | ----------------------- |
-| `text.primary`     | `#262626` (`gray.800`)  | 본문                    |
-| `text.secondary`   | `#555555` (`gray.600`)  | 보조                    |
-| `text.tertiary`    | `#7B7B7B` (`gray.500`)  | placeholder             |
-| `text.disabled`    | `#C4C4C4` (`gray.300`)  | disabled                |
-| `border.primary`   | `#D9D9D9` (`gray.200`)  | 일반 보더               |
-| `border.secondary` | `#E9E9E9` (`gray.100`)  | 약한 디바이더           |
-| `border.tertiary`  | `#F6F6F6` (`gray.50`)   | 거의 안 보이는 디바이더 |
-| `border.error`     | `#EC003F` (`error.600`) | 에러 보더               |
-| `icon.primary`     | `#262626`               | 강조 아이콘             |
-| `icon.secondary`   | `#434343`               | 일반                    |
-| `icon.tertiary`    | `#555555`               | 보조                    |
-| `icon.disabled`    | `#9D9D9D`               | disabled                |
+| Role               | 라이트                    | 용도                    |
+| ------------------ | ------------------------- | ----------------------- |
+| `text.primary`     | `#262626` (`gray.800`)    | 본문                    |
+| `text.secondary`   | `#555555` (`gray.600`)    | 보조                    |
+| `text.tertiary`    | `#7B7B7B` (`gray.500`)    | placeholder             |
+| `text.disabled`    | `#C4C4C4` (`gray.300`)    | disabled                |
+| `border.primary`   | `#D9D9D9` (`gray.200`)    | 일반 보더               |
+| `border.secondary` | `#E9E9E9` (`gray.100`)    | 약한 디바이더           |
+| `border.tertiary`  | `#F6F6F6` (`gray.50`)     | 거의 안 보이는 디바이더 |
+| `border.error`     | `#FF5050` (`error.500`)   | 에러 보더 (Figma 실측)  |
+| `primary` (action) | `#9572FF` (`primary.300`) | 기본 버튼·CTA·강조      |
+| `icon.primary`     | `#262626`                 | 강조 아이콘             |
+| `icon.secondary`   | `#434343`                 | 일반                    |
+| `icon.tertiary`    | `#555555`                 | 보조                    |
+| `icon.disabled`    | `#9D9D9D`                 | disabled                |
 
 ### 사용 규칙
 
@@ -95,6 +98,8 @@
 ## 2. 타이포그래피 (Typography)
 
 기본 폰트 패밀리: **Pretendard** (한글 + 영문). UI 일부에 **Wanted Sans Variable** 병용 가능.
+
+> **숫자·월 헤딩 강조는 `SUIT Variable`** (Figma 실측 — 홈 통계 숫자/주차 헤딩 등). self-host: `public/fonts/suit/SUIT-Variable.woff2`, `globals.css` `@font-face` + `--font-suit` 토큰(`font-suit` 유틸). 본문·일반 텍스트는 Pretendard 유지.
 
 | 스타일        | 폰트       | 굵기          | 크기 | 행간 | letter-spacing |
 | ------------- | ---------- | ------------- | ---- | ---- | -------------- |
