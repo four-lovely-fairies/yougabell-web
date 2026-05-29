@@ -30,7 +30,7 @@ import type {
 } from "./weekly-report-data";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
 const openApiClient = createClient<paths>({ baseUrl: BASE_URL });
 const DEMO_MISSION_STORAGE_KEY = "mission:demo-snapshot";
 const DEMO_MISSION_EFFECT_STORAGE_KEY = "mission:demo-effect";
