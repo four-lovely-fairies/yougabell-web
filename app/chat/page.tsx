@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowLeft, ArrowUp } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AppHeader } from "@/components/app/app-header";
 import { MarkdownMessage } from "@/components/chat/markdown-message";
 import { useChatTypewriter } from "@/hooks/use-chat-typewriter";
 import { track } from "@/lib/analytics";
@@ -198,21 +199,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-dvh flex-col bg-[#fdfdfe]">
-      <header className="flex h-14 shrink-0 items-center justify-between px-4">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label="뒤로"
-          className="flex size-11 items-center justify-center text-[#262626]"
-        >
-          <ArrowLeft className="size-6" />
-        </button>
-        <h1 className="text-base font-semibold leading-[1.4] text-[#191f28]">
-          Ai 챗봇
-        </h1>
-        {/* Figma: 좌우 균형용 placeholder (close 아이콘은 opacity-0 자리만 차지) */}
-        <span aria-hidden className="size-11" />
-      </header>
+      <AppHeader title="Ai 챗봇" onBack={() => router.back()} />
 
       <p className="shrink-0 px-5 py-3 text-center text-[13px] font-medium leading-[1.4] tracking-[0.2522px] text-[#667080]">
         사용자의 행동 데이터와 패턴을 기반으로 대화합니다.
