@@ -3,7 +3,7 @@
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { AppleIcon, GoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
@@ -38,6 +38,15 @@ export default function IntroPage() {
     track({ type: "onboarding_intro_view" });
   }, []);
 
+  const navigateToParentStep = useEffectEvent(() => {
+    if (isNativeWebView()) {
+      window.location.replace("/onboarding/parent");
+      return;
+    }
+
+    router.replace("/onboarding/parent");
+  });
+
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
 
@@ -47,7 +56,7 @@ export default function IntroPage() {
 
     void supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
       if (data.session) {
-        router.replace("/onboarding/parent");
+        navigateToParentStep();
       }
     });
 
@@ -57,7 +66,7 @@ export default function IntroPage() {
       (_event: AuthChangeEvent, session: Session | null) => {
         if (!session) return;
         setPendingProvider(null);
-        router.replace("/onboarding/parent");
+        navigateToParentStep();
       },
     );
 
@@ -69,7 +78,7 @@ export default function IntroPage() {
             refresh_token: message.payload.refreshToken,
           });
           setPendingProvider(null);
-          router.replace("/onboarding/parent");
+          navigateToParentStep();
         })();
       }
 
