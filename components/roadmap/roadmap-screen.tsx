@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowLeft, ChevronLeft, ChevronRight, Info, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Info, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AppHeader } from "@/components/app/app-header";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { SectionInfoCard } from "@/components/ui/section-info-card";
@@ -74,10 +75,21 @@ export const RoadmapScreen = () => {
 
   return (
     <div className="flex min-h-dvh flex-col bg-[#fdfdfe] text-[#262626]">
-      <RoadmapHeader
+      <div className="h-[47px] shrink-0" aria-hidden />
+      <AppHeader
+        title="발달 로드맵"
         onBack={goBack}
-        onToggleTooltip={() => setTooltipOpen((value) => !value)}
-        infoButtonRef={infoButtonRef}
+        right={
+          <button
+            ref={infoButtonRef}
+            type="button"
+            onClick={() => setTooltipOpen((value) => !value)}
+            className="flex size-11 items-center justify-center text-[#262626]"
+            aria-label="데이터 출처 안내"
+          >
+            <Info className="size-6" aria-hidden />
+          </button>
+        }
       />
       <div className="relative flex flex-1 flex-col">
         {tooltipOpen ? (
@@ -99,40 +111,6 @@ export const RoadmapScreen = () => {
     </div>
   );
 };
-
-const RoadmapHeader = ({
-  onBack,
-  onToggleTooltip,
-  infoButtonRef,
-}: {
-  onBack: () => void;
-  onToggleTooltip: () => void;
-  infoButtonRef: React.RefObject<HTMLButtonElement | null>;
-}) => (
-  <header className="flex h-[103px] shrink-0 flex-col">
-    <div className="h-[47px]" aria-hidden />
-    <div className="flex h-14 items-center justify-between px-4">
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex size-11 items-center justify-center text-[#262626]"
-        aria-label="뒤로가기"
-      >
-        <ArrowLeft className="size-6" aria-hidden />
-      </button>
-      <h1 className="text-base font-semibold leading-[22px]">발달 로드맵</h1>
-      <button
-        ref={infoButtonRef}
-        type="button"
-        onClick={onToggleTooltip}
-        className="flex size-11 items-center justify-center text-[#262626]"
-        aria-label="데이터 출처 안내"
-      >
-        <Info className="size-6" aria-hidden />
-      </button>
-    </div>
-  </header>
-);
 
 const SourceTooltip = ({
   text,

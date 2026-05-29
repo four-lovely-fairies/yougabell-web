@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowLeft,
   Bell,
   Bot,
   CalendarDays,
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { AppHeader } from "@/components/app/app-header";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { StatCard, StatValue } from "@/components/ui/stat-card";
@@ -79,7 +79,20 @@ export const WeeklyReportScreen = () => {
 
   return (
     <div className="flex min-h-dvh flex-col bg-[#fdfdfe] text-[#262626]">
-      <WeeklyReportHeader onBack={goBack} />
+      <div className="h-[47px] shrink-0" aria-hidden />
+      <AppHeader
+        title="주간 리포트"
+        onBack={goBack}
+        right={
+          <button
+            type="button"
+            className="flex size-11 items-center justify-center text-[#262626]"
+            aria-label="알림 열기"
+          >
+            <Bell className="size-6" aria-hidden />
+          </button>
+        }
+      />
       {loading ? (
         <WeeklyReportSkeleton />
       ) : state?.error ? (
@@ -90,30 +103,6 @@ export const WeeklyReportScreen = () => {
     </div>
   );
 };
-
-const WeeklyReportHeader = ({ onBack }: { onBack: () => void }) => (
-  <header className="flex h-[103px] shrink-0 flex-col">
-    <div className="h-[47px]" aria-hidden />
-    <div className="flex h-14 items-center justify-between px-4">
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex size-11 items-center justify-center text-[#262626]"
-        aria-label="뒤로가기"
-      >
-        <ArrowLeft className="size-6" aria-hidden />
-      </button>
-      <h1 className="text-base font-semibold leading-[22px]">주간 리포트</h1>
-      <button
-        type="button"
-        className="flex size-11 items-center justify-center text-[#262626]"
-        aria-label="알림 열기"
-      >
-        <Bell className="size-6" aria-hidden />
-      </button>
-    </div>
-  </header>
-);
 
 const WeeklyReportContent = ({
   data,
