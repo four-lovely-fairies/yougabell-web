@@ -27,7 +27,7 @@ const items: BottomNavItem[] = [
     matches: (pathname: string) => pathname === "/",
   },
   {
-    label: "10분 놀이",
+    label: "오늘 놀이",
     href: "/mission",
     iconSrc: NAV_ICON_PATHS.play,
     iconClassName: "h-5 w-4.5",
