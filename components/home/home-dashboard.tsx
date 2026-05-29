@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
@@ -414,11 +414,10 @@ const ReportSummaryCard = ({
       label="아이 반응 긍정률"
       icon={
         summary ? (
-          <Flame
-            className="size-[18px] self-center text-primary-300"
-            fill="currentColor"
-            strokeWidth={0}
-            aria-hidden
+          <FigmaIcon
+            src="/icons/figma/shared/positive-rate.svg"
+            alt=""
+            className="size-[18px] self-center"
           />
         ) : undefined
       }

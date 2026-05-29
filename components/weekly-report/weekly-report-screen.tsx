@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Bell,
-  Bot,
-  CalendarDays,
-  Check,
-  Flame,
-  MessageSquare,
-  Moon,
-  RefreshCw,
-} from "lucide-react";
+import { Bell, Check, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppHeader } from "@/components/app/app-header";
@@ -28,9 +19,13 @@ import {
   type WeeklyReportViewData,
 } from "@/lib/weekly-report-data";
 
-// 키워드 칩 = 공통 Chip 토널 (Figma 15% 알파). amber/purple/blue 순. 아이콘은 후속 커스텀 SVG 대체 예정.
+// 키워드 칩 = 공통 Chip 토널 (Figma 15% 알파) + Figma 커스텀 아이콘(rank 순). amber/purple/blue.
 const keywordTones = ["amber", "purple", "blue"] as const;
-const keywordIcons = [CalendarDays, MessageSquare, Moon];
+const keywordIcons = [
+  "/icons/figma/report/keyword-1.svg",
+  "/icons/figma/report/keyword-2.svg",
+  "/icons/figma/report/keyword-3.svg",
+];
 
 export const WeeklyReportScreen = () => {
   const router = useRouter();
@@ -185,7 +180,13 @@ const WeeklyReportDetailView = ({ report }: { report: WeeklyReportDetail }) => (
     <InnerStateSection report={report} />
     <ReportCard>
       <div className="flex items-center gap-1">
-        <Bot className="size-[18px] text-[#262626]" aria-hidden />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/icons/figma/report/ai-suggestion.svg"
+          alt=""
+          className="size-[18px]"
+          aria-hidden
+        />
         <h2 className="text-base font-bold leading-6">
           {report.aiActionSuggestion.title}
         </h2>
@@ -235,10 +236,11 @@ const PercentStat = ({ label, value }: { label: string; value: number }) => (
     label={label}
     align="start"
     icon={
-      <Flame
-        className="size-[18px] self-center text-primary-300"
-        fill="currentColor"
-        strokeWidth={0}
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/icons/figma/shared/positive-rate.svg"
+        alt=""
+        className="size-[18px] self-center"
         aria-hidden
       />
     }
@@ -255,7 +257,7 @@ const KeywordSection = ({ report }: { report: WeeklyReportDetail }) => (
     {report.topKeywords.length > 0 ? (
       <div className="flex flex-wrap items-center gap-3">
         {report.topKeywords.map((keyword, index) => {
-          const Icon = keywordIcons[index] ?? keywordIcons[0];
+          const iconSrc = keywordIcons[index] ?? keywordIcons[0];
           return (
             <Chip
               key={`${keyword.rank}-${keyword.keyword}`}
@@ -264,7 +266,8 @@ const KeywordSection = ({ report }: { report: WeeklyReportDetail }) => (
               size="md"
               className="font-semibold"
             >
-              <Icon className="size-3.5" aria-hidden />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={iconSrc} alt="" className="size-3.5" aria-hidden />
               {keyword.keyword}
             </Chip>
           );
@@ -370,7 +373,13 @@ const WeeklyReportEmpty = ({
   onStartMission: () => void;
 }) => (
   <div className="flex min-h-[720px] flex-1 flex-col items-center justify-center gap-9 px-8 pb-20 text-center">
-    <div className="size-[120px] rounded-full bg-[#f2f2f2]" aria-hidden />
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img
+      src="/images/figma/report/empty-mascot.png"
+      alt=""
+      className="size-[120px] object-contain"
+      aria-hidden
+    />
     <div className="flex w-full flex-col items-center gap-7">
       <div className="space-y-3">
         <h2 className="text-lg font-bold leading-[25px]">
