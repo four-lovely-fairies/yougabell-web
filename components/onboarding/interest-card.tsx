@@ -26,8 +26,8 @@ export function InterestCard({
       className={cn(
         "flex h-11 items-center gap-1.5 rounded-2xl border pl-3 pr-4 text-sm transition-colors",
         selected
-          ? "border-[#b69cfe] bg-[#efe7ff] text-gray-800"
-          : "border-[#e9e9e9] bg-white text-gray-800",
+          ? "border-primary-200 bg-primary-50 text-gray-800"
+          : "border-gray-100 bg-white text-gray-800",
         !selected && disabled && "opacity-40",
       )}
     >

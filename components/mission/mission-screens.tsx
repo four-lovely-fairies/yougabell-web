@@ -125,7 +125,7 @@ export function MissionIntroScreen() {
       : "미션 시작하기";
 
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-[47px] text-[#262626]">
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-11.75 text-gray-800">
       <MissionHeader
         childLabel={`${selectedChild.name} (${selectedChild.ageLabel})`}
         onBack={goBack}
@@ -135,7 +135,7 @@ export function MissionIntroScreen() {
         <img
           src={MISSION_IMAGE_PATH}
           alt=""
-          className="h-[92px] w-[110px]"
+          className="h-23 w-27.5"
           aria-hidden
         />
         <div className="flex w-full flex-col items-center gap-5 text-center">
@@ -143,11 +143,11 @@ export function MissionIntroScreen() {
             <p className="text-xs font-medium leading-[1.4] text-primary-300">
               {mission.subThemeLabel ?? "아이와 10분 가까워지기"}
             </p>
-            <h1 className="text-2xl font-semibold leading-8 text-[#262626]">
+            <h1 className="text-2xl font-semibold leading-8 text-gray-800">
               {mission.title}
             </h1>
           </div>
-          <p className="max-w-[320px] whitespace-pre-line text-sm leading-[1.4] text-[#555]">
+          <p className="max-w-80 whitespace-pre-line text-sm leading-[1.4] text-gray-600">
             {mission.description}
           </p>
         </div>
@@ -161,7 +161,7 @@ export function MissionIntroScreen() {
 
       <div className="pb-2 pt-5">
         {state.message ? (
-          <p className="mb-3 text-center text-xs leading-4 text-[#9d9d9d]">
+          <p className="mb-3 text-center text-xs leading-4 text-gray-400">
             {state.message}
           </p>
         ) : null}
@@ -169,7 +169,7 @@ export function MissionIntroScreen() {
           type="button"
           onClick={onStart}
           disabled={starting || isCompleted}
-          className="flex h-[52px] w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white disabled:bg-[#e9e9e9] disabled:text-[#555]"
+          className="flex h-13 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white disabled:bg-gray-100 disabled:text-gray-600"
         >
           {ctaLabel}
         </button>
@@ -364,17 +364,17 @@ export function MissionTimerScreen({
   }
 
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-[47px] text-[#262626]">
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-11.75 text-gray-800">
       <MissionHeader childLabel={childLabel} onBack={goBack} />
-      <div className="flex min-h-[calc(100dvh-103px)] flex-col items-center justify-center gap-[68px]">
+      <div className="flex min-h-[calc(100dvh-103px)] flex-col items-center justify-center gap-17">
         <div className="relative grid place-items-center">
           <TimerRing progress={progress} />
-          <p className="text-[52px] font-bold leading-[1.4] text-[#262626]">
+          <p className="text-[52px] font-bold leading-[1.4] text-gray-800">
             {formatTimer(remainingSeconds)}
           </p>
         </div>
 
-        <div className="flex flex-col items-center gap-[15px]">
+        <div className="flex flex-col items-center gap-3.75">
           {actionError ? (
             <p className="text-center text-sm font-medium leading-[1.4] text-[#ff5c5c]">
               {actionError}
@@ -386,7 +386,7 @@ export function MissionTimerScreen({
               void onAction(snapshot.status === "paused" ? "resume" : "pause")
             }
             disabled={actionLoading}
-            className="inline-flex h-[50px] items-center gap-2 rounded-full bg-black px-5 py-[15px] text-base font-medium leading-none text-white disabled:opacity-60"
+            className="inline-flex h-12.5 items-center gap-2 rounded-full bg-black px-5 py-3.75 text-base font-medium leading-none text-white disabled:opacity-60"
           >
             {snapshot.status === "paused" ? (
               <Play className="size-5" aria-hidden />
@@ -492,18 +492,18 @@ export function MissionEffectScreen({
     : "아이";
 
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-[47px] text-[#262626]">
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-11.75 text-gray-800">
       <MissionHeader childLabel={childLabel} onBack={() => router.push("/")} />
 
       <div className="flex min-h-[calc(100dvh-103px-96px)] flex-col items-center justify-center gap-7">
         <img
           src={MISSION_IMAGE_PATH}
           alt=""
-          className="h-[132px] w-[158px]"
+          className="h-33 w-39.5"
           aria-hidden
         />
         <div className="space-y-4 text-center">
-          <h1 className="whitespace-pre-line text-[28px] font-bold leading-[1.35] text-[#262626]">
+          <h1 className="whitespace-pre-line text-[28px] font-bold leading-[1.35] text-gray-800">
             아이와{" "}
             <span className="text-primary-300">
               &quot;
@@ -517,11 +517,11 @@ export function MissionEffectScreen({
           <p className="text-sm font-semibold leading-[1.4] text-primary-300">
             미션 효과
           </p>
-          <p className="mt-3 whitespace-pre-line text-sm leading-[1.7] text-[#434343]">
+          <p className="mt-3 whitespace-pre-line text-sm leading-[1.7] text-gray-700">
             {state.data.mission.effect}
           </p>
           {state.data.mission.goal ? (
-            <p className="mt-4 text-xs leading-[1.6] text-[#7b7b7b]">
+            <p className="mt-4 text-xs leading-[1.6] text-gray-500">
               목표: {state.data.mission.goal}
             </p>
           ) : null}
@@ -530,7 +530,7 @@ export function MissionEffectScreen({
 
       <div className="pb-2 pt-5">
         {state.message ? (
-          <p className="mb-3 text-center text-xs leading-4 text-[#9d9d9d]">
+          <p className="mb-3 text-center text-xs leading-4 text-gray-400">
             {state.message}
           </p>
         ) : null}
@@ -541,7 +541,7 @@ export function MissionEffectScreen({
               `/mission/feedback?executionId=${executionId}&mode=${state.source}`,
             )
           }
-          className="flex h-[52px] w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white"
+          className="flex h-13 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white"
         >
           다음
         </button>
@@ -655,7 +655,7 @@ export function MissionFeedbackScreen({
 
   return (
     <>
-      <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-[47px] text-[#262626]">
+      <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-11.75 text-gray-800">
         <header className="flex h-14 items-center justify-between">
           <button
             type="button"
@@ -664,7 +664,7 @@ export function MissionFeedbackScreen({
                 `/mission/effect?executionId=${executionId}&mode=${mode ?? missionState.source}`,
               )
             }
-            className="flex size-11 items-center justify-center text-[#262626]"
+            className="flex size-11 items-center justify-center text-gray-800"
             aria-label="뒤로가기"
           >
             <ArrowLeft className="size-6" aria-hidden />
@@ -673,7 +673,7 @@ export function MissionFeedbackScreen({
           <button
             type="button"
             onClick={() => setShowCloseConfirm(true)}
-            className="flex size-11 items-center justify-center text-[#262626]"
+            className="flex size-11 items-center justify-center text-gray-800"
             aria-label="닫기"
           >
             <X className="size-6" aria-hidden />
@@ -699,7 +699,7 @@ export function MissionFeedbackScreen({
             />
 
             <div className="space-y-4">
-              <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-[#262626]">
+              <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-gray-800">
                 미션을 마친 지금,{"\n"}엄마의 에너지 상태는 어떤가요?
               </h2>
               <EnergySlider
@@ -733,7 +733,7 @@ export function MissionFeedbackScreen({
             />
 
             <div className="space-y-4">
-              <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-[#262626]">
+              <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-gray-800">
                 오늘 아이가 가장 많이 말한{"\n"}단어들을 적어주세요.
               </h2>
               <textarea
@@ -747,7 +747,7 @@ export function MissionFeedbackScreen({
                 placeholder={
                   '리액션에 대해 간략히 적어주세요. (선택)\n예) 공룡, "엄마 사랑해", 분홍색, 그림 그리기 등'
                 }
-                className="h-[126px] w-full resize-none rounded-[20px] border border-[#f2f2f2] bg-white px-5 py-5 text-sm leading-[1.6] text-[#262626] outline-none placeholder:text-[rgba(0,0,0,0.5)]"
+                className="h-31.5 w-full resize-none rounded-xl border border-[#f2f2f2] bg-white px-5 py-5 text-sm leading-[1.6] text-gray-800 outline-none placeholder:text-[rgba(0,0,0,0.5)]"
                 maxLength={500}
               />
             </div>
@@ -764,7 +764,7 @@ export function MissionFeedbackScreen({
             type="button"
             onClick={() => void submit()}
             disabled={submitting}
-            className="flex h-[52px] w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white disabled:bg-[#cfc3ff]"
+            className="flex h-13 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white disabled:bg-[#cfc3ff]"
           >
             미션 완료
           </button>
@@ -776,19 +776,19 @@ export function MissionFeedbackScreen({
           role="dialog"
           aria-modal="true"
         >
-          <div className="relative mx-auto flex min-h-dvh w-full max-w-[430px] items-center justify-center px-5">
-            <div className="w-full max-w-[334px] rounded-[20px] bg-white px-5 pb-5 pt-6 shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
-              <h2 className="text-center text-lg font-bold leading-[1.4] text-[#262626]">
+          <div className="relative mx-auto flex min-h-dvh w-full max-w-107.5 items-center justify-center px-5">
+            <div className="w-full max-w-83.5 rounded-xl bg-white px-5 pb-5 pt-6 shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
+              <h2 className="text-center text-lg font-bold leading-[1.4] text-gray-800">
                 작성 중인 피드백이 있어요
               </h2>
-              <p className="mt-2 text-center text-sm font-medium leading-5 text-[#7b7b7b]">
+              <p className="mt-2 text-center text-sm font-medium leading-5 text-gray-500">
                 지금 나가면 작성한 내용이 사라져요.
               </p>
-              <div className="mt-5 flex gap-[10px]">
+              <div className="mt-5 flex gap-2.5">
                 <button
                   type="button"
                   onClick={() => router.push("/")}
-                  className="flex h-12 flex-1 items-center justify-center rounded-xl bg-[#f2f3f5] text-base font-medium text-[#434343]"
+                  className="flex h-12 flex-1 items-center justify-center rounded-xl bg-[#f2f3f5] text-base font-medium text-gray-700"
                 >
                   나가기
                 </button>
@@ -862,9 +862,9 @@ export function MissionDoneScreen({
     : "아이";
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-[48px] text-[#262626]">
+    <div className="relative min-h-dvh overflow-hidden bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-12 text-gray-800">
       <div
-        className="pointer-events-none absolute left-1/2 top-[192px] h-[253px] w-[564px] -translate-x-1/2 rounded-full opacity-70 blur-[64px]"
+        className="pointer-events-none absolute left-1/2 top-48 h-63.25 w-141 -translate-x-1/2 rounded-full opacity-70 blur-[64px]"
         style={{
           background:
             "radial-gradient(50% 50% at 50% 50%, rgba(149,114,255,0.12) 0%, rgba(149,114,255,0.04) 55%, rgba(149,114,255,0) 100%)",
@@ -880,19 +880,19 @@ export function MissionDoneScreen({
               `/mission/feedback?executionId=${executionId ?? ""}&mode=${state.source}`,
             )
           }
-          className="flex size-11 items-center justify-center text-[#262626]"
+          className="flex size-11 items-center justify-center text-gray-800"
           aria-label="뒤로가기"
         >
           <ArrowLeft className="size-6" aria-hidden />
         </button>
-        <div className="flex items-center gap-1 text-sm font-medium leading-[1.5] text-[#262626]">
+        <div className="flex items-center gap-1 text-sm font-medium leading-normal text-gray-800">
           <span>{childLabel}</span>
           <ChevronDown className="size-4" aria-hidden />
         </div>
         <button
           type="button"
           onClick={() => router.push("/weekly-report")}
-          className="flex size-11 items-center justify-center text-[#262626]"
+          className="flex size-11 items-center justify-center text-gray-800"
           aria-label="주간 리포트로 이동"
         >
           <CalendarDays className="size-6" aria-hidden />
@@ -900,20 +900,20 @@ export function MissionDoneScreen({
       </header>
 
       <div className="relative z-10 flex min-h-[calc(100dvh-104px-115px)] items-center justify-center">
-        <div className="flex w-[275px] flex-col items-center gap-6 text-center">
+        <div className="flex w-68.75 flex-col items-center gap-6 text-center">
           <img
             src={MISSION_IMAGE_PATH}
             alt=""
-            className="h-[92px] w-[110px]"
+            className="h-23 w-27.5"
             aria-hidden
           />
-          <div className="space-y-[15px]">
-            <h1 className="text-[20px] font-bold leading-[1.4] tracking-[-0.4px] text-[#262626]">
+          <div className="space-y-3.75">
+            <h1 className="text-[20px] font-bold leading-[1.4] tracking-[-0.4px] text-gray-800">
               피드백 작성이
               <br />
               완료되었습니다.
             </h1>
-            <p className="text-sm leading-[1.4] text-[#555]">
+            <p className="text-sm leading-[1.4] text-gray-600">
               남겨주신 피드백은
               <br />
               주간 리포트에 반영될 예정입니다.
@@ -928,7 +928,7 @@ export function MissionDoneScreen({
         <button
           type="button"
           onClick={() => router.push("/")}
-          className="flex h-[52px] w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white"
+          className="flex h-13 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white"
         >
           홈으로 가기
         </button>
@@ -949,12 +949,12 @@ function MissionHeader({
       <button
         type="button"
         onClick={onBack}
-        className="flex size-11 items-center justify-center text-[#262626]"
+        className="flex size-11 items-center justify-center text-gray-800"
         aria-label="뒤로가기"
       >
         <ArrowLeft className="size-6" aria-hidden />
       </button>
-      <div className="flex items-center gap-1 text-sm font-medium leading-[1.5] text-[#262626]">
+      <div className="flex items-center gap-1 text-sm font-medium leading-normal text-gray-800">
         <span>{childLabel}</span>
         <ChevronDown className="size-4" aria-hidden />
       </div>
@@ -966,10 +966,10 @@ function MissionHeader({
 function MissionMetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
-      <span className="text-sm font-medium leading-[1.4] text-[#7b7b7b]">
+      <span className="text-sm font-medium leading-[1.4] text-gray-500">
         {label}
       </span>
-      <span className="text-sm font-bold leading-[1.4] text-[#262626]">
+      <span className="text-sm font-bold leading-[1.4] text-gray-800">
         {value}
       </span>
     </div>
@@ -988,7 +988,7 @@ function TimerRing({ progress }: { progress: number }) {
   const knobY = center + Math.sin(knobRadians) * radius;
 
   return (
-    <div className="relative size-[273px]">
+    <div className="relative size-68.25">
       <div
         className="absolute inset-0 rounded-full"
         style={{
@@ -996,9 +996,9 @@ function TimerRing({ progress }: { progress: number }) {
           filter: "drop-shadow(0 0 12px rgba(149,114,255,0.2))",
         }}
       />
-      <div className="absolute inset-[26px] rounded-full bg-[#fbfbfb] shadow-[inset_0_0_3px_rgba(0,0,0,0.04)]" />
+      <div className="absolute inset-6.5 rounded-full bg-[#fbfbfb] shadow-[inset_0_0_3px_rgba(0,0,0,0.04)]" />
       <div
-        className="absolute size-[29px] -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#a88dff] bg-white"
+        className="absolute size-7.25 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#a88dff] bg-white"
         style={{ left: knobX, top: knobY }}
       />
     </div>
@@ -1007,13 +1007,13 @@ function TimerRing({ progress }: { progress: number }) {
 
 function MissionIntroSkeleton() {
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-[47px]">
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-11.75">
       <div className="h-14 animate-pulse rounded-2xl bg-[#f2f2f2]" />
       <div className="mt-10 space-y-5">
-        <div className="mx-auto h-[92px] w-[110px] animate-pulse rounded-[24px] bg-[#f2f2f2]" />
+        <div className="mx-auto h-23 w-27.5 animate-pulse rounded-[24px] bg-[#f2f2f2]" />
         <div className="mx-auto h-8 w-48 animate-pulse rounded-full bg-[#f2f2f2]" />
-        <div className="h-[130px] animate-pulse rounded-[24px] bg-[#f2f2f2]" />
-        <div className="h-[168px] animate-pulse rounded-[24px] bg-[#f2f2f2]" />
+        <div className="h-32.5 animate-pulse rounded-[24px] bg-[#f2f2f2]" />
+        <div className="h-42 animate-pulse rounded-[24px] bg-[#f2f2f2]" />
       </div>
     </div>
   );
@@ -1021,10 +1021,10 @@ function MissionIntroSkeleton() {
 
 function MissionTimerSkeleton() {
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-[47px]">
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-11.75">
       <div className="h-14 animate-pulse rounded-2xl bg-[#f2f2f2]" />
       <div className="flex min-h-[calc(100dvh-103px)] items-center justify-center">
-        <div className="size-[273px] animate-pulse rounded-full bg-[#f2f2f2]" />
+        <div className="size-68.25 animate-pulse rounded-full bg-[#f2f2f2]" />
       </div>
     </div>
   );
@@ -1032,12 +1032,12 @@ function MissionTimerSkeleton() {
 
 function MissionContentSkeleton() {
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-[47px]">
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-11.75">
       <div className="h-14 animate-pulse rounded-2xl bg-[#f2f2f2]" />
       <div className="mt-10 space-y-5">
         <div className="mx-auto h-8 w-44 animate-pulse rounded-full bg-[#f2f2f2]" />
-        <div className="mx-auto h-[132px] w-[158px] animate-pulse rounded-[28px] bg-[#f2f2f2]" />
-        <div className="h-[180px] animate-pulse rounded-[28px] bg-[#f2f2f2]" />
+        <div className="mx-auto h-33 w-39.5 animate-pulse rounded-[28px] bg-[#f2f2f2]" />
+        <div className="h-45 animate-pulse rounded-[28px] bg-[#f2f2f2]" />
       </div>
     </div>
   );
@@ -1051,13 +1051,13 @@ function MissionErrorState({
   onBack: () => void;
 }) {
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-[47px]">
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-11.75">
       <div className="flex min-h-[calc(100dvh-47px)] flex-col items-center justify-center gap-4 text-center">
         <p className="text-sm leading-[1.6] text-[#666]">{message}</p>
         <button
           type="button"
           onClick={onBack}
-          className="rounded-full bg-[#262626] px-5 py-3 text-sm font-medium text-white"
+          className="rounded-full bg-gray-800 px-5 py-3 text-sm font-medium text-white"
         >
           돌아가기
         </button>
@@ -1081,12 +1081,12 @@ function FeedbackChoiceGroup({
 }) {
   return (
     <div className="space-y-4">
-      <div className="space-y-[10px]">
-        <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-[#262626]">
+      <div className="space-y-2.5">
+        <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-gray-800">
           {title}
         </h2>
         {description ? (
-          <p className="text-sm font-medium leading-[1.4] text-[#7b7b7b]">
+          <p className="text-sm font-medium leading-[1.4] text-gray-500">
             {description}
           </p>
         ) : null}
@@ -1102,7 +1102,7 @@ function FeedbackChoiceGroup({
               type="button"
               onClick={() => onChange(level)}
               aria-pressed={selected}
-              className="flex w-[52px] flex-col items-center gap-2 text-center"
+              className="flex w-13 flex-col items-center gap-2 text-center"
             >
               <img
                 src={src}
@@ -1114,7 +1114,7 @@ function FeedbackChoiceGroup({
                 }`}
                 aria-hidden
               />
-              <span className="text-xs font-normal leading-[1.4] text-[#7b7b7b]">
+              <span className="text-xs font-normal leading-[1.4] text-gray-500">
                 {labels[index]}
               </span>
             </button>
@@ -1188,7 +1188,7 @@ function EnergySlider({
           aria-label="부모 에너지 점수"
         />
       </div>
-      <div className="flex justify-between text-xs font-normal leading-[1.4] text-[#7b7b7b]">
+      <div className="flex justify-between text-xs font-normal leading-[1.4] text-gray-500">
         <span>0점</span>
         <span>10점</span>
       </div>

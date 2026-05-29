@@ -23,35 +23,35 @@ const items: BottomNavItem[] = [
     label: "홈",
     href: "/",
     iconSrc: NAV_ICON_PATHS.home,
-    iconClassName: "h-[18px] w-4",
+    iconClassName: "h-4.5 w-4",
     matches: (pathname: string) => pathname === "/",
   },
   {
     label: "10분 놀이",
     href: "/mission",
     iconSrc: NAV_ICON_PATHS.play,
-    iconClassName: "h-5 w-[18px]",
+    iconClassName: "h-5 w-4.5",
     matches: (pathname: string) => pathname.startsWith("/mission"),
   },
   {
     label: "성장 로드맵",
     href: "/roadmap",
     iconSrc: NAV_ICON_PATHS.roadmap,
-    iconClassName: "size-[18px]",
+    iconClassName: "size-4.5",
     matches: (pathname: string) => pathname.startsWith("/roadmap"),
   },
   {
     label: "AI 상담",
     href: "/chat",
     iconSrc: NAV_ICON_PATHS.ai,
-    iconClassName: "h-[19px] w-[22px]",
+    iconClassName: "h-4.75 w-5.5",
     matches: (pathname: string) => pathname.startsWith("/chat"),
   },
   {
     label: "리포트",
     href: "/weekly-report",
     iconSrc: NAV_ICON_PATHS.weeklyReport,
-    iconClassName: "size-[18px]",
+    iconClassName: "size-4.5",
     matches: (pathname: string) => pathname.startsWith("/weekly-report"),
   },
 ];
@@ -61,8 +61,8 @@ export const BottomNav = () => {
   const router = useRouter();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 w-full px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5 md:left-1/2 md:max-w-[390px] md:-translate-x-1/2">
-      <div className="rounded-[999px] bg-[#fdfdfe] p-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.04)]">
+    <nav className="fixed inset-x-0 bottom-0 z-30 w-full px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5 md:left-1/2 md:max-w-97.5 md:-translate-x-1/2">
+      <div className="rounded-full bg-gray-20 p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.04)]">
         <div className="flex w-full items-center justify-center gap-1">
           {items.map((item) => {
             const active = item.matches(pathname);
@@ -77,8 +77,8 @@ export const BottomNav = () => {
                   }
                 }}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-[56px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[999px] py-1 text-xs leading-[1.4] ${
-                  active ? "bg-[#e9e9e9] text-[#262626]" : "text-[#9d9d9d]"
+                className={`flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full py-1 text-xs leading-[1.4] ${
+                  active ? "bg-gray-100 text-gray-800" : "text-gray-400"
                 }`}
               >
                 <img

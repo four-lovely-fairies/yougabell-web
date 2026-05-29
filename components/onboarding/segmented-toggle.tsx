@@ -39,9 +39,9 @@ export function SegmentedToggle<T extends string>({
               "flex-1 h-12 rounded-2xl border text-sm font-normal transition-colors",
               selected
                 ? selectedTone === "brand"
-                  ? "border-[#b69cfe] bg-[#efe7ff] text-[#6d3aff]"
-                  : "border-[#b69cfe] bg-[#efe7ff] text-gray-800"
-                : "border-[#e9e9e9] bg-white text-gray-700 hover:border-gray-300",
+                  ? "border-primary-200 bg-primary-50 text-[#6d3aff]"
+                  : "border-primary-200 bg-primary-50 text-gray-800"
+                : "border-gray-100 bg-white text-gray-700 hover:border-gray-300",
             )}
           >
             {opt.label}

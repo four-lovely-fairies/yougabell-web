@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const COMPONENTS: Components = {
   p: ({ children }) => <p className="[&+p]:mt-2">{children}</p>,
   strong: ({ children }) => (
-    <strong className="font-bold text-[#262626]">{children}</strong>
+    <strong className="font-bold text-gray-800">{children}</strong>
   ),
   em: ({ children }) => <em className="italic">{children}</em>,
   ul: ({ children }) => (
@@ -22,7 +22,7 @@ const COMPONENTS: Components = {
       href={href}
       target="_blank"
       rel="noreferrer noopener"
-      className="font-medium text-[#0565ff] underline underline-offset-2"
+      className="font-medium text-info-700 underline underline-offset-2"
     >
       {children}
     </a>

@@ -135,7 +135,7 @@ export const HomeDashboard = () => {
 
   return (
     <>
-      <div className="relative min-h-dvh bg-[#fdfdfe] px-5 pb-9 pt-[47px] text-[#262626]">
+      <div className="relative min-h-dvh bg-gray-20 px-5 pb-9 pt-11.75 text-gray-800">
         <TopAppBar
           child={selectedChild}
           unreadCount={data.notifications.unreadCount}
@@ -197,11 +197,11 @@ const TopAppBar = ({
     <button
       type="button"
       onClick={onOpenChildren}
-      className="flex items-center gap-1 text-sm font-medium leading-[1.4] text-[#262626]"
+      className="flex items-center gap-1 text-sm font-medium leading-[1.4] text-gray-800"
       aria-label="아이 목록 열기"
       aria-haspopup="dialog"
     >
-      <span className="max-w-[180px] truncate">
+      <span className="max-w-45 truncate">
         {child.name} ({child.ageLabel})
       </span>
       <FigmaIcon
@@ -234,7 +234,7 @@ const TopAppBar = ({
           className="size-6"
         />
         {unreadCount > 0 ? (
-          <span className="absolute right-2 top-2 size-2 rounded-full bg-[#ec003f]" />
+          <span className="absolute right-2 top-2 size-2 rounded-full bg-error-600" />
         ) : null}
       </button>
     </div>
@@ -250,14 +250,14 @@ const WeeklyCalendar = ({
 }) => (
   <section>
     <div className="flex items-center justify-between">
-      <h1 className="font-suit text-[20px] font-extrabold leading-7 tracking-normal text-[#262626]">
+      <h1 className="font-suit text-[20px] font-extrabold leading-7 tracking-normal text-gray-800">
         {monthHeadingLabel(data.week)}
       </h1>
-      <p className="font-suit text-sm font-medium leading-5 text-[#434343]">
+      <p className="font-suit text-sm font-medium leading-5 text-gray-700">
         {data.week.weekOfMonthLabel}
       </p>
     </div>
-    <div className="mt-5 grid grid-cols-7 gap-[6px]">
+    <div className="mt-5 grid grid-cols-7 gap-1.5">
       {data.week.days.map((day) => (
         <div
           key={day.date}
@@ -267,14 +267,14 @@ const WeeklyCalendar = ({
         >
           <span
             className={`font-suit text-[9px] font-bold leading-none ${
-              day.isToday ? "text-white" : "text-[#c4c4c4]"
+              day.isToday ? "text-white" : "text-gray-300"
             }`}
           >
             {day.weekdayLabel}
           </span>
           <span
             className={`font-suit text-sm font-bold leading-none ${
-              day.isToday ? "text-white" : "text-[#262626]"
+              day.isToday ? "text-white" : "text-gray-800"
             }`}
           >
             {day.dayOfMonth}
@@ -282,7 +282,7 @@ const WeeklyCalendar = ({
         </div>
       ))}
     </div>
-    <div className="mt-[10px] grid grid-cols-7 gap-2">
+    <div className="mt-2.5 grid grid-cols-7 gap-2">
       {data.week.days.map((day) => (
         <div key={`${day.date}-mood`} className="flex justify-center">
           <MoodBadge day={day} onOpenTodayMood={onOpenTodayMood} />
@@ -314,7 +314,7 @@ const MoodBadge = ({
       <button
         type="button"
         onClick={onOpenTodayMood}
-        className="flex size-8 items-center justify-center rounded-full bg-[#262626] leading-none text-white"
+        className="flex size-8 items-center justify-center rounded-full bg-gray-800 leading-none text-white"
         aria-label="오늘의 기분 기록하기"
       >
         <FigmaIcon
@@ -325,7 +325,7 @@ const MoodBadge = ({
     );
   }
 
-  return <div className="size-8 rounded-full bg-[#e9e9e9]" aria-hidden />;
+  return <div className="size-8 rounded-full bg-gray-100" aria-hidden />;
 };
 
 const TodayMissionCard = ({
@@ -347,8 +347,8 @@ const TodayMissionCard = ({
       className="shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]"
     >
       <Chip>아이와 {mission?.durationMinutes ?? 10}분 가까워지기</Chip>
-      <div className="mt-[13px] flex items-center justify-between gap-4">
-        <h2 className="text-[20px] font-bold leading-[1.4] tracking-normal text-[#262626]">
+      <div className="mt-3.25 flex items-center justify-between gap-4">
+        <h2 className="text-[20px] font-bold leading-[1.4] tracking-normal text-gray-800">
           {splitMissionTitle(
             mission?.title ?? "아이와 눈을 마주치며 이야기를 해보아요",
           ).map((line) => (
@@ -368,7 +368,7 @@ const TodayMissionCard = ({
         type="button"
         onClick={onStart}
         disabled={!mission || loading || isCompleted}
-        className="mt-[13px] flex h-12 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-6 text-white disabled:bg-[#e9e9e9] disabled:text-[#555]"
+        className="mt-3.25 flex h-12 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-6 text-white disabled:bg-gray-100 disabled:text-gray-600"
       >
         {buttonLabel}
       </button>
@@ -417,7 +417,7 @@ const ReportSummaryCard = ({
           <FigmaIcon
             src="/icons/figma/shared/positive-rate.svg"
             alt=""
-            className="size-[18px] self-center"
+            className="size-4.5 self-center"
           />
         ) : undefined
       }
@@ -469,9 +469,9 @@ const ChildSwitcherSheet = ({
     aria-modal="true"
     onClick={onClose}
   >
-    <div className="relative mx-auto h-full w-full max-w-[430px]">
+    <div className="relative mx-auto h-full w-full max-w-107.5">
       <div
-        className="absolute left-5 top-[108px] w-[260px] overflow-hidden rounded-[32px] border border-[#ebecf0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+        className="absolute left-5 top-27 w-65 overflow-hidden rounded-[32px] border border-[#ebecf0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
         onClick={(event) => event.stopPropagation()}
       >
         {childItems.map((child) => {
@@ -481,7 +481,7 @@ const ChildSwitcherSheet = ({
             <div
               key={child.id}
               className={`flex items-center justify-between px-6 py-5 ${
-                selected ? "bg-[#efe7ff]" : "bg-white"
+                selected ? "bg-primary-50" : "bg-white"
               }`}
             >
               <button
@@ -497,7 +497,7 @@ const ChildSwitcherSheet = ({
                   년생)
                 </span>
               </button>
-              <div className="ml-4 flex shrink-0 items-center gap-2 text-[#262626]">
+              <div className="ml-4 flex shrink-0 items-center gap-2 text-gray-800">
                 <button
                   type="button"
                   className="flex size-5 items-center justify-center"
@@ -536,22 +536,22 @@ const NotificationModal = ({
     aria-modal="true"
     onClick={onClose}
   >
-    <div className="relative mx-auto h-full w-full max-w-[430px]">
+    <div className="relative mx-auto h-full w-full max-w-107.5">
       <div
-        className="absolute inset-x-5 top-[104px] rounded-[28px] bg-white p-5 shadow-[0_12px_30px_rgba(0,0,0,0.14)]"
+        className="absolute inset-x-5 top-26 rounded-[28px] bg-white p-5 shadow-[0_12px_30px_rgba(0,0,0,0.14)]"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-bold leading-6 text-[#262626]">알림</h2>
-            <p className="mt-1 text-sm font-medium leading-5 text-[#7b7b7b]">
+            <h2 className="text-lg font-bold leading-6 text-gray-800">알림</h2>
+            <p className="mt-1 text-sm font-medium leading-5 text-gray-500">
               읽지 않은 알림 {unreadCount}개
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-sm font-medium leading-5 text-[#9572ff]"
+            className="text-sm font-medium leading-5 text-primary-300"
           >
             닫기
           </button>
@@ -562,18 +562,18 @@ const NotificationModal = ({
               <button
                 key={notification.id}
                 type="button"
-                className="w-full rounded-xl bg-[#f6f6f6] p-4 text-left"
+                className="w-full rounded-xl bg-gray-50 p-4 text-left"
               >
-                <p className="text-sm font-bold leading-5 text-[#262626]">
+                <p className="text-sm font-bold leading-5 text-gray-800">
                   {notification.title}
                 </p>
-                <p className="mt-1 text-sm leading-5 text-[#555]">
+                <p className="mt-1 text-sm leading-5 text-gray-600">
                   {notification.body}
                 </p>
               </button>
             ))
           ) : (
-            <p className="rounded-xl bg-[#f6f6f6] p-5 text-center text-sm font-medium leading-5 text-[#7b7b7b]">
+            <p className="rounded-xl bg-gray-50 p-5 text-center text-sm font-medium leading-5 text-gray-500">
               아직 새 알림이 없어요
             </p>
           )}
@@ -604,12 +604,12 @@ const MoodCheckModal = ({
     aria-modal="true"
     onClick={onClose}
   >
-    <div className="relative mx-auto flex min-h-dvh w-full max-w-[430px] items-center justify-center px-5">
+    <div className="relative mx-auto flex min-h-dvh w-full max-w-107.5 items-center justify-center px-5">
       <div
-        className="w-full max-w-[334px] rounded-[20px] bg-white px-5 pb-5 pt-6 shadow-[0_12px_30px_rgba(0,0,0,0.12)]"
+        className="w-full max-w-83.5 rounded-xl bg-white px-5 pb-5 pt-6 shadow-[0_12px_30px_rgba(0,0,0,0.12)]"
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 className="whitespace-pre-line text-center text-[24px] font-bold leading-[1.35] tracking-[-0.02em] text-[#262626]">
+        <h2 className="whitespace-pre-line text-center text-[24px] font-bold leading-[1.35] tracking-[-0.02em] text-gray-800">
           {"지금 마음의 배터리가 \n얼마나 남아있나요?"}
         </h2>
         <p className="mt-2 text-center text-sm font-medium leading-5 text-[#8e8e93]">
@@ -626,7 +626,7 @@ const MoodCheckModal = ({
                   key={level}
                   type="button"
                   onClick={() => onSelectLevel(level)}
-                  className="flex w-[52px] flex-col items-center gap-[5px]"
+                  className="flex w-13 flex-col items-center gap-1.25"
                   aria-pressed={selected}
                 >
                   <img
@@ -639,7 +639,7 @@ const MoodCheckModal = ({
                   />
                   <span
                     className={`text-center text-[11px] font-medium leading-[1.35] ${
-                      selected ? "text-[#262626]" : "text-[#8e8e93]"
+                      selected ? "text-gray-800" : "text-[#8e8e93]"
                     }`}
                   >
                     {MOOD_OPTION_LABELS[level]}
@@ -650,18 +650,18 @@ const MoodCheckModal = ({
           )}
         </div>
         {errorMessage ? (
-          <p className="mt-4 text-center text-xs font-medium leading-4 text-[#ec003f]">
+          <p className="mt-4 text-center text-xs font-medium leading-4 text-error-600">
             {errorMessage}
           </p>
         ) : (
           <div className="mt-4 h-4" aria-hidden />
         )}
-        <div className="mt-5 flex gap-[10px]">
+        <div className="mt-5 flex gap-2.5">
           <button
             type="button"
             onClick={onClose}
             disabled={submitting}
-            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-[#f2f3f5] text-base font-medium leading-6 text-[#434343] disabled:opacity-60"
+            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-[#f2f3f5] text-base font-medium leading-6 text-gray-700 disabled:opacity-60"
           >
             취소
           </button>
@@ -669,7 +669,7 @@ const MoodCheckModal = ({
             type="button"
             onClick={onSubmit}
             disabled={!selectedLevel || submitting}
-            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-[#9572ff] text-base font-medium leading-6 text-white disabled:bg-[#ddd7ff] disabled:text-white"
+            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-primary-300 text-base font-medium leading-6 text-white disabled:bg-[#ddd7ff] disabled:text-white"
           >
             완료
           </button>
@@ -692,9 +692,9 @@ const FigmaIcon = ({
 );
 
 const HomeSkeleton = () => (
-  <div className="flex min-h-dvh items-center justify-center bg-[#fdfdfe]">
+  <div className="flex min-h-dvh items-center justify-center bg-gray-20">
     <MoreHorizontal
-      className="size-8 animate-pulse text-[#9572ff]"
+      className="size-8 animate-pulse text-primary-300"
       aria-label="홈 불러오는 중"
     />
   </div>

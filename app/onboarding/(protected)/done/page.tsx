@@ -139,7 +139,7 @@ export default function DonePage() {
           <h2 className="text-lg font-bold text-gray-800">{title}</h2>
           <p className="text-sm text-gray-500">{desc}</p>
         </div>
-        <div className="flex flex-col gap-2 w-full max-w-[280px]">
+        <div className="flex flex-col gap-2 w-full max-w-70">
           <Button size="full" onClick={retry}>
             다시 시도
           </Button>
@@ -171,7 +171,9 @@ export default function DonePage() {
             </>
           )}
         </h1>
-        <p className="text-sm font-medium text-gray-500">잠시만 기다려주세요!</p>
+        <p className="text-sm font-medium text-gray-500">
+          잠시만 기다려주세요!
+        </p>
       </div>
       <div className="mt-10">
         <LoadingDots />
@@ -196,12 +198,12 @@ function LoadingScreen({
       {/* 큰 ellipse: 좌상단 회전 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-40 -top-32 size-[420px] -rotate-6 rounded-full bg-primary-200/60 blur-[80px]"
+        className="pointer-events-none absolute -left-40 -top-32 size-105 -rotate-6 rounded-full bg-primary-200/60 blur-[80px]"
       />
       {/* 큰 ellipse: 중앙 하단 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-24 top-1/2 h-[260px] w-[564px] rounded-full bg-primary-100/70 blur-[80px]"
+        className="pointer-events-none absolute -left-24 top-1/2 h-65 w-141 rounded-full bg-primary-100/70 blur-[80px]"
       />
       <div
         className={cnVariant(

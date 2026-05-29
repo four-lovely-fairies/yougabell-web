@@ -74,8 +74,8 @@ export const RoadmapScreen = () => {
   if (!data) return <RoadmapSkeleton />;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#fdfdfe] text-[#262626]">
-      <div className="h-[47px] shrink-0" aria-hidden />
+    <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
+      <div className="h-11.75 shrink-0" aria-hidden />
       <AppHeader
         title="발달 로드맵"
         onBack={goBack}
@@ -84,7 +84,7 @@ export const RoadmapScreen = () => {
             ref={infoButtonRef}
             type="button"
             onClick={() => setTooltipOpen((value) => !value)}
-            className="flex size-11 items-center justify-center text-[#262626]"
+            className="flex size-11 items-center justify-center text-gray-800"
             aria-label="데이터 출처 안내"
           >
             <Info className="size-6" aria-hidden />
@@ -121,14 +121,14 @@ const SourceTooltip = ({
 }) => (
   <div className="absolute right-5 top-2 z-10" role="status">
     <div
-      className="pointer-events-none absolute right-[10px] top-[-7px] size-0 border-x-[13px] border-b-[12px] border-x-transparent border-b-white"
+      className="pointer-events-none absolute right-2.5 -top-1.75 size-0 border-x-[13px] border-b-[12px] border-x-transparent border-b-white"
       aria-hidden
     />
     <div
       ref={tooltipRef}
-      className="pointer-events-auto w-[271px] rounded-2xl bg-white px-4 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
+      className="pointer-events-auto w-67.75 rounded-2xl bg-white px-4 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
     >
-      <p className="text-xs leading-5 text-[#555]">{text}</p>
+      <p className="text-xs leading-5 text-gray-600">{text}</p>
     </div>
   </div>
 );
@@ -178,7 +178,7 @@ const MonthTabs = ({
 
   return (
     <section className="mt-5 px-5">
-      <h2 className="text-base font-bold leading-[25px] text-[#262626]">
+      <h2 className="text-base font-bold leading-[25px] text-gray-800">
         발달 지표
       </h2>
       <div
@@ -192,7 +192,7 @@ const MonthTabs = ({
           disabled={prevDisabled || disabled}
           aria-label="이전 월령 보기"
           aria-disabled={prevDisabled}
-          className="flex size-8 shrink-0 items-center justify-center text-[#262626] disabled:text-[#c4c4c4]"
+          className="flex size-8 shrink-0 items-center justify-center text-gray-800 disabled:text-gray-300"
         >
           <ChevronLeft className="size-6" aria-hidden />
         </button>
@@ -207,10 +207,10 @@ const MonthTabs = ({
                 aria-selected={active}
                 onClick={() => onSelect(month)}
                 disabled={disabled}
-                className={`flex h-[33px] shrink-0 items-center justify-center whitespace-nowrap rounded-[12px] px-3.5 text-xs font-medium leading-[1.4] ${
+                className={`flex h-8.25 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3.5 text-xs font-medium leading-[1.4] ${
                   active
                     ? "bg-primary-300 text-white"
-                    : "border border-gray-100 bg-white text-[#555]"
+                    : "border border-gray-100 bg-white text-gray-600"
                 }`}
               >
                 {month}개월
@@ -224,7 +224,7 @@ const MonthTabs = ({
           disabled={nextDisabled || disabled}
           aria-label="다음 월령 보기"
           aria-disabled={nextDisabled}
-          className="flex size-8 shrink-0 items-center justify-center text-[#262626] disabled:text-[#c4c4c4]"
+          className="flex size-8 shrink-0 items-center justify-center text-gray-800 disabled:text-gray-300"
         >
           <ChevronRight className="size-6" aria-hidden />
         </button>
@@ -311,7 +311,7 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
   if (!src) {
     return (
       <span
-        className="text-xs font-bold leading-none text-[#9d9d9d]"
+        className="text-xs font-bold leading-none text-gray-400"
         aria-hidden
       >
         •
@@ -322,7 +322,7 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
 };
 
 const RoadmapSkeleton = () => (
-  <div className="flex min-h-dvh items-center justify-center bg-[#fdfdfe]">
+  <div className="flex min-h-dvh items-center justify-center bg-gray-20">
     <div className="size-8 animate-pulse rounded-full bg-primary-300" />
   </div>
 );

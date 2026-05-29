@@ -50,10 +50,10 @@ export function NotificationSlotPicker({ value, onChange }: Props) {
               onClick={() => select(slot)}
               aria-pressed={selected}
               className={cn(
-                "flex h-[61px] items-center gap-3 rounded-2xl border pl-3 pr-4 text-left transition-colors",
+                "flex h-15.25 items-center gap-3 rounded-2xl border pl-3 pr-4 text-left transition-colors",
                 selected
-                  ? "border-[#b69cfe] bg-[#efe7ff]"
-                  : "border-[#e9e9e9] bg-white hover:border-gray-300",
+                  ? "border-primary-200 bg-primary-50"
+                  : "border-gray-100 bg-white hover:border-gray-300",
               )}
             >
               <span className="inline-flex size-7 shrink-0 items-center justify-center text-lg leading-none">
@@ -84,8 +84,8 @@ export function NotificationSlotPicker({ value, onChange }: Props) {
                       className={cn(
                         "h-11 flex-1 rounded-[14px] border text-sm font-normal transition-colors",
                         active
-                          ? "border-[#b69cfe] bg-[#efe7ff] text-gray-800"
-                          : "border-[#e9e9e9] bg-white text-gray-800 hover:border-gray-300",
+                          ? "border-primary-200 bg-primary-50 text-gray-800"
+                          : "border-gray-100 bg-white text-gray-800 hover:border-gray-300",
                       )}
                     >
                       {time}

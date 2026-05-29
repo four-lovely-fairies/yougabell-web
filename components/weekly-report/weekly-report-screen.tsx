@@ -73,15 +73,15 @@ export const WeeklyReportScreen = () => {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#fdfdfe] text-[#262626]">
-      <div className="h-[47px] shrink-0" aria-hidden />
+    <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
+      <div className="h-11.75 shrink-0" aria-hidden />
       <AppHeader
         title="주간 리포트"
         onBack={goBack}
         right={
           <button
             type="button"
-            className="flex size-11 items-center justify-center text-[#262626]"
+            className="flex size-11 items-center justify-center text-gray-800"
             aria-label="알림 열기"
           >
             <Bell className="size-6" aria-hidden />
@@ -126,7 +126,7 @@ const WeeklyReportDetailView = ({ report }: { report: WeeklyReportDetail }) => (
           {report.headline.title}
         </h2>
         {report.headline.body ? (
-          <p className="mt-[15px] text-sm leading-5 text-[#7b7b7b]">
+          <p className="mt-3.75 text-sm leading-5 text-gray-500">
             {report.headline.body}
           </p>
         ) : null}
@@ -137,25 +137,25 @@ const WeeklyReportDetailView = ({ report }: { report: WeeklyReportDetail }) => (
       <div className="flex flex-col gap-2">
         <ReportCard>
           <p className="text-sm font-semibold leading-4">이번주 미션 현황</p>
-          <div className="mt-[15px] flex items-center justify-between">
+          <div className="mt-3.75 flex items-center justify-between">
             {report.missionSummary.days.map((day) => (
               <div
                 key={day.weekday}
-                className="flex w-[34px] flex-col items-center gap-1"
+                className="flex w-8.5 flex-col items-center gap-1"
               >
                 <span
                   className={`flex size-8 items-center justify-center rounded-full ${
                     day.completed
                       ? "bg-primary-300 text-white"
-                      : "border border-[#d9d9d9] bg-white text-[#c4c4c4]"
+                      : "border border-gray-200 bg-white text-gray-300"
                   }`}
                   aria-label={`${day.label}요일 완료 미션 ${day.completedCount}개`}
                 >
                   {day.completed ? (
-                    <Check className="size-[18px]" aria-hidden />
+                    <Check className="size-4.5" aria-hidden />
                   ) : null}
                 </span>
-                <span className="text-xs leading-[15px] text-[#7b7b7b]">
+                <span className="text-xs leading-[15px] text-gray-500">
                   {day.label}
                 </span>
               </div>
@@ -184,14 +184,14 @@ const WeeklyReportDetailView = ({ report }: { report: WeeklyReportDetail }) => (
         <img
           src="/icons/figma/report/ai-suggestion.svg"
           alt=""
-          className="size-[18px]"
+          className="size-4.5"
           aria-hidden
         />
         <h2 className="text-base font-bold leading-6">
           {report.aiActionSuggestion.title}
         </h2>
       </div>
-      <p className="mt-[15px] text-sm leading-5 text-[#7b7b7b]">
+      <p className="mt-3.75 text-sm leading-5 text-gray-500">
         {report.aiActionSuggestion.body}
       </p>
     </ReportCard>
@@ -240,7 +240,7 @@ const PercentStat = ({ label, value }: { label: string; value: number }) => (
       <img
         src="/icons/figma/shared/positive-rate.svg"
         alt=""
-        className="size-[18px] self-center"
+        className="size-4.5 self-center"
         aria-hidden
       />
     }
@@ -278,7 +278,7 @@ const KeywordSection = ({ report }: { report: WeeklyReportDetail }) => (
         <p className="text-sm font-bold leading-5">
           {report.keywordEmptyState.title}
         </p>
-        <p className="mt-2 text-sm leading-5 text-[#7b7b7b]">
+        <p className="mt-2 text-sm leading-5 text-gray-500">
           {report.keywordEmptyState.description}
         </p>
       </Card>
@@ -300,14 +300,14 @@ const BestMomentSection = ({
       <div className="flex flex-col items-center gap-3">
         <ReportCard>
           {firstMoment.label ? (
-            <p className="text-xs font-medium leading-[17px] text-[#555]">
+            <p className="text-xs font-medium leading-[17px] text-gray-600">
               {firstMoment.label}
             </p>
           ) : null}
           <h2 className="mt-1 text-base font-bold leading-6">
             {firstMoment.title}
           </h2>
-          <p className="mt-[15px] text-sm leading-5 text-[#7b7b7b]">
+          <p className="mt-3.75 text-sm leading-5 text-gray-500">
             {firstMoment.body}
           </p>
         </ReportCard>
@@ -317,7 +317,7 @@ const BestMomentSection = ({
               <span
                 key={moment.id}
                 className={`h-1.5 rounded-full ${
-                  index === 0 ? "w-6 bg-black" : "w-1.5 bg-[#d9d9d9]"
+                  index === 0 ? "w-6 bg-black" : "w-1.5 bg-gray-200"
                 }`}
               />
             ))}
@@ -334,7 +334,7 @@ const InnerStateSection = ({ report }: { report: WeeklyReportDetail }) => (
   <ReportSection title="사용자의 내면 상태">
     <ReportCard>
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium leading-[17px] text-[#555]">
+        <p className="text-xs font-medium leading-[17px] text-gray-600">
           심리적 에너지
         </p>
         <p className="text-base font-bold leading-6">
@@ -342,7 +342,7 @@ const InnerStateSection = ({ report }: { report: WeeklyReportDetail }) => (
         </p>
       </div>
       <div
-        className="mt-[15px] h-5 overflow-hidden rounded-full bg-[rgba(0,0,0,0.03)]"
+        className="mt-3.75 h-5 overflow-hidden rounded-full bg-[rgba(0,0,0,0.03)]"
         role="progressbar"
         aria-valuenow={report.innerState.psychologicalEnergy}
         aria-valuemin={0}
@@ -353,11 +353,11 @@ const InnerStateSection = ({ report }: { report: WeeklyReportDetail }) => (
           style={{ width: `${report.innerState.psychologicalEnergy}%` }}
         />
       </div>
-      <p className="mt-[15px] text-sm font-medium leading-[22px] text-[#7b7b7b]">
+      <p className="mt-3.75 text-sm font-medium leading-[22px] text-gray-500">
         {report.innerState.tipTitle}
       </p>
       {report.innerState.tipBody ? (
-        <p className="mt-2 text-sm leading-5 text-[#7b7b7b]">
+        <p className="mt-2 text-sm leading-5 text-gray-500">
           {report.innerState.tipBody}
         </p>
       ) : null}
@@ -372,12 +372,12 @@ const WeeklyReportEmpty = ({
   emptyState: WeeklyReportEmptyState | null;
   onStartMission: () => void;
 }) => (
-  <div className="flex min-h-[720px] flex-1 flex-col items-center justify-center gap-9 px-8 pb-20 text-center">
+  <div className="flex min-h-180 flex-1 flex-col items-center justify-center gap-9 px-8 pb-20 text-center">
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img
       src="/images/figma/report/empty-mascot.png"
       alt=""
-      className="size-[120px] object-contain"
+      className="size-30 object-contain"
       aria-hidden
     />
     <div className="flex w-full flex-col items-center gap-7">
@@ -385,7 +385,7 @@ const WeeklyReportEmpty = ({
         <h2 className="text-lg font-bold leading-[25px]">
           {emptyState?.title ?? "아직 주간 리포트가 없습니다"}
         </h2>
-        <p className="mx-auto max-w-[260px] whitespace-pre-line text-sm leading-5 text-[#7b7b7b]">
+        <p className="mx-auto max-w-65 whitespace-pre-line text-sm leading-5 text-gray-500">
           {emptyState?.description ??
             "미션을 수행하고 아이와의 소중한 순간을 기록해보세요. 일주일 후 첫 리포트를 확인할 수 있습니다."}
         </p>
@@ -393,7 +393,7 @@ const WeeklyReportEmpty = ({
       <button
         type="button"
         onClick={onStartMission}
-        className="flex h-12 w-[263px] items-center justify-center rounded-2xl bg-primary-300 px-5 text-base font-medium leading-6 text-white"
+        className="flex h-12 w-65.75 items-center justify-center rounded-2xl bg-primary-300 px-5 text-base font-medium leading-6 text-white"
       >
         {emptyState?.ctaLabel ?? "미션 시작하기"}
       </button>
@@ -408,18 +408,18 @@ const WeeklyReportError = ({
   error: NonNullable<WeeklyReportLoadState["error"]>;
   onRetry: () => void;
 }) => (
-  <div className="flex min-h-[720px] flex-1 flex-col items-center justify-center gap-6 px-8 pb-20 text-center">
-    <div className="size-24 rounded-full bg-[#fff1f2]" aria-hidden />
+  <div className="flex min-h-180 flex-1 flex-col items-center justify-center gap-6 px-8 pb-20 text-center">
+    <div className="size-24 rounded-full bg-error-50" aria-hidden />
     <div>
       <h2 className="text-lg font-bold leading-[25px]">
         주간 리포트를 불러오지 못했습니다
       </h2>
-      <p className="mt-3 text-sm leading-5 text-[#7b7b7b]">{error.message}</p>
+      <p className="mt-3 text-sm leading-5 text-gray-500">{error.message}</p>
     </div>
     <button
       type="button"
       onClick={onRetry}
-      className="flex h-12 min-w-[160px] items-center justify-center gap-2 rounded-2xl bg-primary-300 px-5 text-base font-medium text-white"
+      className="flex h-12 min-w-40 items-center justify-center gap-2 rounded-2xl bg-primary-300 px-5 text-base font-medium text-white"
     >
       <RefreshCw className="size-4" aria-hidden />
       다시 시도

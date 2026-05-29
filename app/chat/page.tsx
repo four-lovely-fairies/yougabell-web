@@ -198,7 +198,7 @@ export default function ChatPage() {
   ) : null;
 
   return (
-    <div className="flex h-dvh flex-col bg-[#fdfdfe]">
+    <div className="flex h-dvh flex-col bg-gray-20">
       <AppHeader title="Ai 챗봇" onBack={() => router.back()} />
 
       <p className="shrink-0 px-5 py-3 text-center text-[13px] font-medium leading-[1.4] tracking-[0.2522px] text-[#667080]">
@@ -207,7 +207,7 @@ export default function ChatPage() {
 
       {errorBanner ? (
         <div className="shrink-0 px-5 pb-2">
-          <p className="rounded-xl bg-[#fff1f2] px-4 py-2 text-xs leading-5 text-[#ec003f]">
+          <p className="rounded-xl bg-error-50 px-4 py-2 text-xs leading-5 text-error-600">
             {errorBanner}
           </p>
         </div>
@@ -227,7 +227,7 @@ export default function ChatPage() {
                 <button
                   type="button"
                   onClick={revealHistory}
-                  className="rounded-full bg-[#f6f6f6] px-4 py-2 text-xs font-medium leading-[1.4] text-[#555555]"
+                  className="rounded-full bg-gray-50 px-4 py-2 text-xs font-medium leading-[1.4] text-gray-600"
                 >
                   이전 대화 {hiddenCount}개 더보기
                 </button>
@@ -262,7 +262,7 @@ export default function ChatPage() {
                 track({ type: "chat_quick_reply_use", label });
                 void send(label);
               }}
-              className="shrink-0 whitespace-nowrap rounded-full bg-[#f6f6f6] px-6 py-3.5 text-sm font-medium leading-[1.4] text-[#262626] disabled:opacity-50"
+              className="shrink-0 whitespace-nowrap rounded-full bg-gray-50 px-6 py-3.5 text-sm font-medium leading-[1.4] text-gray-800 disabled:opacity-50"
             >
               {label}
             </button>
@@ -284,13 +284,13 @@ export default function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="궁금한 점을 입력해주세요."
             disabled={busy}
-            className="flex-1 bg-transparent text-sm leading-[1.4] text-[#262626] placeholder:text-[#9d9d9d] focus:outline-none disabled:opacity-50"
+            className="flex-1 bg-transparent text-sm leading-[1.4] text-gray-800 placeholder:text-gray-400 focus:outline-none disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={busy || !input.trim()}
             aria-label="전송"
-            className="flex size-6 shrink-0 items-center justify-center rounded-full bg-black text-white disabled:bg-[#c4c4c4]"
+            className="flex size-6 shrink-0 items-center justify-center rounded-full bg-black text-white disabled:bg-gray-300"
           >
             <ArrowUp className="size-5" strokeWidth={2.5} />
           </button>
@@ -313,7 +313,7 @@ function EmptyState() {
           className="absolute left-[-125.02%] top-[-220.04%] h-[320.45%] w-[339.56%] max-w-none"
         />
       </div>
-      <p className="text-center text-lg font-bold leading-[1.4] text-[#262626]">
+      <p className="text-center text-lg font-bold leading-[1.4] text-gray-800">
         궁금한점을 모두
         <br />
         물어보세요.
@@ -325,7 +325,7 @@ function EmptyState() {
 function UserBubble({ content }: { content: string }) {
   return (
     <div className="flex justify-end px-5 py-2.5">
-      <div className="max-w-[260px] rounded-2xl bg-[#f6f6f6] px-4 py-3 text-sm leading-[1.4] text-[#262626]">
+      <div className="max-w-65 rounded-2xl bg-gray-50 px-4 py-3 text-sm leading-[1.4] text-gray-800">
         {content}
       </div>
     </div>
@@ -336,7 +336,7 @@ function LoadingBubble() {
   return (
     <div className="flex justify-start px-5 py-2.5">
       <div className="rounded-2xl bg-[#f5f1ff] px-4 py-3">
-        <div className="flex h-[25px] w-[42px] items-center gap-[5.8px] pl-[5px]">
+        <div className="flex h-6.25 w-10.5 items-center gap-[5.8px] pl-1.25">
           {[0, 1, 2].map((i) => (
             <span
               key={i}
@@ -353,7 +353,7 @@ function LoadingBubble() {
 function StreamingBubble({ text }: { text: string }) {
   return (
     <div className="flex justify-start px-5 py-2.5">
-      <div className="w-[310px] rounded-2xl bg-[#f5f1ff] px-4 py-3">
+      <div className="w-77.5 rounded-2xl bg-[#f5f1ff] px-4 py-3">
         <MarkdownMessage content={text} />
       </div>
     </div>
@@ -391,7 +391,7 @@ function AssistantBubble({
 }) {
   return (
     <div className="flex justify-start px-5 py-2.5">
-      <div className="flex w-[310px] flex-col gap-5 rounded-2xl bg-[#f5f1ff] px-4 py-3">
+      <div className="flex w-77.5 flex-col gap-5 rounded-2xl bg-[#f5f1ff] px-4 py-3">
         <MarkdownMessage content={content} />
         {cards.length > 0 ? (
           <div className="flex flex-col gap-4">
@@ -400,7 +400,7 @@ function AssistantBubble({
               .sort((a, b) => a.order - b.order)
               .map((card) => (
                 <div key={card.id} className="flex flex-col gap-1">
-                  <h4 className="text-sm font-bold leading-[1.4] text-[#262626]">
+                  <h4 className="text-sm font-bold leading-[1.4] text-gray-800">
                     {card.title}
                   </h4>
                   <p className="text-sm leading-[1.4] text-[#4d4351]">

@@ -2,8 +2,8 @@ import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 
 export default function TermsPage() {
   return (
-    <main className="min-h-dvh overflow-x-hidden bg-[#fdfdfe] text-[#262626]">
-      <div className="relative min-h-dvh w-full overflow-hidden md:mx-auto md:max-w-[390px]">
+    <main className="min-h-dvh overflow-x-hidden bg-gray-20 text-gray-800">
+      <div className="relative min-h-dvh w-full overflow-hidden md:mx-auto md:max-w-97.5">
         <OnboardingHeader variant="back" />
         <header className="px-5 py-6">
           <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">

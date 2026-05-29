@@ -63,7 +63,7 @@ export function TimeBottomSheet({ initialTime, onClose, onConfirm }: Props) {
       aria-labelledby="time-sheet-title"
     >
       <div
-        className="w-full max-w-[390px] rounded-t-3xl bg-white pb-5 pt-7"
+        className="w-full max-w-97.5 rounded-t-3xl bg-white pb-5 pt-7"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between px-6 pb-4">

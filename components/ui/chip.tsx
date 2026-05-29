@@ -8,7 +8,7 @@ const chip = cva(
   "inline-flex items-center gap-1 font-medium leading-[1.4] whitespace-nowrap",
   {
     variants: {
-      shape: { round: "rounded-full", square: "rounded-[12px]" },
+      shape: { round: "rounded-full", square: "rounded-md" },
       size: { sm: "px-2.5 py-1 text-xs", md: "px-3 py-2 text-sm" },
       tone: {
         gray: "bg-gray-50 text-gray-800",
