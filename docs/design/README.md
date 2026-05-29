@@ -6,17 +6,20 @@
 
 ## 문서 인덱스
 
-| 문서                                  | Figma node   | 현재 라우트                                        |
-| ------------------------------------- | ------------ | -------------------------------------------------- |
-| [공통](./00-common.md)                | 2046:3807 외 | `components/app/*`, `components/ui/*`, `DESIGN.md` |
-| [홈](./home.md)                       | 2395:10623   | `app/(main)/page.tsx`                              |
-| [로드맵](./roadmap.md)                | 2395:12600   | `app/(main)/roadmap`                               |
-| [채팅](./chat.md)                     | 2395:12599   | `app/chat`                                         |
-| [리포트](./report.md)                 | 2385:4957    | `app/(main)/weekly-report`                         |
-| [설정](./settings.md)                 | 2395:8862    | `app/settings/*`                                   |
-| [온보딩](./onboarding.md)             | 2388:4424    | `app/onboarding/*`                                 |
-| [미션·피드백](./mission.md)           | 2395:9758    | `app/mission/*`                                    |
-| [캐릭터 에셋](./assets-characters.md) | 2591:5261 외 | `public/` (mp\_ 2~9, 8종)                          |
+| 문서                                                    | Figma node   | 현재 라우트                                        |
+| ------------------------------------------------------- | ------------ | -------------------------------------------------- |
+| [공통](./00-common.md)                                  | 2046:3807 외 | `components/app/*`, `components/ui/*`, `DESIGN.md` |
+| [홈](./home.md)                                         | 2395:10623   | `app/(main)/page.tsx`                              |
+| [로드맵](./roadmap.md)                                  | 2395:12600   | `app/(main)/roadmap`                               |
+| [채팅](./chat.md)                                       | 2395:12599   | `app/chat`                                         |
+| [리포트](./report.md)                                   | 2385:4957    | `app/(main)/weekly-report`                         |
+| [설정](./settings.md)                                   | 2395:8862    | `app/settings/*`                                   |
+| [온보딩](./onboarding.md)                               | 2388:4424    | `app/onboarding/*`                                 |
+| [미션·피드백](./mission.md)                             | 2395:9758    | `app/mission/*`                                    |
+| [캐릭터 에셋](./assets-characters.md)                   | 2591:5261 외 | `public/` (mp\_ 2~9, 8종)                          |
+| [**공통 컴포넌트 카탈로그**](./10-shared-components.md) | (화면 통합)  | `components/ui/*`, `components/app/*` (신설·정합)  |
+
+> [`10-shared-components.md`](./10-shared-components.md) — 화면별 갭을 교차 검토해 **여러 화면에 반복되는 UI를 공통 컴포넌트로 통합**한 카탈로그. Phase 2 구현의 기준 문서.
 
 ## 교차 발견 — 전 화면 공통 이슈 (Phase 2에서 먼저 해결)
 
