@@ -17,6 +17,18 @@ export const EMPTY_CHAT_RESPONSE: ChatResponse = {
   messages: [],
 };
 
+/** 콜드 진입 시 초기에 보여줄 최근 메시지 개수 (나머지는 "이전 대화 더보기"). */
+export const INITIAL_VISIBLE_MESSAGES = 4;
+
+/** 본문을 빈 줄(\n\n) 기준 단락으로 분할 — 단락별 말풍선 렌더용. */
+export function splitParagraphs(content: string): string[] {
+  const parts = content
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  return parts.length > 0 ? parts : [content];
+}
+
 /**
  * SSE 이벤트 — api `ChatStreamEvent`와 형태 일치 (codegen 대상 아님 — text/event-stream).
  */
