@@ -3,13 +3,15 @@ export const HOME_ICON_PATHS = {
   growthStage: "/icons/figma/home/growth-stage.svg",
   headerNotification: "/icons/figma/home/header-notification.svg",
   headerSettings: "/icons/figma/home/header-settings.svg",
-  missionIllustration: "/images/figma/home/mission-illustration.svg",
-  moodBad: "/icons/figma/mission-feedback/bad.svg",
-  moodGood: "/icons/figma/mission-feedback/good.svg",
-  moodNeutral: "/icons/figma/mission-feedback/neutral.svg",
+  // 미션(놀이) 카드 마스코트 — Figma 실제 일러스트 (home-character)
+  missionMascot: "/images/figma/home/mission-mascot.png",
   moodPlus: "/icons/figma/home/mood-plus.svg",
-  moodVeryBad: "/icons/figma/mission-feedback/very-bad.svg",
-  moodVeryGood: "/icons/figma/mission-feedback/very-good.svg",
+  // 마음의 배터리 감정 얼굴 5종 — Figma 실제 일러스트 (level 1~5)
+  mood1: "/images/figma/home/mood-1.png",
+  mood2: "/images/figma/home/mood-2.png",
+  mood3: "/images/figma/home/mood-3.png",
+  mood4: "/images/figma/home/mood-4.png",
+  mood5: "/images/figma/home/mood-5.png",
 } as const;
 
 export const FigmaIcon = ({

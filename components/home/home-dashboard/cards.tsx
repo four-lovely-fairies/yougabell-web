@@ -24,9 +24,9 @@ export const TodayMissionCard = ({
       shadow="none"
       className="shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]"
     >
-      <Chip>아이와 {mission?.durationMinutes ?? 10}분 가까워지기</Chip>
+      <Chip>아이 {mission?.durationMinutes ?? 10}분 가까워지기</Chip>
       <div className="mt-3.25 flex items-center justify-between gap-4">
-        <h2 className="text-[20px] font-bold leading-[1.4] tracking-normal text-gray-800">
+        <h2 className="text-[20px] font-bold leading-[1.4] tracking-[-0.4px] text-gray-800">
           {splitMissionTitle(
             mission?.title ?? "아이와 눈을 마주치며 이야기를 해보아요",
           ).map((line) => (
@@ -36,9 +36,9 @@ export const TodayMissionCard = ({
           ))}
         </h2>
         <img
-          src={HOME_ICON_PATHS.missionIllustration}
+          src={HOME_ICON_PATHS.missionMascot}
           alt=""
-          className="h-15 w-21 shrink-0"
+          className="h-15 w-21 shrink-0 object-contain"
           aria-hidden
         />
       </div>

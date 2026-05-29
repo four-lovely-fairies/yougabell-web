@@ -28,14 +28,14 @@ export function monthHeadingLabel(week: HomeDashboardData["week"]): string {
 export function moodIconPath(level: 1 | 2 | 3 | 4 | 5): string {
   switch (level) {
     case 1:
-      return HOME_ICON_PATHS.moodVeryBad;
+      return HOME_ICON_PATHS.mood1;
     case 2:
-      return HOME_ICON_PATHS.moodBad;
+      return HOME_ICON_PATHS.mood2;
     case 3:
-      return HOME_ICON_PATHS.moodNeutral;
+      return HOME_ICON_PATHS.mood3;
     case 4:
-      return HOME_ICON_PATHS.moodGood;
+      return HOME_ICON_PATHS.mood4;
     case 5:
-      return HOME_ICON_PATHS.moodVeryGood;
+      return HOME_ICON_PATHS.mood5;
   }
 }
