@@ -17,6 +17,18 @@ type Status = "submitting" | "success" | "error" | "already" | "timeout";
 
 const SUBMIT_TIMEOUT_MS = 15_000;
 
+type CompletionRequestResult =
+  | { kind: "success"; userId: string }
+  | { kind: "already" }
+  | { kind: "error"; error: unknown };
+
+let cachedCompletionRequest:
+  | {
+      key: string;
+      promise: Promise<CompletionRequestResult>;
+    }
+  | null = null;
+
 function buildPayload(
   draft: OnboardingDraft | null,
 ): CompleteOnboardingPayload | null {
@@ -49,6 +61,41 @@ function buildPayload(
   };
 }
 
+function getPayloadKey(payload: CompleteOnboardingPayload): string {
+  return JSON.stringify(payload);
+}
+
+function getOrCreateCompletionRequest(payload: CompleteOnboardingPayload) {
+  const key = getPayloadKey(payload);
+
+  if (cachedCompletionRequest?.key === key) {
+    return cachedCompletionRequest.promise;
+  }
+
+  const promise = api
+    .completeOnboarding(payload)
+    .then(
+      (me): CompletionRequestResult => ({
+        kind: "success",
+        userId: me.id,
+      }),
+    )
+    .catch((error: unknown): CompletionRequestResult => {
+      if (error instanceof ApiError && error.status === 409) {
+        return { kind: "already" };
+      }
+
+      return { kind: "error", error };
+    });
+
+  cachedCompletionRequest = { key, promise };
+  return promise;
+}
+
+function resetCachedCompletionRequest() {
+  cachedCompletionRequest = null;
+}
+
 export default function DonePage() {
   const router = useRouter();
   const { draft, clear } = useOnboardingDraft();
@@ -64,6 +111,38 @@ export default function DonePage() {
     window.location.replace("/");
   });
 
+  const finalizeAndGoHome = useEffectEvent(
+    (nextStatus: Extract<Status, "success" | "already">, userId?: string) => {
+      try {
+        clear();
+      } catch (error) {
+        console.error("[onboarding/done] clear failed", error);
+      }
+
+      if (nextStatus === "success") {
+        try {
+          track({ type: "onboarding_finish" });
+        } catch (error) {
+          console.error("[onboarding/done] track failed", error);
+        }
+
+        if (userId) {
+          try {
+            notifyMobile({
+              type: "ONBOARDING_COMPLETE",
+              payload: { userId },
+            });
+          } catch (error) {
+            console.error("[onboarding/done] notify failed", error);
+          }
+        }
+      }
+
+      setStatus(nextStatus);
+      navigateToHome();
+    },
+  );
+
   useEffect(() => {
     if (!payload) return;
     if (submittedRef.current) return;
@@ -75,34 +154,28 @@ export default function DonePage() {
       setStatus("timeout");
     }, SUBMIT_TIMEOUT_MS);
 
-    api
-      .completeOnboarding(payload)
-      .then((me) => {
-        if (cancelled) return;
-        window.clearTimeout(timeoutId);
-        clear();
-        track({ type: "onboarding_finish" });
-        notifyMobile({
-          type: "ONBOARDING_COMPLETE",
-          payload: { userId: me.id },
-        });
-        setStatus("success");
-        setTimeout(() => navigateToHome(), 800);
-      })
-      .catch((e: unknown) => {
-        if (cancelled) return;
-        window.clearTimeout(timeoutId);
-        if (e instanceof ApiError && e.status === 409) {
-          clear();
-          setStatus("already");
-          setTimeout(() => navigateToHome(), 800);
-          return;
-        }
-        const message =
-          e instanceof ApiError ? `서버 오류 (${e.status})` : "네트워크 오류";
-        setStatus("error");
-        setError(message);
-      });
+    void getOrCreateCompletionRequest(payload).then((result) => {
+      if (cancelled) return;
+      window.clearTimeout(timeoutId);
+
+      if (result.kind === "success") {
+        finalizeAndGoHome("success", result.userId);
+        return;
+      }
+
+      if (result.kind === "already") {
+        finalizeAndGoHome("already");
+        return;
+      }
+
+      resetCachedCompletionRequest();
+      const message =
+        result.error instanceof ApiError
+          ? `서버 오류 (${result.error.status})`
+          : "네트워크 오류";
+      setStatus("error");
+      setError(message);
+    });
 
     return () => {
       cancelled = true;
@@ -111,6 +184,7 @@ export default function DonePage() {
   }, [payload, attempt, clear, router]);
 
   const retry = () => {
+    resetCachedCompletionRequest();
     submittedRef.current = false;
     setStatus("submitting");
     setError(null);

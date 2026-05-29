@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import {
+  mergeOnboardingDraft,
+  type DraftPatch,
+} from "@/lib/onboarding-draft";
 import type { OnboardingDraft } from "@/lib/types";
 
 const STORAGE_KEY = "onboarding:draft:v3";
-
-type Patch = Partial<Omit<OnboardingDraft, "schemaVersion" | "updatedAt">>;
 
 function readDraft(): OnboardingDraft | null {
   if (typeof window === "undefined") return null;
@@ -57,16 +59,9 @@ function subscribe(callback: () => void) {
 export function useOnboardingDraft() {
   const draft = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const patch = useCallback((next: Patch) => {
+  const patch = useCallback((next: DraftPatch) => {
     const prev = readDraft();
-    const merged: OnboardingDraft = {
-      schemaVersion: 3,
-      lastStep: next.lastStep ?? prev?.lastStep ?? "intro",
-      parent: next.parent ?? prev?.parent,
-      children: next.children ?? prev?.children,
-      notification: next.notification ?? prev?.notification,
-      updatedAt: new Date().toISOString(),
-    };
+    const merged: OnboardingDraft = mergeOnboardingDraft(prev, next);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
     emit();
   }, []);

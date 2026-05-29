@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { buildOAuthRedirectTo, getOAuthErrorMessage } from "@/lib/auth-oauth";
 import { track } from "@/lib/analytics";
+import { getOnboardingResumePath } from "@/lib/onboarding-draft";
 import {
   isNativeWebView,
   notifyMobile,
@@ -25,7 +26,7 @@ function deriveAuthError(params: ReadonlyURLSearchParams): string | null {
 export default function IntroPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isDirty, clear } = useOnboardingDraft();
+  const { draft, isDirty, clear } = useOnboardingDraft();
   const [startFresh, setStartFresh] = useState(false);
   const [pendingProvider, setPendingProvider] = useState<OAuthProvider | null>(
     null,
@@ -33,6 +34,8 @@ export default function IntroPage() {
   const [oauthRequestError, setOauthRequestError] = useState<string | null>(
     null,
   );
+  const shouldShowResume = isDirty && !startFresh;
+  const resumePath = useMemo(() => getOnboardingResumePath(draft), [draft]);
 
   useEffect(() => {
     track({ type: "onboarding_intro_view" });
@@ -55,7 +58,7 @@ export default function IntroPage() {
     }
 
     void supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
-      if (data.session) {
+      if (data.session && !shouldShowResume) {
         navigateToParentStep();
       }
     });
@@ -66,6 +69,7 @@ export default function IntroPage() {
       (_event: AuthChangeEvent, session: Session | null) => {
         if (!session) return;
         setPendingProvider(null);
+        if (shouldShowResume) return;
         navigateToParentStep();
       },
     );
@@ -78,6 +82,7 @@ export default function IntroPage() {
             refresh_token: message.payload.refreshToken,
           });
           setPendingProvider(null);
+          if (shouldShowResume) return;
           navigateToParentStep();
         })();
       }
@@ -106,7 +111,7 @@ export default function IntroPage() {
       subscription.unsubscribe();
       unsubscribe();
     };
-  }, [router]);
+  }, [shouldShowResume]);
 
   const authCallbackError = useMemo(() => {
     return deriveAuthError(searchParams);
@@ -151,7 +156,7 @@ export default function IntroPage() {
     }
   }
 
-  if (isDirty && !startFresh) {
+  if (shouldShowResume) {
     return (
       <div className="flex flex-1 flex-col justify-center gap-4 px-6">
         <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
@@ -161,7 +166,7 @@ export default function IntroPage() {
           이전에 작성하다 만 온보딩이 있습니다.
         </p>
         <div className="mt-2 flex flex-col gap-3">
-          <Button size="full" onClick={() => router.push("/onboarding/parent")}>
+          <Button size="full" onClick={() => router.push(resumePath)}>
             이어서 작성하기
           </Button>
           <Button
