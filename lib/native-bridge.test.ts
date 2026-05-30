@@ -71,4 +71,17 @@ void describe("native bridge parser", () => {
       },
     );
   });
+
+  void it("accepts a native push permission status payload", () => {
+    assert.deepEqual(
+      parseNativeMessage({
+        type: "NATIVE_PUSH_PERMISSION_STATUS",
+        payload: { permission: "granted" },
+      }),
+      {
+        type: "NATIVE_PUSH_PERMISSION_STATUS",
+        payload: { permission: "granted" },
+      },
+    );
+  });
 });

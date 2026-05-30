@@ -118,7 +118,17 @@ async function request<T>(
     const body = await res.json().catch(() => ({}));
     throw new ApiError(res.status, body);
   }
-  return (await res.json()) as T;
+
+  if (res.status === 204) {
+    return undefined as T;
+  }
+
+  const text = await res.text();
+  if (!text) {
+    return undefined as T;
+  }
+
+  return JSON.parse(text) as T;
 }
 
 export class ApiError extends Error {
@@ -678,6 +688,13 @@ export const getStoredSelectedChildId = () => {
 
 export const setStoredSelectedChildId = (childId: string) => {
   window.localStorage.setItem("home:selected-child-id", childId);
+};
+
+export const clearStoredSelectedChildId = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.removeItem("home:selected-child-id");
 };
 
 export function getMissionFeedbackDraftStorageKey(executionId: string) {

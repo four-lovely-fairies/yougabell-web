@@ -6,15 +6,21 @@ import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 import { TimeBottomSheet } from "@/components/onboarding/time-bottom-sheet";
 import { api, ApiError } from "@/lib/api";
 import { track } from "@/lib/analytics";
+import {
+  isNativeWebView,
+  openNativeNotificationSettings,
+  requestNativePushPermissionStatus,
+} from "@/lib/native-bridge";
+import { NOTIFICATION_SLOT_META } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import type { NotificationPreferenceType } from "@/lib/types";
+import type { NotificationPreferenceType, MeResponse } from "@/lib/types";
 
 type Pref = { enabled: boolean; time: string };
 type Prefs = Record<NotificationPreferenceType, Pref>;
 
 const DEFAULT_PREFS: Prefs = {
-  play_10min: { enabled: true, time: "19:00" },
-  weekly_report: { enabled: true, time: "19:00" },
+  play_10min: { enabled: false, time: "19:00" },
+  weekly_report: { enabled: false, time: "19:00" },
 };
 
 const SECTIONS: Array<{
@@ -35,6 +41,32 @@ function formatTime(time: string): string {
   return `${h12}:${m} ${period}`;
 }
 
+function derivePrefsFromMe(me: MeResponse): Prefs {
+  const next: Prefs = { ...DEFAULT_PREFS };
+
+  if ((me.notificationPreferences?.length ?? 0) > 0) {
+    for (const row of me.notificationPreferences ?? []) {
+      next[row.type] = { enabled: row.enabled, time: row.time };
+    }
+    return next;
+  }
+
+  if (!me.notificationSlot) {
+    return next;
+  }
+
+  const legacyTime =
+    me.notificationTime ??
+    (me.notificationSlot === "custom"
+      ? "19:00"
+      : NOTIFICATION_SLOT_META[me.notificationSlot].defaultTime ?? "19:00");
+
+  return {
+    play_10min: { enabled: true, time: legacyTime },
+    weekly_report: { enabled: true, time: legacyTime },
+  };
+}
+
 /** 알림 설정 — Figma 2395:9126 / 2395:9211(시간 sheet). */
 export default function SettingsNotificationsPage() {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
@@ -47,11 +79,7 @@ export default function SettingsNotificationsPage() {
     void (async () => {
       try {
         const me = await api.getMe();
-        const next: Prefs = { ...DEFAULT_PREFS };
-        for (const row of me.notificationPreferences ?? []) {
-          next[row.type] = { enabled: row.enabled, time: row.time };
-        }
-        setPrefs(next);
+        setPrefs(derivePrefsFromMe(me));
       } catch {
         // 초기 fetch 실패는 default로 유지 — 사용자가 변경 시 PATCH는 시도 가능
       }
@@ -64,8 +92,18 @@ export default function SettingsNotificationsPage() {
   ) => {
     const prev = prefs[type];
     const merged = { ...prev, ...next };
-    setPrefs((p) => ({ ...p, [type]: merged }));
     setError(null);
+
+    if (!prev.enabled && merged.enabled && isNativeWebView()) {
+      const permission = await requestNativePushPermissionStatus();
+      if (permission !== "granted") {
+        setError("기기 설정에서 알림 권한을 허용한 뒤 다시 켜주세요.");
+        openNativeNotificationSettings();
+        return;
+      }
+    }
+
+    setPrefs((p) => ({ ...p, [type]: merged }));
     try {
       await api.upsertNotificationPreference(type, {
         enabled: merged.enabled,

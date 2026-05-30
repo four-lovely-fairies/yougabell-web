@@ -5,8 +5,8 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
-import { ApiError, api } from "@/lib/api";
-import { notifyMobile } from "@/lib/native-bridge";
+import { ApiError, api, clearStoredSelectedChildId } from "@/lib/api";
+import { isNativeWebView, notifyMobile } from "@/lib/native-bridge";
 import {
   INTEREST_WEB_TO_API,
   type CompleteOnboardingPayload,
@@ -104,19 +104,28 @@ export default function DonePage() {
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const submittedRef = useRef(false);
+  const finalizedRef = useRef(false);
 
   const navigateToHome = useEffectEvent(() => {
-    // 온보딩 완료 직후에는 서버의 onboardedAt 판정이 바뀌므로
-    // App Router client transition 대신 전체 문서 이동으로 최신 세션/서버 상태를 읽게 한다.
-    window.location.replace("/");
+    // native WebView는 bootstrap 페이지를 다시 태워 세션/라우팅을 안정화한다.
+    window.location.replace(isNativeWebView() ? "/mobile-entry" : "/");
   });
 
   const finalizeAndGoHome = useEffectEvent(
     (nextStatus: Extract<Status, "success" | "already">, userId?: string) => {
+      if (finalizedRef.current) return;
+      finalizedRef.current = true;
+
       try {
         clear();
       } catch (error) {
         console.error("[onboarding/done] clear failed", error);
+      }
+
+      try {
+        clearStoredSelectedChildId();
+      } catch (error) {
+        console.error("[onboarding/done] clear selected child failed", error);
       }
 
       if (nextStatus === "success") {
@@ -181,11 +190,33 @@ export default function DonePage() {
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [payload, attempt, clear, router]);
+  }, [payload, attempt]);
+
+  useEffect(() => {
+    if (status !== "submitting") return;
+
+    const intervalId = window.setInterval(() => {
+      void api
+        .getMe()
+        .then((me) => {
+          if (me.onboardedAt) {
+            finalizeAndGoHome("success", me.id);
+          }
+        })
+        .catch(() => {
+          // complete 응답을 기다리는 동안의 폴링은 best-effort.
+        });
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [status]);
 
   const retry = () => {
     resetCachedCompletionRequest();
     submittedRef.current = false;
+    finalizedRef.current = false;
     setStatus("submitting");
     setError(null);
     setAttempt((a) => a + 1);

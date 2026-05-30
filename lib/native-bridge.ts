@@ -9,6 +9,8 @@ export type WebToNativeMessage =
   | { type: "REQUEST_NATIVE_APPLE_SIGN_IN" }
   | { type: "ONBOARDING_COMPLETE"; payload: { userId: string } }
   | { type: "REQUEST_PUSH_PERMISSION" }
+  | { type: "REQUEST_PUSH_PERMISSION_STATUS" }
+  | { type: "OPEN_SYSTEM_NOTIFICATION_SETTINGS" }
   | { type: "LOGOUT" };
 
 export type NativeToWebMessage =
@@ -23,6 +25,10 @@ export type NativeToWebMessage =
   | { type: "NATIVE_APPLE_SIGN_IN_ERROR"; payload: { message: string } }
   | {
       type: "NATIVE_PUSH_PERMISSION_RESULT";
+      payload: { permission: "granted" | "denied" };
+    }
+  | {
+      type: "NATIVE_PUSH_PERMISSION_STATUS";
       payload: { permission: "granted" | "denied" };
     };
 
@@ -86,6 +92,7 @@ export function parseNativeMessage(
       }
       return null;
     case "NATIVE_PUSH_PERMISSION_RESULT":
+    case "NATIVE_PUSH_PERMISSION_STATUS":
       if (
         candidate.payload &&
         typeof candidate.payload === "object" &&
@@ -121,4 +128,35 @@ export function subscribeToNativeMessages(
   return () => {
     window.removeEventListener(NATIVE_WEBVIEW_EVENT_NAME, handleEvent);
   };
+}
+
+export async function requestNativePushPermissionStatus(): Promise<
+  "granted" | "denied" | null
+> {
+  if (!isNativeWebView()) {
+    return null;
+  }
+
+  return new Promise((resolve) => {
+    const timeoutId = window.setTimeout(() => {
+      unsubscribe();
+      resolve(null);
+    }, 5000);
+
+    const unsubscribe = subscribeToNativeMessages((message) => {
+      if (message.type !== "NATIVE_PUSH_PERMISSION_STATUS") {
+        return;
+      }
+
+      window.clearTimeout(timeoutId);
+      unsubscribe();
+      resolve(message.payload.permission);
+    });
+
+    notifyMobile({ type: "REQUEST_PUSH_PERMISSION_STATUS" });
+  });
+}
+
+export function openNativeNotificationSettings(): void {
+  notifyMobile({ type: "OPEN_SYSTEM_NOTIFICATION_SETTINGS" });
 }
