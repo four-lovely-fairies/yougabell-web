@@ -257,8 +257,8 @@ export default function ChatPage() {
         )}
       </div>
 
-      <div className="shrink-0 overflow-x-auto px-5 pt-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex gap-3">
+      <div className="shrink-0 overflow-x-auto px-5 pt-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-1.5">
           {QUICK_REPLIES.map((label) => (
             <button
               key={label}
@@ -268,7 +268,7 @@ export default function ChatPage() {
                 track({ type: "chat_quick_reply_use", label });
                 void send(label);
               }}
-              className="shrink-0 whitespace-nowrap rounded-full bg-gray-50 px-6 py-3.5 text-sm font-medium leading-[1.4] text-gray-800 disabled:opacity-50"
+              className="shrink-0 whitespace-nowrap rounded-full bg-gray-50 px-3 py-1.5 text-xs font-medium leading-[1.4] text-gray-700 disabled:opacity-50"
             >
               {label}
             </button>
