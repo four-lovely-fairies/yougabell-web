@@ -49,7 +49,7 @@ export function MarkdownMessage({
   return (
     <div
       className={cn(
-        "text-sm leading-[1.4] text-[#242b37] [word-break:break-word]",
+        "text-sm leading-[1.4] text-[#242b37] break-words [overflow-wrap:anywhere]",
         className,
       )}
     >
