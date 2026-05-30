@@ -199,10 +199,15 @@ export const HomeDashboard = () => {
   };
 
   const openNotificationTarget = (notification: HomeNotification) => {
+    if (notification.targetType === "child" && notification.targetId) {
+      setStoredSelectedChildId(notification.targetId);
+    }
+
     switch (notification.actionType) {
       case "open_home":
-        if (notification.targetType === "child" && notification.targetId) {
-          setStoredSelectedChildId(notification.targetId);
+        if (notification.targetType === "child") {
+          router.push("/mission");
+          return;
         }
         router.push("/");
         return;
