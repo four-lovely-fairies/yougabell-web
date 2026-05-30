@@ -22,7 +22,8 @@ function genderLabel(g: ChildDraft["gender"]) {
 
 function formatDate(iso?: string) {
   if (!iso) return null;
-  return iso.replace(/-/g, ".");
+  // 전체 ISO(2020-03-15T00:00:00Z) 또는 날짜(2020-03-15) 모두 yyyy.mm.dd로
+  return iso.slice(0, 10).replace(/-/g, ".");
 }
 
 export function ChildCardForm({
@@ -52,7 +53,7 @@ export function ChildCardForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-gray-800">
-          이름 <span className="font-bold text-[#ff5050]">*</span>
+          이름 <span className="font-bold text-error-500">*</span>
         </label>
         <Input
           type="text"
@@ -65,7 +66,7 @@ export function ChildCardForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-gray-800">
-          생년월일 <span className="font-bold text-[#ff5050]">*</span>
+          생년월일 <span className="font-bold text-error-500">*</span>
         </label>
         <DateInput
           value={child.birthDate}
@@ -80,7 +81,7 @@ export function ChildCardForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-gray-800">
-          성별 <span className="font-bold text-[#ff5050]">*</span>
+          성별 <span className="font-bold text-error-500">*</span>
         </label>
         <SegmentedToggle
           ariaLabel="자녀 성별"
@@ -102,7 +103,7 @@ export function ChildCardForm({
           placeholder="식품 알레르기, 질병, 복용 중인 약 등"
           value={child.notes ?? ""}
           onChange={(e) => patch({ notes: e.target.value })}
-          className="w-full px-4 py-3 rounded-2xl border border-[#e9e9e9] bg-white resize-none text-sm text-gray-800 placeholder:text-gray-400 focus:border-[#9572ff] outline-none"
+          className="w-full px-4 py-3 rounded-2xl border border-gray-100 bg-white resize-none text-sm text-gray-800 placeholder:text-gray-400 focus:border-primary-300 outline-none"
         />
       </div>
     </div>
@@ -119,13 +120,15 @@ export function ChildRow({ child, onEdit, onDelete }: ChildRowProps) {
   const g = genderLabel(child.gender);
   const d = formatDate(child.birthDate);
   return (
-    // Figma 2146:5015 — h-[55px], rounded-16, bg gray-50(#f6f6f6) + border #e9e9e9
-    <div className="flex h-[55px] items-center rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
-      <span className="flex flex-1 items-center gap-2.5 text-sm text-gray-800">
+    // Figma 2146:5015 — h-13.75, rounded-16, bg gray-50(#f6f6f6) + border #e9e9e9
+    <div className="flex h-13.75 items-center rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+      <span className="flex min-w-0 flex-1 items-center gap-2.5 text-sm text-gray-800">
         {g ? (
-          <span className="font-semibold text-gray-800">{g}</span>
+          <span className="shrink-0 whitespace-nowrap font-semibold text-gray-800">
+            {g}
+          </span>
         ) : null}
-        <span className="truncate">
+        <span className="min-w-0 truncate">
           {child.name}
           {d ? (
             <span className="ml-1 font-normal text-gray-800">({d})</span>

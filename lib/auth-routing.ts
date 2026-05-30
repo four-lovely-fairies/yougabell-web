@@ -16,12 +16,12 @@ export function getOnboardingRedirectPath({
     return "/";
   }
 
-  if (pathname === "/onboarding/intro") {
+  if (pathname === "/onboarding") {
     return null;
   }
 
   if (!hasSession) {
-    return "/onboarding/intro";
+    return "/onboarding";
   }
 
   return null;
@@ -32,11 +32,11 @@ export function getAppRedirectPath({
   onboardedAt,
 }: AuthRoutingInput): string | null {
   if (!hasSession) {
-    return "/onboarding/intro";
+    return "/onboarding";
   }
 
   if (!onboardedAt) {
-    return "/onboarding/intro";
+    return "/onboarding";
   }
 
   return null;

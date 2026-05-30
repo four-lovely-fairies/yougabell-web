@@ -9,18 +9,17 @@ export default async function OnboardingLayout({ children }: { children: React.R
   if (me?.onboardedAt) {
     redirect("/");
   }
+  // 루트 layout이 이미 가운데 정렬된 흰색 모바일 frame(max-w-[430px])을 제공한다.
+  // 여기서 frame을 다시 감싸면 폭 차이만큼 좌우에 배경 띠가 노출되므로, 부모 frame을 그대로 채운다.
   return (
-    <div className="min-h-screen flex justify-center bg-[#ddd2df]">
-      <div
-        className="relative w-full max-w-98 min-h-screen bg-white overflow-hidden flex flex-col px-5"
-        // safe-area inset이 0인 환경(데스크톱·일부 Android)에서도 최소 여백 보장
-        style={{
-          paddingTop: "max(12px, env(safe-area-inset-top))",
-          paddingBottom: "max(20px, env(safe-area-inset-bottom))",
-        }}
-      >
-        {children}
-      </div>
+    <div
+      className="relative flex min-h-screen flex-col overflow-hidden bg-white px-5 pt-safe"
+      // safe-area inset이 0인 환경(데스크톱·일부 Android)에서도 최소 여백 보장
+      style={{
+        paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+      }}
+    >
+      {children}
     </div>
   );
 }

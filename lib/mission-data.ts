@@ -14,6 +14,8 @@ export type CurrentMissionDetail = {
   durationLabel: string;
   categoryLabel: string;
   sourceLabel: string;
+  // 목표 행(Figma 미션 시작하기). 실 API가 아직 안 내려줄 수 있어 optional.
+  goalLabel?: string | null;
   status: "not_started" | "in_progress" | "completed";
 };
 

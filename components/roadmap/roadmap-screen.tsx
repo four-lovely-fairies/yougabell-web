@@ -1,13 +1,17 @@
 "use client";
 
-import { ArrowLeft, ChevronLeft, ChevronRight, Info, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Info, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AppHeader } from "@/components/app/app-header";
+import { Card } from "@/components/ui/card";
+import { Chip } from "@/components/ui/chip";
+import { SectionInfoCard } from "@/components/ui/section-info-card";
 import { getStoredSelectedChildId, loadRoadmap } from "@/lib/api";
 import {
+  CDC_CHECKPOINTS,
   ROADMAP_CATEGORY_DISPLAY,
   type RoadmapCategoryGroup,
-  type RoadmapMonthTabRange,
   type RoadmapResponse,
   type RoadmapStage,
 } from "@/lib/roadmap-data";
@@ -70,11 +74,21 @@ export const RoadmapScreen = () => {
   if (!data) return <RoadmapSkeleton />;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#fdfdfe] text-[#262626]">
-      <RoadmapHeader
+    <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
+      <AppHeader
+        title="발달 로드맵"
         onBack={goBack}
-        onToggleTooltip={() => setTooltipOpen((value) => !value)}
-        infoButtonRef={infoButtonRef}
+        right={
+          <button
+            ref={infoButtonRef}
+            type="button"
+            onClick={() => setTooltipOpen((value) => !value)}
+            className="flex size-11 items-center justify-center text-gray-800"
+            aria-label="데이터 출처 안내"
+          >
+            <Info className="size-6" aria-hidden />
+          </button>
+        }
       />
       <div className="relative flex flex-1 flex-col">
         {tooltipOpen ? (
@@ -85,9 +99,7 @@ export const RoadmapScreen = () => {
         ) : null}
         <CurrentStageCard ageLabel={data.child.ageLabel} stage={data.stage} />
         <MonthTabs
-          tabs={data.monthTabs}
           target={data.targetMonth}
-          range={data.monthTabRange}
           disabled={loading}
           onSelect={onSelectMonth}
         />
@@ -96,40 +108,6 @@ export const RoadmapScreen = () => {
     </div>
   );
 };
-
-const RoadmapHeader = ({
-  onBack,
-  onToggleTooltip,
-  infoButtonRef,
-}: {
-  onBack: () => void;
-  onToggleTooltip: () => void;
-  infoButtonRef: React.RefObject<HTMLButtonElement | null>;
-}) => (
-  <header className="flex h-[103px] shrink-0 flex-col">
-    <div className="h-[47px]" aria-hidden />
-    <div className="flex h-14 items-center justify-between px-4">
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex size-11 items-center justify-center text-[#262626]"
-        aria-label="뒤로가기"
-      >
-        <ArrowLeft className="size-6" aria-hidden />
-      </button>
-      <h1 className="text-base font-semibold leading-[22px]">발달 로드맵</h1>
-      <button
-        ref={infoButtonRef}
-        type="button"
-        onClick={onToggleTooltip}
-        className="flex size-11 items-center justify-center text-[#262626]"
-        aria-label="데이터 출처 안내"
-      >
-        <Info className="size-6" aria-hidden />
-      </button>
-    </div>
-  </header>
-);
 
 const SourceTooltip = ({
   text,
@@ -140,14 +118,14 @@ const SourceTooltip = ({
 }) => (
   <div className="absolute right-5 top-2 z-10" role="status">
     <div
-      className="pointer-events-none absolute right-[10px] top-[-7px] size-0 border-x-[13px] border-b-[12px] border-x-transparent border-b-white"
+      className="pointer-events-none absolute right-2.5 -top-1.75 size-0 border-x-[13px] border-b-[12px] border-x-transparent border-b-white"
       aria-hidden
     />
     <div
       ref={tooltipRef}
-      className="pointer-events-auto w-[271px] rounded-2xl bg-white px-4 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
+      className="pointer-events-auto w-67.75 rounded-2xl bg-white px-4 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
     >
-      <p className="text-xs leading-5 text-[#555]">{text}</p>
+      <p className="text-xs leading-5 text-gray-600">{text}</p>
     </div>
   </div>
 );
@@ -160,48 +138,55 @@ const CurrentStageCard = ({
   stage: RoadmapStage | null;
 }) => (
   <section className="px-5 pt-5">
-    <div className="rounded-2xl bg-[#f6f6f6] px-6 py-6">
-      <div className="flex items-center gap-1">
+    <SectionInfoCard
+      icon={
         <Star
-          className="size-5 text-[#9572ff]"
-          fill="#9572ff"
+          className="size-5 text-primary-300"
+          fill="currentColor"
           strokeWidth={0}
           aria-hidden
         />
-        <h2 className="text-xs font-bold leading-[1.4] text-[#262626]">
-          현재 상황 [ {stage?.name ?? "확인 중"} ]
-        </h2>
-      </div>
-      <p className="mt-[15px] text-[22px] font-extrabold leading-[30px] text-[#262626]">
-        {ageLabel}
-      </p>
-      <p className="mt-[15px] text-sm font-medium leading-[1.7] text-[#555]">
-        {stage?.summary ??
-          "아이의 성장 단계를 확인하는 중이에요. 잠시만 기다려주세요."}
-      </p>
-    </div>
+      }
+      label={`현재 상황 [ ${stage?.name ?? "확인 중"} ]`}
+      title={ageLabel}
+      body={
+        stage?.summary ??
+        "아이의 성장 단계를 확인하는 중이에요. 잠시만 기다려주세요."
+      }
+    />
   </section>
 );
 
 const MonthTabs = ({
-  tabs,
   target,
-  range,
   disabled,
   onSelect,
 }: {
-  tabs: number[];
   target: number;
-  range: RoadmapMonthTabRange;
   disabled: boolean;
   onSelect: (month: number) => void;
 }) => {
-  const prevDisabled = range.prev === null;
-  const nextDisabled = range.next === null;
+  const activeRef = useRef<HTMLButtonElement | null>(null);
+
+  const targetIndex = (CDC_CHECKPOINTS as readonly number[]).indexOf(target);
+  const prevMonth = targetIndex > 0 ? CDC_CHECKPOINTS[targetIndex - 1] : null;
+  const nextMonth =
+    targetIndex >= 0 && targetIndex < CDC_CHECKPOINTS.length - 1
+      ? CDC_CHECKPOINTS[targetIndex + 1]
+      : null;
+
+  // 선택된 월령이 바뀌면 가로 스크롤에서 가운데로 보이도록 이동.
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({
+      inline: "center",
+      block: "nearest",
+      behavior: "smooth",
+    });
+  }, [target]);
 
   return (
     <section className="mt-5 px-5">
-      <h2 className="text-base font-bold leading-[25px] text-[#262626]">
+      <h2 className="text-base font-bold leading-[25px] text-gray-800">
         발달 지표
       </h2>
       <div
@@ -211,29 +196,29 @@ const MonthTabs = ({
       >
         <button
           type="button"
-          onClick={() => range.prev !== null && onSelect(range.prev)}
-          disabled={prevDisabled || disabled}
+          onClick={() => prevMonth !== null && onSelect(prevMonth)}
+          disabled={prevMonth === null || disabled}
           aria-label="이전 월령 보기"
-          aria-disabled={prevDisabled}
-          className="flex size-8 shrink-0 items-center justify-center text-[#262626] disabled:text-[#c4c4c4]"
+          className="flex size-8 shrink-0 items-center justify-center text-gray-800 disabled:text-gray-300"
         >
           <ChevronLeft className="size-6" aria-hidden />
         </button>
-        <div className="flex flex-1 items-center justify-between gap-1">
-          {tabs.map((month) => {
+        <div className="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
+          {CDC_CHECKPOINTS.map((month) => {
             const active = month === target;
             return (
               <button
                 key={month}
+                ref={active ? activeRef : undefined}
                 type="button"
                 role="tab"
                 aria-selected={active}
                 onClick={() => onSelect(month)}
                 disabled={disabled}
-                className={`flex h-[33px] shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3.5 text-xs font-medium leading-[1.4] ${
+                className={`flex h-8.25 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3.5 text-xs font-medium leading-[1.4] ${
                   active
-                    ? "bg-[#9572ff] text-white"
-                    : "bg-transparent text-[#555]"
+                    ? "bg-primary-300 text-white"
+                    : "border border-gray-100 bg-white text-gray-600"
                 }`}
               >
                 {month}개월
@@ -243,11 +228,10 @@ const MonthTabs = ({
         </div>
         <button
           type="button"
-          onClick={() => range.next !== null && onSelect(range.next)}
-          disabled={nextDisabled || disabled}
+          onClick={() => nextMonth !== null && onSelect(nextMonth)}
+          disabled={nextMonth === null || disabled}
           aria-label="다음 월령 보기"
-          aria-disabled={nextDisabled}
-          className="flex size-8 shrink-0 items-center justify-center text-[#262626] disabled:text-[#c4c4c4]"
+          className="flex size-8 shrink-0 items-center justify-center text-gray-800 disabled:text-gray-300"
         >
           <ChevronRight className="size-6" aria-hidden />
         </button>
@@ -264,44 +248,49 @@ const CategoryCardList = ({ groups }: { groups: RoadmapCategoryGroup[] }) => (
   </section>
 );
 
-const CATEGORY_CARD_STYLES: Record<string, { chipBg: string; chipFg: string }> =
-  {
-    social: { chipBg: "bg-[#FFF1D6]", chipFg: "text-[#D08C0B]" },
-    language: { chipBg: "bg-[#E5ECFF]", chipFg: "text-[#3A66E2]" },
-    cognitive: { chipBg: "bg-[#EFE4FF]", chipFg: "text-[#7B4FE0]" },
-    physical: { chipBg: "bg-[#D6F5EC]", chipFg: "text-[#159A6F]" },
-  };
+// Figma 카테고리 색 = Chip tone (15% 알파 + inset glow): social=amber/language=blue/cognitive=purple/physical=cyan
+const CATEGORY_TONE: Record<
+  string,
+  "amber" | "blue" | "purple" | "cyan" | "gray"
+> = {
+  social: "amber",
+  language: "blue",
+  cognitive: "purple",
+  physical: "cyan",
+};
 
 const CategoryCard = ({ group }: { group: RoadmapCategoryGroup }) => {
-  const styles = CATEGORY_CARD_STYLES[group.categoryId] ?? {
-    chipBg: "bg-[#f6f6f6]",
-    chipFg: "text-[#555]",
-  };
+  const tone = CATEGORY_TONE[group.categoryId] ?? "gray";
   const fallback = ROADMAP_CATEGORY_DISPLAY[group.categoryId];
 
   return (
-    <article
-      className="flex gap-4 rounded-2xl bg-white p-5 shadow-[0_4px_10px_rgba(0,0,0,0.04)]"
+    <Card
+      padding="md"
+      radius="xxl"
+      shadow="none"
+      className="flex gap-4 border border-gray-50"
       aria-labelledby={`category-${group.categoryId}`}
     >
-      <div
-        className={`flex size-7 shrink-0 items-center justify-center rounded-full ${styles.chipBg}`}
+      <Chip
+        shape="square"
+        tone={tone}
+        className="size-7 shrink-0 justify-center p-0"
         aria-hidden
       >
         <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
-      </div>
+      </Chip>
       <div className="min-w-0 flex-1">
         <h3
           id={`category-${group.categoryId}`}
-          className="text-base font-bold leading-5 text-[#262626]"
+          className="text-sm font-bold leading-5 text-gray-800"
         >
           {group.categoryLabel || fallback.label}
         </h3>
-        <div className="mt-1 text-sm leading-[1.7] text-[#555]">
+        <div className="mt-1 text-sm leading-[1.7] text-gray-600">
           {group.items.length === 0 ? (
-            <p className="text-[#9d9d9d]">이 월령의 자료가 곧 추가됩니다.</p>
+            <p className="text-gray-400">이 월령의 자료가 곧 추가됩니다.</p>
           ) : (
-            <ul className="space-y-1">
+            <ul className="list-disc space-y-1 pl-5">
               {group.items.map((item) => (
                 <li key={item.id}>{item.description}</li>
               ))}
@@ -309,7 +298,7 @@ const CategoryCard = ({ group }: { group: RoadmapCategoryGroup }) => {
           )}
         </div>
       </div>
-    </article>
+    </Card>
   );
 };
 
@@ -329,7 +318,7 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
   if (!src) {
     return (
       <span
-        className="text-xs font-bold leading-none text-[#9d9d9d]"
+        className="text-xs font-bold leading-none text-gray-400"
         aria-hidden
       >
         •
@@ -340,7 +329,7 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
 };
 
 const RoadmapSkeleton = () => (
-  <div className="flex min-h-dvh items-center justify-center bg-[#fdfdfe]">
-    <div className="size-8 animate-pulse rounded-full bg-[#9572ff]" />
+  <div className="flex min-h-dvh items-center justify-center bg-gray-20">
+    <div className="size-8 animate-pulse rounded-full bg-primary-300" />
   </div>
 );
