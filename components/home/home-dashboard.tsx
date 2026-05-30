@@ -7,6 +7,8 @@ import {
   ApiError,
   getStoredSelectedChildId,
   loadHomeDashboard,
+  markAllNotificationsRead,
+  markNotificationRead,
   setStoredSelectedChildId,
   submitHomeMoodCheck,
   type HomeLoadState,
@@ -54,6 +56,7 @@ export const HomeDashboard = () => {
   );
   const [moodSubmitting, setMoodSubmitting] = useState(false);
   const [moodError, setMoodError] = useState<string | null>(null);
+  const [notificationSubmitting, setNotificationSubmitting] = useState(false);
 
   const refresh = useCallback(
     async (childId?: string | null, showLoading = true) => {
@@ -136,6 +139,141 @@ export const HomeDashboard = () => {
     void refresh(child.id);
   };
 
+  const markNotificationReadLocally = (notificationId: string) => {
+    setState((current) => {
+      if (!current) return current;
+
+      let changed = false;
+      const latest = current.data.notifications.latest.map((notification) => {
+        if (notification.id !== notificationId || notification.readAt) {
+          return notification;
+        }
+
+        changed = true;
+        return {
+          ...notification,
+          readAt: new Date().toISOString(),
+        };
+      });
+
+      if (!changed) {
+        return current;
+      }
+
+      return {
+        ...current,
+        data: {
+          ...current.data,
+          notifications: {
+            ...current.data.notifications,
+            unreadCount: Math.max(0, current.data.notifications.unreadCount - 1),
+            latest,
+          },
+        },
+      };
+    });
+  };
+
+  const markAllNotificationsReadLocally = () => {
+    setState((current) => {
+      if (!current) return current;
+
+      const latest = current.data.notifications.latest.map((notification) =>
+        notification.readAt
+          ? notification
+          : { ...notification, readAt: new Date().toISOString() },
+      );
+
+      return {
+        ...current,
+        data: {
+          ...current.data,
+          notifications: {
+            ...current.data.notifications,
+            unreadCount: 0,
+            latest,
+          },
+        },
+      };
+    });
+  };
+
+  const openNotificationTarget = (notification: HomeNotification) => {
+    switch (notification.actionType) {
+      case "open_home":
+        if (notification.targetType === "child" && notification.targetId) {
+          setStoredSelectedChildId(notification.targetId);
+        }
+        router.push("/");
+        return;
+      case "open_mission":
+        router.push("/mission");
+        return;
+      case "open_roadmap":
+        router.push("/roadmap");
+        return;
+      case "open_chat":
+        router.push("/chat");
+        return;
+      case "open_report":
+        router.push(
+          notification.targetId
+            ? `/weekly-report?reportId=${encodeURIComponent(notification.targetId)}`
+            : "/weekly-report",
+        );
+        return;
+      case "url":
+        if (notification.targetUrl) {
+          window.location.href = notification.targetUrl;
+        }
+        return;
+      default:
+        return;
+    }
+  };
+
+  const handleNotificationOpen = async (notification: HomeNotification) => {
+    if (notificationSubmitting) {
+      return;
+    }
+
+    setNotificationSubmitting(true);
+    try {
+      if (!notification.readAt) {
+        await markNotificationRead(notification.id);
+        markNotificationReadLocally(notification.id);
+      }
+      setModal(null);
+      openNotificationTarget(notification);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        router.replace("/onboarding/intro");
+        return;
+      }
+    } finally {
+      setNotificationSubmitting(false);
+    }
+  };
+
+  const handleMarkAllNotificationsRead = async () => {
+    if (notificationSubmitting || data?.notifications.unreadCount === 0) {
+      return;
+    }
+
+    setNotificationSubmitting(true);
+    try {
+      await markAllNotificationsRead();
+      markAllNotificationsReadLocally();
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        router.replace("/onboarding/intro");
+        return;
+      }
+    } finally {
+      setNotificationSubmitting(false);
+    }
+  };
+
   const openMoodModal = () => {
     setSelectedMoodLevel(null);
     setMoodError(null);
@@ -203,7 +341,12 @@ export const HomeDashboard = () => {
         <NotificationModal
           notifications={data.notifications.latest}
           unreadCount={data.notifications.unreadCount}
+          submitting={notificationSubmitting}
           onClose={() => setModal(null)}
+          onMarkAllRead={() => void handleMarkAllNotificationsRead()}
+          onOpenNotification={(notification) =>
+            void handleNotificationOpen(notification)
+          }
         />
       ) : null}
       {modal === "mood" ? (
@@ -585,11 +728,17 @@ const ChildSwitcherSheet = ({
 const NotificationModal = ({
   notifications,
   unreadCount,
+  submitting,
   onClose,
+  onMarkAllRead,
+  onOpenNotification,
 }: {
   notifications: HomeNotification[];
   unreadCount: number;
+  submitting: boolean;
   onClose: () => void;
+  onMarkAllRead: () => void;
+  onOpenNotification: (notification: HomeNotification) => void;
 }) => (
   <div
     className="fixed inset-0 z-40 bg-[rgba(38,38,38,0.24)]"
@@ -609,13 +758,23 @@ const NotificationModal = ({
               읽지 않은 알림 {unreadCount}개
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm font-medium leading-5 text-[#9572ff]"
-          >
-            닫기
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onMarkAllRead}
+              disabled={unreadCount === 0 || submitting}
+              className="text-sm font-medium leading-5 text-[#9572ff] disabled:text-[#c4c4c4]"
+            >
+              모두 읽기
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-sm font-medium leading-5 text-[#9572ff]"
+            >
+              닫기
+            </button>
+          </div>
         </div>
         <div className="mt-4 space-y-3">
           {notifications.length > 0 ? (
@@ -623,11 +782,20 @@ const NotificationModal = ({
               <button
                 key={notification.id}
                 type="button"
-                className="w-full rounded-xl bg-[#f6f6f6] p-4 text-left"
+                onClick={() => onOpenNotification(notification)}
+                disabled={submitting}
+                className={`w-full rounded-xl p-4 text-left transition disabled:opacity-70 ${
+                  notification.readAt ? "bg-[#f6f6f6]" : "bg-[#efe7ff]"
+                }`}
               >
-                <p className="text-sm font-bold leading-5 text-[#262626]">
-                  {notification.title}
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-bold leading-5 text-[#262626]">
+                    {notification.title}
+                  </p>
+                  {!notification.readAt ? (
+                    <span className="mt-1 size-2 shrink-0 rounded-full bg-[#ec003f]" />
+                  ) : null}
+                </div>
                 <p className="mt-1 text-sm leading-5 text-[#555]">
                   {notification.body}
                 </p>

@@ -7,6 +7,7 @@ import {
   type MissionFeedbackDraft,
   type MissionExecutionSnapshot,
 } from "./mission-data";
+import type { components } from "./generated/api-types";
 import type { RoadmapResponse } from "./roadmap-data";
 import {
   EMPTY_CHAT_RESPONSE,
@@ -57,6 +58,9 @@ export type HomeLoadState = {
   data: HomeDashboard;
   source: "api";
 };
+
+export type NotificationListItem =
+  components["schemas"]["NotificationListItemDto"];
 
 export type WeeklyReportLoadState =
   | {
@@ -240,6 +244,38 @@ export const submitHomeMoodCheck = async (
     method: "POST",
     headers,
     json: { level },
+  });
+};
+
+export const markNotificationRead = async (
+  notificationId: string,
+): Promise<NotificationListItem> => {
+  const headers = await authHeaders();
+  if (!headers.Authorization) {
+    throw new ApiError(401, {
+      message: "로그인 세션이 필요합니다.",
+    });
+  }
+
+  return request<NotificationListItem>(`/notifications/${notificationId}/read`, {
+    method: "PATCH",
+    headers,
+  });
+};
+
+export const markAllNotificationsRead = async (): Promise<{
+  updatedCount: number;
+}> => {
+  const headers = await authHeaders();
+  if (!headers.Authorization) {
+    throw new ApiError(401, {
+      message: "로그인 세션이 필요합니다.",
+    });
+  }
+
+  return request<{ updatedCount: number }>("/notifications/read-all", {
+    method: "PATCH",
+    headers,
   });
 };
 
