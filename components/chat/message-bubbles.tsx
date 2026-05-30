@@ -26,7 +26,7 @@ export function EmptyState() {
 export function UserBubble({ content }: { content: string }) {
   return (
     <div className="flex justify-end px-5 py-2.5">
-      <div className="max-w-65 rounded-2xl bg-gray-50 px-4 py-3 text-sm leading-[1.4] text-gray-800">
+      <div className="max-w-65 break-words [overflow-wrap:anywhere] rounded-2xl bg-gray-50 px-4 py-3 text-sm leading-[1.4] text-gray-800">
         {content}
       </div>
     </div>
@@ -54,7 +54,8 @@ export function LoadingBubble() {
 export function StreamingBubble({ text }: { text: string }) {
   return (
     <div className="flex justify-start px-5 py-2.5">
-      <div className="w-77.5 rounded-2xl bg-[#f5f1ff] px-4 py-3">
+      {/* max-w-full로 좁은 화면에서도 가로 넘침 방지(고정폭이 뷰포트를 넘지 않게) */}
+      <div className="w-77.5 max-w-full min-w-0 rounded-2xl bg-[#f5f1ff] px-4 py-3">
         <MarkdownMessage content={text} />
       </div>
     </div>
@@ -92,7 +93,7 @@ export function AssistantBubble({
 }) {
   return (
     <div className="flex justify-start px-5 py-2.5">
-      <div className="flex w-77.5 flex-col gap-5 rounded-2xl bg-[#f5f1ff] px-4 py-3">
+      <div className="flex w-77.5 max-w-full min-w-0 flex-col gap-5 rounded-2xl bg-[#f5f1ff] px-4 py-3">
         <MarkdownMessage content={content} />
         {cards.length > 0 ? (
           <div className="flex flex-col gap-4">
