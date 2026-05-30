@@ -20,7 +20,7 @@ type Prefs = Record<NotificationPreferenceType, Pref>;
 
 const DEFAULT_PREFS: Prefs = {
   play_10min: { enabled: false, time: "19:00" },
-  weekly_report: { enabled: false, time: "19:00" },
+  weekly_report: { enabled: false, time: "12:00" },
 };
 
 const SECTIONS: Array<{
@@ -63,7 +63,7 @@ function derivePrefsFromMe(me: MeResponse): Prefs {
 
   return {
     play_10min: { enabled: true, time: legacyTime },
-    weekly_report: { enabled: true, time: legacyTime },
+    weekly_report: { enabled: true, time: "12:00" },
   };
 }
 
