@@ -10,11 +10,16 @@ export const WeeklyReportEmpty = ({
   onStartMission: () => void;
 }) => (
   <div className="flex min-h-180 flex-1 flex-col items-center justify-center gap-9 px-8 pb-20 text-center">
-    {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img
-      src="/images/figma/report/empty-mascot.png"
-      alt=""
-      className="size-30 object-contain"
+    {/* empty-mascot.png은 3×3(9컷) 마스코트 시트 — background sprite로 한 컷만 노출.
+       background-position으로 컷 선택: 가로 0/50/100% = 좌/중/우, 세로 0/50/100% = 상/중/하.
+       현재: 50% 100% = 가운데-아래(클립보드 든 마스코트, 리포트 테마). */}
+    <div
+      className="w-36 bg-no-repeat aspect-[1024/837]"
+      style={{
+        backgroundImage: "url('/images/figma/report/empty-mascot.png')",
+        backgroundSize: "300% 300%",
+        backgroundPosition: "50% 100%",
+      }}
       aria-hidden
     />
     <div className="flex w-full flex-col items-center gap-7">
