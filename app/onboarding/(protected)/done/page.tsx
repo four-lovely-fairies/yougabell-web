@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
-import { ApiError, api } from "@/lib/api";
-import { notifyMobile } from "@/lib/native-bridge";
+import { ApiError, api, clearStoredSelectedChildId } from "@/lib/api";
+import { isNativeWebView, notifyMobile } from "@/lib/native-bridge";
 import {
   INTEREST_WEB_TO_API,
   type CompleteOnboardingPayload,
@@ -16,6 +16,18 @@ import {
 type Status = "submitting" | "success" | "error" | "already" | "timeout";
 
 const SUBMIT_TIMEOUT_MS = 15_000;
+
+type CompletionRequestResult =
+  | { kind: "success"; userId: string }
+  | { kind: "already" }
+  | { kind: "error"; error: unknown };
+
+let cachedCompletionRequest:
+  | {
+      key: string;
+      promise: Promise<CompletionRequestResult>;
+    }
+  | null = null;
 
 function buildPayload(
   draft: OnboardingDraft | null,
@@ -49,6 +61,41 @@ function buildPayload(
   };
 }
 
+function getPayloadKey(payload: CompleteOnboardingPayload): string {
+  return JSON.stringify(payload);
+}
+
+function getOrCreateCompletionRequest(payload: CompleteOnboardingPayload) {
+  const key = getPayloadKey(payload);
+
+  if (cachedCompletionRequest?.key === key) {
+    return cachedCompletionRequest.promise;
+  }
+
+  const promise = api
+    .completeOnboarding(payload)
+    .then(
+      (me): CompletionRequestResult => ({
+        kind: "success",
+        userId: me.id,
+      }),
+    )
+    .catch((error: unknown): CompletionRequestResult => {
+      if (error instanceof ApiError && error.status === 409) {
+        return { kind: "already" };
+      }
+
+      return { kind: "error", error };
+    });
+
+  cachedCompletionRequest = { key, promise };
+  return promise;
+}
+
+function resetCachedCompletionRequest() {
+  cachedCompletionRequest = null;
+}
+
 export default function DonePage() {
   const router = useRouter();
   const { draft, clear } = useOnboardingDraft();
@@ -57,6 +104,53 @@ export default function DonePage() {
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const submittedRef = useRef(false);
+  const finalizedRef = useRef(false);
+
+  const navigateToHome = useEffectEvent(() => {
+    // native WebView는 bootstrap 페이지를 다시 태워 세션/라우팅을 안정화한다.
+    window.location.replace(isNativeWebView() ? "/mobile-entry" : "/");
+  });
+
+  const finalizeAndGoHome = useEffectEvent(
+    (nextStatus: Extract<Status, "success" | "already">, userId?: string) => {
+      if (finalizedRef.current) return;
+      finalizedRef.current = true;
+
+      try {
+        clear();
+      } catch (error) {
+        console.error("[onboarding/done] clear failed", error);
+      }
+
+      try {
+        clearStoredSelectedChildId();
+      } catch (error) {
+        console.error("[onboarding/done] clear selected child failed", error);
+      }
+
+      if (nextStatus === "success") {
+        try {
+          track({ type: "onboarding_finish" });
+        } catch (error) {
+          console.error("[onboarding/done] track failed", error);
+        }
+
+        if (userId) {
+          try {
+            notifyMobile({
+              type: "ONBOARDING_COMPLETE",
+              payload: { userId },
+            });
+          } catch (error) {
+            console.error("[onboarding/done] notify failed", error);
+          }
+        }
+      }
+
+      setStatus(nextStatus);
+      navigateToHome();
+    },
+  );
 
   useEffect(() => {
     if (!payload) return;
@@ -69,43 +163,60 @@ export default function DonePage() {
       setStatus("timeout");
     }, SUBMIT_TIMEOUT_MS);
 
-    api
-      .completeOnboarding(payload)
-      .then((me) => {
-        if (cancelled) return;
-        window.clearTimeout(timeoutId);
-        clear();
-        track({ type: "onboarding_finish" });
-        notifyMobile({
-          type: "ONBOARDING_COMPLETE",
-          payload: { userId: me.id },
-        });
-        setStatus("success");
-        setTimeout(() => router.replace("/"), 800);
-      })
-      .catch((e: unknown) => {
-        if (cancelled) return;
-        window.clearTimeout(timeoutId);
-        if (e instanceof ApiError && e.status === 409) {
-          clear();
-          setStatus("already");
-          setTimeout(() => router.replace("/"), 800);
-          return;
-        }
-        const message =
-          e instanceof ApiError ? `서버 오류 (${e.status})` : "네트워크 오류";
-        setStatus("error");
-        setError(message);
-      });
+    void getOrCreateCompletionRequest(payload).then((result) => {
+      if (cancelled) return;
+      window.clearTimeout(timeoutId);
+
+      if (result.kind === "success") {
+        finalizeAndGoHome("success", result.userId);
+        return;
+      }
+
+      if (result.kind === "already") {
+        finalizeAndGoHome("already");
+        return;
+      }
+
+      resetCachedCompletionRequest();
+      const message =
+        result.error instanceof ApiError
+          ? `서버 오류 (${result.error.status})`
+          : "네트워크 오류";
+      setStatus("error");
+      setError(message);
+    });
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [payload, attempt, clear, router]);
+  }, [payload, attempt]);
+
+  useEffect(() => {
+    if (status !== "submitting") return;
+
+    const intervalId = window.setInterval(() => {
+      void api
+        .getMe()
+        .then((me) => {
+          if (me.onboardedAt) {
+            finalizeAndGoHome("success", me.id);
+          }
+        })
+        .catch(() => {
+          // complete 응답을 기다리는 동안의 폴링은 best-effort.
+        });
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [status]);
 
   const retry = () => {
+    resetCachedCompletionRequest();
     submittedRef.current = false;
+    finalizedRef.current = false;
     setStatus("submitting");
     setError(null);
     setAttempt((a) => a + 1);

@@ -1,6 +1,7 @@
 export type MissionSelectedChild = {
   id: string;
   name: string;
+  birthDate: string;
   ageLabel: string;
 };
 
@@ -31,6 +32,7 @@ export type ActiveMissionExecution = {
 
 export type CurrentMissionResponse = {
   selectedChild: MissionSelectedChild;
+  children: MissionSelectedChild[];
   mission: CurrentMissionDetail;
   activeExecution: ActiveMissionExecution | null;
 };
@@ -73,12 +75,16 @@ export type MissionFeedbackDraft = {
   note: string;
 };
 
+const DEMO_SELECTED_CHILD: MissionSelectedChild = {
+  id: "demo-child-youse",
+  name: "김유스",
+  birthDate: "2023-04-15",
+  ageLabel: "만3세",
+};
+
 export const getDemoCurrentMission = (): CurrentMissionResponse => ({
-  selectedChild: {
-    id: "demo-child-youse",
-    name: "김유스",
-    ageLabel: "만3세",
-  },
+  selectedChild: DEMO_SELECTED_CHILD,
+  children: [DEMO_SELECTED_CHILD],
   mission: {
     id: "demo-mission",
     subThemeLabel: "아이와 10분 가까워지기",

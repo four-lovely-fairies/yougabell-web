@@ -10,6 +10,14 @@ export type ServerMe = {
   onboardedAt: string | null;
 };
 
+function getRequiredPublicApiBaseUrl(): string {
+  const value = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  if (!value) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is required.");
+  }
+  return value;
+}
+
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
   return createServerClient(
@@ -45,17 +53,10 @@ export async function fetchServerMe(): Promise<ServerMe | null> {
   } = await supabase.auth.getSession();
   if (!session) return null;
 
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
-  // API 미배포 환경(localhost) 또는 네트워크 실패 시 SSR 500 방지 — null로 폴백.
-  try {
-    const res = await fetch(`${base}/me`, {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-      cache: "no-store",
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as ServerMe;
-  } catch (e) {
-    console.warn("[fetchServerMe] api unreachable", base, e);
-    return null;
-  }
+  const res = await fetch(`${getRequiredPublicApiBaseUrl()}/me`, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  return (await res.json()) as ServerMe;
 }

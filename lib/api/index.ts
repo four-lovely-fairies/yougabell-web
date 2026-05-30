@@ -3,6 +3,7 @@ export * from "./client";
 export * from "./me";
 export * from "./storage";
 export * from "./home";
+export * from "./notification";
 export * from "./chat";
 export * from "./roadmap";
 export * from "./weekly-report";

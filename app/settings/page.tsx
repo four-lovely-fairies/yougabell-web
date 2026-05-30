@@ -56,7 +56,7 @@ export default function SettingsPage() {
         </div>
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.replace("/")}
           aria-label="닫기"
           className="flex size-11 items-center justify-center text-gray-700"
         >
@@ -112,7 +112,9 @@ export default function SettingsPage() {
         </Section>
       </div>
 
-      {deletingAccount ? <DeleteAccountModal onClose={() => setDeletingAccount(false)} /> : null}
+      {deletingAccount ? (
+        <DeleteAccountModal onClose={() => setDeletingAccount(false)} />
+      ) : null}
     </div>
   );
 }

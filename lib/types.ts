@@ -116,6 +116,8 @@ export type MeResponse = {
   birthDate: string;
   gender: Gender;
   workStatus: WorkStatus | null;
+  notificationSlot?: NotificationSlot | null;
+  notificationTime?: string | null;
   interests: ApiInterestId[];
   onboardedAt: string | null;
   deletedAt: string | null;

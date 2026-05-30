@@ -1,12 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
-import { isNativeWebView, notifyMobile } from "@/lib/native-bridge";
+import {
+  isNativeWebView,
+  notifyMobile,
+  subscribeToNativeMessages,
+} from "@/lib/native-bridge";
 import type { NotificationPermission } from "@/lib/types";
 
 /**
@@ -21,8 +25,13 @@ export default function NotificationPermissionPage() {
   const router = useRouter();
   const { patch } = useOnboardingDraft();
   const [busy, setBusy] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const decide = (result: NotificationPermission) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     patch({ notificationPermission: result, lastStep: "notification" });
     track({ type: "onboarding_step_complete", step: "notification" });
     if (result === "granted") {
@@ -32,15 +41,34 @@ export default function NotificationPermissionPage() {
     }
   };
 
+  useEffect(() => {
+    const unsubscribe = subscribeToNativeMessages((message) => {
+      if (message.type !== "NATIVE_PUSH_PERMISSION_RESULT") return;
+      setBusy(false);
+      decide(message.payload.permission);
+    });
+
+    return () => {
+      unsubscribe();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  });
+
   const allow = async () => {
     setBusy(true);
+    if (isNativeWebView()) {
+      notifyMobile({ type: "REQUEST_PUSH_PERMISSION" });
+      timeoutRef.current = setTimeout(() => {
+        setBusy(false);
+        decide("denied");
+      }, 15000);
+      return;
+    }
+
     try {
-      if (isNativeWebView()) {
-        // TODO(mobile): native 측 응답을 받아 분기. 1차에선 granted 가정 + native가 OS dialog 위임.
-        notifyMobile({ type: "REQUEST_PUSH_PERMISSION" });
-        decide("granted");
-        return;
-      }
       if (typeof window !== "undefined" && "Notification" in window) {
         const perm = await Notification.requestPermission();
         decide(perm === "granted" ? "granted" : "denied");
