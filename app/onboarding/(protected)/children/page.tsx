@@ -131,10 +131,10 @@ export default function ChildrenPage() {
           onClick={addChild}
           disabled={!canAddChild}
           className={cn(
-            "flex h-[52px] items-center justify-center gap-[7px] rounded-2xl border-[1.358px] border-dashed transition-colors",
+            "flex h-13 items-center justify-center gap-1.75 rounded-2xl border-[1.358px] border-dashed transition-colors",
             !canAddChild
               ? "cursor-not-allowed border-gray-200 text-gray-300"
-              : "border-[#b69cfe] text-[#9572ff] hover:bg-primary-50",
+              : "border-primary-200 text-primary-300 hover:bg-primary-50",
           )}
         >
           <PlusIcon size={20} />
@@ -187,7 +187,7 @@ function DeleteConfirm({
       onClick={onCancel}
     >
       <div
-        className="flex w-full max-w-[334px] flex-col rounded-[20px] bg-white"
+        className="flex w-full max-w-83.5 flex-col rounded-xl bg-white"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
@@ -199,7 +199,7 @@ function DeleteConfirm({
             aria-hidden
             width={82}
             height={67}
-            className="h-[67px] w-[82px] object-contain"
+            className="h-16.75 w-20.5 object-contain"
           />
           <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
             자녀 정보를 삭제하시겠습니까?

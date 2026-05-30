@@ -107,7 +107,9 @@ export default function SettingsNotificationsPage() {
                   control={
                     <Switch
                       checked={pref.enabled}
-                      onCheckedChange={(next) => void patch(type, { enabled: next })}
+                      onCheckedChange={(next) =>
+                        void patch(type, { enabled: next })
+                      }
                       ariaLabel={`${title} 받기`}
                     />
                   }
@@ -181,7 +183,7 @@ function Switch({
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         "relative h-7 w-12 rounded-full transition-colors",
-        checked ? "bg-[#9572ff]" : "bg-gray-300",
+        checked ? "bg-primary-300" : "bg-gray-300",
       )}
     >
       <span

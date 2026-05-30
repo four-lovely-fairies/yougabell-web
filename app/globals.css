@@ -133,7 +133,48 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* scroll-snap wheel picker용 — 시스템 스크롤바 숨김 */
+/* OS 상태바(노치·다이내믹 아일랜드) 안전영역 상단 패딩.
+   디바이스에선 env(safe-area-inset-top), 데스크톱(inset=0)에선 최소 12px gap.
+   Figma의 StatusBar(47px)를 헤더 높이에 박지 말고 화면 최상단 컨테이너에서 이 유틸로 대체한다. */
+@utility pt-safe {
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+
+/* 전역 스크롤바 — 오버레이 스타일 (레이아웃 비침습).
+   · thumb는 평소 투명, 스크롤 영역 hover 시에만 노출 → 콘텐츠를 가리지 않음
+   · 6px 얇은 폭을 고정하고 트랙은 투명 → hover로 노출/숨김이 토글돼도 폭이 변하지 않아
+     레이아웃이 밀리지 않는다
+   · 모바일 WebView·오버레이 스크롤바 OS(macOS 트랙패드 등)에선 0px 오버레이로 동작해
+     너비를 차지하지 않는다 */
+* {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: transparent transparent;
+}
+*:hover,
+*:focus-within {
+  scrollbar-color: rgba(0, 0, 0, 0.22) transparent; /* Firefox: hover 시 노출 */
+}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: transparent; /* 평소 숨김 */
+  border-radius: 999px;
+}
+:hover::-webkit-scrollbar-thumb,
+:focus-within::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.22); /* hover 시 노출 */
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.36);
+}
+
+/* scroll-snap wheel picker용 — 시스템 스크롤바 숨김 (전역 규칙보다 우선) */
 .no-scrollbar {
   scrollbar-width: none;
 }

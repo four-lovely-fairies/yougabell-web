@@ -98,7 +98,7 @@ export default function SettingsChildrenPage() {
           type="button"
           onClick={() => router.push("/settings/children/new")}
           className={cn(
-            "flex h-13 items-center justify-center gap-[7px] rounded-2xl border-[1.358px] border-dashed border-[#dab2ff] text-[#9349f4] transition-colors hover:bg-[#efe7ff]",
+            "flex h-13 items-center justify-center gap-1.75 rounded-2xl border-[1.358px] border-dashed border-[#dab2ff] text-[#9349f4] transition-colors hover:bg-primary-50",
           )}
         >
           <PlusIcon size={20} />
@@ -148,13 +148,13 @@ function DeleteConfirm({
       onClick={onCancel}
     >
       <div
-        className="flex w-full max-w-[334px] flex-col rounded-xl bg-white"
+        className="flex w-full max-w-83.5 flex-col rounded-xl bg-white"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
           <div
             aria-hidden
-            className="flex size-[68px] items-center justify-center rounded-full bg-error-50 text-error-600"
+            className="flex size-17 items-center justify-center rounded-full bg-error-50 text-error-600"
           >
             <TrashIcon size={32} />
           </div>

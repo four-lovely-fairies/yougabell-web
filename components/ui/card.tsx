@@ -8,8 +8,8 @@ const card = cva("bg-white", {
   variants: {
     padding: { none: "", sm: "p-4", md: "p-5", lg: "p-6" }, // 16 / 20 / 24
     radius: {
-      lg: "rounded-[16px]",
-      xl: "rounded-[20px]",
+      lg: "rounded-lg",
+      xl: "rounded-xl",
       xxl: "rounded-[24px]",
     },
     shadow: { none: "", sm: "shadow-1", md: "shadow-2" },

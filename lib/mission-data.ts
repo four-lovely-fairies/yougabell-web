@@ -13,6 +13,8 @@ export type CurrentMissionDetail = {
   durationLabel: string;
   categoryLabel: string;
   sourceLabel: string;
+  // 목표 행(Figma 미션 시작하기). 실 API가 아직 안 내려줄 수 있어 optional.
+  goalLabel?: string | null;
   status: "not_started" | "in_progress" | "completed";
 };
 
@@ -86,7 +88,8 @@ export const getDemoCurrentMission = (): CurrentMissionResponse => ({
     durationMinutes: 10,
     durationLabel: "10분",
     categoryLabel: "언어발달",
-    sourceLabel: "CDC",
+    sourceLabel: "CDC 2022",
+    goalLabel: "#친숙얼굴인식 #사회적반응",
     status: "not_started",
   },
   activeExecution: null,

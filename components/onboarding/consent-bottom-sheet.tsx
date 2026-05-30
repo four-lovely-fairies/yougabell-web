@@ -45,7 +45,7 @@ export function ConsentBottomSheet({ initial, onClose, onConfirm }: Props) {
       aria-labelledby="consent-title"
     >
       <div
-        className="w-full max-w-[390px] rounded-t-3xl bg-white pb-5 pt-7"
+        className="w-full max-w-97.5 rounded-t-3xl bg-white pb-5 pt-7"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between px-6 pb-4">
@@ -131,7 +131,7 @@ function CheckMark({
       className={cn(
         "flex size-5 items-center justify-center rounded-sm",
         filled && active && "bg-gray-800 text-white",
-        !filled && active && "text-[#9572ff]",
+        !filled && active && "text-primary-300",
         !active && "text-gray-300",
       )}
     >

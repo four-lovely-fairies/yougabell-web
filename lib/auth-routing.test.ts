@@ -3,10 +3,10 @@ import { describe, it } from "node:test";
 import { getAppRedirectPath, getOnboardingRedirectPath } from "./auth-routing";
 
 void describe("auth routing", () => {
-  void it("allows intro without a session", () => {
+  void it("allows the onboarding intro without a session", () => {
     assert.equal(
       getOnboardingRedirectPath({
-        pathname: "/onboarding/intro",
+        pathname: "/onboarding",
         hasSession: false,
         onboardedAt: null,
       }),
@@ -14,14 +14,14 @@ void describe("auth routing", () => {
     );
   });
 
-  void it("redirects unauthenticated onboarding steps back to intro", () => {
+  void it("redirects unauthenticated onboarding steps back to the intro", () => {
     assert.equal(
       getOnboardingRedirectPath({
         pathname: "/onboarding/parent",
         hasSession: false,
         onboardedAt: null,
       }),
-      "/onboarding/intro",
+      "/onboarding",
     );
   });
 
@@ -36,23 +36,23 @@ void describe("auth routing", () => {
     );
   });
 
-  void it("redirects unauthenticated app access to intro", () => {
+  void it("redirects unauthenticated app access to the intro", () => {
     assert.equal(
       getAppRedirectPath({
         hasSession: false,
         onboardedAt: null,
       }),
-      "/onboarding/intro",
+      "/onboarding",
     );
   });
 
-  void it("redirects authenticated but non-onboarded app access to intro", () => {
+  void it("redirects authenticated but non-onboarded app access to the intro", () => {
     assert.equal(
       getAppRedirectPath({
         hasSession: true,
         onboardedAt: null,
       }),
-      "/onboarding/intro",
+      "/onboarding",
     );
   });
 
