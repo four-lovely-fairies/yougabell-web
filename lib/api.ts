@@ -144,6 +144,38 @@ export class ApiError extends Error {
   }
 }
 
+function isChildNotFoundError(error: unknown): error is ApiError {
+  if (!(error instanceof ApiError) || error.status !== 404) {
+    return false;
+  }
+
+  const code =
+    typeof error.body === "object" &&
+    error.body !== null &&
+    "code" in error.body &&
+    typeof (error.body as { code?: unknown }).code === "string"
+      ? (error.body as { code: string }).code
+      : null;
+
+  return code === "CHILD_NOT_FOUND";
+}
+
+async function withStoredChildFallback<T>(
+  childId: string | null | undefined,
+  loader: (effectiveChildId?: string) => Promise<T>,
+): Promise<T> {
+  try {
+    return await loader(childId ?? undefined);
+  } catch (error) {
+    if (!childId || !isChildNotFoundError(error)) {
+      throw error;
+    }
+
+    clearStoredSelectedChildId();
+    return loader(undefined);
+  }
+}
+
 type MissionExecutionAction =
   | "pause"
   | "resume"
@@ -209,24 +241,26 @@ export const loadHomeDashboard = async (
     });
   }
 
-  const { data, error, response } = await openApiClient.GET("/home", {
-    params: {
-      query: {
-        childId: childId ?? undefined,
+  return withStoredChildFallback(childId, async (effectiveChildId) => {
+    const { data, error, response } = await openApiClient.GET("/home", {
+      params: {
+        query: {
+          childId: effectiveChildId,
+        },
       },
-    },
-    headers,
+      headers,
+    });
+    const status = response.status;
+
+    if (error) {
+      throw new ApiError(status, error);
+    }
+    if (!data) {
+      throw new ApiError(status, {});
+    }
+
+    return { data, source: "api" };
   });
-  const status = response.status;
-
-  if (error) {
-    throw new ApiError(status, error);
-  }
-  if (!data) {
-    throw new ApiError(status, {});
-  }
-
-  return { data, source: "api" };
 };
 
 export const submitHomeMoodCheck = async (
@@ -438,25 +472,27 @@ export const loadRoadmap = async ({
     });
   }
 
-  const { data, error, response } = await openApiClient.GET("/me/roadmap", {
-    params: {
-      query: {
-        childId: childId ?? undefined,
-        targetMonth: targetMonth ?? undefined,
+  return withStoredChildFallback(childId, async (effectiveChildId) => {
+    const { data, error, response } = await openApiClient.GET("/me/roadmap", {
+      params: {
+        query: {
+          childId: effectiveChildId,
+          targetMonth: targetMonth ?? undefined,
+        },
       },
-    },
-    headers,
+      headers,
+    });
+    const status = response.status;
+
+    if (error) {
+      throw new ApiError(status, error);
+    }
+    if (!data) {
+      throw new ApiError(status, {});
+    }
+
+    return { data, source: "api" };
   });
-  const status = response.status;
-
-  if (error) {
-    throw new ApiError(status, error);
-  }
-  if (!data) {
-    throw new ApiError(status, {});
-  }
-
-  return { data, source: "api" };
 };
 
 export const loadWeeklyReport = async ({
@@ -496,22 +532,28 @@ export const loadWeeklyReport = async ({
       };
     }
 
-    const { data, error, response } = await openApiClient.GET(
-      "/weekly-reports/current",
-      {
-        params: {
-          query: {
-            childId: childId ?? undefined,
+    const current = await withStoredChildFallback(
+      childId,
+      async (effectiveChildId) => {
+        const { data, error, response } = await openApiClient.GET(
+          "/weekly-reports/current",
+          {
+            params: {
+              query: {
+                childId: effectiveChildId,
+              },
+            },
+            headers,
           },
-        },
-        headers,
+        );
+        if (error || !data) {
+          throw new ApiError((response as Response).status, error ?? {});
+        }
+        return data;
       },
     );
-    if (error || !data) {
-      throw new ApiError((response as Response).status, error ?? {});
-    }
     return {
-      data: toWeeklyReportViewData(data),
+      data: toWeeklyReportViewData(current),
       error: null,
     };
   } catch (error) {
@@ -539,13 +581,16 @@ export const loadCurrentMission = async (
     });
   }
 
-  const query = childId ? `?childId=${encodeURIComponent(childId)}` : "";
-  const data = await request<CurrentMissionResponse>(
-    `/missions/current${query}`,
-    {
-      method: "GET",
-      headers,
-    },
+  const data = await withStoredChildFallback(childId, async (effectiveChildId) =>
+    request<CurrentMissionResponse>(
+      effectiveChildId
+        ? `/missions/current?childId=${encodeURIComponent(effectiveChildId)}`
+        : "/missions/current",
+      {
+        method: "GET",
+        headers,
+      },
+    ),
   );
 
   return { data, source: "api" };
@@ -597,13 +642,16 @@ export const loadMissionExecution = async ({
     });
   }
 
-  const query = childId ? `?childId=${encodeURIComponent(childId)}` : "";
-  const data = await request<{ execution: MissionExecutionSnapshot | null }>(
-    `/mission-executions/active${query}`,
-    {
-      method: "GET",
-      headers,
-    },
+  const data = await withStoredChildFallback(childId, async (effectiveChildId) =>
+    request<{ execution: MissionExecutionSnapshot | null }>(
+      effectiveChildId
+        ? `/mission-executions/active?childId=${encodeURIComponent(effectiveChildId)}`
+        : "/mission-executions/active",
+      {
+        method: "GET",
+        headers,
+      },
+    ),
   );
 
   return { execution: data.execution, source: "api" };
