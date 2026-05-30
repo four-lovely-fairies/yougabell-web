@@ -74,3 +74,47 @@ export type MissionFeedbackDraft = {
   missionSatisfaction: number | null;
   note: string;
 };
+
+const DEMO_SELECTED_CHILD: MissionSelectedChild = {
+  id: "demo-child-youse",
+  name: "김유스",
+  birthDate: "2023-04-15",
+  ageLabel: "만3세",
+};
+
+export const getDemoCurrentMission = (): CurrentMissionResponse => ({
+  selectedChild: DEMO_SELECTED_CHILD,
+  children: [DEMO_SELECTED_CHILD],
+  mission: {
+    id: "demo-mission",
+    subThemeLabel: "아이와 10분 가까워지기",
+    title: "짝짜꿍 노래 게임",
+    description:
+      '아이와 마주 앉아 "짝짜꿍" 노래를 부르며 손뼉을 마주치는 게임을 3회 반복한다. 아이가 먼저 손을 내밀면 반응을 크게 해준다.',
+    durationMinutes: 10,
+    durationLabel: "10분",
+    categoryLabel: "언어발달",
+    sourceLabel: "CDC 2022",
+    goalLabel: "#친숙얼굴인식 #사회적반응",
+    status: "not_started",
+  },
+  activeExecution: null,
+});
+
+export const getDemoMissionEffect = (): MissionExecutionEffect => ({
+  execution: {
+    id: "demo-execution-demo-mission",
+    status: "completed",
+    completedAt: new Date().toISOString(),
+    actualDurationSeconds: 600,
+    wasEarlyCompleted: false,
+  },
+  mission: {
+    id: "demo-mission",
+    title: "짝짜꿍 노래 게임",
+    effect:
+      "아이와 손을 맞추고 눈을 마주치는 반복이 아이의 정서적 안정감과 상호작용 집중력을 높여줘요.",
+    goal: "또래와 함께 놀이하는 초기 사회성",
+    subThemeLabel: "아이와 10분 가까워지기",
+  },
+});
