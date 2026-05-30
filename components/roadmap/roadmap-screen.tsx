@@ -9,9 +9,9 @@ import { Chip } from "@/components/ui/chip";
 import { SectionInfoCard } from "@/components/ui/section-info-card";
 import { getStoredSelectedChildId, loadRoadmap } from "@/lib/api";
 import {
+  CDC_CHECKPOINTS,
   ROADMAP_CATEGORY_DISPLAY,
   type RoadmapCategoryGroup,
-  type RoadmapMonthTabRange,
   type RoadmapResponse,
   type RoadmapStage,
 } from "@/lib/roadmap-data";
@@ -99,9 +99,7 @@ export const RoadmapScreen = () => {
         ) : null}
         <CurrentStageCard ageLabel={data.child.ageLabel} stage={data.stage} />
         <MonthTabs
-          tabs={data.monthTabs}
           target={data.targetMonth}
-          range={data.monthTabRange}
           disabled={loading}
           onSelect={onSelectMonth}
         />
@@ -160,20 +158,31 @@ const CurrentStageCard = ({
 );
 
 const MonthTabs = ({
-  tabs,
   target,
-  range,
   disabled,
   onSelect,
 }: {
-  tabs: number[];
   target: number;
-  range: RoadmapMonthTabRange;
   disabled: boolean;
   onSelect: (month: number) => void;
 }) => {
-  const prevDisabled = range.prev === null;
-  const nextDisabled = range.next === null;
+  const activeRef = useRef<HTMLButtonElement | null>(null);
+
+  const targetIndex = (CDC_CHECKPOINTS as readonly number[]).indexOf(target);
+  const prevMonth = targetIndex > 0 ? CDC_CHECKPOINTS[targetIndex - 1] : null;
+  const nextMonth =
+    targetIndex >= 0 && targetIndex < CDC_CHECKPOINTS.length - 1
+      ? CDC_CHECKPOINTS[targetIndex + 1]
+      : null;
+
+  // 선택된 월령이 바뀌면 가로 스크롤에서 가운데로 보이도록 이동.
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({
+      inline: "center",
+      block: "nearest",
+      behavior: "smooth",
+    });
+  }, [target]);
 
   return (
     <section className="mt-5 px-5">
@@ -183,24 +192,24 @@ const MonthTabs = ({
       <div
         role="tablist"
         aria-label="월령 선택"
-        className="mt-3 flex items-center justify-center gap-1"
+        className="mt-3 flex items-center gap-1"
       >
         <button
           type="button"
-          onClick={() => range.prev !== null && onSelect(range.prev)}
-          disabled={prevDisabled || disabled}
+          onClick={() => prevMonth !== null && onSelect(prevMonth)}
+          disabled={prevMonth === null || disabled}
           aria-label="이전 월령 보기"
-          aria-disabled={prevDisabled}
           className="flex size-8 shrink-0 items-center justify-center text-gray-800 disabled:text-gray-300"
         >
           <ChevronLeft className="size-6" aria-hidden />
         </button>
-        <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto">
-          {tabs.map((month) => {
+        <div className="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
+          {CDC_CHECKPOINTS.map((month) => {
             const active = month === target;
             return (
               <button
                 key={month}
+                ref={active ? activeRef : undefined}
                 type="button"
                 role="tab"
                 aria-selected={active}
@@ -219,10 +228,9 @@ const MonthTabs = ({
         </div>
         <button
           type="button"
-          onClick={() => range.next !== null && onSelect(range.next)}
-          disabled={nextDisabled || disabled}
+          onClick={() => nextMonth !== null && onSelect(nextMonth)}
+          disabled={nextMonth === null || disabled}
           aria-label="다음 월령 보기"
-          aria-disabled={nextDisabled}
           className="flex size-8 shrink-0 items-center justify-center text-gray-800 disabled:text-gray-300"
         >
           <ChevronRight className="size-6" aria-hidden />
