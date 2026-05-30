@@ -10,6 +10,7 @@ import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { buildOAuthRedirectTo, getOAuthErrorMessage } from "@/lib/auth-oauth";
 import { track } from "@/lib/analytics";
 import { getOnboardingResumePath } from "@/lib/onboarding-draft";
+import { waitForServerSession } from "@/lib/server-session-ready";
 import {
   isNativeWebView,
   notifyMobile,
@@ -52,16 +53,17 @@ export default function IntroPage() {
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
-
     if (!isNativeWebView()) {
       return;
     }
 
-    void supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
-      if (data.session && !shouldShowResume) {
-        navigateToParentStep();
-      }
-    });
+    void supabase.auth
+      .getSession()
+      .then(({ data }: { data: { session: Session | null } }) => {
+        if (data.session && !shouldShowResume) {
+          void waitForServerSession().then(() => navigateToParentStep());
+        }
+      });
 
     const {
       data: { subscription },
@@ -70,7 +72,7 @@ export default function IntroPage() {
         if (!session) return;
         setPendingProvider(null);
         if (shouldShowResume) return;
-        navigateToParentStep();
+        void waitForServerSession().then(() => navigateToParentStep());
       },
     );
 
@@ -81,6 +83,7 @@ export default function IntroPage() {
             access_token: message.payload.accessToken,
             refresh_token: message.payload.refreshToken,
           });
+          await waitForServerSession();
           setPendingProvider(null);
           if (shouldShowResume) return;
           navigateToParentStep();
@@ -106,6 +109,8 @@ export default function IntroPage() {
         setPendingProvider(null);
       }
     });
+
+    notifyMobile({ type: "WEB_READY" });
 
     return () => {
       subscription.unsubscribe();

@@ -5,6 +5,7 @@ import { useEffect, useEffectEvent, useRef } from "react";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { ApiError, api } from "@/lib/api";
 import { getOnboardingResumePath } from "@/lib/onboarding-draft";
+import { waitForServerSession } from "@/lib/server-session-ready";
 import {
   isNativeWebView,
   notifyMobile,
@@ -57,9 +58,15 @@ export default function MobileEntryPage() {
     const fallbackTimeoutId = window.setTimeout(() => {
       void supabase.auth
         .getSession()
-        .then(({ data }: { data: { session: Session | null } }) =>
-          data.session ? goToAuthenticatedStart() : goToIntro(),
-        );
+        .then(async ({ data }: { data: { session: Session | null } }) => {
+          if (!data.session) {
+            goToIntro();
+            return;
+          }
+
+          await waitForServerSession();
+          await goToAuthenticatedStart();
+        });
     }, 1000);
 
     const unsubscribe = subscribeToNativeMessages((message) => {
@@ -79,6 +86,7 @@ export default function MobileEntryPage() {
           access_token: message.payload.accessToken,
           refresh_token: message.payload.refreshToken,
         });
+        await waitForServerSession();
         await goToAuthenticatedStart();
       })();
     });
