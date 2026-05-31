@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import { api, ApiError } from "@/lib/api";
+import { notifyMobile } from "@/lib/native-bridge";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { INTEREST_API_TO_WEB, INTEREST_LABEL, type ApiInterestId } from "@/lib/types";
 import {
@@ -41,6 +42,7 @@ export default function SettingsPage() {
 
   const onLogout = async () => {
     track({ type: "settings_logout" });
+    notifyMobile({ type: "LOGOUT" });
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
     router.replace("/onboarding");
@@ -178,6 +180,7 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
     try {
       await api.deleteAccount();
       track({ type: "settings_account_delete_confirm" });
+      notifyMobile({ type: "LOGOUT" });
       const supabase = createSupabaseBrowserClient();
       await supabase.auth.signOut();
       router.replace("/onboarding");
