@@ -30,7 +30,8 @@ export default function SettingsProfilePage() {
         const me = await api.getMe();
         setParent({
           name: me.name,
-          birthDate: me.birthDate,
+          // API의 ISO datetime(...T00:00:00.000Z) → 입력 폼·API용 YYYY-MM-DD로 정규화
+          birthDate: me.birthDate.slice(0, 10),
           gender: me.gender,
           workStatus: me.workStatus ?? undefined,
         });
