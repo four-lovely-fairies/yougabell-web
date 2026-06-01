@@ -30,7 +30,9 @@ export default function SettingsChildrenEditPage() {
         setChild({
           tempId: found.id,
           name: found.name,
-          birthDate: found.birthDate,
+          // API는 birthDate를 ISO datetime(...T00:00:00.000Z)으로 주는데
+          // 입력 폼·API는 YYYY-MM-DD만 받으므로 날짜 부분만 사용.
+          birthDate: found.birthDate.slice(0, 10),
           gender: found.gender,
           notes: found.notes ?? undefined,
         });
@@ -40,9 +42,7 @@ export default function SettingsChildrenEditPage() {
     })();
   }, [childId]);
 
-  const canSubmit = Boolean(
-    child?.name && child?.birthDate && child?.gender,
-  );
+  const canSubmit = Boolean(child?.name && child?.birthDate && child?.gender);
 
   const submit = async () => {
     if (!child || !canSubmit || busy) return;
@@ -87,9 +87,7 @@ export default function SettingsChildrenEditPage() {
       {child ? (
         <ChildCardForm index={0} child={child} onChange={setChild} />
       ) : (
-        <p className="py-8 text-center text-sm text-gray-400">
-          불러오는 중...
-        </p>
+        <p className="py-8 text-center text-sm text-gray-400">불러오는 중...</p>
       )}
 
       <div className="min-h-8 flex-1" />
