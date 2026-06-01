@@ -181,3 +181,10 @@ button:disabled {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* 이미지 드래그 방지 — 9컷 스프라이트 시트(마스코트 등)를 좌표로 크롭해 쓰는데,
+   드래그하면 원본 전체 이미지가 노출되는 문제 차단. WebView(WebKit/Chromium) 대상. */
+img {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}
