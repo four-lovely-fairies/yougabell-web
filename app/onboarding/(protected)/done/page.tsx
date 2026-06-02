@@ -37,7 +37,8 @@ function buildPayload(
   const children = draft.children ?? [];
   const notification = draft.notification;
   const interests = draft.interests ?? [];
-  if (!p?.name || !p.birthDate || !p.gender) return null;
+  // 부모는 이름만 필수 (생년월일·성별은 선택 — App Store 5.1.1). 자녀는 핵심이라 모두 필수.
+  if (!p?.name) return null;
   if (children.length < 1) return null;
   for (const c of children) {
     if (!c.name || !c.birthDate || !c.gender) return null;
@@ -46,8 +47,8 @@ function buildPayload(
   return {
     parent: {
       name: p.name,
-      birthDate: p.birthDate,
-      gender: p.gender,
+      birthDate: p.birthDate ?? null,
+      gender: p.gender ?? null,
       workStatus: p.workStatus ?? null,
     },
     children: children.map((c) => ({
