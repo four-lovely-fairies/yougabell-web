@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ClearCircleIcon } from "@/components/icons";
 import { DateInput } from "@/components/onboarding/date-input";
 import { SegmentedToggle } from "@/components/onboarding/segmented-toggle";
@@ -11,6 +11,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Gender, ParentDraft, WorkStatus } from "@/lib/types";
 
 export default function ParentPage() {
@@ -18,7 +19,30 @@ export default function ParentPage() {
   const { draft, patch } = useOnboardingDraft();
   const [parent, setParent] = useState<ParentDraft>(draft?.parent ?? {});
 
-  const canSubmit = Boolean(parent.name && parent.birthDate && parent.gender);
+  // App Store 4.0(Sign in with Apple): 이름은 Apple 인증이 제공하므로 재입력을 강요하지 않는다.
+  // Apple 로그인 시 mobile이 user_metadata.full_name에 저장 → 이름이 비어 있으면 그 값으로 자동 채움.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const supabase = createSupabaseBrowserClient();
+      const { data } = await supabase.auth.getUser();
+      const meta = data.user?.user_metadata as
+        | { full_name?: string; given_name?: string; family_name?: string }
+        | undefined;
+      const name =
+        meta?.full_name?.trim() ||
+        [meta?.given_name, meta?.family_name].filter(Boolean).join(" ").trim();
+      if (!cancelled && name) {
+        setParent((prev) => (prev.name ? prev : { ...prev, name }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // App Store 5.1.1: 생년월일·성별은 핵심 기능에 불필요하므로 선택 입력. 이름만 필수.
+  const canSubmit = Boolean(parent.name);
 
   const update = (next: Partial<ParentDraft>) =>
     setParent((prev) => ({ ...prev, ...next }));
@@ -74,7 +98,7 @@ export default function ParentPage() {
           />
         </Field>
 
-        <Field label="생년월일" required>
+        <Field label="생년월일">
           <DateInput
             value={parent.birthDate}
             onChange={(iso) => update({ birthDate: iso })}
@@ -86,7 +110,7 @@ export default function ParentPage() {
           />
         </Field>
 
-        <Field label="성별" required>
+        <Field label="성별">
           <SegmentedToggle<Gender>
             ariaLabel="본인 성별"
             options={[

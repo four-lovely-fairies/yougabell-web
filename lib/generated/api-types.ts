@@ -4,2247 +4,2398 @@
  */
 
 export interface paths {
-    "/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AppController_getHello"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/onboarding/complete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 온보딩 일괄 완료
-         * @description Parent 정보 + Child[] + 앱 사용 시간대[]를 단일 atomic 트랜잭션으로 적용. 이미 완료된 사용자는 409.
-         */
-        post: operations["OnboardingController_complete"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["AppController_getHello"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/health": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 본인 정보 조회
-         * @description User + children(deletedAt 필터) + notificationPreferences 포함. onboardedAt이 null이면 미완료.
-         */
-        get: operations["UsersController_getMe"];
-        put?: never;
-        post?: never;
-        /**
-         * 계정 탈퇴 (Figma 2395:8988)
-         * @description soft delete (deletedAt set). 30일 후 cron으로 hard delete + cascade.
-         */
-        delete: operations["UsersController_deleteAccount"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["AppController_getHealth"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/onboarding/complete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/me/parent": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * 본인 정보 수정 (Figma 2395:9320)
-         * @description 부분 갱신. name·birthDate·gender·workStatus 중 일부.
-         */
-        patch: operations["UsersController_updateParent"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * 온보딩 일괄 완료
+     * @description Parent 정보 + Child[] + 앱 사용 시간대[]를 단일 atomic 트랜잭션으로 적용. 이미 완료된 사용자는 409.
+     */
+    post: operations["OnboardingController_complete"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/me/interests": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * 관심 주제 수정 (Figma 2395:9162)
-         * @description 최대 3개로 일괄 교체.
-         */
-        patch: operations["UsersController_updateInterests"];
-        trace?: never;
+    /**
+     * 본인 정보 조회
+     * @description User + children(deletedAt 필터) + notificationPreferences 포함. onboardedAt이 null이면 미완료.
+     */
+    get: operations["UsersController_getMe"];
+    put?: never;
+    post?: never;
+    /**
+     * 계정 탈퇴 (Figma 2395:8988)
+     * @description soft delete (deletedAt set). 30일 후 cron으로 hard delete + cascade.
+     */
+    delete: operations["UsersController_deleteAccount"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me/parent": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/me/notifications/{type}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * 알림 종류별 enabled+time 설정 (Figma 2395:9126)
-         * @description play_10min(10분 놀이) 또는 weekly_report(주간 리포트) preference를 upsert.
-         */
-        patch: operations["UsersController_upsertNotification"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * 본인 정보 수정 (Figma 2395:9320)
+     * @description 부분 갱신. name·birthDate·gender·workStatus 중 일부.
+     */
+    patch: operations["UsersController_updateParent"];
+    trace?: never;
+  };
+  "/me/interests": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 사용자 목록 (운영자)
-         * @description 온보딩 완료자 기본. q(이름 LIKE) / page / limit / onboarded 필터.
-         */
-        get: operations["AdminController_listUsers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * 관심 주제 수정 (Figma 2395:9162)
+     * @description 최대 3개로 일괄 교체.
+     */
+    patch: operations["UsersController_updateInterests"];
+    trace?: never;
+  };
+  "/me/notifications/{type}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/weekly-reports/generate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 주간 리포트 수동 생성 (운영자)
-         * @description 지정한 주차 또는 직전 완료 주차의 주간 리포트를 자녀별로 생성한다.
-         */
-        post: operations["AdminController_generateWeeklyReports"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * 알림 종류별 enabled+time 설정 (Figma 2395:9126)
+     * @description play_10min(10분 놀이) 또는 weekly_report(주간 리포트) preference를 upsert.
+     */
+    patch: operations["UsersController_upsertNotification"];
+    trace?: never;
+  };
+  "/admin/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/weekly-reports/current": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["WeeklyReportsController_getCurrent"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * 사용자 목록 (운영자)
+     * @description 온보딩 완료자 기본. q(이름 LIKE) / page / limit / onboarded 필터.
+     */
+    get: operations["AdminController_listUsers"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/weekly-reports/generate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/weekly-reports/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["WeeklyReportsController_getById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * 주간 리포트 수동 생성 (운영자)
+     * @description 지정한 주차 또는 직전 완료 주차의 주간 리포트를 자녀별로 생성한다.
+     */
+    post: operations["AdminController_generateWeeklyReports"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/weekly-reports/current": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/home": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["HomeController_getHome"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["WeeklyReportsController_getCurrent"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/weekly-reports/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["NotificationsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["WeeklyReportsController_getById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/home": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/notifications/read-all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["NotificationsController_markAllRead"];
-        trace?: never;
+    get: operations["HomeController_getHome"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/home/mood": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/notifications/{id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["NotificationsController_markRead"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations["HomeController_upsertTodayMood"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/children": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 자녀 추가 (Figma 2395:9454) */
-        post: operations["ChildrenController_createChild"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["NotificationsController_list"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/read-all": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/children/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["ChildrenController_deleteChild"];
-        options?: never;
-        head?: never;
-        patch: operations["ChildrenController_updateChild"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations["NotificationsController_markAllRead"];
+    trace?: never;
+  };
+  "/notifications/{id}/read": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["MilestoneCategoriesController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations["NotificationsController_markRead"];
+    trace?: never;
+  };
+  "/children": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/milestones": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["MilestonesController_list"];
-        put?: never;
-        post: operations["MilestonesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 자녀 추가 (Figma 2395:9454) */
+    post: operations["ChildrenController_createChild"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/children/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/milestones/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["MilestonesController_remove"];
-        options?: never;
-        head?: never;
-        patch: operations["MilestonesController_update"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["ChildrenController_deleteChild"];
+    options?: never;
+    head?: never;
+    patch: operations["ChildrenController_updateChild"];
+    trace?: never;
+  };
+  "/admin/categories": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/growth-stages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GrowthStagesController_list"];
-        put?: never;
-        post: operations["GrowthStagesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["MilestoneCategoriesController_list"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/milestones": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/growth-stages/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["GrowthStagesController_remove"];
-        options?: never;
-        head?: never;
-        patch: operations["GrowthStagesController_update"];
-        trace?: never;
+    get: operations["MilestonesController_list"];
+    put?: never;
+    post: operations["MilestonesController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/milestones/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/missions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["MissionsController_list"];
-        put?: never;
-        post: operations["MissionsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["MilestonesController_remove"];
+    options?: never;
+    head?: never;
+    patch: operations["MilestonesController_update"];
+    trace?: never;
+  };
+  "/admin/growth-stages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/missions/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["MissionsController_remove"];
-        options?: never;
-        head?: never;
-        patch: operations["MissionsController_update"];
-        trace?: never;
+    get: operations["GrowthStagesController_list"];
+    put?: never;
+    post: operations["GrowthStagesController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/growth-stages/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/missions/current": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["MissionFlowController_getCurrentMission"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["GrowthStagesController_remove"];
+    options?: never;
+    head?: never;
+    patch: operations["GrowthStagesController_update"];
+    trace?: never;
+  };
+  "/admin/missions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/mission-executions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["MissionFlowController_startMissionExecution"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["MissionsController_list"];
+    put?: never;
+    post: operations["MissionsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/missions/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/mission-executions/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["MissionFlowController_getActiveMissionExecution"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["MissionsController_remove"];
+    options?: never;
+    head?: never;
+    patch: operations["MissionsController_update"];
+    trace?: never;
+  };
+  "/missions/current": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/mission-executions/{id}/action": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["MissionFlowController_applyMissionExecutionAction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["MissionFlowController_getCurrentMission"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mission-executions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/mission-executions/{id}/effect": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["MissionFlowController_getMissionExecutionEffect"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations["MissionFlowController_startMissionExecution"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mission-executions/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/mission-executions/{id}/feedback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["MissionFlowController_upsertMissionFeedback"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["MissionFlowController_getActiveMissionExecution"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mission-executions/{id}/action": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/me/roadmap": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["RoadmapController_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations["MissionFlowController_applyMissionExecutionAction"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mission-executions/{id}/effect": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/me/chat": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ChatController_get"];
-        put?: never;
-        post?: never;
-        delete: operations["ChatController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["MissionFlowController_getMissionExecutionEffect"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mission-executions/{id}/feedback": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/me/chat/messages/stream": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["ChatController_stream"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put: operations["MissionFlowController_upsertMissionFeedback"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me/roadmap": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get: operations["RoadmapController_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me/chat": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["ChatController_get"];
+    put?: never;
+    post?: never;
+    delete: operations["ChatController_remove"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me/chat/messages/stream": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["ChatController_stream"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        ParentDto: {
-            /** @example 홍길동 */
-            name: string;
-            /**
-             * @description ISO date (YYYY-MM-DD)
-             * @example 1990-01-01
-             */
-            birthDate: string;
-            /** @enum {string} */
-            gender: "female" | "male";
-            /**
-             * @description 직장 유무 (선택)
-             * @enum {string|null}
-             */
-            workStatus?: "working" | "full_time_caregiver" | null;
-        };
-        ChildInputDto: {
-            /** @example 김유스 */
-            name: string;
-            /** @example 2024-01-02 */
-            birthDate: string;
-            /** @enum {string} */
-            gender: "female" | "male";
-            /** @description 특이사항 자유 텍스트 (알레르기·발달 이슈 등). AI 챗봇 컨텍스트로 소비. */
-            notes?: string;
-        };
-        NotificationPreferenceDto: {
-            /**
-             * @description preset(오전/오후/저녁/밤) 또는 custom(직접 입력). custom일 때 time 필수.
-             * @enum {string}
-             */
-            slot: "morning" | "afternoon" | "evening" | "night" | "custom";
-            /**
-             * @description HH:MM (24h). custom일 때 필수, preset일 때 선택 — 미지정 시 시간대 디폴트.
-             * @example 08:00
-             */
-            time?: string;
-        };
-        CompleteOnboardingDto: {
-            parent: components["schemas"]["ParentDto"];
-            children: components["schemas"]["ChildInputDto"][];
-            /** @description 알림 시간대 (단일 선택, custom 옵션 포함). 권한 거부 또는 skip 시 미전송 가능. */
-            notification?: components["schemas"]["NotificationPreferenceDto"];
-            /**
-             * @description 관심 주제 (최대 3개). 온보딩 02-04 화면(Figma 2146:4467) 결과.
-             * @example [
-             *       "working_parent",
-             *       "language"
-             *     ]
-             */
-            interests?: ("working_parent" | "home_care" | "language" | "social" | "physical" | "cognition")[];
-        };
-        UpdateParentDto: {
-            /** @example 홍길동 */
-            name?: string;
-            /**
-             * @description ISO date
-             * @example 1990-01-01
-             */
-            birthDate?: string;
-            /** @enum {string} */
-            gender?: "female" | "male";
-            /** @enum {string|null} */
-            workStatus?: "working" | "full_time_caregiver" | null;
-        };
-        UpdateInterestsDto: {
-            /**
-             * @description 관심 주제 ID 목록 (최대 3개)
-             * @example [
-             *       "working_parent",
-             *       "language"
-             *     ]
-             */
-            interests: ("working_parent" | "home_care" | "language" | "social" | "physical" | "cognition")[];
-        };
-        UpsertNotificationPreferenceDto: {
-            /** @example true */
-            enabled: boolean;
-            /**
-             * @description HH:MM (24h). 미지정 시 기존 값 유지(없으면 기본 09:00).
-             * @example 19:00
-             */
-            time?: string;
-        };
-        DeleteAccountDto: {
-            /** @description 탈퇴 사유 (선택, 자유 텍스트). 통계·CS 용도. */
-            reason?: string;
-        };
-        GenerateWeeklyReportsDto: {
-            /**
-             * @description 생성할 주차의 월요일. YYYY-MM-DD. 없으면 직전 완료 주차
-             * @example 2026-05-04
-             */
-            weekStart?: string;
-            /**
-             * @description 기존 리포트가 있을 때 삭제 후 재생성할지 여부
-             * @default false
-             */
-            forceRegenerate: boolean;
-            /**
-             * @description 생성 대상만 계산하고 DB 쓰기/알림 생성을 하지 않을지 여부
-             * @default false
-             */
-            dryRun: boolean;
-        };
-        WeeklyReportSelectedChildDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 김유스 */
-            name: string;
-            /** @example 만3세 */
-            ageLabel: string;
-        };
-        WeeklyReportHeadlineDto: {
-            /** @example 나는 잘하고 있는가? */
-            question: string;
-            /** @example 지금 충분히 잘하고 계십니다. */
-            title: string;
-            body: string | null;
-        };
-        WeeklyReportDayDto: {
-            /** @enum {string} */
-            weekday: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
-            /** @enum {string} */
-            label: "월" | "화" | "수" | "목" | "금" | "토" | "일";
-            completedCount: number;
-            completed: boolean;
-        };
-        WeeklyReportMissionSummaryDto: {
-            days: components["schemas"]["WeeklyReportDayDto"][];
-            totalDurationSeconds: number;
-            /** @example 1시간 17분 */
-            totalDurationLabel: string;
-            childPositiveReactionRate: number;
-        };
-        WeeklyReportKeywordDto: {
-            /** @enum {number} */
-            rank: 1 | 2 | 3;
-            /** @example 공룡 */
-            keyword: string;
-        };
-        WeeklyReportKeywordEmptyStateDto: {
-            /** @example 아직 키워드가 충분하지 않아요 */
-            title: string;
-            description: string;
-        };
-        WeeklyReportBestMomentDto: {
-            /** Format: uuid */
-            id: string;
-            order: number;
-            /** @example 순수한 기쁨 */
-            label?: string;
-            title: string;
-            body: string;
-        };
-        WeeklyReportInnerStateDto: {
-            psychologicalEnergy: number;
-            /** @example 기분 전환을 위한 팁 */
-            tipTitle: string;
-            tipBody?: string;
-        };
-        WeeklyReportAiActionSuggestionDto: {
-            /** @example 미래 행동 제안 (AI 기반) */
-            title: string;
-            body: string;
-        };
-        WeeklyReportDetailDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 2026-05-04 */
-            weekStart: string;
-            /** @example 2026-05-10 */
-            weekEnd: string;
-            /** Format: date-time */
-            generatedAt: string;
-            headline: components["schemas"]["WeeklyReportHeadlineDto"];
-            missionSummary: components["schemas"]["WeeklyReportMissionSummaryDto"];
-            topKeywords: components["schemas"]["WeeklyReportKeywordDto"][];
-            keywordEmptyState: components["schemas"]["WeeklyReportKeywordEmptyStateDto"] | null;
-            bestMoments: components["schemas"]["WeeklyReportBestMomentDto"][];
-            innerState: components["schemas"]["WeeklyReportInnerStateDto"];
-            aiActionSuggestion: components["schemas"]["WeeklyReportAiActionSuggestionDto"];
-        };
-        WeeklyReportEmptyStateDto: {
-            /** @enum {string} */
-            reason: "no_mission_yet" | "no_mission_for_week" | "report_generation_pending";
-            /** @example 아직 주간 리포트가 없습니다 */
-            title: string;
-            description: string;
-            /** @example 미션 시작하기 */
-            ctaLabel: string;
-            /** @example /mission */
-            ctaHref: string;
-        };
-        WeeklyReportCurrentResponseDto: {
-            selectedChild: components["schemas"]["WeeklyReportSelectedChildDto"];
-            report: components["schemas"]["WeeklyReportDetailDto"] | null;
-            emptyState: components["schemas"]["WeeklyReportEmptyStateDto"] | null;
-        };
-        HomeChildDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 김유스 */
-            name: string;
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2023-04-20
-             */
-            birthDate: string;
-            /** @example 만3세 */
-            ageLabel: string;
-            /** @example 0 */
-            displayOrder: number;
-        };
-        HomeMoodDto: {
-            /**
-             * @example 4
-             * @enum {number}
-             */
-            level: 1 | 2 | 3 | 4 | 5;
-            /** @example 😊 */
-            emoji: string;
-        };
-        HomeWeekDayDto: {
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2026-05-13
-             */
-            date: string;
-            /**
-             * @example 수
-             * @enum {string}
-             */
-            weekdayLabel: "월" | "화" | "수" | "목" | "금" | "토" | "일";
-            /** @example 13 */
-            dayOfMonth: number;
-            isToday: boolean;
-            mood?: components["schemas"]["HomeMoodDto"];
-            missionCompleted?: boolean;
-        };
-        HomeWeekDto: {
-            /** @example 5월 */
-            monthLabel: string;
-            /** @example 2주차 */
-            weekOfMonthLabel: string;
-            days: components["schemas"]["HomeWeekDayDto"][];
-        };
-        HomeRecommendedMissionDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 아이 10분 가까워지기 */
-            subThemeLabel: string;
-            /** @example 아이와 눈을 마주치며 이야기를 해보아요 */
-            title: string;
-            /** @example 10 */
-            durationMinutes: number;
-            /** @enum {string} */
-            status: "not_started" | "in_progress" | "completed";
-        };
-        HomeGrowthStageDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 자아 형성기 */
-            name: string;
-            summary: string;
-        };
-        HomeReportSummaryDto: {
-            /** Format: uuid */
-            reportId: string;
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2026-05-04
-             */
-            weekStart: string;
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2026-05-10
-             */
-            weekEnd: string;
-            /** @example 지난주 아이와 함께한 놀이 시간 */
-            title: string;
-            /** @example 4620 */
-            totalDurationSeconds: number;
-            /** @example 1시간 17분 */
-            totalDurationLabel: string;
-            /** @example 92 */
-            childPositiveReactionRate: number;
-        };
-        HomeNotificationSummaryItemDto: {
-            /** Format: uuid */
-            id: string;
-            title: string;
-            body: string;
-            /** @enum {string} */
-            actionType: "none" | "open_home" | "open_mission" | "open_roadmap" | "open_chat" | "open_report" | "url";
-            /** @enum {string|null} */
-            targetType: "mission" | "mission_execution" | "weekly_report" | "child" | "chat_session" | "url" | null;
-            /** Format: uuid */
-            targetId: string | null;
-            targetUrl: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            readAt: string | null;
-        };
-        HomeNotificationsDto: {
-            /** @example 2 */
-            unreadCount: number;
-            latest: components["schemas"]["HomeNotificationSummaryItemDto"][];
-        };
-        HomeDashboardDto: {
-            selectedChild: components["schemas"]["HomeChildDto"];
-            children: components["schemas"]["HomeChildDto"][];
-            week: components["schemas"]["HomeWeekDto"];
-            recommendedMission: components["schemas"]["HomeRecommendedMissionDto"] | null;
-            growthStage: components["schemas"]["HomeGrowthStageDto"] | null;
-            reportSummary: components["schemas"]["HomeReportSummaryDto"] | null;
-            notifications: components["schemas"]["HomeNotificationsDto"];
-        };
-        NotificationListItemDto: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            type: "mission_reminder" | "mission_feedback" | "weekly_report_ready" | "roadmap_update" | "mental_check_reminder" | "chat_follow_up" | "system_notice";
-            title: string;
-            body: string;
-            /** @enum {string} */
-            actionType: "none" | "open_home" | "open_mission" | "open_roadmap" | "open_chat" | "open_report" | "url";
-            /** @enum {string|null} */
-            targetType: "mission" | "mission_execution" | "weekly_report" | "child" | "chat_session" | "url" | null;
-            /** Format: uuid */
-            targetId: string | null;
-            targetUrl: string | null;
-            /** @enum {string} */
-            priority: "normal" | "high";
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            readAt: string | null;
-        };
-        NotificationListResponseDto: {
-            items: components["schemas"]["NotificationListItemDto"][];
-        };
-        MarkAllNotificationsReadResponseDto: {
-            /** @example 3 */
-            updatedCount: number;
-        };
-        CreateChildDto: {
-            /** @example 김유스 */
-            name: string;
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2023-04-20
-             */
-            birthDate: string;
-            /** @enum {string} */
-            gender: "female" | "male";
-            notes?: string | null;
-        };
-        ChildResponseDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 김유스 */
-            name: string;
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2023-04-20
-             */
-            birthDate: string;
-            /** @enum {string} */
-            gender: "female" | "male";
-            notes: string | null;
-            avatarUrl: string | null;
-            /** @example 0 */
-            displayOrder: number;
-        };
-        UpdateChildDto: {
-            /** @example 김유스 */
-            name?: string;
-            /**
-             * @description ISO date YYYY-MM-DD
-             * @example 2023-04-20
-             */
-            birthDate?: string;
-            /** @enum {string} */
-            gender?: "female" | "male";
-            notes?: string | null;
-            displayOrder?: number;
-        };
-        MilestoneCategoryResponseDto: {
-            /** @example emotion */
-            id: string;
-            /** @example 정서 */
-            label: string;
-            /** @example heart */
-            iconKey: string;
-            /** @example #FFB3C7 */
-            color: string;
-            /** @example 0 */
-            displayOrder: number;
-        };
-        MilestoneResponseDto: {
-            /** Format: uuid */
-            id: string;
-            categoryId: string;
-            ageMonthsFrom: number;
-            ageMonthsTo: number;
-            title: string | null;
-            description: string;
-            displayOrder: number | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        ListMilestonesResponseDto: {
-            items: components["schemas"]["MilestoneResponseDto"][];
-            nextCursor: string | null;
-        };
-        CreateMilestoneDto: {
-            /** @example emotion */
-            categoryId: string;
-            /** @example 12 */
-            ageMonthsFrom: number;
-            /** @example 18 */
-            ageMonthsTo: number;
-            /** @example 낯선 사람을 경계한다 */
-            title?: string;
-            /** @example 낯선 환경·낯선 사람에 경계심을 보입니다. */
-            description: string;
-            /** @example 0 */
-            displayOrder?: number;
-        };
-        UpdateMilestoneDto: {
-            categoryId?: string;
-            ageMonthsFrom?: number;
-            ageMonthsTo?: number;
-            title?: string;
-            description?: string;
-            displayOrder?: number;
-        };
-        GrowthStageResponseDto: {
-            id: string;
-            name: string;
-            ageMonthsFrom: number;
-            ageMonthsTo: number;
-            summary: string;
-        };
-        CreateGrowthStageDto: {
-            /**
-             * @description slug (lowercase, 영문/숫자/하이픈)
-             * @example self-formation
-             */
-            id: string;
-            /** @example 자아 형성기 */
-            name: string;
-            /** @example 0 */
-            ageMonthsFrom: number;
-            /** @example 12 */
-            ageMonthsTo: number;
-            /** @example 아이가 "나"라는 인식을 만들어가는 시기 */
-            summary: string;
-        };
-        UpdateGrowthStageDto: {
-            name?: string;
-            ageMonthsFrom?: number;
-            ageMonthsTo?: number;
-            summary?: string;
-        };
-        MissionSourceDto: {
-            /** @example CDC. (2023). Developmental Milestones: 12 Months. */
-            citation: string;
-            /** @example https://cdc.gov/ncbddd/actearly */
-            url?: string;
-            note?: string;
-        };
-        MissionResponseDto: {
-            /** Format: uuid */
-            id: string;
-            categoryId: string;
-            title: string;
-            shortTitle: string;
-            description: string;
-            durationMinutes: number;
-            effect: string;
-            subThemeLabel: string | null;
-            goal: string | null;
-            recommendedAgeMonthsMin: number | null;
-            recommendedAgeMonthsMax: number | null;
-            thumbnailUrl: string | null;
-            videoUrl: string | null;
-            tags: string[];
-            sources: components["schemas"]["MissionSourceDto"][];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        ListMissionsResponseDto: {
-            items: components["schemas"]["MissionResponseDto"][];
-            nextCursor: string | null;
-        };
-        CreateMissionDto: {
-            /** @example play */
-            categoryId: string;
-            /** @example 아이와 10분 가까워지기 */
-            title: string;
-            /** @example 10분 아이컨텍 */
-            shortTitle: string;
-            description: string;
-            /** @example 10 */
-            durationMinutes: number;
-            /** @example 정서적 안정감 */
-            effect: string;
-            /** @example 아이와 가까워지기 */
-            subThemeLabel?: string;
-            /** @example 또래와 함께 놀이하는 초기 사회성 */
-            goal?: string;
-            recommendedAgeMonthsMin?: number;
-            recommendedAgeMonthsMax?: number;
-            thumbnailUrl?: string;
-            videoUrl?: string;
-            /**
-             * @example [
-             *       "감정",
-             *       "말놀이"
-             *     ]
-             */
-            tags?: string[];
-            sources?: components["schemas"]["MissionSourceDto"][];
-        };
-        UpdateMissionDto: {
-            categoryId?: string;
-            title?: string;
-            shortTitle?: string;
-            description?: string;
-            durationMinutes?: number;
-            effect?: string;
-            subThemeLabel?: string;
-            goal?: string;
-            recommendedAgeMonthsMin?: number;
-            recommendedAgeMonthsMax?: number;
-            thumbnailUrl?: string;
-            videoUrl?: string;
-            tags?: string[];
-            sources?: components["schemas"]["MissionSourceDto"][];
-        };
-        MissionSelectedChildDto: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            ageLabel: string;
-        };
-        CurrentMissionDetailDto: {
-            /** Format: uuid */
-            id: string;
-            subThemeLabel: string | null;
-            title: string;
-            description: string;
-            durationMinutes: number;
-            durationLabel: string;
-            categoryLabel: string;
-            sourceLabel: string;
-            /** @enum {string} */
-            status: "not_started" | "in_progress" | "completed";
-        };
-        ActiveMissionExecutionDto: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            status: "in_progress" | "paused";
-            /** Format: date-time */
-            startedAt: string;
-            /** Format: date-time */
-            activeSegmentStartedAt: string | null;
-            /** Format: date-time */
-            pausedAt: string | null;
-            durationMinutes: number;
-            elapsedSeconds: number;
-            remainingSeconds: number;
-        };
-        GetCurrentMissionResponseDto: {
-            selectedChild: components["schemas"]["MissionSelectedChildDto"];
-            mission: components["schemas"]["CurrentMissionDetailDto"];
-            activeExecution: components["schemas"]["ActiveMissionExecutionDto"] | null;
-        };
-        StartMissionExecutionDto: {
-            /** Format: uuid */
-            childId: string;
-            /** Format: uuid */
-            missionId: string;
-        };
-        MissionExecutionSnapshotDto: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            missionId: string;
-            /** Format: uuid */
-            childId: string;
-            /** @enum {string} */
-            status: "in_progress" | "paused";
-            /** Format: date-time */
-            startedAt: string;
-            /** Format: date-time */
-            activeSegmentStartedAt: string | null;
-            /** Format: date-time */
-            pausedAt: string | null;
-            durationMinutes: number;
-            elapsedSeconds: number;
-            remainingSeconds: number;
-            /** Format: date-time */
-            serverNow: string;
-        };
-        MissionExecutionSnapshotResponseDto: {
-            execution: components["schemas"]["MissionExecutionSnapshotDto"] | null;
-        };
-        MissionExecutionActionBodyDto: {
-            /** @enum {string} */
-            action: "pause" | "resume" | "complete" | "early_complete";
-        };
-        MissionExecutionEffectDto: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            status: "completed" | "early_completed";
-            /** Format: date-time */
-            completedAt: string;
-            actualDurationSeconds: number;
-            wasEarlyCompleted: boolean;
-        };
-        MissionEffectDetailDto: {
-            /** Format: uuid */
-            id: string;
-            title: string;
-            effect: string;
-            goal: string | null;
-            subThemeLabel: string | null;
-        };
-        GetMissionExecutionEffectResponseDto: {
-            execution: components["schemas"]["MissionExecutionEffectDto"];
-            mission: components["schemas"]["MissionEffectDetailDto"];
-        };
-        UpsertMissionFeedbackDto: {
-            childReaction: number;
-            parentEnergy: number;
-            missionSatisfaction: number;
-            note?: string | null;
-        };
-        MissionFeedbackResponseDto: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            executionId: string;
-            childReaction: number;
-            parentEnergy: number;
-            missionSatisfaction: number;
-            note: string | null;
-            keywords: string[];
-            /** Format: date-time */
-            createdAt: string;
-        };
-        UpsertMissionFeedbackResponseDto: {
-            feedback: components["schemas"]["MissionFeedbackResponseDto"];
-        };
-        RoadmapChildDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 김유스 */
-            name: string;
-            /** @example 4 */
-            ageMonths: number;
-            /** @example 4개월 차 */
-            ageLabel: string;
-        };
-        RoadmapStageDto: {
-            /** @example self-formation */
-            id: string;
-            /** @example 자아 형성기 */
-            name: string;
-            summary: string;
-        };
-        RoadmapMonthTabRangeDto: {
-            /**
-             * @description 좌 chevron 이동 대상. null이면 비활성.
-             * @example null
-             */
-            prev: number | null;
-            /**
-             * @description 우 chevron 이동 대상. null이면 비활성.
-             * @example 15
-             */
-            next: number | null;
-        };
-        RoadmapMilestoneSourceDto: {
-            /** @example CDC */
-            citation: string;
-            url: string | null;
-        };
-        RoadmapMilestoneItemDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 말을 걸거나 들어 올리면 차분해진다. 상대의 얼굴을 바라본다. */
-            description: string;
-            sources: components["schemas"]["RoadmapMilestoneSourceDto"][];
-        };
-        RoadmapCategoryGroupDto: {
-            /** @enum {string} */
-            categoryId: "social" | "language" | "cognitive" | "physical";
-            /** @example 사회성 */
-            categoryLabel: string;
-            /** @example groups */
-            iconKey: string;
-            items: components["schemas"]["RoadmapMilestoneItemDto"][];
-        };
-        RoadmapSourceTooltipDto: {
-            /** @example CDC, AAP, 국민건강보험, 보건복지부 등 세계 소아과 전문의들이 가장 많이 참고하는 데이터를 바탕으로 설계된 발달 지표입니다. */
-            text: string;
-        };
-        RoadmapResponseDto: {
-            child: components["schemas"]["RoadmapChildDto"];
-            stage: components["schemas"]["RoadmapStageDto"] | null;
-            /**
-             * @description 조회된 (보정 후) 대상 월령
-             * @example 4
-             */
-            targetMonth: number;
-            /**
-             * @description 월령 탭에 노출할 5개 CDC 체크포인트
-             * @example [
-             *       2,
-             *       4,
-             *       6,
-             *       9,
-             *       12
-             *     ]
-             */
-            monthTabs: number[];
-            monthTabRange: components["schemas"]["RoadmapMonthTabRangeDto"];
-            milestonesByCategory: components["schemas"]["RoadmapCategoryGroupDto"][];
-            sourceTooltip: components["schemas"]["RoadmapSourceTooltipDto"];
-        };
-        ChatSessionDto: {
-            /** Format: uuid */
-            id: string;
-            title: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        ChatMessageCardDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 0 */
-            order: number;
-            /** @example 잠자리 티켓 */
-            title: string;
-            /** @example 실물 티켓 한 장을 주세요... */
-            body: string;
-            /** @enum {string|null} */
-            actionType: "none" | "start_mission" | "open_link" | "follow_up" | null;
-            /** @description actionType에 따라 polymorphic */
-            actionPayload: Record<string, never> | null;
-        };
-        ChatMessageSourceDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example https://www.cdc.gov/ncbddd/actearly/milestones */
-            url: string;
-            /** @example cdc.gov */
-            domain: string;
-            title: string | null;
-        };
-        ChatMessageDto: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            role: "user" | "assistant";
-            /** @example 그 "딱 하나만 더"라는 요청이 얼마나 진을 빼놓는지 ... */
-            content: string;
-            /** Format: date-time */
-            sentAt: string;
-            cards: components["schemas"]["ChatMessageCardDto"][];
-            sources: components["schemas"]["ChatMessageSourceDto"][];
-        };
-        ChatResponseDto: {
-            session: components["schemas"]["ChatSessionDto"] | null;
-            messages: components["schemas"]["ChatMessageDto"][];
-        };
-        SendChatMessageRequestDto: {
-            /** @example 아이가 잠들기 전 자꾸 한 번만 더 라고 해요 */
-            content: string;
-        };
+  schemas: {
+    ParentDto: {
+      /** @example 홍길동 */
+      name: string;
+      /**
+       * @description ISO date (YYYY-MM-DD). 선택 입력 (App Store 5.1.1).
+       * @example 1990-01-01
+       */
+      birthDate?: string | null;
+      /** @enum {string|null} */
+      gender?: "female" | "male" | null;
+      /**
+       * @description 직장 유무 (선택)
+       * @enum {string|null}
+       */
+      workStatus?: "working" | "full_time_caregiver" | null;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    ChildInputDto: {
+      /** @example 김유스 */
+      name: string;
+      /** @example 2024-01-02 */
+      birthDate: string;
+      /** @enum {string} */
+      gender: "female" | "male";
+      /** @description 특이사항 자유 텍스트 (알레르기·발달 이슈 등). AI 챗봇 컨텍스트로 소비. */
+      notes?: string;
+    };
+    NotificationPreferenceDto: {
+      /**
+       * @description preset(오전/오후/저녁/밤) 또는 custom(직접 입력). custom일 때 time 필수.
+       * @enum {string}
+       */
+      slot: "morning" | "afternoon" | "evening" | "night" | "custom";
+      /**
+       * @description HH:MM (24h). custom일 때 필수, preset일 때 선택 — 미지정 시 시간대 디폴트.
+       * @example 08:00
+       */
+      time?: string;
+    };
+    CompleteOnboardingDto: {
+      parent: components["schemas"]["ParentDto"];
+      children: components["schemas"]["ChildInputDto"][];
+      /** @description 알림 시간대 (단일 선택, custom 옵션 포함). 권한 거부 또는 skip 시 미전송 가능. */
+      notification?: components["schemas"]["NotificationPreferenceDto"];
+      /**
+       * @description 관심 주제 (최대 3개). 온보딩 02-04 화면(Figma 2146:4467) 결과.
+       * @example [
+       *       "working_parent",
+       *       "language"
+       *     ]
+       */
+      interests?: (
+        | "working_parent"
+        | "home_care"
+        | "language"
+        | "social"
+        | "physical"
+        | "cognition"
+      )[];
+    };
+    UpdateParentDto: {
+      /** @example 홍길동 */
+      name?: string;
+      /**
+       * @description ISO date
+       * @example 1990-01-01
+       */
+      birthDate?: string;
+      /** @enum {string} */
+      gender?: "female" | "male";
+      /** @enum {string|null} */
+      workStatus?: "working" | "full_time_caregiver" | null;
+    };
+    UpdateInterestsDto: {
+      /**
+       * @description 관심 주제 ID 목록 (최대 3개)
+       * @example [
+       *       "working_parent",
+       *       "language"
+       *     ]
+       */
+      interests: (
+        | "working_parent"
+        | "home_care"
+        | "language"
+        | "social"
+        | "physical"
+        | "cognition"
+      )[];
+    };
+    UpsertNotificationPreferenceDto: {
+      /** @example true */
+      enabled: boolean;
+      /**
+       * @description HH:MM (24h). 미지정 시 기존 값 유지(없으면 기본 09:00).
+       * @example 19:00
+       */
+      time?: string;
+    };
+    DeleteAccountDto: {
+      /** @description 탈퇴 사유 (선택, 자유 텍스트). 통계·CS 용도. */
+      reason?: string;
+    };
+    GenerateWeeklyReportsDto: {
+      /**
+       * @description 생성할 주차의 월요일. YYYY-MM-DD. 없으면 직전 완료 주차
+       * @example 2026-05-04
+       */
+      weekStart?: string;
+      /**
+       * @description 기존 리포트가 있을 때 삭제 후 재생성할지 여부
+       * @default false
+       */
+      forceRegenerate: boolean;
+      /**
+       * @description 생성 대상만 계산하고 DB 쓰기/알림 생성을 하지 않을지 여부
+       * @default false
+       */
+      dryRun: boolean;
+    };
+    WeeklyReportSelectedChildDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 김유스 */
+      name: string;
+      /** @example 36개월 */
+      ageLabel: string;
+    };
+    WeeklyReportHeadlineDto: {
+      /** @example 나는 잘하고 있는가? */
+      question: string;
+      /** @example 지금 충분히 잘하고 계십니다. */
+      title: string;
+      body: string | null;
+    };
+    WeeklyReportDayDto: {
+      /** @enum {string} */
+      weekday: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+      /** @enum {string} */
+      label: "월" | "화" | "수" | "목" | "금" | "토" | "일";
+      completedCount: number;
+      completed: boolean;
+    };
+    WeeklyReportMissionSummaryDto: {
+      days: components["schemas"]["WeeklyReportDayDto"][];
+      totalDurationSeconds: number;
+      /** @example 1시간 17분 */
+      totalDurationLabel: string;
+      childPositiveReactionRate: number;
+    };
+    WeeklyReportKeywordDto: {
+      /** @enum {number} */
+      rank: 1 | 2 | 3;
+      /** @example 공룡 */
+      keyword: string;
+    };
+    WeeklyReportKeywordEmptyStateDto: {
+      /** @example 아직 키워드가 충분하지 않아요 */
+      title: string;
+      description: string;
+    };
+    WeeklyReportBestMomentDto: {
+      /** Format: uuid */
+      id: string;
+      order: number;
+      /** @example 순수한 기쁨 */
+      label?: string;
+      title: string;
+      body: string;
+    };
+    WeeklyReportInnerStateDto: {
+      psychologicalEnergy: number;
+      /** @example 기분 전환을 위한 팁 */
+      tipTitle: string;
+      tipBody?: string;
+    };
+    WeeklyReportAiActionSuggestionDto: {
+      /** @example 미래 행동 제안 (AI 기반) */
+      title: string;
+      body: string;
+    };
+    WeeklyReportDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 2026-05-04 */
+      weekStart: string;
+      /** @example 2026-05-10 */
+      weekEnd: string;
+      /** Format: date-time */
+      generatedAt: string;
+      headline: components["schemas"]["WeeklyReportHeadlineDto"];
+      missionSummary: components["schemas"]["WeeklyReportMissionSummaryDto"];
+      topKeywords: components["schemas"]["WeeklyReportKeywordDto"][];
+      keywordEmptyState:
+        | components["schemas"]["WeeklyReportKeywordEmptyStateDto"]
+        | null;
+      bestMoments: components["schemas"]["WeeklyReportBestMomentDto"][];
+      innerState: components["schemas"]["WeeklyReportInnerStateDto"];
+      aiActionSuggestion: components["schemas"]["WeeklyReportAiActionSuggestionDto"];
+    };
+    WeeklyReportEmptyStateDto: {
+      /** @enum {string} */
+      reason:
+        | "no_mission_yet"
+        | "no_mission_for_week"
+        | "report_generation_pending";
+      /** @example 아직 주간 리포트가 없습니다 */
+      title: string;
+      description: string;
+      /** @example 미션 시작하기 */
+      ctaLabel: string;
+      /** @example /mission */
+      ctaHref: string;
+    };
+    WeeklyReportCurrentResponseDto: {
+      selectedChild: components["schemas"]["WeeklyReportSelectedChildDto"];
+      report: components["schemas"]["WeeklyReportDetailDto"] | null;
+      emptyState: components["schemas"]["WeeklyReportEmptyStateDto"] | null;
+    };
+    HomeChildDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 김유스 */
+      name: string;
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2023-04-20
+       */
+      birthDate: string;
+      /** @example 36개월 */
+      ageLabel: string;
+      /** @example 0 */
+      displayOrder: number;
+    };
+    HomeMoodDto: {
+      /**
+       * @example 4
+       * @enum {number}
+       */
+      level: 1 | 2 | 3 | 4 | 5;
+      /** @example 😊 */
+      emoji: string;
+    };
+    HomeWeekDayDto: {
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2026-05-13
+       */
+      date: string;
+      /**
+       * @example 수
+       * @enum {string}
+       */
+      weekdayLabel: "월" | "화" | "수" | "목" | "금" | "토" | "일";
+      /** @example 13 */
+      dayOfMonth: number;
+      isToday: boolean;
+      mood?: components["schemas"]["HomeMoodDto"];
+      missionCompleted?: boolean;
+    };
+    HomeWeekDto: {
+      /** @example 5월 */
+      monthLabel: string;
+      /** @example 2주차 */
+      weekOfMonthLabel: string;
+      days: components["schemas"]["HomeWeekDayDto"][];
+    };
+    HomeRecommendedMissionDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 아이 10분 가까워지기 */
+      subThemeLabel: string;
+      /** @example 아이와 눈을 마주치며 이야기를 해보아요 */
+      title: string;
+      /** @example 10 */
+      durationMinutes: number;
+      /** @enum {string} */
+      status: "not_started" | "in_progress" | "completed";
+    };
+    HomeGrowthStageDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 자아 형성기 */
+      name: string;
+      summary: string;
+    };
+    HomeReportSummaryDto: {
+      /** Format: uuid */
+      reportId: string;
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2026-05-04
+       */
+      weekStart: string;
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2026-05-10
+       */
+      weekEnd: string;
+      /** @example 지난주 아이와 함께한 놀이 시간 */
+      title: string;
+      /** @example 4620 */
+      totalDurationSeconds: number;
+      /** @example 1시간 17분 */
+      totalDurationLabel: string;
+      /** @example 92 */
+      childPositiveReactionRate: number;
+    };
+    HomeNotificationSummaryItemDto: {
+      /** Format: uuid */
+      id: string;
+      title: string;
+      body: string;
+      /** @enum {string} */
+      actionType:
+        | "none"
+        | "open_home"
+        | "open_mission"
+        | "open_roadmap"
+        | "open_chat"
+        | "open_report"
+        | "url";
+      /** @enum {string|null} */
+      targetType:
+        | "mission"
+        | "mission_execution"
+        | "weekly_report"
+        | "child"
+        | "chat_session"
+        | "url"
+        | null;
+      /** Format: uuid */
+      targetId: string | null;
+      targetUrl: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      readAt: string | null;
+    };
+    HomeNotificationsDto: {
+      /** @example 2 */
+      unreadCount: number;
+      latest: components["schemas"]["HomeNotificationSummaryItemDto"][];
+    };
+    HomeDashboardDto: {
+      selectedChild: components["schemas"]["HomeChildDto"];
+      children: components["schemas"]["HomeChildDto"][];
+      week: components["schemas"]["HomeWeekDto"];
+      recommendedMission:
+        | components["schemas"]["HomeRecommendedMissionDto"]
+        | null;
+      growthStage: components["schemas"]["HomeGrowthStageDto"] | null;
+      reportSummary: components["schemas"]["HomeReportSummaryDto"] | null;
+      notifications: components["schemas"]["HomeNotificationsDto"];
+    };
+    UpsertHomeMoodDto: {
+      /**
+       * @example 4
+       * @enum {number}
+       */
+      level: 1 | 2 | 3 | 4 | 5;
+    };
+    HomeMoodCheckDto: {
+      /**
+       * @example 4
+       * @enum {number}
+       */
+      level: 1 | 2 | 3 | 4 | 5;
+      /** @example 😊 */
+      emoji: string;
+      /** Format: date-time */
+      checkedAt: string;
+    };
+    NotificationListItemDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      type:
+        | "mission_reminder"
+        | "mission_feedback"
+        | "weekly_report_ready"
+        | "roadmap_update"
+        | "mental_check_reminder"
+        | "chat_follow_up"
+        | "system_notice";
+      title: string;
+      body: string;
+      /** @enum {string} */
+      actionType:
+        | "none"
+        | "open_home"
+        | "open_mission"
+        | "open_roadmap"
+        | "open_chat"
+        | "open_report"
+        | "url";
+      /** @enum {string|null} */
+      targetType:
+        | "mission"
+        | "mission_execution"
+        | "weekly_report"
+        | "child"
+        | "chat_session"
+        | "url"
+        | null;
+      /** Format: uuid */
+      targetId: string | null;
+      targetUrl: string | null;
+      /** @enum {string} */
+      priority: "normal" | "high";
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      readAt: string | null;
+    };
+    NotificationListResponseDto: {
+      items: components["schemas"]["NotificationListItemDto"][];
+    };
+    MarkAllNotificationsReadResponseDto: {
+      /** @example 3 */
+      updatedCount: number;
+    };
+    CreateChildDto: {
+      /** @example 김유스 */
+      name: string;
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2023-04-20
+       */
+      birthDate: string;
+      /** @enum {string} */
+      gender: "female" | "male";
+      notes?: string | null;
+    };
+    ChildResponseDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 김유스 */
+      name: string;
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2023-04-20
+       */
+      birthDate: string;
+      /** @enum {string} */
+      gender: "female" | "male";
+      notes: string | null;
+      avatarUrl: string | null;
+      /** @example 0 */
+      displayOrder: number;
+    };
+    UpdateChildDto: {
+      /** @example 김유스 */
+      name?: string;
+      /**
+       * @description ISO date YYYY-MM-DD
+       * @example 2023-04-20
+       */
+      birthDate?: string;
+      /** @enum {string} */
+      gender?: "female" | "male";
+      notes?: string | null;
+      displayOrder?: number;
+    };
+    MilestoneCategoryResponseDto: {
+      /** @example emotion */
+      id: string;
+      /** @example 정서 */
+      label: string;
+      /** @example heart */
+      iconKey: string;
+      /** @example #FFB3C7 */
+      color: string;
+      /** @example 0 */
+      displayOrder: number;
+    };
+    MilestoneResponseDto: {
+      /** Format: uuid */
+      id: string;
+      categoryId: string;
+      ageMonthsFrom: number;
+      ageMonthsTo: number;
+      title: string | null;
+      description: string;
+      displayOrder: number | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    ListMilestonesResponseDto: {
+      items: components["schemas"]["MilestoneResponseDto"][];
+      nextCursor: string | null;
+    };
+    CreateMilestoneDto: {
+      /** @example emotion */
+      categoryId: string;
+      /** @example 12 */
+      ageMonthsFrom: number;
+      /** @example 18 */
+      ageMonthsTo: number;
+      /** @example 낯선 사람을 경계한다 */
+      title?: string;
+      /** @example 낯선 환경·낯선 사람에 경계심을 보입니다. */
+      description: string;
+      /** @example 0 */
+      displayOrder?: number;
+    };
+    UpdateMilestoneDto: {
+      categoryId?: string;
+      ageMonthsFrom?: number;
+      ageMonthsTo?: number;
+      title?: string;
+      description?: string;
+      displayOrder?: number;
+    };
+    GrowthStageResponseDto: {
+      id: string;
+      name: string;
+      ageMonthsFrom: number;
+      ageMonthsTo: number;
+      summary: string;
+    };
+    CreateGrowthStageDto: {
+      /**
+       * @description slug (lowercase, 영문/숫자/하이픈)
+       * @example self-formation
+       */
+      id: string;
+      /** @example 자아 형성기 */
+      name: string;
+      /** @example 0 */
+      ageMonthsFrom: number;
+      /** @example 12 */
+      ageMonthsTo: number;
+      /** @example 아이가 "나"라는 인식을 만들어가는 시기 */
+      summary: string;
+    };
+    UpdateGrowthStageDto: {
+      name?: string;
+      ageMonthsFrom?: number;
+      ageMonthsTo?: number;
+      summary?: string;
+    };
+    MissionSourceDto: {
+      /** @example CDC. (2023). Developmental Milestones: 12 Months. */
+      citation: string;
+      /** @example https://cdc.gov/ncbddd/actearly */
+      url?: string;
+      note?: string;
+    };
+    MissionResponseDto: {
+      /** Format: uuid */
+      id: string;
+      categoryId: string;
+      title: string;
+      shortTitle: string;
+      description: string;
+      durationMinutes: number;
+      effect: string;
+      subThemeLabel: string | null;
+      goal: string | null;
+      recommendedAgeMonthsMin: number | null;
+      recommendedAgeMonthsMax: number | null;
+      thumbnailUrl: string | null;
+      videoUrl: string | null;
+      tags: string[];
+      sources: components["schemas"]["MissionSourceDto"][];
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    ListMissionsResponseDto: {
+      items: components["schemas"]["MissionResponseDto"][];
+      nextCursor: string | null;
+    };
+    CreateMissionDto: {
+      /** @example play */
+      categoryId: string;
+      /** @example 아이와 10분 가까워지기 */
+      title: string;
+      /** @example 10분 아이컨텍 */
+      shortTitle: string;
+      description: string;
+      /** @example 10 */
+      durationMinutes: number;
+      /** @example 정서적 안정감 */
+      effect: string;
+      /** @example 아이와 가까워지기 */
+      subThemeLabel?: string;
+      /** @example 또래와 함께 놀이하는 초기 사회성 */
+      goal?: string;
+      recommendedAgeMonthsMin?: number;
+      recommendedAgeMonthsMax?: number;
+      thumbnailUrl?: string;
+      videoUrl?: string;
+      /**
+       * @example [
+       *       "감정",
+       *       "말놀이"
+       *     ]
+       */
+      tags?: string[];
+      sources?: components["schemas"]["MissionSourceDto"][];
+    };
+    UpdateMissionDto: {
+      categoryId?: string;
+      title?: string;
+      shortTitle?: string;
+      description?: string;
+      durationMinutes?: number;
+      effect?: string;
+      subThemeLabel?: string;
+      goal?: string;
+      recommendedAgeMonthsMin?: number;
+      recommendedAgeMonthsMax?: number;
+      thumbnailUrl?: string;
+      videoUrl?: string;
+      tags?: string[];
+      sources?: components["schemas"]["MissionSourceDto"][];
+    };
+    MissionSelectedChildDto: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      /** Format: date */
+      birthDate: string;
+      ageLabel: string;
+    };
+    CurrentMissionDetailDto: {
+      /** Format: uuid */
+      id: string;
+      subThemeLabel: string | null;
+      title: string;
+      description: string;
+      durationMinutes: number;
+      durationLabel: string;
+      categoryLabel: string;
+      sourceLabel: string;
+      /** @enum {string} */
+      status: "not_started" | "in_progress" | "completed";
+    };
+    ActiveMissionExecutionDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      status: "in_progress" | "paused";
+      /** Format: date-time */
+      startedAt: string;
+      /** Format: date-time */
+      activeSegmentStartedAt: string | null;
+      /** Format: date-time */
+      pausedAt: string | null;
+      durationMinutes: number;
+      elapsedSeconds: number;
+      remainingSeconds: number;
+    };
+    GetCurrentMissionResponseDto: {
+      selectedChild: components["schemas"]["MissionSelectedChildDto"];
+      children: components["schemas"]["MissionSelectedChildDto"][];
+      mission: components["schemas"]["CurrentMissionDetailDto"];
+      activeExecution:
+        | components["schemas"]["ActiveMissionExecutionDto"]
+        | null;
+    };
+    StartMissionExecutionDto: {
+      /** Format: uuid */
+      childId: string;
+      /** Format: uuid */
+      missionId: string;
+    };
+    MissionExecutionSnapshotDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      missionId: string;
+      /** Format: uuid */
+      childId: string;
+      /** @enum {string} */
+      status: "in_progress" | "paused";
+      /** Format: date-time */
+      startedAt: string;
+      /** Format: date-time */
+      activeSegmentStartedAt: string | null;
+      /** Format: date-time */
+      pausedAt: string | null;
+      durationMinutes: number;
+      elapsedSeconds: number;
+      remainingSeconds: number;
+      /** Format: date-time */
+      serverNow: string;
+    };
+    MissionExecutionSnapshotResponseDto: {
+      execution: components["schemas"]["MissionExecutionSnapshotDto"] | null;
+    };
+    MissionExecutionActionBodyDto: {
+      /** @enum {string} */
+      action: "pause" | "resume" | "complete" | "early_complete";
+    };
+    MissionExecutionEffectDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      status: "completed" | "early_completed";
+      /** Format: date-time */
+      completedAt: string;
+      actualDurationSeconds: number;
+      wasEarlyCompleted: boolean;
+    };
+    MissionEffectDetailDto: {
+      /** Format: uuid */
+      id: string;
+      title: string;
+      effect: string;
+      goal: string | null;
+      subThemeLabel: string | null;
+    };
+    GetMissionExecutionEffectResponseDto: {
+      execution: components["schemas"]["MissionExecutionEffectDto"];
+      mission: components["schemas"]["MissionEffectDetailDto"];
+    };
+    UpsertMissionFeedbackDto: {
+      childReaction: number;
+      parentEnergy: number;
+      missionSatisfaction: number;
+      note?: string | null;
+    };
+    MissionFeedbackResponseDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      executionId: string;
+      childReaction: number;
+      parentEnergy: number;
+      missionSatisfaction: number;
+      note: string | null;
+      keywords: string[];
+      /** Format: date-time */
+      createdAt: string;
+    };
+    UpsertMissionFeedbackResponseDto: {
+      feedback: components["schemas"]["MissionFeedbackResponseDto"];
+    };
+    RoadmapChildDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 김유스 */
+      name: string;
+      /** @example 4 */
+      ageMonths: number;
+      /** @example 4개월 차 */
+      ageLabel: string;
+    };
+    RoadmapStageDto: {
+      /** @example self-formation */
+      id: string;
+      /** @example 자아 형성기 */
+      name: string;
+      summary: string;
+    };
+    RoadmapMonthTabRangeDto: {
+      /**
+       * @description 좌 chevron 이동 대상. null이면 비활성.
+       * @example null
+       */
+      prev: number | null;
+      /**
+       * @description 우 chevron 이동 대상. null이면 비활성.
+       * @example 15
+       */
+      next: number | null;
+    };
+    RoadmapMilestoneSourceDto: {
+      /** @example CDC */
+      citation: string;
+      url: string | null;
+    };
+    RoadmapMilestoneItemDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 말을 걸거나 들어 올리면 차분해진다. 상대의 얼굴을 바라본다. */
+      description: string;
+      sources: components["schemas"]["RoadmapMilestoneSourceDto"][];
+    };
+    RoadmapCategoryGroupDto: {
+      /** @enum {string} */
+      categoryId: "social" | "language" | "cognitive" | "physical";
+      /** @example 사회성 */
+      categoryLabel: string;
+      /** @example groups */
+      iconKey: string;
+      items: components["schemas"]["RoadmapMilestoneItemDto"][];
+    };
+    RoadmapSourceTooltipDto: {
+      /** @example CDC, AAP, 국민건강보험, 보건복지부 등 세계 소아과 전문의들이 가장 많이 참고하는 데이터를 바탕으로 설계된 발달 지표입니다. */
+      text: string;
+    };
+    RoadmapResponseDto: {
+      child: components["schemas"]["RoadmapChildDto"];
+      stage: components["schemas"]["RoadmapStageDto"] | null;
+      /**
+       * @description 조회된 (보정 후) 대상 월령
+       * @example 4
+       */
+      targetMonth: number;
+      /**
+       * @description 월령 탭에 노출할 5개 CDC 체크포인트
+       * @example [
+       *       2,
+       *       4,
+       *       6,
+       *       9,
+       *       12
+       *     ]
+       */
+      monthTabs: number[];
+      monthTabRange: components["schemas"]["RoadmapMonthTabRangeDto"];
+      milestonesByCategory: components["schemas"]["RoadmapCategoryGroupDto"][];
+      sourceTooltip: components["schemas"]["RoadmapSourceTooltipDto"];
+    };
+    ChatSessionDto: {
+      /** Format: uuid */
+      id: string;
+      title: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    ChatMessageCardDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 0 */
+      order: number;
+      /** @example 잠자리 티켓 */
+      title: string;
+      /** @example 실물 티켓 한 장을 주세요... */
+      body: string;
+      /** @enum {string|null} */
+      actionType: "none" | "start_mission" | "open_link" | "follow_up" | null;
+      /** @description actionType에 따라 polymorphic */
+      actionPayload: Record<string, never> | null;
+    };
+    ChatMessageSourceDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example https://www.cdc.gov/ncbddd/actearly/milestones */
+      url: string;
+      /** @example cdc.gov */
+      domain: string;
+      title: string | null;
+    };
+    ChatMessageDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      role: "user" | "assistant";
+      /** @example 그 "딱 하나만 더"라는 요청이 얼마나 진을 빼놓는지 ... */
+      content: string;
+      /** Format: date-time */
+      sentAt: string;
+      cards: components["schemas"]["ChatMessageCardDto"][];
+      sources: components["schemas"]["ChatMessageSourceDto"][];
+    };
+    ChatResponseDto: {
+      session: components["schemas"]["ChatSessionDto"] | null;
+      messages: components["schemas"]["ChatMessageDto"][];
+    };
+    SendChatMessageRequestDto: {
+      /** @example 아이가 잠들기 전 자꾸 한 번만 더 라고 해요 */
+      content: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AppController_getHello: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  AppController_getHello: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    OnboardingController_complete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CompleteOnboardingDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+        content?: never;
+      };
     };
-    UsersController_getMe: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  AppController_getHealth: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    UsersController_deleteAccount: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DeleteAccountDto"];
-            };
-        };
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+        content?: never;
+      };
     };
-    UsersController_updateParent: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateParentDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  OnboardingController_complete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    UsersController_updateInterests: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateInterestsDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CompleteOnboardingDto"];
+      };
     };
-    UsersController_upsertNotification: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description 알림 종류. */
-                type: "play_10min" | "weekly_report";
-            };
-            cookie?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertNotificationPreferenceDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+        content?: never;
+      };
     };
-    AdminController_listUsers: {
-        parameters: {
-            query?: {
-                /** @description 온보딩 필터. default true (완료자만) */
-                onboarded?: "true" | "false" | "all";
-                /** @description 이름 LIKE 검색 */
-                q?: string;
-                /** @description 1-based */
-                page?: number;
-                /** @description 페이지당 항목 */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  UsersController_getMe: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    AdminController_generateWeeklyReports: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GenerateWeeklyReportsDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+        content?: never;
+      };
     };
-    WeeklyReportsController_getCurrent: {
-        parameters: {
-            query?: {
-                childId?: string;
-                /** @description 조회할 주차의 월요일. YYYY-MM-DD */
-                weekStart?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WeeklyReportCurrentResponseDto"];
-                };
-            };
-        };
+  };
+  UsersController_deleteAccount: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    WeeklyReportsController_getById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WeeklyReportDetailDto"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DeleteAccountDto"];
+      };
     };
-    HomeController_getHome: {
-        parameters: {
-            query?: {
-                childId?: string;
-                /** @description 홈 기준일. YYYY-MM-DD */
-                date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HomeDashboardDto"];
-                };
-            };
-        };
+        content?: never;
+      };
     };
-    NotificationsController_list: {
-        parameters: {
-            query?: {
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationListResponseDto"];
-                };
-            };
-        };
+  };
+  UsersController_updateParent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    NotificationsController_markAllRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MarkAllNotificationsReadResponseDto"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateParentDto"];
+      };
     };
-    NotificationsController_markRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationListItemDto"];
-                };
-            };
-        };
+        content?: never;
+      };
     };
-    ChildrenController_createChild: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateChildDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChildResponseDto"];
-                };
-            };
-        };
+  };
+  UsersController_updateInterests: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    ChildrenController_deleteChild: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateInterestsDto"];
+      };
     };
-    ChildrenController_updateChild: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateChildDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChildResponseDto"];
-                };
-            };
-        };
+        content?: never;
+      };
     };
-    MilestoneCategoriesController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MilestoneCategoryResponseDto"][];
-                };
-            };
-        };
+  };
+  UsersController_upsertNotification: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description 알림 종류. */
+        type: "play_10min" | "weekly_report";
+      };
+      cookie?: never;
     };
-    MilestonesController_list: {
-        parameters: {
-            query?: {
-                categoryId?: string;
-                /** @description 월령 N이 [ageMonthsFrom, ageMonthsTo] 범위 안인 마일스톤만 */
-                ageMonths?: number;
-                /** @description cursor pagination — 이전 응답의 nextCursor(uuid) */
-                cursor?: string;
-                take?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ListMilestonesResponseDto"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpsertNotificationPreferenceDto"];
+      };
     };
-    MilestonesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateMilestoneDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MilestoneResponseDto"];
-                };
-            };
-        };
+        content?: never;
+      };
     };
-    MilestonesController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  AdminController_listUsers: {
+    parameters: {
+      query?: {
+        /** @description 온보딩 필터. default true (완료자만) */
+        onboarded?: "true" | "false" | "all";
+        /** @description 이름 LIKE 검색 */
+        q?: string;
+        /** @description 1-based */
+        page?: number;
+        /** @description 페이지당 항목 */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    MilestonesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateMilestoneDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MilestoneResponseDto"];
-                };
-            };
-        };
+        content?: never;
+      };
     };
-    GrowthStagesController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GrowthStageResponseDto"][];
-                };
-            };
-        };
+  };
+  AdminController_generateWeeklyReports: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    GrowthStagesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateGrowthStageDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GrowthStageResponseDto"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["GenerateWeeklyReportsDto"];
+      };
     };
-    GrowthStagesController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+        content?: never;
+      };
     };
-    GrowthStagesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateGrowthStageDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GrowthStageResponseDto"];
-                };
-            };
-        };
+  };
+  WeeklyReportsController_getCurrent: {
+    parameters: {
+      query?: {
+        childId?: string;
+        /** @description 조회할 주차의 월요일. YYYY-MM-DD */
+        weekStart?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    MissionsController_list: {
-        parameters: {
-            query?: {
-                categoryId?: string;
-                /** @description 월령 N이 [recommendedAgeMonthsMin, recommendedAgeMonthsMax] 안인 미션만 */
-                ageMonths?: number;
-                /** @description cursor pagination — 이전 응답의 nextCursor(uuid) */
-                cursor?: string;
-                take?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ListMissionsResponseDto"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["WeeklyReportCurrentResponseDto"];
         };
+      };
     };
-    MissionsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateMissionDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MissionResponseDto"];
-                };
-            };
-        };
+  };
+  WeeklyReportsController_getById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
     };
-    MissionsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          "application/json": components["schemas"]["WeeklyReportDetailDto"];
         };
+      };
     };
-    MissionsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateMissionDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MissionResponseDto"];
-                };
-            };
-        };
+  };
+  HomeController_getHome: {
+    parameters: {
+      query?: {
+        childId?: string;
+        /** @description 홈 기준일. YYYY-MM-DD */
+        date?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    MissionFlowController_getCurrentMission: {
-        parameters: {
-            query?: {
-                childId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetCurrentMissionResponseDto"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["HomeDashboardDto"];
         };
+      };
     };
-    MissionFlowController_startMissionExecution: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StartMissionExecutionDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MissionExecutionSnapshotResponseDto"];
-                };
-            };
-        };
+  };
+  HomeController_upsertTodayMood: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    MissionFlowController_getActiveMissionExecution: {
-        parameters: {
-            query?: {
-                childId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MissionExecutionSnapshotResponseDto"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpsertHomeMoodDto"];
+      };
     };
-    MissionFlowController_applyMissionExecutionAction: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MissionExecutionActionBodyDto"];
-            };
+        content: {
+          "application/json": components["schemas"]["HomeMoodCheckDto"];
         };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MissionExecutionSnapshotResponseDto"];
-                };
-            };
-        };
+      };
     };
-    MissionFlowController_getMissionExecutionEffect: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetMissionExecutionEffectResponseDto"];
-                };
-            };
-        };
+  };
+  NotificationsController_list: {
+    parameters: {
+      query?: {
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    MissionFlowController_upsertMissionFeedback: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertMissionFeedbackDto"];
-            };
+        content: {
+          "application/json": components["schemas"]["NotificationListResponseDto"];
         };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UpsertMissionFeedbackResponseDto"];
-                };
-            };
-        };
+      };
     };
-    RoadmapController_get: {
-        parameters: {
-            query?: {
-                /** @description 자녀 ID. 미지정 시 첫 번째 활성 자녀. */
-                childId?: string;
-                /** @description 조회 대상 월령. 미지정 시 자녀 현재 월령. CDC 체크포인트가 아니면 가장 가까운 하단 월령으로 보정. */
-                targetMonth?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoadmapResponseDto"];
-                };
-            };
-        };
+  };
+  NotificationsController_markAllRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    ChatController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChatResponseDto"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["MarkAllNotificationsReadResponseDto"];
         };
+      };
     };
-    ChatController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  NotificationsController_markRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
     };
-    ChatController_stream: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SendChatMessageRequestDto"];
-            };
+        content: {
+          "application/json": components["schemas"]["NotificationListItemDto"];
         };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+      };
     };
+  };
+  ChildrenController_createChild: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateChildDto"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ChildResponseDto"];
+        };
+      };
+    };
+  };
+  ChildrenController_deleteChild: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ChildrenController_updateChild: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateChildDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ChildResponseDto"];
+        };
+      };
+    };
+  };
+  MilestoneCategoriesController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneCategoryResponseDto"][];
+        };
+      };
+    };
+  };
+  MilestonesController_list: {
+    parameters: {
+      query?: {
+        categoryId?: string;
+        /** @description 월령 N이 [ageMonthsFrom, ageMonthsTo] 범위 안인 마일스톤만 */
+        ageMonths?: number;
+        /** @description cursor pagination — 이전 응답의 nextCursor(uuid) */
+        cursor?: string;
+        take?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ListMilestonesResponseDto"];
+        };
+      };
+    };
+  };
+  MilestonesController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateMilestoneDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneResponseDto"];
+        };
+      };
+    };
+  };
+  MilestonesController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MilestonesController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMilestoneDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneResponseDto"];
+        };
+      };
+    };
+  };
+  GrowthStagesController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GrowthStageResponseDto"][];
+        };
+      };
+    };
+  };
+  GrowthStagesController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateGrowthStageDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GrowthStageResponseDto"];
+        };
+      };
+    };
+  };
+  GrowthStagesController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GrowthStagesController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateGrowthStageDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GrowthStageResponseDto"];
+        };
+      };
+    };
+  };
+  MissionsController_list: {
+    parameters: {
+      query?: {
+        categoryId?: string;
+        /** @description 월령 N이 [recommendedAgeMonthsMin, recommendedAgeMonthsMax] 안인 미션만 */
+        ageMonths?: number;
+        /** @description cursor pagination — 이전 응답의 nextCursor(uuid) */
+        cursor?: string;
+        take?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ListMissionsResponseDto"];
+        };
+      };
+    };
+  };
+  MissionsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateMissionDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MissionResponseDto"];
+        };
+      };
+    };
+  };
+  MissionsController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MissionsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMissionDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MissionResponseDto"];
+        };
+      };
+    };
+  };
+  MissionFlowController_getCurrentMission: {
+    parameters: {
+      query?: {
+        childId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GetCurrentMissionResponseDto"];
+        };
+      };
+    };
+  };
+  MissionFlowController_startMissionExecution: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["StartMissionExecutionDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MissionExecutionSnapshotResponseDto"];
+        };
+      };
+    };
+  };
+  MissionFlowController_getActiveMissionExecution: {
+    parameters: {
+      query?: {
+        childId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MissionExecutionSnapshotResponseDto"];
+        };
+      };
+    };
+  };
+  MissionFlowController_applyMissionExecutionAction: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MissionExecutionActionBodyDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MissionExecutionSnapshotResponseDto"];
+        };
+      };
+    };
+  };
+  MissionFlowController_getMissionExecutionEffect: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GetMissionExecutionEffectResponseDto"];
+        };
+      };
+    };
+  };
+  MissionFlowController_upsertMissionFeedback: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpsertMissionFeedbackDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UpsertMissionFeedbackResponseDto"];
+        };
+      };
+    };
+  };
+  RoadmapController_get: {
+    parameters: {
+      query?: {
+        /** @description 자녀 ID. 미지정 시 첫 번째 활성 자녀. */
+        childId?: string;
+        /** @description 조회 대상 월령. 미지정 시 자녀 현재 월령. CDC 체크포인트가 아니면 가장 가까운 하단 월령으로 보정. */
+        targetMonth?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoadmapResponseDto"];
+        };
+      };
+    };
+  };
+  ChatController_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ChatResponseDto"];
+        };
+      };
+    };
+  };
+  ChatController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ChatController_stream: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SendChatMessageRequestDto"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
 }

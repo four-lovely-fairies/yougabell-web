@@ -30,9 +30,10 @@ export default function SettingsProfilePage() {
         const me = await api.getMe();
         setParent({
           name: me.name,
-          // API의 ISO datetime(...T00:00:00.000Z) → 입력 폼·API용 YYYY-MM-DD로 정규화
-          birthDate: me.birthDate.slice(0, 10),
-          gender: me.gender,
+          // birthDate/gender는 선택(nullable) — 비어있을 수 있음.
+          // API의 ISO datetime(...T00:00:00.000Z) → 입력 폼용 YYYY-MM-DD로 정규화.
+          birthDate: me.birthDate ? me.birthDate.slice(0, 10) : undefined,
+          gender: me.gender ?? undefined,
           workStatus: me.workStatus ?? undefined,
         });
       } catch {
@@ -46,7 +47,8 @@ export default function SettingsProfilePage() {
   const update = (next: Partial<ParentDraft>) =>
     setParent((prev) => ({ ...prev, ...next }));
 
-  const canSubmit = Boolean(parent.name && parent.birthDate && parent.gender);
+  // App Store 5.1.1: 생년월일·성별은 선택. 이름만 필수.
+  const canSubmit = Boolean(parent.name);
 
   const submit = async () => {
     if (!canSubmit || busy) return;
@@ -110,7 +112,7 @@ export default function SettingsProfilePage() {
           />
         </Field>
 
-        <Field label="생년월일" required>
+        <Field label="생년월일">
           <DateInput
             value={parent.birthDate}
             onChange={(iso) => update({ birthDate: iso })}
@@ -120,7 +122,7 @@ export default function SettingsProfilePage() {
           />
         </Field>
 
-        <Field label="성별" required>
+        <Field label="성별">
           <SegmentedToggle<Gender>
             ariaLabel="본인 성별"
             options={[
