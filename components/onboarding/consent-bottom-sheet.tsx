@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { XIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { openExternalUrl } from "@/lib/native-bridge";
 import { cn } from "@/lib/utils";
 import type { ConsentDraft } from "@/lib/types";
 
@@ -107,15 +108,16 @@ export function ConsentBottomSheet({ initial, onClose, onConfirm }: Props) {
                     {item.label}
                   </span>
                 </button>
-                <a
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
+                  onClick={() =>
+                    openExternalUrl(`${window.location.origin}${item.href}`)
+                  }
                   aria-label={`${item.label} 자세히 보기`}
                   className="p-1"
                 >
                   <ChevronRight />
-                </a>
+                </button>
               </div>
             ))}
           </div>

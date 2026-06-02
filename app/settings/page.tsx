@@ -3,9 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import { api, ApiError } from "@/lib/api";
-import { notifyMobile } from "@/lib/native-bridge";
+import { notifyMobile, openExternalUrl } from "@/lib/native-bridge";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { INTEREST_API_TO_WEB, INTEREST_LABEL, type ApiInterestId } from "@/lib/types";
+import {
+  INTEREST_API_TO_WEB,
+  INTEREST_LABEL,
+  type ApiInterestId,
+} from "@/lib/types";
 import {
   Bell,
   ChevronRight,
@@ -54,7 +58,9 @@ export default function SettingsPage() {
       <header className="flex h-19.5 items-center justify-between px-5">
         <div className="flex w-[182.5px] items-center gap-2">
           <SettingsIcon className="size-6 text-gray-800" />
-          <h1 className="text-xl font-bold tracking-[-0.4px] text-gray-800">설정</h1>
+          <h1 className="text-xl font-bold tracking-[-0.4px] text-gray-800">
+            설정
+          </h1>
         </div>
         <button
           type="button"
@@ -99,18 +105,45 @@ export default function SettingsPage() {
         </Section>
 
         <Section title="설정">
-          <Row href="/settings/profile" icon={User} title="내 프로필 수정" divider />
-          <Row href="/settings/children" icon={Smile} title="아이 프로필 추가/수정" />
+          <Row
+            href="/settings/profile"
+            icon={User}
+            title="내 프로필 수정"
+            divider
+          />
+          <Row
+            href="/settings/children"
+            icon={Smile}
+            title="아이 프로필 추가/수정"
+          />
         </Section>
 
         <Section title="계정 및 구독">
-          <Row onClick={() => setDeletingAccount(true)} icon={UserMinus} title="계정 탈퇴" divider />
+          <Row
+            onClick={() => setDeletingAccount(true)}
+            icon={UserMinus}
+            title="계정 탈퇴"
+            divider
+          />
           <Row onClick={onLogout} icon={LogOut} title="로그아웃" />
         </Section>
 
         <Section title="기타">
-          <Row href="/policy/privacy" icon={FileText} title="개인정보 보호정책" divider />
-          <Row href="/policy/terms" icon={ScrollText} title="서비스 약관" />
+          <Row
+            onClick={() =>
+              openExternalUrl(`${window.location.origin}/policy/privacy`)
+            }
+            icon={FileText}
+            title="개인정보 보호정책"
+            divider
+          />
+          <Row
+            onClick={() =>
+              openExternalUrl(`${window.location.origin}/policy/terms`)
+            }
+            icon={ScrollText}
+            title="서비스 약관"
+          />
         </Section>
       </div>
 
@@ -124,7 +157,9 @@ export default function SettingsPage() {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-base font-bold leading-[1.4] text-gray-800">{title}</h2>
+      <h2 className="text-base font-bold leading-[1.4] text-gray-800">
+        {title}
+      </h2>
       <div className="flex flex-col">{children}</div>
     </section>
   );
@@ -138,14 +173,27 @@ type RowProps = {
   divider?: boolean;
 } & ({ href: string; onClick?: never } | { onClick: () => void; href?: never });
 
-function Row({ icon: Icon, title, subtitle, extra, divider, ...action }: RowProps) {
+function Row({
+  icon: Icon,
+  title,
+  subtitle,
+  extra,
+  divider,
+  ...action
+}: RowProps) {
   const body = (
     <div className="flex w-full items-center justify-between py-4">
       <div className="flex items-center gap-3">
         <Icon className="size-6 shrink-0 text-gray-700" />
         <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium leading-[1.4] text-gray-800">{title}</span>
-          {subtitle ? <span className="text-xs leading-[1.4] text-gray-500">{subtitle}</span> : null}
+          <span className="text-sm font-medium leading-[1.4] text-gray-800">
+            {title}
+          </span>
+          {subtitle ? (
+            <span className="text-xs leading-[1.4] text-gray-500">
+              {subtitle}
+            </span>
+          ) : null}
         </div>
       </div>
       <ChevronRight className="size-6 shrink-0 text-gray-700" />
@@ -158,7 +206,11 @@ function Row({ icon: Icon, title, subtitle, extra, divider, ...action }: RowProp
           {body}
         </Link>
       ) : (
-        <button type="button" onClick={action.onClick} className="block w-full text-left">
+        <button
+          type="button"
+          onClick={action.onClick}
+          className="block w-full text-left"
+        >
           {body}
         </button>
       )}
@@ -203,7 +255,10 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
       className="fixed inset-0 z-10 flex items-center justify-center bg-black/40 px-6"
       onClick={onClose}
     >
-      <div className="flex w-full max-w-83.5 flex-col rounded-xl bg-white" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="flex w-full max-w-83.5 flex-col rounded-xl bg-white"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
           {/* Figma 2395:8988 image — intro sprite 마스코트 캐릭터 */}
           <div className="relative h-16.75 w-20.5 overflow-hidden">
@@ -215,13 +270,17 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
               className="absolute left-[-23.76%] top-[-20.27%] h-[381.08%] w-[381.22%] max-w-none"
             />
           </div>
-          <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">계정을 탈퇴하시겠어요?</p>
+          <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
+            계정을 탈퇴하시겠어요?
+          </p>
           <p className="px-2 text-center text-sm leading-normal text-gray-500">
-            탈퇴 시 아이 성장 기록, 저장된 데이터 및 활동 내역이 영구적으로 삭제되며 복구할 수 없습니다. 신중히 확인 후
-            진행해주세요.
+            탈퇴 시 아이 성장 기록, 저장된 데이터 및 활동 내역이 영구적으로
+            삭제되며 복구할 수 없습니다. 신중히 확인 후 진행해주세요.
           </p>
         </div>
-        {error ? <p className="px-4 pb-2 text-center text-xs text-red-500">{error}</p> : null}
+        {error ? (
+          <p className="px-4 pb-2 text-center text-xs text-red-500">{error}</p>
+        ) : null}
         <div className="flex flex-col gap-2 px-4 pt-2 pb-5">
           <Button size="full" onClick={onClose} disabled={busy}>
             취소하기
