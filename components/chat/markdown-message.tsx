@@ -37,6 +37,12 @@ const COMPONENTS: Components = {
       {children}
     </code>
   ),
+  // 코드블록이 새어나오면 가로로 넘치지 않게 줄바꿈 허용 (white-space: pre 방지)
+  pre: ({ children }) => (
+    <pre className="my-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-[13px]">
+      {children}
+    </pre>
+  ),
 };
 
 export function MarkdownMessage({
@@ -53,7 +59,12 @@ export function MarkdownMessage({
         className,
       )}
     >
-      <Markdown remarkPlugins={[remarkGfm]} components={COMPONENTS}>
+      {/* singleTilde:false — "11~14시간" 같은 범위 표기의 단일 ~를 취소선으로
+          오인하지 않도록(GFM 기본은 단일 ~도 strikethrough 처리). */}
+      <Markdown
+        remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
+        components={COMPONENTS}
+      >
         {content}
       </Markdown>
     </div>

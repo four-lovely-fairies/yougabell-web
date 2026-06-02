@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { truncateAssistantLeak } from "@/lib/chat-sanitize";
 
 // 타자기 노출 속도 (글자당 ms). 네트워크 도착과 분리해 일정 속도로 흘려보낸다.
 const REVEAL_MS = 22;
@@ -17,6 +18,8 @@ export type LiveRender = {
 };
 
 type Engine = {
+  // raw: 도착한 토큰 누적 원본 / buffer: 누출 절단 후 실제 노출 대상
+  raw: string;
   buffer: string;
   cursor: number;
   committedParas: string[];
@@ -27,6 +30,7 @@ type Engine = {
 
 function freshEngine(): Engine {
   return {
+    raw: "",
     buffer: "",
     cursor: 0,
     committedParas: [],
@@ -126,10 +130,13 @@ export function useChatTypewriter(onComplete: (parts: string[]) => void) {
 
   function pushToken(text: string) {
     const e = engineRef.current;
-    const wasIdle = e.phase === "loading" && e.buffer.length === 0;
-    e.buffer += text;
-    if (wasIdle) {
-      // 첫 토큰 — 노출 루프 시작
+    e.raw += text;
+    // 누출 구조(cards:/yaml/코드펜스)는 노출 대상에서 잘라낸다.
+    e.buffer = truncateAssistantLeak(e.raw);
+    if (e.cursor > e.buffer.length) e.cursor = e.buffer.length;
+    // 노출 루프가 멈춰 있고(=타이머 없음) 보여줄 글자가 생겼으면 시작.
+    // 스트리밍 중에는 tick이 스스로 재예약하므로 중복 시작되지 않는다.
+    if (!timerRef.current && !e.done && e.cursor < e.buffer.length) {
       timerRef.current = setTimeout(tick, REVEAL_MS);
     }
   }
