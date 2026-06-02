@@ -13,7 +13,6 @@ import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Gender, ParentDraft, WorkStatus } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 export default function ParentPage() {
   const router = useRouter();
@@ -100,7 +99,15 @@ export default function ParentPage() {
           />
         </Field>
 
-        <Field label="생년월일">
+        <Field
+          label="생년월일"
+          action={
+            <OptOutButton
+              label="공개 안 함"
+              onClick={() => update({ birthDate: undefined })}
+            />
+          }
+        >
           <DateInput
             value={parent.birthDate}
             onChange={(iso) => update({ birthDate: iso })}
@@ -110,14 +117,17 @@ export default function ParentPage() {
             // 시작 위치: 만 30세 기준 (가장 흔한 부모 연령대)
             defaultYear={new Date().getFullYear() - 30}
           />
-          <OptOutChip
-            label="공개 안 함"
-            active={!parent.birthDate}
-            onSelect={() => update({ birthDate: undefined })}
-          />
         </Field>
 
-        <Field label="성별">
+        <Field
+          label="성별"
+          action={
+            <OptOutButton
+              label="선택 안 함"
+              onClick={() => update({ gender: undefined })}
+            />
+          }
+        >
           <SegmentedToggle<Gender>
             ariaLabel="본인 성별"
             options={[
@@ -127,14 +137,17 @@ export default function ParentPage() {
             value={parent.gender ?? null}
             onChange={(v) => update({ gender: v ?? undefined })}
           />
-          <OptOutChip
-            label="선택 안 함"
-            active={!parent.gender}
-            onSelect={() => update({ gender: undefined })}
-          />
         </Field>
 
-        <Field label="직장 유무">
+        <Field
+          label="직장 유무"
+          action={
+            <OptOutButton
+              label="공개 안 함"
+              onClick={() => update({ workStatus: undefined })}
+            />
+          }
+        >
           <SegmentedToggle<WorkStatus>
             ariaLabel="직장 유무"
             allowDeselect
@@ -144,11 +157,6 @@ export default function ParentPage() {
             ]}
             value={parent.workStatus ?? null}
             onChange={(v) => update({ workStatus: v })}
-          />
-          <OptOutChip
-            label="공개 안 함"
-            active={!parent.workStatus}
-            onSelect={() => update({ workStatus: undefined })}
           />
         </Field>
       </div>
@@ -162,26 +170,20 @@ export default function ParentPage() {
   );
 }
 
-// 생년월일·성별·직장유무를 명시적으로 "공개/선택 안 함" 선택할 수 있는 칩.
-// 값이 비어 있으면 active(활성), 탭하면 해당 값을 비운다. (App Store 5.1.1 — 선택 입력)
-function OptOutChip({
+// 생년월일·성별·직장유무를 "공개/선택 안 함" 처리하는 회색 언더라인 텍스트 버튼.
+// 라벨 우측에 배치되며, 탭하면 해당 값을 비운다. (App Store 5.1.1 — 선택 입력)
+function OptOutButton({
   label,
-  active,
-  onSelect,
+  onClick,
 }: {
   label: string;
-  active: boolean;
-  onSelect: () => void;
+  onClick: () => void;
 }) {
   return (
     <button
       type="button"
-      onClick={onSelect}
-      aria-pressed={active}
-      className={cn(
-        "self-start rounded-full px-3 py-1.5 text-xs font-medium leading-[1.4] transition-colors",
-        active ? "bg-primary-50 text-primary-400" : "bg-gray-50 text-gray-500",
-      )}
+      onClick={onClick}
+      className="text-xs font-medium leading-[1.4] text-gray-500 underline underline-offset-2"
     >
       {label}
     </button>
@@ -191,20 +193,25 @@ function OptOutChip({
 function Field({
   label,
   required,
+  action,
   children,
 }: {
   label: string;
   required?: boolean;
+  action?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs font-medium leading-[1.4] text-gray-800">
-        {label}
-        {required ? (
-          <span className="text-error-600 font-bold ml-0.5">*</span>
-        ) : null}
-      </span>
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium leading-[1.4] text-gray-800">
+          {label}
+          {required ? (
+            <span className="text-error-600 font-bold ml-0.5">*</span>
+          ) : null}
+        </span>
+        {action ?? null}
+      </div>
       {children}
     </div>
   );
