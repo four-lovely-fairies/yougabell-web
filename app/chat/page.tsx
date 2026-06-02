@@ -248,6 +248,7 @@ export default function ChatPage() {
                   key={m.id}
                   content={m.content}
                   cards={m.cards}
+                  sources={m.sources}
                 />
               ),
             )}

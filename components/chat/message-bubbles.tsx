@@ -1,5 +1,14 @@
 import { MarkdownMessage } from "@/components/chat/markdown-message";
 import { splitParagraphs, type ChatMessageCard } from "@/lib/chat-data";
+import { openExternalUrl } from "@/lib/native-bridge";
+
+// 챗 응답 출처 (App Store 1.4.1 — 의료/건강 정보 출처 표기)
+type ChatSource = {
+  id: string;
+  url: string;
+  domain: string;
+  title: string | null;
+};
 
 export function EmptyState() {
   return (
@@ -66,20 +75,26 @@ export function StreamingBubble({ text }: { text: string }) {
 export function AssistantMessage({
   content,
   cards,
+  sources = [],
 }: {
   content: string;
   cards: ChatMessageCard[];
+  sources?: ChatSource[];
 }) {
   const paras = splitParagraphs(content);
   return (
     <>
-      {paras.map((para, i) => (
-        <AssistantBubble
-          key={i}
-          content={para}
-          cards={i === paras.length - 1 ? cards : []}
-        />
-      ))}
+      {paras.map((para, i) => {
+        const isLast = i === paras.length - 1;
+        return (
+          <AssistantBubble
+            key={i}
+            content={para}
+            cards={isLast ? cards : []}
+            sources={isLast ? sources : []}
+          />
+        );
+      })}
     </>
   );
 }
@@ -87,9 +102,11 @@ export function AssistantMessage({
 export function AssistantBubble({
   content,
   cards,
+  sources = [],
 }: {
   content: string;
   cards: ChatMessageCard[];
+  sources?: ChatSource[];
 }) {
   return (
     <div className="flex justify-start px-5 py-2.5">
@@ -110,6 +127,26 @@ export function AssistantBubble({
                   </p>
                 </div>
               ))}
+          </div>
+        ) : null}
+        {sources.length > 0 ? (
+          <div className="flex flex-col gap-1.5 border-t border-[#e3d9ff] pt-3">
+            <span className="text-xs font-bold leading-[1.4] text-gray-500">
+              출처
+            </span>
+            <ul className="flex flex-col gap-1">
+              {sources.map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => openExternalUrl(s.url)}
+                    className="text-left text-xs leading-[1.4] text-primary-400 underline [overflow-wrap:anywhere]"
+                  >
+                    {s.title ?? s.domain}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         ) : null}
       </div>
