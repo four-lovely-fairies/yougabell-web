@@ -13,6 +13,7 @@ import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Gender, ParentDraft, WorkStatus } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export default function ParentPage() {
   const router = useRouter();
@@ -108,6 +109,11 @@ export default function ParentPage() {
             // 시작 위치: 만 30세 기준 (가장 흔한 부모 연령대)
             defaultYear={new Date().getFullYear() - 30}
           />
+          <OptOutChip
+            label="공개 안 함"
+            active={!parent.birthDate}
+            onSelect={() => update({ birthDate: undefined })}
+          />
         </Field>
 
         <Field label="성별">
@@ -120,9 +126,14 @@ export default function ParentPage() {
             value={parent.gender ?? null}
             onChange={(v) => update({ gender: v ?? undefined })}
           />
+          <OptOutChip
+            label="선택 안 함"
+            active={!parent.gender}
+            onSelect={() => update({ gender: undefined })}
+          />
         </Field>
 
-        <Field label="직장 유무" required>
+        <Field label="직장 유무">
           <SegmentedToggle<WorkStatus>
             ariaLabel="직장 유무"
             allowDeselect
@@ -133,6 +144,11 @@ export default function ParentPage() {
             value={parent.workStatus ?? null}
             onChange={(v) => update({ workStatus: v })}
           />
+          <OptOutChip
+            label="공개 안 함"
+            active={!parent.workStatus}
+            onSelect={() => update({ workStatus: undefined })}
+          />
         </Field>
       </div>
 
@@ -142,6 +158,32 @@ export default function ParentPage() {
         다음
       </Button>
     </form>
+  );
+}
+
+// 생년월일·성별·직장유무를 명시적으로 "공개/선택 안 함" 선택할 수 있는 칩.
+// 값이 비어 있으면 active(활성), 탭하면 해당 값을 비운다. (App Store 5.1.1 — 선택 입력)
+function OptOutChip({
+  label,
+  active,
+  onSelect,
+}: {
+  label: string;
+  active: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={active}
+      className={cn(
+        "self-start rounded-full px-3 py-1.5 text-xs font-medium leading-[1.4] transition-colors",
+        active ? "bg-primary-50 text-primary-400" : "bg-gray-50 text-gray-500",
+      )}
+    >
+      {label}
+    </button>
   );
 }
 
