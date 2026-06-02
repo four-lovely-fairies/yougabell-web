@@ -90,7 +90,8 @@ export default function ParentPage() {
                 <IconButton
                   label="이름 지우기"
                   onClick={() => update({ name: "" })}
-                  className="w-6 h-6 m-0 text-gray-300"
+                  // 아이콘을 오른쪽 끝에 정렬 → DateInput의 화살표와 같은 위치.
+                  className="w-6 h-6 m-0 justify-end text-gray-300"
                 >
                   <ClearCircleIcon size={20} />
                 </IconButton>

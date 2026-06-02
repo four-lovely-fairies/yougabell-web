@@ -103,7 +103,8 @@ export default function SettingsProfilePage() {
                 <IconButton
                   label="이름 지우기"
                   onClick={() => update({ name: "" })}
-                  className="m-0 h-6 w-6 text-gray-300"
+                  // 아이콘을 오른쪽 끝에 정렬 → DateInput 화살표와 같은 위치.
+                  className="m-0 h-6 w-6 justify-end text-gray-300"
                 >
                   <ClearCircleIcon size={20} />
                 </IconButton>
