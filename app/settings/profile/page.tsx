@@ -127,8 +127,8 @@ export default function SettingsProfilePage() {
           <SegmentedToggle<Gender>
             ariaLabel="본인 성별"
             options={[
-              { value: "female", label: "여자" },
-              { value: "male", label: "남자" },
+              { value: "female", label: "엄마" },
+              { value: "male", label: "아빠" },
             ]}
             value={parent.gender ?? null}
             onChange={(v) => update({ gender: v ?? undefined })}
