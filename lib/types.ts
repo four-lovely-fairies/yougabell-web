@@ -77,8 +77,9 @@ export type OnboardingDraft = {
 export type CompleteOnboardingPayload = {
   parent: {
     name: string;
-    birthDate: string;
-    gender: Gender;
+    // App Store 5.1.1: 생년월일·성별은 선택 입력 (미입력 시 null).
+    birthDate?: string | null;
+    gender?: Gender | null;
     workStatus?: WorkStatus | null;
   };
   children: Array<{
