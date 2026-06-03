@@ -74,11 +74,17 @@ export const ChildSwitcherDropdown = ({
 export const NotificationModal = ({
   notifications,
   unreadCount,
+  submitting,
   onClose,
+  onMarkAllRead,
+  onOpenNotification,
 }: {
   notifications: HomeNotification[];
   unreadCount: number;
+  submitting: boolean;
   onClose: () => void;
+  onMarkAllRead: () => void;
+  onOpenNotification: (notification: HomeNotification) => void;
 }) => (
   <div
     className="fixed inset-0 z-40 bg-[rgba(38,38,38,0.24)]"
@@ -98,13 +104,23 @@ export const NotificationModal = ({
               읽지 않은 알림 {unreadCount}개
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm font-medium leading-5 text-primary-300"
-          >
-            닫기
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onMarkAllRead}
+              disabled={unreadCount === 0 || submitting}
+              className="text-sm font-medium leading-5 text-primary-300 disabled:text-[#c4c4c4]"
+            >
+              모두 읽기
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-sm font-medium leading-5 text-primary-300"
+            >
+              닫기
+            </button>
+          </div>
         </div>
         <div className="mt-4 space-y-3">
           {notifications.length > 0 ? (
@@ -112,11 +128,20 @@ export const NotificationModal = ({
               <button
                 key={notification.id}
                 type="button"
-                className="w-full rounded-xl bg-gray-50 p-4 text-left"
+                onClick={() => onOpenNotification(notification)}
+                disabled={submitting}
+                className={`w-full rounded-xl p-4 text-left transition disabled:opacity-70 ${
+                  notification.readAt ? "bg-gray-50" : "bg-primary-50"
+                }`}
               >
-                <p className="text-sm font-bold leading-5 text-gray-800">
-                  {notification.title}
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-bold leading-5 text-gray-800">
+                    {notification.title}
+                  </p>
+                  {!notification.readAt ? (
+                    <span className="mt-1 size-2 shrink-0 rounded-full bg-error-600" />
+                  ) : null}
+                </div>
                 <p className="mt-1 text-sm leading-5 text-gray-600">
                   {notification.body}
                 </p>
