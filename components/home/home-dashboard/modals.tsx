@@ -1,7 +1,7 @@
-import { Pencil, Trash2 } from "lucide-react";
-import type { HomeChild, HomeNotification } from "@/lib/home-data";
-import { moodIconPath } from "./helpers";
-import { MOOD_OPTION_LABELS, type MoodLevel } from "./types";
+import { Pencil, Trash2 } from 'lucide-react';
+import type { HomeChild, HomeNotification } from '@/lib/home-data';
+import { moodIconPath } from './helpers';
+import { MOOD_OPTION_LABELS, type MoodLevel } from './types';
 
 // 자녀 선택 드롭다운 — Figma 2395:10959.
 // 위치(헤더 아래 앵커링)는 호출부(dashboard)에서 관리하고, 여기서는 메뉴 카드만 그린다.
@@ -30,7 +30,7 @@ export const ChildSwitcherDropdown = ({
         <div
           key={child.id}
           className={`flex items-center justify-between gap-3 px-6 py-5 ${
-            selected ? "bg-primary-50" : "bg-white"
+            selected ? 'bg-primary-50' : 'bg-white'
           }`}
         >
           <button
@@ -131,16 +131,21 @@ export const NotificationModal = ({
                 onClick={() => onOpenNotification(notification)}
                 disabled={submitting}
                 className={`w-full rounded-xl p-4 text-left transition disabled:opacity-70 ${
-                  notification.readAt ? "bg-gray-50" : "bg-primary-50"
+                  notification.readAt ? 'bg-transparent' : 'bg-primary-50'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <p className="text-sm font-bold leading-5 text-gray-800">
                     {notification.title}
                   </p>
-                  {!notification.readAt ? (
-                    <span className="mt-1 size-2 shrink-0 rounded-full bg-error-600" />
-                  ) : null}
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-xs font-medium leading-4 text-gray-400">
+                      {formatNotificationTime(notification.createdAt)}
+                    </span>
+                    {!notification.readAt ? (
+                      <span className="size-2 rounded-full bg-error-600" />
+                    ) : null}
+                  </div>
                 </div>
                 <p className="mt-1 text-sm leading-5 text-gray-600">
                   {notification.body}
@@ -157,6 +162,39 @@ export const NotificationModal = ({
     </div>
   </div>
 );
+
+function formatNotificationTime(createdAt: string): string {
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffMs = now.getTime() - created.getTime();
+
+  if (!Number.isFinite(diffMs) || diffMs < 0) {
+    return formatMonthDay(created);
+  }
+
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+  if (diffMinutes < 1) {
+    return '방금';
+  }
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}분 전`;
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) {
+    return `${diffHours}시간 전`;
+  }
+
+  return formatMonthDay(created);
+}
+
+function formatMonthDay(date: Date): string {
+  const month = `${date.getMonth() + 1}`;
+  const day = `${date.getDate()}`;
+  return `${month}월${day}일`;
+}
 
 export const MoodCheckModal = ({
   selectedLevel,
@@ -185,7 +223,7 @@ export const MoodCheckModal = ({
         onClick={(event) => event.stopPropagation()}
       >
         <h2 className="whitespace-pre-line text-center text-[24px] font-bold leading-[1.35] tracking-[-0.02em] text-gray-800">
-          {"지금 마음의 배터리가 \n얼마나 남아있나요?"}
+          {'지금 마음의 배터리가 \n얼마나 남아있나요?'}
         </h2>
         <p className="mt-2 text-center text-sm font-medium leading-5 text-[#8e8e93]">
           기록을 꾸준히 하면 리포트 작성에 도움이 돼요.
@@ -208,13 +246,13 @@ export const MoodCheckModal = ({
                     src={moodIconPath(level)}
                     alt=""
                     className={`size-10 transition ${
-                      selected ? "" : "grayscale opacity-45"
+                      selected ? '' : 'grayscale opacity-45'
                     }`}
                     aria-hidden
                   />
                   <span
                     className={`text-center text-[11px] font-medium leading-[1.35] ${
-                      selected ? "text-gray-800" : "text-[#8e8e93]"
+                      selected ? 'text-gray-800' : 'text-[#8e8e93]'
                     }`}
                   >
                     {MOOD_OPTION_LABELS[level]}
