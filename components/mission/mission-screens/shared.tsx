@@ -50,9 +50,9 @@ export function MissionHeader({
           <ChevronDown className="size-4 shrink-0" aria-hidden />
         </button>
       ) : (
-        <div className="flex items-center gap-1 text-sm font-medium leading-normal text-gray-800">
+        // 전환할 자녀가 1명뿐이면 드롭다운 화살표를 숨겨 정적 라벨로만 표시.
+        <div className="flex items-center text-sm font-medium leading-normal text-gray-800">
           <span className="max-w-50 truncate">{childLabel}</span>
-          <ChevronDown className="size-4 shrink-0 text-gray-300" aria-hidden />
         </div>
       )}
       <div className="size-11 opacity-0" aria-hidden />
