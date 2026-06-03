@@ -3,13 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  ApiError,
   getStoredSelectedChildId,
   loadHomeDashboard,
+  markAllNotificationsRead,
+  markNotificationRead,
   setStoredSelectedChildId,
   submitHomeMoodCheck,
   type HomeLoadState,
 } from "@/lib/api";
-import type { HomeChild } from "@/lib/home-data";
+import type { HomeChild, HomeNotification } from "@/lib/home-data";
 import { GrowthStageCard, ReportSummaryCard, TodayMissionCard } from "./cards";
 import {
   ChildSwitcherDropdown,
@@ -32,6 +35,7 @@ export const HomeDashboard = () => {
   );
   const [moodSubmitting, setMoodSubmitting] = useState(false);
   const [moodError, setMoodError] = useState<string | null>(null);
+  const [notificationSubmitting, setNotificationSubmitting] = useState(false);
 
   const refresh = useCallback(
     async (childId?: string | null, showLoading = true) => {
@@ -90,6 +94,149 @@ export const HomeDashboard = () => {
     setSelectedChildId(child.id);
     setModal(null);
     void refresh(child.id);
+  };
+
+  const markNotificationReadLocally = (notificationId: string) => {
+    setState((current) => {
+      if (!current) return current;
+
+      let changed = false;
+      const latest = current.data.notifications.latest.map((notification) => {
+        if (notification.id !== notificationId || notification.readAt) {
+          return notification;
+        }
+
+        changed = true;
+        return {
+          ...notification,
+          readAt: new Date().toISOString(),
+        };
+      });
+
+      if (!changed) {
+        return current;
+      }
+
+      return {
+        ...current,
+        data: {
+          ...current.data,
+          notifications: {
+            ...current.data.notifications,
+            unreadCount: Math.max(
+              0,
+              current.data.notifications.unreadCount - 1,
+            ),
+            latest,
+          },
+        },
+      };
+    });
+  };
+
+  const markAllNotificationsReadLocally = () => {
+    setState((current) => {
+      if (!current) return current;
+
+      const latest = current.data.notifications.latest.map((notification) =>
+        notification.readAt
+          ? notification
+          : { ...notification, readAt: new Date().toISOString() },
+      );
+
+      return {
+        ...current,
+        data: {
+          ...current.data,
+          notifications: {
+            ...current.data.notifications,
+            unreadCount: 0,
+            latest,
+          },
+        },
+      };
+    });
+  };
+
+  const openNotificationTarget = (notification: HomeNotification) => {
+    if (notification.targetType === "child" && notification.targetId) {
+      setStoredSelectedChildId(notification.targetId);
+    }
+
+    switch (notification.actionType) {
+      case "open_home":
+        if (notification.targetType === "child") {
+          router.push("/mission");
+          return;
+        }
+        router.push("/");
+        return;
+      case "open_mission":
+        router.push("/mission");
+        return;
+      case "open_roadmap":
+        router.push("/roadmap");
+        return;
+      case "open_chat":
+        router.push("/chat");
+        return;
+      case "open_report":
+        router.push(
+          notification.targetId
+            ? `/weekly-report?reportId=${encodeURIComponent(notification.targetId)}`
+            : "/weekly-report",
+        );
+        return;
+      case "url":
+        if (notification.targetUrl) {
+          window.location.href = notification.targetUrl;
+        }
+        return;
+      default:
+        return;
+    }
+  };
+
+  const handleNotificationOpen = async (notification: HomeNotification) => {
+    if (notificationSubmitting) {
+      return;
+    }
+
+    setNotificationSubmitting(true);
+    try {
+      if (!notification.readAt) {
+        await markNotificationRead(notification.id);
+        markNotificationReadLocally(notification.id);
+      }
+      setModal(null);
+      openNotificationTarget(notification);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        router.replace("/onboarding/intro");
+        return;
+      }
+    } finally {
+      setNotificationSubmitting(false);
+    }
+  };
+
+  const handleMarkAllNotificationsRead = async () => {
+    if (notificationSubmitting || data?.notifications.unreadCount === 0) {
+      return;
+    }
+
+    setNotificationSubmitting(true);
+    try {
+      await markAllNotificationsRead();
+      markAllNotificationsReadLocally();
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        router.replace("/onboarding/intro");
+        return;
+      }
+    } finally {
+      setNotificationSubmitting(false);
+    }
   };
 
   const openMoodModal = () => {
@@ -178,7 +325,12 @@ export const HomeDashboard = () => {
         <NotificationModal
           notifications={data.notifications.latest}
           unreadCount={data.notifications.unreadCount}
+          submitting={notificationSubmitting}
           onClose={() => setModal(null)}
+          onMarkAllRead={() => void handleMarkAllNotificationsRead()}
+          onOpenNotification={(notification) =>
+            void handleNotificationOpen(notification)
+          }
         />
       ) : null}
       {modal === "mood" ? (
