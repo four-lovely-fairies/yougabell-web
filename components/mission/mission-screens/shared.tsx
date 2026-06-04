@@ -30,7 +30,7 @@ export function MissionHeader({
   onSwitchChild?: () => void;
 }) {
   return (
-    <header className="-mx-5 sticky top-0 z-30 bg-[#fbfbfb] px-5 pt-safe">
+    <header className="-mx-5 sticky top-0 z-30 bg-gradient-to-b from-[#fbfbfb] via-[#fbfbfb] to-transparent px-5 pt-safe">
       <div className="relative flex h-14 items-center justify-between">
         <button
           type="button"
