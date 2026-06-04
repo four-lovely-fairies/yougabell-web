@@ -30,32 +30,34 @@ export function MissionHeader({
   onSwitchChild?: () => void;
 }) {
   return (
-    <header className="relative flex h-14 items-center justify-between">
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex size-11 items-center justify-center text-gray-800"
-        aria-label="뒤로가기"
-      >
-        <ArrowLeft className="size-6" aria-hidden />
-      </button>
-      {onSwitchChild ? (
+    <header className="-mx-5 sticky top-0 z-30 bg-[#fbfbfb] px-5 pt-safe">
+      <div className="relative flex h-14 items-center justify-between">
         <button
           type="button"
-          onClick={onSwitchChild}
-          className="flex items-center gap-1 rounded-full px-2 py-1 text-sm font-medium leading-normal text-gray-800 transition-colors hover:bg-gray-50 active:bg-gray-100"
-          aria-haspopup="dialog"
+          onClick={onBack}
+          className="flex size-11 items-center justify-center text-gray-800"
+          aria-label="뒤로가기"
         >
-          <span className="max-w-50 truncate">{childLabel}</span>
-          <ChevronDown className="size-4 shrink-0" aria-hidden />
+          <ArrowLeft className="size-6" aria-hidden />
         </button>
-      ) : (
-        // 전환할 자녀가 1명뿐이면 드롭다운 화살표를 숨겨 정적 라벨로만 표시.
-        <div className="flex items-center text-sm font-medium leading-normal text-gray-800">
-          <span className="max-w-50 truncate">{childLabel}</span>
-        </div>
-      )}
-      <div className="size-11 opacity-0" aria-hidden />
+        {onSwitchChild ? (
+          <button
+            type="button"
+            onClick={onSwitchChild}
+            className="flex items-center gap-1 rounded-full px-2 py-1 text-sm font-medium leading-normal text-gray-800 transition-colors hover:bg-gray-50 active:bg-gray-100"
+            aria-haspopup="dialog"
+          >
+            <span className="max-w-50 truncate">{childLabel}</span>
+            <ChevronDown className="size-4 shrink-0" aria-hidden />
+          </button>
+        ) : (
+          // 전환할 자녀가 1명뿐이면 드롭다운 화살표를 숨겨 정적 라벨로만 표시.
+          <div className="flex items-center text-sm font-medium leading-normal text-gray-800">
+            <span className="max-w-50 truncate">{childLabel}</span>
+          </div>
+        )}
+        <div className="size-11 opacity-0" aria-hidden />
+      </div>
     </header>
   );
 }
