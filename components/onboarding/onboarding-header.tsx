@@ -17,19 +17,21 @@ export function OnboardingHeader({ variant = "back", onAction }: Props) {
   };
 
   return (
-    <div className="h-14 flex items-center">
-      {variant === "back" ? (
-        <IconButton label="이전 단계로" onClick={handle}>
-          <ArrowLeftIcon />
-        </IconButton>
-      ) : null}
-      {variant === "close" ? (
-        <div className="ml-auto">
-          <IconButton label="닫기" onClick={handle}>
-            <XIcon />
+    <header className="-mx-5 sticky top-0 z-30 bg-white px-5 pt-safe">
+      <div className="flex h-14 items-center">
+        {variant === "back" ? (
+          <IconButton label="이전 단계로" onClick={handle}>
+            <ArrowLeftIcon />
           </IconButton>
-        </div>
-      ) : null}
-    </div>
+        ) : null}
+        {variant === "close" ? (
+          <div className="ml-auto">
+            <IconButton label="닫기" onClick={handle}>
+              <XIcon />
+            </IconButton>
+          </div>
+        ) : null}
+      </div>
+    </header>
   );
 }

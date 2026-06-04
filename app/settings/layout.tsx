@@ -15,7 +15,7 @@ export default async function SettingsLayout({ children }: { children: ReactNode
   }
 
   return (
-    <main className="min-h-dvh overflow-x-hidden bg-gray-20 pt-safe text-gray-800">
+    <main className="min-h-dvh overflow-x-clip bg-gray-20 text-gray-800">
       {children}
     </main>
   );

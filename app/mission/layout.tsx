@@ -14,5 +14,5 @@ export default async function MissionLayout({ children }: { children: ReactNode 
     redirect(redirectPath);
   }
 
-  return <main className="min-h-dvh overflow-x-hidden bg-gray-20 text-gray-800">{children}</main>;
+  return <main className="min-h-dvh overflow-x-clip bg-gray-20 text-gray-800">{children}</main>;
 }

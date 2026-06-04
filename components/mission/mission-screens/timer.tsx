@@ -200,7 +200,7 @@ export function MissionTimerScreen({
   }
 
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-safe text-gray-800">
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
       <MissionHeader childLabel={childLabel} onBack={goBack} />
       <div className="flex min-h-[calc(100dvh-103px)] flex-col items-center justify-center gap-17">
         <div className="relative grid place-items-center">

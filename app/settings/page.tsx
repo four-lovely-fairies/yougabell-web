@@ -53,7 +53,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col pt-safe">
       {/* Figma 2395:8866 헤더 — h-78 px-20 */}
       <header className="flex h-19.5 items-center justify-between px-5">
         <div className="flex w-[182.5px] items-center gap-2">

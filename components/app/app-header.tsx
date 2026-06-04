@@ -32,7 +32,9 @@ export const AppHeader = ({
   return (
     // pt-safe로 OS 상태바 안전영역을 헤더가 직접 책임진다 (Figma StatusBar 47px 하드코딩 제거).
     // 좌우 패딩은 20px(px-5)로 통일 — 어느 화면이든 버튼 위치가 일정하게 노출된다.
-    <header className={cn("shrink-0 bg-white pt-safe", className)}>
+    <header
+      className={cn("sticky top-0 z-30 shrink-0 bg-white pt-safe", className)}
+    >
       <div className="relative flex h-14 items-center px-5">
         {variant === "back" ? (
           <IconButton label="뒤로" onClick={handleBack}>
