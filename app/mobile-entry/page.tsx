@@ -105,11 +105,9 @@ export default function MobileEntryPage() {
         <div className="h-10 w-10 animate-spin rounded-full border-3 border-primary-200 border-t-primary-500" />
         <div className="space-y-1">
           <p className="text-base font-semibold text-gray-800">
-            앱 상태를 확인 중이에요
+            육아밸을 준비하고 있어요
           </p>
-          <p className="text-sm text-gray-500">
-            로그인 정보와 온보딩 진행 상태를 불러오고 있어요.
-          </p>
+          <p className="text-sm text-gray-500">잠시만 기다려 주세요</p>
         </div>
       </div>
     </div>
