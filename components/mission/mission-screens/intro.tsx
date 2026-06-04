@@ -147,7 +147,7 @@ export function MissionIntroScreen() {
       : "미션 시작하기";
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-safe text-gray-800">
+    <div className="relative flex min-h-dvh flex-col overflow-x-clip bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
       {/* Figma ellipse87 — 캐릭터 뒤 보라 글로우 */}
       <div
         aria-hidden

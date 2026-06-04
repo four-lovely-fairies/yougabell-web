@@ -13,7 +13,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
   // 여기서 frame을 다시 감싸면 폭 차이만큼 좌우에 배경 띠가 노출되므로, 부모 frame을 그대로 채운다.
   return (
     <div
-      className="relative flex min-h-screen flex-col overflow-hidden bg-white px-5 pt-safe"
+      className="relative flex min-h-screen flex-col overflow-x-clip bg-white px-5"
       // safe-area inset이 0인 환경(데스크톱·일부 Android)에서도 최소 여백 보장
       style={{
         paddingBottom: "max(20px, env(safe-area-inset-bottom))",
