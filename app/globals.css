@@ -133,6 +133,16 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* iOS WebView에서 버튼·링크를 꾹 누르면 텍스트/블록 선택이 잡히는 문제 방지.
+   본문 텍스트(p 등)는 복사 가능하도록 인터랙티브 요소에만 적용. */
+button,
+[role="button"],
+a {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* OS 상태바(노치·다이내믹 아일랜드) 안전영역 상단 패딩.
    디바이스에선 env(safe-area-inset-top), 데스크톱(inset=0)에선 최소 12px gap.
    Figma의 StatusBar(47px)를 헤더 높이에 박지 말고 화면 최상단 컨테이너에서 이 유틸로 대체한다. */
