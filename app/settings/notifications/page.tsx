@@ -227,7 +227,8 @@ function Switch({
       <span
         className={cn(
           "absolute top-0.5 size-6 rounded-full bg-white shadow transition-transform",
-          checked ? "translate-x-5" : "translate-x-0.5",
+          // 트랙 48px - thumb 24px - 좌우 2px → on은 left 22px로 우측 정렬(좌우 대칭)
+          checked ? "translate-x-[22px]" : "translate-x-0.5",
         )}
       />
     </button>
