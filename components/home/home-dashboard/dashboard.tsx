@@ -276,8 +276,10 @@ export const HomeDashboard = () => {
 
   return (
     <>
-      <div className="relative min-h-dvh bg-gray-20 px-5 pb-9 pt-safe text-gray-800">
-        <div className="relative z-50">
+      {/* 인스타그램식 고정 헤더 — 스크롤·당겨서새로고침(overscroll)에도 상단 고정.
+          sticky는 iOS 러버밴드 때 함께 움직여 fixed로 처리. */}
+      <div className="fixed inset-x-0 top-0 z-50 mx-auto w-full max-w-107.5 bg-gray-20 px-5 pt-safe">
+        <div className="relative">
           <TopAppBar
             child={selectedChild}
             unreadCount={data.notifications.unreadCount}
@@ -309,6 +311,12 @@ export const HomeDashboard = () => {
               </div>
             </>
           ) : null}
+        </div>
+      </div>
+      <div className="relative min-h-dvh bg-gray-20 px-5 pb-9 text-gray-800">
+        {/* 고정 헤더(safe-area + 56px) 높이만큼 콘텐츠 하강 */}
+        <div aria-hidden className="pt-safe">
+          <div className="h-14" />
         </div>
         <div className="mt-4 flex flex-col gap-5">
           <WeeklyCalendar data={data} onOpenTodayMood={openMoodModal} />
