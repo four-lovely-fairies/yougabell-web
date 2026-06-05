@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, Info, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AppHeader } from "@/components/app/app-header";
+import { AppHeader, HeaderSpacer } from "@/components/app/app-header";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { SectionInfoCard } from "@/components/ui/section-info-card";
@@ -76,6 +76,7 @@ export const RoadmapScreen = () => {
   return (
     <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
       <AppHeader
+        fixed
         title="발달 로드맵"
         onBack={goBack}
         right={
@@ -90,6 +91,7 @@ export const RoadmapScreen = () => {
           </button>
         }
       />
+      <HeaderSpacer />
       <div className="relative flex flex-1 flex-col">
         {tooltipOpen ? (
           <SourceTooltip

@@ -16,6 +16,12 @@ type Props = {
   left?: ReactNode;
   right?: ReactNode;
   className?: string;
+  /**
+   * true면 viewport 상단 고정(position: fixed) — 스크롤·overscroll에도 안 움직인다.
+   * 이 경우 화면은 헤더 높이만큼 `<HeaderSpacer />`로 콘텐츠를 내려야 한다.
+   * (chat처럼 내부 스크롤 레이아웃은 기본 sticky 유지.)
+   */
+  fixed?: boolean;
 };
 
 export const AppHeader = ({
@@ -25,6 +31,7 @@ export const AppHeader = ({
   left,
   right,
   className,
+  fixed = false,
 }: Props) => {
   const router = useRouter();
   const handleBack = () => (onBack ? onBack() : router.back());
@@ -33,7 +40,13 @@ export const AppHeader = ({
     // pt-safe로 OS 상태바 안전영역을 헤더가 직접 책임진다 (Figma StatusBar 47px 하드코딩 제거).
     // 좌우 패딩은 20px(px-5)로 통일 — 어느 화면이든 버튼 위치가 일정하게 노출된다.
     <header
-      className={cn("sticky top-0 z-30 shrink-0 bg-white pt-safe", className)}
+      className={cn(
+        "z-30 bg-white pt-safe",
+        fixed
+          ? "fixed inset-x-0 top-0 mx-auto w-full max-w-107.5"
+          : "sticky top-0 shrink-0",
+        className,
+      )}
     >
       <div className="relative flex h-14 items-center px-5">
         {variant === "back" ? (
@@ -57,3 +70,10 @@ export const AppHeader = ({
     </header>
   );
 };
+
+/** fixed 헤더(AppHeader/MissionHeader) 높이(safe-area + 56px)만큼 콘텐츠를 내리는 스페이서. */
+export const HeaderSpacer = () => (
+  <div aria-hidden className="pt-safe">
+    <div className="h-14" />
+  </div>
+);

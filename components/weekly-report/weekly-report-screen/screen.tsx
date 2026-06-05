@@ -3,7 +3,7 @@
 import { Bell, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { AppHeader } from "@/components/app/app-header";
+import { AppHeader, HeaderSpacer } from "@/components/app/app-header";
 import {
   getStoredSelectedChildId,
   loadWeeklyReport,
@@ -76,6 +76,7 @@ export const WeeklyReportScreen = () => {
   return (
     <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
       <AppHeader
+        fixed
         title="주간 리포트"
         onBack={goBack}
         right={
@@ -88,6 +89,7 @@ export const WeeklyReportScreen = () => {
           </button>
         }
       />
+      <HeaderSpacer />
       {loading ? (
         <WeeklyReportSkeleton />
       ) : state?.error ? (
