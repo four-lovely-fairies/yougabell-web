@@ -116,6 +116,8 @@ body {
 body {
   font-feature-settings: "ss03", "tnum";
   -webkit-tap-highlight-color: transparent;
+  /* 브라우저/네이티브 기본 당겨서새로고침을 끄고 커스텀 PTR(헤더 아래 스피너)로 대체 */
+  overscroll-behavior-y: contain;
 }
 
 /* WebView 안 input zoom 방지 */
