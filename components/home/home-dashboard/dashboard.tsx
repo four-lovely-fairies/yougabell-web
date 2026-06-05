@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
 import {
   ApiError,
   getStoredSelectedChildId,
@@ -52,6 +53,14 @@ export const HomeDashboard = () => {
     },
     [],
   );
+
+  // 당겨서새로고침 — 로딩 스켈레톤 대신 헤더 아래 스피너만 노출(showLoading=false).
+  const onPullRefresh = useCallback(
+    () => refresh(selectedChildId ?? getStoredSelectedChildId(), false),
+    [refresh, selectedChildId],
+  );
+  const { distance: pullDistance, refreshing: pullRefreshing } =
+    usePullToRefresh(onPullRefresh);
 
   useEffect(() => {
     let active = true;
@@ -313,6 +322,28 @@ export const HomeDashboard = () => {
           ) : null}
         </div>
       </div>
+      {/* 당겨서새로고침 스피너 — 고정 헤더 바로 아래(z-40 < 헤더 z-50)에 표시 */}
+      {pullDistance > 0 || pullRefreshing ? (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-x-0 top-0 z-40 mx-auto w-full max-w-107.5 pt-safe"
+        >
+          <div className="h-14" />
+          <div className="flex justify-center">
+            <div
+              className={`mt-2 size-6 rounded-full border-2 border-gray-200 border-t-primary-300 ${
+                pullRefreshing ? "animate-spin" : ""
+              }`}
+              style={{
+                transform: pullRefreshing
+                  ? undefined
+                  : `translateY(${pullDistance}px) rotate(${pullDistance * 3}deg)`,
+                opacity: pullRefreshing ? 1 : Math.min(1, pullDistance / 40),
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
       <div className="relative min-h-dvh bg-gray-20 px-5 pb-9 text-gray-800">
         {/* 고정 헤더(safe-area + 56px) 높이만큼 콘텐츠 하강 */}
         <div aria-hidden className="pt-safe">
