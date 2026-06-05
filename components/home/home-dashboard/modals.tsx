@@ -1,6 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import type { HomeChild, HomeNotification } from '@/lib/home-data';
-import { moodIconPath } from './helpers';
+import { MoodFace } from './mood-face';
 import { MOOD_OPTION_LABELS, type MoodLevel } from './types';
 
 // 자녀 선택 드롭다운 — Figma 2395:10959.
@@ -242,13 +242,10 @@ export const MoodCheckModal = ({
                   className="flex w-13 flex-col items-center gap-1.25"
                   aria-pressed={selected}
                 >
-                  <img
-                    src={moodIconPath(level)}
-                    alt=""
-                    className={`size-10 transition ${
-                      selected ? '' : 'grayscale opacity-45'
-                    }`}
-                    aria-hidden
+                  <MoodFace
+                    level={level}
+                    className="size-10"
+                    dimmed={!selected}
                   />
                   <span
                     className={`text-center text-[11px] font-medium leading-[1.35] ${

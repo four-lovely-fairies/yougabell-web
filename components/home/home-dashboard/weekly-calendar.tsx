@@ -1,6 +1,7 @@
 import type { HomeDashboard as HomeDashboardData } from "@/lib/home-data";
-import { monthHeadingLabel, moodIconPath } from "./helpers";
+import { monthHeadingLabel } from "./helpers";
 import { FigmaIcon, HOME_ICON_PATHS } from "./icons";
+import { MoodFace } from "./mood-face";
 
 export const WeeklyCalendar = ({
   data,
@@ -71,13 +72,7 @@ const MoodBadge = ({
   onOpenTodayMood: () => void;
 }) => {
   if (day.mood?.level) {
-    return (
-      <FigmaIcon
-        src={moodIconPath(day.mood.level)}
-        alt="today's mood"
-        className="size-8 shrink-0"
-      />
-    );
+    return <MoodFace level={day.mood.level} className="size-8" />;
   }
 
   if (day.isToday) {
