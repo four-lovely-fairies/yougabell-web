@@ -14,6 +14,7 @@ import type { MissionSelectedChild } from "@/lib/mission-data";
 import {
   ageLabelFromBirth,
   ChildSwitchDropdown,
+  HeaderSpacer,
   MISSION_IMAGE_PATH,
   MISSION_META_ICONS,
   MissionHeader,
@@ -160,6 +161,7 @@ export function MissionIntroScreen() {
           onBack={goBack}
           onSwitchChild={canSwitch ? () => setSwitcherOpen(true) : undefined}
         />
+        <HeaderSpacer />
 
         <div className="flex flex-1 flex-col items-center justify-center gap-6 py-4">
           <img

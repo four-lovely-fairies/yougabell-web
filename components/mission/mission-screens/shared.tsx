@@ -3,6 +3,9 @@
 import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
 
+// fixed 헤더 높이만큼 콘텐츠를 내리는 스페이서 (미션 화면용 re-export).
+export { HeaderSpacer } from "@/components/app/app-header";
+
 // Figma 미션 시작하기(2470:5718) 실측 캐릭터 에셋.
 export const MISSION_IMAGE_PATH = "/images/figma/mission/mission-character.png";
 export const MISSION_META_ICONS = {
@@ -30,7 +33,7 @@ export function MissionHeader({
   onSwitchChild?: () => void;
 }) {
   return (
-    <header className="-mx-5 sticky top-0 z-30 bg-gradient-to-b from-[#fbfbfb] via-[#fbfbfb] to-transparent px-5 pt-safe">
+    <header className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-107.5 bg-gradient-to-b from-[#fbfbfb] via-[#fbfbfb] to-transparent px-5 pt-safe">
       <div className="relative flex h-14 items-center justify-between">
         <button
           type="button"
