@@ -53,24 +53,30 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col pt-safe">
-      {/* Figma 2395:8866 헤더 — h-78 px-20 */}
-      <header className="flex h-19.5 items-center justify-between px-5">
-        <div className="flex w-[182.5px] items-center gap-2">
-          <SettingsIcon className="size-6 text-gray-800" />
-          <h1 className="text-xl font-bold tracking-[-0.4px] text-gray-800">
-            설정
-          </h1>
+    <div className="flex flex-col">
+      {/* Figma 2395:8866 헤더 — h-78 px-20. viewport 상단 고정(fixed). */}
+      <header className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-107.5 bg-gray-20 px-5 pt-safe">
+        <div className="flex h-19.5 items-center justify-between">
+          <div className="flex w-[182.5px] items-center gap-2">
+            <SettingsIcon className="size-6 text-gray-800" />
+            <h1 className="text-xl font-bold tracking-[-0.4px] text-gray-800">
+              설정
+            </h1>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.replace("/")}
+            aria-label="닫기"
+            className="flex size-11 items-center justify-center text-gray-700"
+          >
+            <X className="size-6" />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => router.replace("/")}
-          aria-label="닫기"
-          className="flex size-11 items-center justify-center text-gray-700"
-        >
-          <X className="size-6" />
-        </button>
       </header>
+      {/* 고정 헤더(safe-area + h-19.5) 높이만큼 콘텐츠 하강 */}
+      <div aria-hidden className="pt-safe">
+        <div className="h-19.5" />
+      </div>
 
       {/* Figma 2395:8873 본문 — pt-20 pb-40 px-20, 섹션 gap-24 */}
       <div className="flex flex-col gap-6 px-5 pt-5 pb-10">
