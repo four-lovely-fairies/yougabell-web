@@ -31,11 +31,14 @@ export const MoodFace = ({
     )}
     style={{ background: MOOD_BG[level] }}
   >
+    {/* 얼굴 PNG를 흑백 고대비(흰 배경·검정 얼굴)로 변환 후 그라데이션 위에 multiply.
+        → 배경은 그라데이션 그대로, 표정은 검정으로 또렷하게(회색·흐릿 방지). */}
     <img
       src={moodIconPath(level)}
       alt=""
       aria-hidden
       className="size-full mix-blend-multiply"
+      style={{ filter: "grayscale(1) brightness(1.08) contrast(3.2)" }}
     />
   </div>
 );
