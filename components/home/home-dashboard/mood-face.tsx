@@ -1,16 +1,17 @@
 import { cn } from "@/lib/utils";
-import { moodIconPath } from "./helpers";
 import type { MoodLevel } from "./types";
 
-// 멘탈(마음 배터리) 레벨별 배경 — 디자이너 실측(Figma "Feeling Character Reference"
-// 2539:5278). 놀이 피드백 아이콘과 동일 파스텔 팔레트 + 방사형 그라데이션.
-// PNG 얼굴 배경이 베이크돼 있어, 그라데이션 원 위에 얼굴을 mix-blend-multiply로 올려 틴트.
-export const MOOD_BG: Record<MoodLevel, string> = {
-  1: "#addeff", // 라이트블루 (단색)
-  2: "radial-gradient(circle at 50% 45%, #749cec, #9ab9f0)", // 블루
-  3: "radial-gradient(circle at 50% 45%, #fcf1d0, #f6d264)", // 옐로우
-  4: "radial-gradient(circle at 50% 45%, #dbf59f, #cee896)", // 연두
-  5: "radial-gradient(circle at 50% 45%, #fda1b4, #ff8ba3)", // 핑크
+// 기분 레벨별 아이콘.
+// mood PNG는 "밝은 배경 + 네이비 얼굴"이라 그라데이션 위에 합성하면 표정이 흐려졌다.
+// 디자인상 동일한(그라데이션 배경 + 또렷한 표정이 벡터로 baked) 놀이 피드백 아이콘으로 통일.
+// 색 매핑 — Figma "Feeling Character Reference"(2539:5278):
+//   L1 라이트블루 · L2 블루 · L3 옐로우 · L4 연두 · L5 핑크.
+const MOOD_FACE_SRC: Record<MoodLevel, string> = {
+  1: "/icons/figma/mission-feedback/very-bad.svg",
+  2: "/icons/figma/mission-feedback/bad.svg",
+  3: "/icons/figma/mission-feedback/good.svg",
+  4: "/icons/figma/mission-feedback/neutral.svg",
+  5: "/icons/figma/mission-feedback/very-good.svg",
 };
 
 export const MoodFace = ({
@@ -23,22 +24,14 @@ export const MoodFace = ({
   /** 선택 모달에서 미선택 항목을 흐리게 표시 */
   dimmed?: boolean;
 }) => (
-  <div
+  <img
+    src={MOOD_FACE_SRC[level]}
+    alt=""
+    aria-hidden
     className={cn(
-      "relative shrink-0 overflow-hidden rounded-full transition-opacity",
+      "shrink-0 rounded-full transition-opacity",
       dimmed && "opacity-45",
       className,
     )}
-    style={{ background: MOOD_BG[level] }}
-  >
-    {/* 얼굴 PNG를 흑백 고대비(흰 배경·검정 얼굴)로 변환 후 그라데이션 위에 multiply.
-        → 배경은 그라데이션 그대로, 표정은 검정으로 또렷하게(회색·흐릿 방지). */}
-    <img
-      src={moodIconPath(level)}
-      alt=""
-      aria-hidden
-      className="size-full mix-blend-multiply"
-      style={{ filter: "grayscale(1) brightness(1.08) contrast(3.2)" }}
-    />
-  </div>
+  />
 );
