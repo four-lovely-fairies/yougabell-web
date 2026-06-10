@@ -1,12 +1,11 @@
 import { GoogleAnalytics as NextGoogleAnalytics } from "@next/third-parties/google";
 
-// NEXT_PUBLIC_GA_ID가 있고 production일 때만 GA를 로드한다.
-// dev/preview 트래픽이 프로덕션 측정치를 오염시키지 않도록 게이팅.
+// NEXT_PUBLIC_GA_ID가 있을 때만 GA를 로드한다.
+// ID는 Vercel production 환경에만 등록 → preview/dev에서는 미설정이라 자동 미로드.
 export const GoogleAnalytics = () => {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
-  const isProduction = process.env.NEXT_PUBLIC_APP_ENV === "production";
 
-  if (!gaId || !isProduction) {
+  if (!gaId) {
     return null;
   }
 
