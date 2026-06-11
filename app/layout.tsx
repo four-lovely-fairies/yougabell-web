@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@/components/app/google-analytics";
 import { NativeSessionBridge } from "@/components/app/native-session-bridge";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="ko" className="h-full antialiased">
       <body className="min-h-full bg-linear-to-br from-[#f1eaff] via-[#e8eeff] to-[#dff4ff] font-sans text-gray-800">
         <NativeSessionBridge />
+        <GoogleAnalytics />
         {/* 모바일 frame — 태블릿/데스크탑에서는 가운데 정렬된 모바일 폭(430px)으로 표시 */}
         <div className="mx-auto flex min-h-dvh w-full max-w-107.5 flex-col bg-white shadow-[0_8px_40px_rgba(60,40,120,0.12)]">
           {children}
