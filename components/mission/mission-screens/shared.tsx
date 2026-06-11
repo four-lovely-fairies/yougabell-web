@@ -33,7 +33,7 @@ export function MissionHeader({
   onSwitchChild?: () => void;
 }) {
   return (
-    <header className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-107.5 bg-gradient-to-b from-[#fbfbfb] via-[#fbfbfb] to-transparent px-5 pt-safe">
+    <header className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-107.5 bg-gradient-to-b from-[#fbfbfb] via-[#fbfbfb] to-[#fbfbfb]/0 px-5 pt-safe">
       <div className="relative flex h-14 items-center justify-between">
         <button
           type="button"
