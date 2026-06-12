@@ -1,11 +1,16 @@
 "use client";
 
+import { Mascot } from "@/components/characters/mascot";
 import { AppleIcon, GoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { buildOAuthRedirectTo, getOAuthErrorMessage } from "@/lib/auth-oauth";
-import { isNativeWebView, notifyMobile, subscribeToNativeMessages } from "@/lib/native-bridge";
+import {
+  isNativeWebView,
+  notifyMobile,
+  subscribeToNativeMessages,
+} from "@/lib/native-bridge";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import type { ReadonlyURLSearchParams } from "next/navigation";
@@ -23,8 +28,12 @@ export default function OnboardingIntroPage() {
   const searchParams = useSearchParams();
   const { isDirty, clear } = useOnboardingDraft();
   const [startFresh, setStartFresh] = useState(false);
-  const [pendingProvider, setPendingProvider] = useState<OAuthProvider | null>(null);
-  const [oauthRequestError, setOauthRequestError] = useState<string | null>(null);
+  const [pendingProvider, setPendingProvider] = useState<OAuthProvider | null>(
+    null,
+  );
+  const [oauthRequestError, setOauthRequestError] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     track({ type: "onboarding_intro_view" });
@@ -37,19 +46,23 @@ export default function OnboardingIntroPage() {
       return;
     }
 
-    void supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
-      if (data.session) {
-        router.replace("/onboarding/parent");
-      }
-    });
+    void supabase.auth
+      .getSession()
+      .then(({ data }: { data: { session: Session | null } }) => {
+        if (data.session) {
+          router.replace("/onboarding/parent");
+        }
+      });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-      if (!session) return;
-      setPendingProvider(null);
-      router.replace("/onboarding/parent");
-    });
+    } = supabase.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+        if (!session) return;
+        setPendingProvider(null);
+        router.replace("/onboarding/parent");
+      },
+    );
 
     const unsubscribe = subscribeToNativeMessages((message) => {
       if (message.type === "SUPABASE_SESSION_SYNC") {
@@ -67,12 +80,18 @@ export default function OnboardingIntroPage() {
         setPendingProvider(null);
       }
 
-      if (message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR" || message.type === "NATIVE_APPLE_SIGN_IN_ERROR") {
+      if (
+        message.type === "NATIVE_GOOGLE_SIGN_IN_ERROR" ||
+        message.type === "NATIVE_APPLE_SIGN_IN_ERROR"
+      ) {
         setOauthRequestError(message.payload.message);
         setPendingProvider(null);
       }
 
-      if (message.type === "NATIVE_GOOGLE_SIGN_IN_CANCELLED" || message.type === "NATIVE_APPLE_SIGN_IN_CANCELLED") {
+      if (
+        message.type === "NATIVE_GOOGLE_SIGN_IN_CANCELLED" ||
+        message.type === "NATIVE_APPLE_SIGN_IN_CANCELLED"
+      ) {
         setPendingProvider(null);
       }
     });
@@ -93,12 +112,18 @@ export default function OnboardingIntroPage() {
     setOauthRequestError(null);
     setPendingProvider(provider);
     track({
-      type: provider === "google" ? "onboarding_google_sign_in_click" : "onboarding_apple_sign_in_click",
+      type:
+        provider === "google"
+          ? "onboarding_google_sign_in_click"
+          : "onboarding_apple_sign_in_click",
     });
 
     if (isNativeWebView()) {
       notifyMobile({
-        type: provider === "google" ? "REQUEST_NATIVE_GOOGLE_SIGN_IN" : "REQUEST_NATIVE_APPLE_SIGN_IN",
+        type:
+          provider === "google"
+            ? "REQUEST_NATIVE_GOOGLE_SIGN_IN"
+            : "REQUEST_NATIVE_APPLE_SIGN_IN",
       });
       return;
     }
@@ -107,7 +132,10 @@ export default function OnboardingIntroPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: buildOAuthRedirectTo(window.location.origin, "/onboarding/parent"),
+        redirectTo: buildOAuthRedirectTo(
+          window.location.origin,
+          "/onboarding/parent",
+        ),
       },
     });
 
@@ -120,8 +148,12 @@ export default function OnboardingIntroPage() {
   if (isDirty && !startFresh) {
     return (
       <div className="flex flex-1 flex-col justify-center gap-4 px-6">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">이어서 작성하시겠어요?</h1>
-        <p className="text-sm text-gray-500">이전에 작성하다 만 온보딩이 있습니다.</p>
+        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+          이어서 작성하시겠어요?
+        </h1>
+        <p className="text-sm text-gray-500">
+          이전에 작성하다 만 온보딩이 있습니다.
+        </p>
         <div className="mt-2 flex flex-col gap-3">
           <Button size="full" onClick={() => router.push("/onboarding/parent")}>
             이어서 작성하기
@@ -165,19 +197,15 @@ export default function OnboardingIntroPage() {
       </div>
 
       <div className="relative z-10 flex flex-1 items-center justify-center">
-        <div className="relative h-31 w-38 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/onboarding/intro.png"
-            alt=""
-            aria-hidden
-            className="absolute left-[-145.57%] top-[-16.11%] h-[381.08%] w-[381.22%] max-w-none"
-          />
-        </div>
+        <Mascot pose="spiky" className="h-31 w-38" />
       </div>
 
       <div className="relative z-10 flex flex-col gap-3 px-5 pb-5">
-        {authError ? <p className="text-center text-sm font-medium text-red-500">{authError}</p> : null}
+        {authError ? (
+          <p className="text-center text-sm font-medium text-red-500">
+            {authError}
+          </p>
+        ) : null}
         <button
           type="button"
           disabled={pendingProvider !== null}

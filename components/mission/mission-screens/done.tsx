@@ -10,7 +10,8 @@ import {
   type MissionEffectLoadState,
   type MissionLoadState,
 } from "@/lib/api";
-import { MISSION_IMAGE_PATH, MissionContentSkeleton } from "./shared";
+import { Mascot } from "@/components/characters/mascot";
+import { MissionContentSkeleton } from "./shared";
 
 export function MissionDoneScreen({
   executionId,
@@ -105,12 +106,7 @@ export function MissionDoneScreen({
 
       <div className="relative z-10 flex min-h-[calc(100dvh-104px-115px)] items-center justify-center">
         <div className="flex w-68.75 flex-col items-center gap-6 text-center">
-          <img
-            src={MISSION_IMAGE_PATH}
-            alt=""
-            className="h-23 w-27.5"
-            aria-hidden
-          />
+          <Mascot pose="resting" className="h-23 w-27.5" />
           <div className="space-y-3.75">
             <h1 className="text-[20px] font-bold leading-[1.4] tracking-[-0.4px] text-gray-800">
               피드백 작성이

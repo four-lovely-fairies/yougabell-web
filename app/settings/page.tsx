@@ -1,5 +1,6 @@
 "use client";
 
+import { Mascot } from "@/components/characters/mascot";
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import { api, ApiError } from "@/lib/api";
@@ -266,16 +267,7 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
-          {/* Figma 2395:8988 image — intro sprite 마스코트 캐릭터 */}
-          <div className="relative h-16.75 w-20.5 overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/onboarding/intro.png"
-              alt=""
-              aria-hidden
-              className="absolute left-[-23.76%] top-[-20.27%] h-[381.08%] w-[381.22%] max-w-none"
-            />
-          </div>
+          <Mascot pose="question" className="h-16.75 w-20.5" />
           <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
             계정을 탈퇴하시겠어요?
           </p>

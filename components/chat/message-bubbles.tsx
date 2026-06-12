@@ -1,3 +1,4 @@
+import { Mascot } from "@/components/characters/mascot";
 import { MarkdownMessage } from "@/components/chat/markdown-message";
 import { splitParagraphs, type ChatMessageCard } from "@/lib/chat-data";
 import { openExternalUrl } from "@/lib/native-bridge";
@@ -13,16 +14,7 @@ type ChatSource = {
 export function EmptyState() {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-9 px-5">
-      {/* Figma: 1024x837 9등분 sprite에서 1칸만 노출 — w/h/offset은 Figma 절대값 */}
-      <div className="relative size-30 overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/chat/empty-mascot.png"
-          alt=""
-          aria-hidden
-          className="absolute left-[-125.02%] top-[-220.04%] h-[320.45%] w-[339.56%] max-w-none"
-        />
-      </div>
+      <Mascot pose="reviewing" className="size-30" />
       <p className="text-center text-lg font-bold leading-[1.4] text-gray-800">
         궁금한점을 모두
         <br />

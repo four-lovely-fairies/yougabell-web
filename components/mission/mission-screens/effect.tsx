@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Mascot } from "@/components/characters/mascot";
 import {
   ApiError,
   getStoredSelectedChildId,
@@ -12,7 +13,6 @@ import {
 } from "@/lib/api";
 import {
   HeaderSpacer,
-  MISSION_IMAGE_PATH,
   MissionContentSkeleton,
   MissionErrorState,
   MissionHeader,
@@ -104,12 +104,7 @@ export function MissionEffectScreen({
       <HeaderSpacer />
 
       <div className="flex min-h-[calc(100dvh-103px-96px)] flex-col items-center justify-center gap-7">
-        <img
-          src={MISSION_IMAGE_PATH}
-          alt=""
-          className="h-33 w-39.5"
-          aria-hidden
-        />
+        <Mascot pose="resting" className="h-33 w-39.5" />
         <div className="space-y-4 text-center">
           <h1 className="whitespace-pre-line text-[28px] font-bold leading-[1.35] text-gray-800">
             아이와{" "}

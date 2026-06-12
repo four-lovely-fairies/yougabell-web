@@ -6,8 +6,6 @@ import type { ReactNode } from "react";
 // fixed 헤더 높이만큼 콘텐츠를 내리는 스페이서 (미션 화면용 re-export).
 export { HeaderSpacer } from "@/components/app/app-header";
 
-// Figma 미션 시작하기(2470:5718) 실측 캐릭터 에셋.
-export const MISSION_IMAGE_PATH = "/images/figma/mission/mission-character.png";
 export const MISSION_META_ICONS = {
   time: "/icons/figma/mission/alarm.svg",
   category: "/icons/figma/mission/folder.svg",
