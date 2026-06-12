@@ -220,19 +220,13 @@ function Switch({
       aria-label={ariaLabel}
       onClick={() => onCheckedChange(!checked)}
       className={cn(
-        "relative h-7 w-12 shrink-0 rounded-full transition-colors",
-        checked ? "bg-primary-300" : "bg-gray-300",
+        // flex 정렬로 thumb를 트랙 안쪽(p-0.5)에 가둔다. 트랙·thumb·padding이
+        // 모두 같은 spacing 토큰이라 글꼴 배율과 무관하게 절대 밖으로 새지 않는다.
+        "flex h-7 w-12 shrink-0 items-center rounded-full p-0.5 transition-colors",
+        checked ? "justify-end bg-primary-300" : "justify-start bg-gray-300",
       )}
     >
-      <span
-        className={cn(
-          "absolute top-0.5 size-6 rounded-full bg-white shadow transition-transform",
-          // 트랙(w-12)·thumb(size-6)이 rem 기반이라 이동 거리도 rem으로 둬야
-          // 기기 글꼴 배율(root rem≠16px)에서 knob이 트랙 밖으로 새지 않는다.
-          // 트랙 3rem - thumb 1.5rem - 우측 inset 0.125rem = 1.375rem
-          checked ? "translate-x-[1.375rem]" : "translate-x-0.5",
-        )}
-      />
+      <span className="size-6 rounded-full bg-white shadow" />
     </button>
   );
 }
