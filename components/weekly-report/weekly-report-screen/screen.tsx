@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppHeader, HeaderSpacer } from "@/components/app/app-header";
@@ -85,7 +85,13 @@ export const WeeklyReportScreen = () => {
             className="flex size-11 items-center justify-center text-gray-800"
             aria-label="알림 열기"
           >
-            <Bell className="size-6" aria-hidden />
+            {/* 홈 헤더와 동일한 Figma 알림 아이콘으로 통일 */}
+            <img
+              src="/icons/figma/home/header-notification.svg"
+              alt=""
+              className="size-6"
+              aria-hidden
+            />
           </button>
         }
       />
