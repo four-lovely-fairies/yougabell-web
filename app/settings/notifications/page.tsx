@@ -59,7 +59,7 @@ function derivePrefsFromMe(me: MeResponse): Prefs {
     me.notificationTime ??
     (me.notificationSlot === "custom"
       ? "19:00"
-      : NOTIFICATION_SLOT_META[me.notificationSlot].defaultTime ?? "19:00");
+      : (NOTIFICATION_SLOT_META[me.notificationSlot].defaultTime ?? "19:00"));
 
   return {
     play_10min: { enabled: true, time: legacyTime },
@@ -220,15 +220,17 @@ function Switch({
       aria-label={ariaLabel}
       onClick={() => onCheckedChange(!checked)}
       className={cn(
-        "relative h-7 w-12 rounded-full transition-colors",
+        "relative h-7 w-12 shrink-0 rounded-full transition-colors",
         checked ? "bg-primary-300" : "bg-gray-300",
       )}
     >
       <span
         className={cn(
           "absolute top-0.5 size-6 rounded-full bg-white shadow transition-transform",
-          // 트랙 48px - thumb 24px - 좌우 2px → on은 left 22px로 우측 정렬(좌우 대칭)
-          checked ? "translate-x-[22px]" : "translate-x-0.5",
+          // 트랙(w-12)·thumb(size-6)이 rem 기반이라 이동 거리도 rem으로 둬야
+          // 기기 글꼴 배율(root rem≠16px)에서 knob이 트랙 밖으로 새지 않는다.
+          // 트랙 3rem - thumb 1.5rem - 우측 inset 0.125rem = 1.375rem
+          checked ? "translate-x-[1.375rem]" : "translate-x-0.5",
         )}
       />
     </button>
