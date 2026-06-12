@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Mascot } from "@/components/characters/mascot";
 import {
   api,
   getStoredSelectedChildId,
@@ -15,7 +16,6 @@ import {
   ageLabelFromBirth,
   ChildSwitchDropdown,
   HeaderSpacer,
-  MISSION_IMAGE_PATH,
   MISSION_META_ICONS,
   MissionHeader,
   MissionIntroSkeleton,
@@ -164,12 +164,7 @@ export function MissionIntroScreen() {
         <HeaderSpacer />
 
         <div className="flex flex-1 flex-col items-center justify-center gap-6 py-4">
-          <img
-            src={MISSION_IMAGE_PATH}
-            alt=""
-            className="h-23 w-27.5 object-contain"
-            aria-hidden
-          />
+          <Mascot pose="resting" className="h-23 w-27.5" />
           <div className="flex w-full flex-col items-center gap-5 text-center">
             <div className="flex flex-col items-center gap-1.5">
               <p className="text-xs font-medium leading-[1.4] text-primary-300">

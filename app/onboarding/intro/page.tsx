@@ -1,6 +1,7 @@
 "use client";
 
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import { Mascot } from "@/components/characters/mascot";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
@@ -213,15 +214,7 @@ export default function IntroPage() {
       </div>
 
       <div className="relative z-10 flex flex-1 items-center justify-center">
-        <div className="relative h-31 w-38 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/onboarding/intro.png"
-            alt=""
-            aria-hidden
-            className="absolute left-[-145.57%] top-[-16.11%] h-[381.08%] w-[381.22%] max-w-none"
-          />
-        </div>
+        <Mascot pose="spiky" className="h-31 w-38" />
       </div>
 
       <div className="relative z-10 flex flex-col gap-3 px-5 pb-5">
