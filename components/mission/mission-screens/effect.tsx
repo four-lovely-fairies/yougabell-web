@@ -104,7 +104,7 @@ export function MissionEffectScreen({
       <HeaderSpacer />
 
       <div className="flex min-h-[calc(100dvh-103px-96px)] flex-col items-center justify-center gap-7">
-        <Mascot pose="resting" className="h-33 w-39.5" />
+        <Mascot pose="resting" className="w-39.5" />
         <div className="space-y-4 text-center">
           <h1 className="whitespace-pre-line text-[28px] font-bold leading-[1.35] text-gray-800">
             아이와{" "}

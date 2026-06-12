@@ -3,8 +3,6 @@ export const HOME_ICON_PATHS = {
   growthStage: "/icons/figma/home/growth-stage.svg",
   headerNotification: "/icons/figma/home/header-notification.svg",
   headerSettings: "/icons/figma/home/header-settings.svg",
-  // 미션(놀이) 카드 마스코트 — Figma 실제 일러스트 (home-character)
-  missionMascot: "/images/figma/home/mission-mascot.png",
   moodPlus: "/icons/figma/home/mood-plus.svg",
   // 마음의 배터리 감정 얼굴 5종 — Figma 실제 일러스트 (level 1~5)
   mood1: "/images/figma/home/mood-1.png",

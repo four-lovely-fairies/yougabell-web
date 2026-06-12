@@ -14,7 +14,7 @@ type ChatSource = {
 export function EmptyState() {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-9 px-5">
-      <Mascot pose="reviewing" className="size-30" />
+      <Mascot pose="reviewing" className="w-30" />
       <p className="text-center text-lg font-bold leading-[1.4] text-gray-800">
         궁금한점을 모두
         <br />
