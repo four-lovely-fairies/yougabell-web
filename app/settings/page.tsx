@@ -267,7 +267,7 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 px-4 pt-6 pb-2">
-          <Mascot pose="question" className="h-16.75 w-20.5" />
+          <Mascot pose="question" className="w-20.5" />
           <p className="pt-2 text-center text-lg font-bold leading-[1.4] text-gray-800">
             계정을 탈퇴하시겠어요?
           </p>

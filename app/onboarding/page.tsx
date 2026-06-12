@@ -197,7 +197,7 @@ export default function OnboardingIntroPage() {
       </div>
 
       <div className="relative z-10 flex flex-1 items-center justify-center">
-        <Mascot pose="spiky" className="h-31 w-38" />
+        <Mascot pose="spiky" className="w-38" />
       </div>
 
       <div className="relative z-10 flex flex-col gap-3 px-5 pb-5">

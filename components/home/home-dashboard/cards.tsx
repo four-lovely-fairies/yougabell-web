@@ -1,3 +1,4 @@
+import { Mascot } from "@/components/characters/mascot";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { SectionInfoCard } from "@/components/ui/section-info-card";
@@ -35,12 +36,7 @@ export const TodayMissionCard = ({
             </span>
           ))}
         </h2>
-        <img
-          src={HOME_ICON_PATHS.missionMascot}
-          alt=""
-          className="h-15 w-21 shrink-0 object-contain"
-          aria-hidden
-        />
+        <Mascot pose="cheer" className="w-21 shrink-0" />
       </div>
       <button
         type="button"
