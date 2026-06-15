@@ -17,20 +17,20 @@ const MOOD_FACE_SRC: Record<MoodLevel, string> = {
 export const MoodFace = ({
   level,
   className,
-  dimmed = false,
+  muted = false,
 }: {
   level: MoodLevel;
   className?: string;
-  /** 선택 모달에서 미선택 항목을 흐리게 표시 */
-  dimmed?: boolean;
+  /** 선택 모달에서 미선택 항목을 회색(grayscale)으로 표시 — 선택 시 원래 컬러 복원 */
+  muted?: boolean;
 }) => (
   <img
     src={MOOD_FACE_SRC[level]}
     alt=""
     aria-hidden
     className={cn(
-      "shrink-0 rounded-full transition-opacity",
-      dimmed && "opacity-45",
+      "shrink-0 rounded-full transition",
+      muted && "grayscale",
       className,
     )}
   />
