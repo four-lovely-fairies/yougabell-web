@@ -339,7 +339,17 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
       </span>
     );
   }
-  return <img src={src} alt="" className="size-5 object-contain" aria-hidden />;
+  // <img>로 두면 flex 안에서 width가 눌리거나 SVG의 width/height="100%" 탓에
+  // 박스보다 작게 렌더링됐다. 고정 정사각 박스에 배경 이미지로 깔아
+  // (bg-contain) replaced-element 사이징 이슈를 우회한다.
+  return (
+    <span
+      role="img"
+      aria-hidden
+      className="size-5 shrink-0 bg-contain bg-center bg-no-repeat"
+      style={{ backgroundImage: `url("${src}")` }}
+    />
+  );
 };
 
 const RoadmapSkeleton = () => (
