@@ -1,4 +1,5 @@
 import { ApiError, authHeaders, request } from "./client";
+import { clearStoredSelectedChildId } from "./storage";
 import type {
   MissionEffectLoadState,
   MissionExecutionAction,
@@ -52,6 +53,19 @@ export const loadCurrentMission = async (
       source: "api",
     };
   } catch (error) {
+    // 저장된 자녀 id가 더 이상 유효하지 않으면(삭제됐거나 과거 잔재) 404가 난다.
+    // home과 동일하게 저장값을 비우고 기본 자녀로 1회 재시도해 자가 치유한다.
+    // (재시도는 childId=null이라 이 분기로 다시 들어오지 않는다.)
+    if (
+      childId &&
+      error instanceof ApiError &&
+      error.status === 404 &&
+      (error.body as { code?: string } | null)?.code === "CHILD_NOT_FOUND"
+    ) {
+      clearStoredSelectedChildId();
+      return loadCurrentMission(null);
+    }
+
     const message =
       error instanceof ApiError
         ? `API 응답을 가져오지 못해 샘플 미션을 표시합니다. (${error.status})`
