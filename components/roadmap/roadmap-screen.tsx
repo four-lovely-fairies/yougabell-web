@@ -19,6 +19,9 @@ import {
 export const RoadmapScreen = () => {
   const router = useRouter();
   const [data, setData] = useState<RoadmapResponse | null>(null);
+  // 내 아이의 월령 체크포인트 — 첫 로드 시 서버가 보정해 준 targetMonth로 고정.
+  // 이후 월령 탭을 옮겨도 바뀌지 않으므로, 다른 월령을 보고 있을 때 내 아이 탭을 표시하는 기준이 된다.
+  const [childMonth, setChildMonth] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -39,6 +42,7 @@ export const RoadmapScreen = () => {
     void loadRoadmap({ childId: getStoredSelectedChildId() }).then((next) => {
       if (!active) return;
       setData(next.data);
+      setChildMonth(next.data.targetMonth);
       setLoading(false);
     });
     return () => {
@@ -102,6 +106,7 @@ export const RoadmapScreen = () => {
         <CurrentStageCard ageLabel={data.child.ageLabel} stage={data.stage} />
         <MonthTabs
           target={data.targetMonth}
+          childMonth={childMonth}
           disabled={loading}
           onSelect={onSelectMonth}
         />
@@ -161,10 +166,12 @@ const CurrentStageCard = ({
 
 const MonthTabs = ({
   target,
+  childMonth,
   disabled,
   onSelect,
 }: {
   target: number;
+  childMonth: number | null;
   disabled: boolean;
   onSelect: (month: number) => void;
 }) => {
@@ -208,6 +215,8 @@ const MonthTabs = ({
         <div className="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
           {CDC_CHECKPOINTS.map((month) => {
             const active = month === target;
+            // 지금 보고 있는 월령(active)이 아니면서 내 아이 월령인 탭은 연한 색으로 구분.
+            const isChildMonth = !active && month === childMonth;
             return (
               <button
                 key={month}
@@ -215,12 +224,15 @@ const MonthTabs = ({
                 type="button"
                 role="tab"
                 aria-selected={active}
+                title={isChildMonth ? "내 아이 월령" : undefined}
                 onClick={() => onSelect(month)}
                 disabled={disabled}
                 className={`flex h-8.25 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3.5 text-xs font-medium leading-[1.4] ${
                   active
                     ? "bg-primary-300 text-white"
-                    : "border border-gray-100 bg-white text-gray-600"
+                    : isChildMonth
+                      ? "border border-primary-200 bg-primary-50 text-primary-300"
+                      : "border border-gray-100 bg-white text-gray-600"
                 }`}
               >
                 {month}개월
