@@ -31,7 +31,17 @@ export function MissionHeader({
   onSwitchChild?: () => void;
 }) {
   return (
-    <header className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-107.5 bg-gradient-to-b from-[#fbfbfb] via-[#fbfbfb] to-[#fbfbfb]/0 px-5 pt-safe">
+    <header
+      className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-107.5 px-5 pt-safe"
+      // Tailwind v4의 `to-[#fbfbfb]/0`은 color-mix(in oklab, … 0%, transparent)로
+      // 컴파일돼 결국 transparent(투명 검정)로 붕괴 → iOS WebKit에서 흰색→투명
+      // 페이드 중간이 회색 띠로 보인다. sRGB 보간 + 같은 색 알파 0의 inline
+      // rgba 그라데이션으로 고정해 회색이 끼지 않게 한다.
+      style={{
+        background:
+          "linear-gradient(to bottom, #fbfbfb 0%, #fbfbfb 55%, rgba(251,251,251,0) 100%)",
+      }}
+    >
       <div className="relative flex h-14 items-center justify-between">
         <button
           type="button"
