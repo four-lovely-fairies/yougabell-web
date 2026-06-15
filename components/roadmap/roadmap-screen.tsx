@@ -339,7 +339,7 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
       </span>
     );
   }
-  return <img src={src} alt="" className="size-5" aria-hidden />;
+  return <img src={src} alt="" className="size-5 object-contain" aria-hidden />;
 };
 
 const RoadmapSkeleton = () => (
