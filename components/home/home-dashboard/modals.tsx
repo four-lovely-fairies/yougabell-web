@@ -1,7 +1,7 @@
-import { Pencil, Trash2 } from 'lucide-react';
-import type { HomeChild, HomeNotification } from '@/lib/home-data';
-import { MoodFace } from './mood-face';
-import { MOOD_OPTION_LABELS, type MoodLevel } from './types';
+import { Pencil, Trash2 } from "lucide-react";
+import type { HomeChild, HomeNotification } from "@/lib/home-data";
+import { MoodFace } from "./mood-face";
+import { MOOD_OPTION_LABELS, type MoodLevel } from "./types";
 
 // 자녀 선택 드롭다운 — Figma 2395:10959.
 // 위치(헤더 아래 앵커링)는 호출부(dashboard)에서 관리하고, 여기서는 메뉴 카드만 그린다.
@@ -30,7 +30,7 @@ export const ChildSwitcherDropdown = ({
         <div
           key={child.id}
           className={`flex items-center justify-between gap-3 px-6 py-5 ${
-            selected ? 'bg-primary-50' : 'bg-white'
+            selected ? "bg-primary-50" : "bg-white"
           }`}
         >
           <button
@@ -131,7 +131,7 @@ export const NotificationModal = ({
                 onClick={() => onOpenNotification(notification)}
                 disabled={submitting}
                 className={`w-full rounded-xl p-4 text-left transition disabled:opacity-70 ${
-                  notification.readAt ? 'bg-transparent' : 'bg-primary-50'
+                  notification.readAt ? "bg-transparent" : "bg-primary-50"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -175,7 +175,7 @@ function formatNotificationTime(createdAt: string): string {
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
   if (diffMinutes < 1) {
-    return '방금';
+    return "방금";
   }
 
   if (diffMinutes < 60) {
@@ -223,7 +223,7 @@ export const MoodCheckModal = ({
         onClick={(event) => event.stopPropagation()}
       >
         <h2 className="whitespace-pre-line text-center text-[24px] font-bold leading-[1.35] tracking-[-0.02em] text-gray-800">
-          {'지금 마음의 배터리가 \n얼마나 남아있나요?'}
+          {"지금 마음의 배터리가 \n얼마나 남아있나요?"}
         </h2>
         <p className="mt-2 text-center text-sm font-medium leading-5 text-[#8e8e93]">
           기록을 꾸준히 하면 리포트 작성에 도움이 돼요.
@@ -245,11 +245,11 @@ export const MoodCheckModal = ({
                   <MoodFace
                     level={level}
                     className="size-10"
-                    dimmed={!selected}
+                    muted={!selected}
                   />
                   <span
                     className={`text-center text-[11px] font-medium leading-[1.35] ${
-                      selected ? 'text-gray-800' : 'text-[#8e8e93]'
+                      selected ? "text-gray-800" : "text-[#8e8e93]"
                     }`}
                   >
                     {MOOD_OPTION_LABELS[level]}
