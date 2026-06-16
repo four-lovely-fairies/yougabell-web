@@ -29,7 +29,8 @@ export function truncateAssistantLeak(raw: string): string {
 // 서버 정리(yougabell-api sanitizeAssistantContent)가 누락하거나, 과거에 이미
 // 누출된 채 저장된 메시지까지 표시 단계에서 한 번 더 막는다. 본문 맨 앞에서
 // 시작하는 경우(^)도 포함.
-const LEAK_BLOCK = /(?:^|\n)[ \t]*(?:cards|type|content|items)[ \t]*:[\s\S]*$/i;
+const LEAK_BLOCK =
+  /(?:^|\n)[ \t]*-?[ \t]*(?:cards|type|title|content|items)[ \t]*:[\s\S]*$/i;
 
 export function stripLeakedCardSyntax(content: string): string {
   return content

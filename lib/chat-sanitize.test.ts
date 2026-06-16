@@ -19,14 +19,19 @@ void describe("stripLeakedCardSyntax", () => {
     assert.equal(stripLeakedCardSyntax(raw), "오늘도 고생하셨어요.");
   });
 
+  void it('리스트 마커가 붙은 "- type:"·"- title:" 누출 줄도 제거한다', () => {
+    const raw = "차분히 안아주세요.\n- type: info\n- title: 가이드";
+    assert.equal(stripLeakedCardSyntax(raw), "차분히 안아주세요.");
+  });
+
   void it("정상 본문은 그대로 둔다", () => {
     const raw =
       "성진님, 오늘도 차근차근 해봐요.\n\n조용한 공간으로 옮겨주세요.";
     assert.equal(stripLeakedCardSyntax(raw), raw);
   });
 
-  void it("'~ 타입은' 처럼 줄 시작이 아닌 키워드는 건드리지 않는다", () => {
-    const raw = "이 행동의 type을 설명하면 다음과 같아요.";
+  void it("한글 콜론 표현은 그대로 둔다", () => {
+    const raw = "정리하면 다음과 같아요: 첫째 차분히, 둘째 일관되게.";
     assert.equal(stripLeakedCardSyntax(raw), raw);
   });
 });
