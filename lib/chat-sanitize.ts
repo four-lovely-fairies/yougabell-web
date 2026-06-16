@@ -23,3 +23,18 @@ export function truncateAssistantLeak(raw: string): string {
   }
   return raw.slice(0, cut);
 }
+
+// 렌더 직전 "최후 방어" — 실제 대화엔 절대 등장하지 않는 구조 키워드
+// (cards/type/content/items)로 시작하는 줄부터 끝까지 제거한다.
+// 서버 정리(yougabell-api sanitizeAssistantContent)가 누락하거나, 과거에 이미
+// 누출된 채 저장된 메시지까지 표시 단계에서 한 번 더 막는다. 본문 맨 앞에서
+// 시작하는 경우(^)도 포함.
+const LEAK_BLOCK =
+  /(?:^|\n)[ \t]*-?[ \t]*(?:cards|type|title|content|items)[ \t]*:[\s\S]*$/i;
+
+export function stripLeakedCardSyntax(content: string): string {
+  return content
+    .replace(LEAK_BLOCK, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
+}

@@ -1,5 +1,6 @@
 import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { stripLeakedCardSyntax } from "@/lib/chat-sanitize";
 import { cn } from "@/lib/utils";
 
 // 챗봇 본문 = 가벼운 마크다운 (굵게/기울임/짧은 목록/링크). DESIGN 토큰 색·타이포 유지.
@@ -52,6 +53,10 @@ export function MarkdownMessage({
   content: string;
   className?: string;
 }) {
+  // 최후 방어 — 어시스턴트 본문 렌더의 단일 통로이므로, 여기서 누출 구조
+  // 키워드(cards/type/content/items)를 한 번 더 걷어내면 스트리밍·영속·과거
+  // 메시지 어떤 경로로 들어와도 화면에 절대 노출되지 않는다.
+  const safe = stripLeakedCardSyntax(content);
   return (
     <div
       className={cn(
@@ -65,7 +70,7 @@ export function MarkdownMessage({
         remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
         components={COMPONENTS}
       >
-        {content}
+        {safe}
       </Markdown>
     </div>
   );

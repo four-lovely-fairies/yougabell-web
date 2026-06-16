@@ -1,6 +1,7 @@
 import { Mascot } from "@/components/characters/mascot";
 import { MarkdownMessage } from "@/components/chat/markdown-message";
 import { splitParagraphs, type ChatMessageCard } from "@/lib/chat-data";
+import { stripLeakedCardSyntax } from "@/lib/chat-sanitize";
 import { openExternalUrl } from "@/lib/native-bridge";
 
 // 챗 응답 출처 (App Store 1.4.1 — 의료/건강 정보 출처 표기)
@@ -73,7 +74,9 @@ export function AssistantMessage({
   cards: ChatMessageCard[];
   sources?: ChatSource[];
 }) {
-  const paras = splitParagraphs(content);
+  // 단락 분할 전에 누출 블록을 통째로 걷어낸다 — 누출만 든 단락이 빈 말풍선으로
+  // 남는 것을 막는다(렌더 통로의 최후 방어는 MarkdownMessage가 한 번 더 수행).
+  const paras = splitParagraphs(stripLeakedCardSyntax(content));
   return (
     <>
       {paras.map((para, i) => {
