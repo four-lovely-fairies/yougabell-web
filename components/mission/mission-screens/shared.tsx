@@ -250,27 +250,73 @@ export function TimerRing({ progress }: { progress: number }) {
   const outerSize = 273;
   const ringThickness = 26;
   const safeProgress = Math.max(0, Math.min(1, progress));
-  const angle = safeProgress * 360;
-  const knobRadians = (180 + angle) * (Math.PI / 180);
   const center = outerSize / 2;
   const radius = center - ringThickness / 2;
+  const circumference = 2 * Math.PI * radius;
+  const startAngle = 135;
+  const endAngle = startAngle + safeProgress * 360;
+  const knobRadians = endAngle * (Math.PI / 180);
   const knobX = center + Math.cos(knobRadians) * radius;
   const knobY = center + Math.sin(knobRadians) * radius;
 
   return (
     <div className="relative size-68.25">
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: `conic-gradient(from -90deg, var(--color-primary-300) 0deg, var(--color-primary-300) ${angle}deg, #efefef ${angle}deg, #efefef 360deg)`,
-          filter: "drop-shadow(0 0 12px rgba(149,114,255,0.2))",
-        }}
-      />
+      <svg
+        viewBox={`0 0 ${outerSize} ${outerSize}`}
+        className="absolute inset-0 size-full overflow-visible"
+        aria-hidden
+      >
+        <defs>
+          <filter
+            id="mission-timer-ring-glow"
+            x="-25%"
+            y="-25%"
+            width="150%"
+            height="150%"
+          >
+            <feGaussianBlur stdDeviation="7" result="blur" />
+            <feColorMatrix
+              in="blur"
+              type="matrix"
+              values="0 0 0 0 0.584 0 0 0 0 0.447 0 0 0 0 1 0 0 0 0.28 0"
+            />
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <circle
+          cx={center}
+          cy={center}
+          r={radius}
+          fill="none"
+          stroke="#f0f0f0"
+          strokeWidth={ringThickness}
+        />
+        {safeProgress > 0 ? (
+          <circle
+            cx={center}
+            cy={center}
+            r={radius}
+            fill="none"
+            stroke="#9672ff"
+            strokeWidth={ringThickness}
+            strokeLinecap="round"
+            strokeDasharray={`${circumference * safeProgress} ${circumference}`}
+            strokeDashoffset={0}
+            transform={`rotate(${startAngle} ${center} ${center})`}
+            filter="url(#mission-timer-ring-glow)"
+          />
+        ) : null}
+      </svg>
       <div className="absolute inset-6.5 rounded-full bg-[#fbfbfb] shadow-[inset_0_0_3px_rgba(0,0,0,0.04)]" />
-      <div
-        className="absolute size-7.25 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#a88dff] bg-white"
-        style={{ left: knobX, top: knobY }}
-      />
+      {safeProgress > 0 ? (
+        <div
+          className="absolute size-7.25 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#a88dff] bg-white"
+          style={{ left: knobX, top: knobY }}
+        />
+      ) : null}
     </div>
   );
 }
