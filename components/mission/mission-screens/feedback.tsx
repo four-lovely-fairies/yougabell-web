@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { ArrowLeft, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ArrowLeft, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   ApiError,
   clearMissionFeedbackDraft,
@@ -12,17 +12,18 @@ import {
   readMissionFeedbackDraft,
   submitMissionFeedback,
   type MissionLoadState,
-} from "@/lib/api";
-import type { MissionFeedbackDraft } from "@/lib/mission-data";
-import { EnergySlider, FeedbackChoiceGroup } from "./feedback-controls";
-import { MissionContentSkeleton } from "./shared";
+} from '@/lib/api';
+import { Mascot } from '@/components/characters/mascot';
+import type { MissionFeedbackDraft } from '@/lib/mission-data';
+import { EnergySlider, FeedbackChoiceGroup } from './feedback-controls';
+import { MissionContentSkeleton } from './shared';
 
 export function MissionFeedbackScreen({
   executionId,
   mode,
 }: {
   executionId: string | null;
-  mode: "api" | "demo" | null;
+  mode: 'api' | 'demo' | null;
 }) {
   const router = useRouter();
   const [missionState, setMissionState] = useState<MissionLoadState | null>(
@@ -36,7 +37,7 @@ export function MissionFeedbackScreen({
     childReaction: null,
     parentEnergy: null,
     missionSatisfaction: null,
-    note: "",
+    note: '',
   });
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export function MissionFeedbackScreen({
 
     const run = async () => {
       if (!executionId) {
-        router.replace("/mission");
+        router.replace('/mission');
         return;
       }
 
@@ -62,7 +63,7 @@ export function MissionFeedbackScreen({
           childReaction: null,
           parentEnergy: 0,
           missionSatisfaction: null,
-          note: "",
+          note: '',
         },
       );
       setLoading(false);
@@ -89,7 +90,7 @@ export function MissionFeedbackScreen({
     }
 
     if (draft.childReaction === null || draft.missionSatisfaction === null) {
-      setError("모든 항목을 입력해주세요.");
+      setError('모든 항목을 입력해주세요.');
       return;
     }
 
@@ -108,8 +109,8 @@ export function MissionFeedbackScreen({
     } catch (submitError) {
       setError(
         submitError instanceof ApiError
-          ? "미션 피드백을 저장하지 못했어요. 다시 시도해주세요."
-          : "API 서버에 연결할 수 없습니다.",
+          ? '미션 피드백을 저장하지 못했어요. 다시 시도해주세요.'
+          : 'API 서버에 연결할 수 없습니다.',
       );
     } finally {
       setSubmitting(false);
@@ -157,17 +158,17 @@ export function MissionFeedbackScreen({
                 setDraft((current) => ({ ...current, childReaction: value }))
               }
               labels={[
-                "나빠요",
-                "별로에요",
-                "보통이에요",
-                "좋아요!",
-                "최고에요!",
+                '나빠요',
+                '별로에요',
+                '보통이에요',
+                '좋아요!',
+                '최고에요!',
               ]}
             />
 
             <div className="space-y-4">
               <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-gray-800">
-                미션을 마친 지금,{"\n"}엄마의 에너지 상태는 어떤가요?
+                미션을 마친 지금,{'\n'}엄마의 에너지 상태는 어떤가요?
               </h2>
               <EnergySlider
                 value={draft.parentEnergy}
@@ -191,17 +192,17 @@ export function MissionFeedbackScreen({
                 }))
               }
               labels={[
-                "아쉬워요",
-                "부족해요",
-                "보통이에요",
-                "만족해요",
-                "완벽해요!",
+                '아쉬워요',
+                '부족해요',
+                '보통이에요',
+                '만족해요',
+                '완벽해요!',
               ]}
             />
 
             <div className="space-y-4">
               <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-gray-800">
-                오늘 아이가 가장 많이 말한{"\n"}단어들을 적어주세요.
+                오늘 아이가 가장 많이 말한{'\n'}단어들을 적어주세요.
               </h2>
               <textarea
                 value={draft.note}
@@ -239,32 +240,41 @@ export function MissionFeedbackScreen({
       </div>
       {showCloseConfirm ? (
         <div
-          className="fixed inset-0 z-50 bg-black/20"
+          className="fixed inset-0 z-50 bg-black/40"
           role="dialog"
           aria-modal="true"
         >
           <div className="relative mx-auto flex min-h-dvh w-full max-w-107.5 items-center justify-center px-5">
-            <div className="w-full max-w-83.5 rounded-xl bg-white px-5 pb-5 pt-6 shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
-              <h2 className="text-center text-lg font-bold leading-[1.4] text-gray-800">
-                작성 중인 피드백이 있어요
-              </h2>
-              <p className="mt-2 text-center text-sm font-medium leading-5 text-gray-500">
-                지금 나가면 작성한 내용이 사라져요.
-              </p>
-              <div className="mt-5 flex gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => router.push("/")}
-                  className="flex h-12 flex-1 items-center justify-center rounded-xl bg-[#f2f3f5] text-base font-medium text-gray-700"
-                >
-                  나가기
-                </button>
+            <div className="w-full max-w-83.5 rounded-[20px] bg-white px-4 pb-5 pt-6 shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
+              <div className="flex flex-col items-center gap-3">
+                <Mascot pose="clipboard" className="h-[75px] w-[83px]" />
+                <div className="w-full pt-2 text-center">
+                  <h2 className="text-lg font-bold leading-[1.4] text-gray-800">
+                    잠시만요! 지금 아니면
+                    <br />
+                    피드백 작성이 어려워요.
+                  </h2>
+                </div>
+                <p className="text-center text-sm font-medium leading-[1.4] text-[#7b7b7b]">
+                  지금 작성하지 않으면 정확한 분석 리포트를
+                  <br />
+                  받아보실 수 없는데, 그래도 건너뛰시겠어요?
+                </p>
+              </div>
+              <div className="mt-4 flex flex-col items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setShowCloseConfirm(false)}
-                  className="flex h-12 flex-1 items-center justify-center rounded-xl bg-primary-300 text-base font-medium text-white"
+                  className="flex h-12 w-full items-center justify-center rounded-xl bg-primary-300 px-4 py-3.5 text-sm font-medium leading-[1.4] text-white"
                 >
-                  계속 작성하기
+                  피드백 작성하기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push('/')}
+                  className="flex h-5 items-center justify-center text-xs font-medium leading-[1.4] text-[#9d9d9d]"
+                >
+                  건너뛰기
                 </button>
               </div>
             </div>
