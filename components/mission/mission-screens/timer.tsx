@@ -223,9 +223,11 @@ export function MissionTimerScreen({
 
         <div className="relative grid place-items-center">
           <TimerRing progress={progress} />
-          <p className="text-[52px] font-bold leading-[1.4] text-gray-800">
-            {formatTimer(remainingSeconds)}
-          </p>
+          <div className="absolute inset-0 grid place-items-center">
+            <p className="font-suit text-[52px] font-bold leading-[1.4] text-gray-800">
+              {formatTimer(remainingSeconds)}
+            </p>
+          </div>
         </div>
 
         <div className="flex flex-col items-center gap-3.75">

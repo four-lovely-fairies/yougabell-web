@@ -285,7 +285,9 @@ export function MissionSourceSheet({ onClose }: { onClose: () => void }) {
 
 export function TimerRing({ progress }: { progress: number }) {
   const outerSize = 273;
-  const ringThickness = 26;
+  const ringThickness = 30;
+  const knobSize = 30;
+  const knobBorderWidth = 3;
   const safeProgress = Math.max(0, Math.min(1, progress));
   const center = outerSize / 2;
   const radius = center - ringThickness / 2;
@@ -347,11 +349,20 @@ export function TimerRing({ progress }: { progress: number }) {
           />
         ) : null}
       </svg>
-      <div className="absolute inset-6.5 rounded-full bg-[#fbfbfb] shadow-[inset_0_0_3px_rgba(0,0,0,0.04)]" />
+      <div
+        className="absolute rounded-full bg-[#fbfbfb] shadow-[inset_0_0_3px_rgba(0,0,0,0.04)]"
+        style={{ inset: ringThickness }}
+      />
       {safeProgress > 0 ? (
         <div
-          className="absolute size-7.25 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#a88dff] bg-white"
-          style={{ left: knobX, top: knobY }}
+          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-[#a88dff] bg-white"
+          style={{
+            left: knobX,
+            top: knobY,
+            width: knobSize,
+            height: knobSize,
+            borderWidth: knobBorderWidth,
+          }}
         />
       ) : null}
     </div>
