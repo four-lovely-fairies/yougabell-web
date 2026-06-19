@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
-import type { ReactNode } from "react";
+import { ArrowLeft, ChevronDown, ChevronRight, X } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 // fixed 헤더 높이만큼 콘텐츠를 내리는 스페이서 (미션 화면용 re-export).
-export { HeaderSpacer } from "@/components/app/app-header";
+export { HeaderSpacer } from '@/components/app/app-header';
 
 export const MISSION_META_ICONS = {
-  time: "/icons/figma/mission/alarm.svg",
-  category: "/icons/figma/mission/folder.svg",
-  source: "/icons/figma/mission/source.svg",
-  goal: "/icons/figma/mission/goal.svg",
+  time: '/icons/figma/mission/alarm.svg',
+  category: '/icons/figma/mission/folder.svg',
+  source: '/icons/figma/mission/source.svg',
+  goal: '/icons/figma/mission/goal.svg',
 } as const;
 export const FEEDBACK_ICON_PATHS = [
-  "/icons/figma/mission-feedback/very-bad.svg",
-  "/icons/figma/mission-feedback/bad.svg",
-  "/icons/figma/mission-feedback/neutral.svg",
-  "/icons/figma/mission-feedback/good.svg",
-  "/icons/figma/mission-feedback/very-good.svg",
+  '/icons/figma/mission-feedback/very-bad.svg',
+  '/icons/figma/mission-feedback/bad.svg',
+  '/icons/figma/mission-feedback/neutral.svg',
+  '/icons/figma/mission-feedback/good.svg',
+  '/icons/figma/mission-feedback/very-good.svg',
 ] as const;
 
 export function MissionHeader({
@@ -39,7 +39,7 @@ export function MissionHeader({
       // rgba 그라데이션으로 고정해 회색이 끼지 않게 한다.
       style={{
         background:
-          "linear-gradient(to bottom, #fbfbfb 0%, #fbfbfb 55%, rgba(251,251,251,0) 100%)",
+          'linear-gradient(to bottom, #fbfbfb 0%, #fbfbfb 55%, rgba(251,251,251,0) 100%)',
       }}
     >
       <div className="relative flex h-14 items-center justify-between">
@@ -131,7 +131,7 @@ export type MissionSwitchChild = {
 /** birthDate(YYYY-MM-DD) → "만N세". 서버 ageLabel이 없는 자녀 목록(getMe)용 근사치. */
 export function ageLabelFromBirth(birthDate: string): string {
   const birth = new Date(birthDate);
-  if (Number.isNaN(birth.getTime())) return "";
+  if (Number.isNaN(birth.getTime())) return '';
   const now = new Date();
   let age = now.getFullYear() - birth.getFullYear();
   const monthDiff = now.getMonth() - birth.getMonth();
@@ -174,7 +174,7 @@ export function ChildSwitchDropdown({
                 type="button"
                 onClick={() => onSelect(child)}
                 className={`flex w-full items-center justify-between px-5 py-4 text-left ${
-                  selected ? "bg-primary-50" : "bg-white"
+                  selected ? 'bg-primary-50' : 'bg-white'
                 }`}
               >
                 <span className="min-w-0">
@@ -197,49 +197,86 @@ export function ChildSwitchDropdown({
   );
 }
 
-/** 출처 자세히 보기 — 하단 시트로 인용 출처를 안내(Figma 미션 출처). */
-export function MissionSourceSheet({
-  sourceLabel,
-  onClose,
-}: {
-  sourceLabel: string;
-  onClose: () => void;
-}) {
+const MISSION_SOURCE_REFERENCES = [
+  {
+    category: 'CDC',
+    source: '(미국 질병통제예방센터) — 발달 마일스톤 공식 기준',
+  },
+  {
+    category: 'AAP',
+    source: '(미국소아과학회) — 소아 언어 발달 가이드',
+  },
+  {
+    category: 'ASHA',
+    source: '(미국 언어청각협회) — 수용/표현 언어 발달 기준',
+  },
+  {
+    category: 'WHO',
+    source: '글로벌 아동 발달 마일스톤',
+  },
+  {
+    category: '',
+    source:
+      'Tomasello, Bates, Bruner, Fenson 등 국제 발달심리·언어획득 분야 핵심 학술 문헌',
+  },
+];
+
+/** 출처 자세히 보기 — Figma 미션 출처 중앙 모달. */
+export function MissionSourceSheet({ onClose }: { onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end bg-[rgba(0,0,0,0.32)]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.2)] px-7"
       role="dialog"
       aria-modal="true"
       aria-label="미션 출처"
       onClick={onClose}
     >
-      <div className="mx-auto w-full max-w-107.5">
+      <div className="mx-auto w-full max-w-83.5">
         <div
-          className="rounded-t-[28px] bg-white px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-6"
+          className="overflow-hidden rounded-[20px] bg-white shadow-[0_12px_30px_rgba(0,0,0,0.12)]"
           onClick={(event) => event.stopPropagation()}
         >
-          <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-gray-200" />
-          <h2 className="text-lg font-bold leading-[1.4] text-gray-800">
-            미션 출처
-          </h2>
-          <p className="mt-2 text-sm leading-[1.6] text-gray-600">
-            이 미션은 공신력 있는 아동 발달 가이드라인을 근거로 구성했어요.
-          </p>
-          <div className="mt-4 rounded-2xl bg-gray-50 px-4 py-3">
-            <p className="text-xs font-medium leading-[1.4] text-gray-500">
-              출처
-            </p>
-            <p className="mt-1 text-sm font-bold leading-[1.4] text-gray-800">
-              {sourceLabel}
-            </p>
+          <div className="px-4 pb-2 pt-6">
+            <div className="flex w-full items-center justify-center gap-2 pt-2">
+              <h2 className="min-w-0 flex-1 text-lg font-bold leading-[1.4] text-black">
+                자료 출처
+              </h2>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex size-6 shrink-0 items-center justify-center text-gray-800"
+                aria-label="자료 출처 닫기"
+              >
+                <X className="size-6" aria-hidden />
+              </button>
+            </div>
+
+            <div className="mt-3 w-full overflow-hidden">
+              <div className="grid grid-cols-[92px_1fr] bg-[#f9fafb] text-sm font-bold leading-[1.4] text-[#0a0a0a]">
+                <div className="px-3 py-[11px]">카테고리</div>
+                <div className="px-3 py-[11px]">자료 출처</div>
+              </div>
+              {MISSION_SOURCE_REFERENCES.map((item, index) => (
+                <div
+                  key={`${item.category}-${index}`}
+                  className="grid grid-cols-[92px_1fr] border-t border-[#e5e7eb] text-sm font-medium leading-[1.4] text-[#0a0a0a]"
+                >
+                  <div className="px-3 py-[11px]">{item.category}</div>
+                  <div className="px-3 py-[11px]">{item.source}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="mt-5 flex h-13 w-full items-center justify-center rounded-2xl bg-gray-100 text-base font-medium leading-[1.4] text-gray-700"
-          >
-            닫기
-          </button>
+
+          <div className="px-4 pb-5 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-12 w-full items-center justify-center rounded-md bg-primary-300 px-4 py-3.5 text-sm font-medium leading-[1.4] text-white"
+            >
+              확인
+            </button>
+          </div>
         </div>
       </div>
     </div>
