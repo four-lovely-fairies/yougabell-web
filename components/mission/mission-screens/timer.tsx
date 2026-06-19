@@ -100,6 +100,7 @@ export function MissionTimerScreen({
   const childLabel = missionState
     ? `${missionState.data.selectedChild.name} (${missionState.data.selectedChild.ageLabel})`
     : "아이";
+  const mission = missionState?.data.mission;
 
   const goBack = () => {
     router.push("/mission");
@@ -208,12 +209,25 @@ export function MissionTimerScreen({
     <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
       <MissionHeader childLabel={childLabel} onBack={goBack} />
       <HeaderSpacer />
-      <div className="flex min-h-[calc(100dvh-103px)] flex-col items-center justify-center gap-17">
+      <div className="flex min-h-[calc(100dvh-103px)] flex-col items-center gap-9 pt-3">
+        {mission ? (
+          <section className="w-full rounded-[24px] bg-[#fbfbfb] px-6 py-5 shadow-[0_4px_23px_rgba(0,0,0,0.05)]">
+            <h1 className="text-lg font-bold leading-[1.4] text-gray-800">
+              {mission.title}
+            </h1>
+            <p className="mt-4 text-sm font-normal leading-[1.4] text-gray-600">
+              {mission.description}
+            </p>
+          </section>
+        ) : null}
+
         <div className="relative grid place-items-center">
           <TimerRing progress={progress} />
-          <p className="text-[52px] font-bold leading-[1.4] text-gray-800">
-            {formatTimer(remainingSeconds)}
-          </p>
+          <div className="absolute inset-0 grid place-items-center">
+            <p className="font-suit text-[52px] font-bold leading-[1.4] text-gray-800">
+              {formatTimer(remainingSeconds)}
+            </p>
+          </div>
         </div>
 
         <div className="flex flex-col items-center gap-3.75">

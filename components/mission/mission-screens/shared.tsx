@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
-import type { ReactNode } from "react";
+import { ArrowLeft, ChevronDown, ChevronRight, X } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 // fixed 헤더 높이만큼 콘텐츠를 내리는 스페이서 (미션 화면용 re-export).
-export { HeaderSpacer } from "@/components/app/app-header";
+export { HeaderSpacer } from '@/components/app/app-header';
 
 export const MISSION_META_ICONS = {
-  time: "/icons/figma/mission/alarm.svg",
-  category: "/icons/figma/mission/folder.svg",
-  source: "/icons/figma/mission/source.svg",
-  goal: "/icons/figma/mission/goal.svg",
+  time: '/icons/figma/mission/alarm.svg',
+  category: '/icons/figma/mission/folder.svg',
+  source: '/icons/figma/mission/source.svg',
+  goal: '/icons/figma/mission/goal.svg',
 } as const;
 export const FEEDBACK_ICON_PATHS = [
-  "/icons/figma/mission-feedback/very-bad.svg",
-  "/icons/figma/mission-feedback/bad.svg",
-  "/icons/figma/mission-feedback/neutral.svg",
-  "/icons/figma/mission-feedback/good.svg",
-  "/icons/figma/mission-feedback/very-good.svg",
+  '/icons/figma/mission-feedback/very-bad.svg',
+  '/icons/figma/mission-feedback/bad.svg',
+  '/icons/figma/mission-feedback/neutral.svg',
+  '/icons/figma/mission-feedback/good.svg',
+  '/icons/figma/mission-feedback/very-good.svg',
 ] as const;
 
 export function MissionHeader({
@@ -39,7 +39,7 @@ export function MissionHeader({
       // rgba 그라데이션으로 고정해 회색이 끼지 않게 한다.
       style={{
         background:
-          "linear-gradient(to bottom, #fbfbfb 0%, #fbfbfb 55%, rgba(251,251,251,0) 100%)",
+          'linear-gradient(to bottom, #fbfbfb 0%, #fbfbfb 55%, rgba(251,251,251,0) 100%)',
       }}
     >
       <div className="relative flex h-14 items-center justify-between">
@@ -131,7 +131,7 @@ export type MissionSwitchChild = {
 /** birthDate(YYYY-MM-DD) → "만N세". 서버 ageLabel이 없는 자녀 목록(getMe)용 근사치. */
 export function ageLabelFromBirth(birthDate: string): string {
   const birth = new Date(birthDate);
-  if (Number.isNaN(birth.getTime())) return "";
+  if (Number.isNaN(birth.getTime())) return '';
   const now = new Date();
   let age = now.getFullYear() - birth.getFullYear();
   const monthDiff = now.getMonth() - birth.getMonth();
@@ -174,7 +174,7 @@ export function ChildSwitchDropdown({
                 type="button"
                 onClick={() => onSelect(child)}
                 className={`flex w-full items-center justify-between px-5 py-4 text-left ${
-                  selected ? "bg-primary-50" : "bg-white"
+                  selected ? 'bg-primary-50' : 'bg-white'
                 }`}
               >
                 <span className="min-w-0">
@@ -197,49 +197,86 @@ export function ChildSwitchDropdown({
   );
 }
 
-/** 출처 자세히 보기 — 하단 시트로 인용 출처를 안내(Figma 미션 출처). */
-export function MissionSourceSheet({
-  sourceLabel,
-  onClose,
-}: {
-  sourceLabel: string;
-  onClose: () => void;
-}) {
+const MISSION_SOURCE_REFERENCES = [
+  {
+    category: 'CDC',
+    source: '(미국 질병통제예방센터) — 발달 마일스톤 공식 기준',
+  },
+  {
+    category: 'AAP',
+    source: '(미국소아과학회) — 소아 언어 발달 가이드',
+  },
+  {
+    category: 'ASHA',
+    source: '(미국 언어청각협회) — 수용/표현 언어 발달 기준',
+  },
+  {
+    category: 'WHO',
+    source: '글로벌 아동 발달 마일스톤',
+  },
+  {
+    category: '',
+    source:
+      'Tomasello, Bates, Bruner, Fenson 등 국제 발달심리·언어획득 분야 핵심 학술 문헌',
+  },
+];
+
+/** 출처 자세히 보기 — Figma 미션 출처 중앙 모달. */
+export function MissionSourceSheet({ onClose }: { onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end bg-[rgba(0,0,0,0.32)]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.2)] px-7"
       role="dialog"
       aria-modal="true"
       aria-label="미션 출처"
       onClick={onClose}
     >
-      <div className="mx-auto w-full max-w-107.5">
+      <div className="mx-auto w-full max-w-83.5">
         <div
-          className="rounded-t-[28px] bg-white px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-6"
+          className="overflow-hidden rounded-[20px] bg-white shadow-[0_12px_30px_rgba(0,0,0,0.12)]"
           onClick={(event) => event.stopPropagation()}
         >
-          <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-gray-200" />
-          <h2 className="text-lg font-bold leading-[1.4] text-gray-800">
-            미션 출처
-          </h2>
-          <p className="mt-2 text-sm leading-[1.6] text-gray-600">
-            이 미션은 공신력 있는 아동 발달 가이드라인을 근거로 구성했어요.
-          </p>
-          <div className="mt-4 rounded-2xl bg-gray-50 px-4 py-3">
-            <p className="text-xs font-medium leading-[1.4] text-gray-500">
-              출처
-            </p>
-            <p className="mt-1 text-sm font-bold leading-[1.4] text-gray-800">
-              {sourceLabel}
-            </p>
+          <div className="px-4 pb-2 pt-6">
+            <div className="flex w-full items-center justify-center gap-2 pt-2">
+              <h2 className="min-w-0 flex-1 text-lg font-bold leading-[1.4] text-black">
+                자료 출처
+              </h2>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex size-6 shrink-0 items-center justify-center text-gray-800"
+                aria-label="자료 출처 닫기"
+              >
+                <X className="size-6" aria-hidden />
+              </button>
+            </div>
+
+            <div className="mt-3 w-full overflow-hidden">
+              <div className="grid grid-cols-[92px_1fr] bg-[#f9fafb] text-sm font-bold leading-[1.4] text-[#0a0a0a]">
+                <div className="px-3 py-[11px]">카테고리</div>
+                <div className="px-3 py-[11px]">자료 출처</div>
+              </div>
+              {MISSION_SOURCE_REFERENCES.map((item, index) => (
+                <div
+                  key={`${item.category}-${index}`}
+                  className="grid grid-cols-[92px_1fr] border-t border-[#e5e7eb] text-sm font-medium leading-[1.4] text-[#0a0a0a]"
+                >
+                  <div className="px-3 py-[11px]">{item.category}</div>
+                  <div className="px-3 py-[11px]">{item.source}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="mt-5 flex h-13 w-full items-center justify-center rounded-2xl bg-gray-100 text-base font-medium leading-[1.4] text-gray-700"
-          >
-            닫기
-          </button>
+
+          <div className="px-4 pb-5 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-12 w-full items-center justify-center rounded-md bg-primary-300 px-4 py-3.5 text-sm font-medium leading-[1.4] text-white"
+            >
+              확인
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -248,29 +285,86 @@ export function MissionSourceSheet({
 
 export function TimerRing({ progress }: { progress: number }) {
   const outerSize = 273;
-  const ringThickness = 26;
+  const ringThickness = 30;
+  const knobSize = 30;
+  const knobBorderWidth = 3;
   const safeProgress = Math.max(0, Math.min(1, progress));
-  const angle = safeProgress * 360;
-  const knobRadians = (180 + angle) * (Math.PI / 180);
   const center = outerSize / 2;
   const radius = center - ringThickness / 2;
+  const circumference = 2 * Math.PI * radius;
+  const startAngle = 135;
+  const endAngle = startAngle + safeProgress * 360;
+  const knobRadians = endAngle * (Math.PI / 180);
   const knobX = center + Math.cos(knobRadians) * radius;
   const knobY = center + Math.sin(knobRadians) * radius;
 
   return (
     <div className="relative size-68.25">
+      <svg
+        viewBox={`0 0 ${outerSize} ${outerSize}`}
+        className="absolute inset-0 size-full overflow-visible"
+        aria-hidden
+      >
+        <defs>
+          <filter
+            id="mission-timer-ring-glow"
+            x="-25%"
+            y="-25%"
+            width="150%"
+            height="150%"
+          >
+            <feGaussianBlur stdDeviation="7" result="blur" />
+            <feColorMatrix
+              in="blur"
+              type="matrix"
+              values="0 0 0 0 0.584 0 0 0 0 0.447 0 0 0 0 1 0 0 0 0.28 0"
+            />
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <circle
+          cx={center}
+          cy={center}
+          r={radius}
+          fill="none"
+          stroke="#f0f0f0"
+          strokeWidth={ringThickness}
+        />
+        {safeProgress > 0 ? (
+          <circle
+            cx={center}
+            cy={center}
+            r={radius}
+            fill="none"
+            stroke="#9672ff"
+            strokeWidth={ringThickness}
+            strokeLinecap="round"
+            strokeDasharray={`${circumference * safeProgress} ${circumference}`}
+            strokeDashoffset={0}
+            transform={`rotate(${startAngle} ${center} ${center})`}
+            filter="url(#mission-timer-ring-glow)"
+          />
+        ) : null}
+      </svg>
       <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: `conic-gradient(from -90deg, var(--color-primary-300) 0deg, var(--color-primary-300) ${angle}deg, #efefef ${angle}deg, #efefef 360deg)`,
-          filter: "drop-shadow(0 0 12px rgba(149,114,255,0.2))",
-        }}
+        className="absolute rounded-full bg-[#fbfbfb] shadow-[inset_0_0_3px_rgba(0,0,0,0.04)]"
+        style={{ inset: ringThickness }}
       />
-      <div className="absolute inset-6.5 rounded-full bg-[#fbfbfb] shadow-[inset_0_0_3px_rgba(0,0,0,0.04)]" />
-      <div
-        className="absolute size-7.25 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#a88dff] bg-white"
-        style={{ left: knobX, top: knobY }}
-      />
+      {safeProgress > 0 ? (
+        <div
+          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-[#a88dff] bg-white"
+          style={{
+            left: knobX,
+            top: knobY,
+            width: knobSize,
+            height: knobSize,
+            borderWidth: knobBorderWidth,
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Mascot } from "@/components/characters/mascot";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Mascot } from '@/components/characters/mascot';
 import {
   api,
   getStoredSelectedChildId,
@@ -10,8 +10,8 @@ import {
   setStoredSelectedChildId,
   startMissionExecution,
   type MissionLoadState,
-} from "@/lib/api";
-import type { MissionSelectedChild } from "@/lib/mission-data";
+} from '@/lib/api';
+import type { MissionSelectedChild } from '@/lib/mission-data';
 import {
   ageLabelFromBirth,
   ChildSwitchDropdown,
@@ -22,7 +22,7 @@ import {
   MissionMetaRow,
   MissionSourceSheet,
   type MissionSwitchChild,
-} from "./shared";
+} from './shared';
 
 async function loadSwitchChildren(
   selected: MissionSelectedChild,
@@ -54,7 +54,8 @@ export function MissionIntroScreen() {
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [switcherOpen, setSwitcherOpen] = useState(false);
-  const [sourceOpen, setSourceOpen] = useState(false);
+  const [sourceTooltipOpen, setSourceTooltipOpen] = useState(false);
+  const [sourceModalOpen, setSourceModalOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,7 +68,7 @@ export function MissionIntroScreen() {
       setState(next);
       setLoading(false);
 
-      if (next.data.activeExecution?.status === "in_progress") {
+      if (next.data.activeExecution?.status === 'in_progress') {
         router.replace(
           `/mission/timer?executionId=${next.data.activeExecution.id}&mode=${next.source}`,
         );
@@ -89,7 +90,7 @@ export function MissionIntroScreen() {
       window.history.back();
       return;
     }
-    router.push("/");
+    router.push('/');
   };
 
   const onSelectChild = async (child: MissionSwitchChild) => {
@@ -102,7 +103,7 @@ export function MissionIntroScreen() {
     setState(next);
     setLoading(false);
 
-    if (next.data.activeExecution?.status === "in_progress") {
+    if (next.data.activeExecution?.status === 'in_progress') {
       router.replace(
         `/mission/timer?executionId=${next.data.activeExecution.id}&mode=${next.source}`,
       );
@@ -110,9 +111,9 @@ export function MissionIntroScreen() {
   };
 
   const onStart = async () => {
-    if (!state?.data || state.data.mission.status === "completed") return;
+    if (!state?.data || state.data.mission.status === 'completed') return;
 
-    if (state.data.activeExecution?.status === "paused") {
+    if (state.data.activeExecution?.status === 'paused') {
       router.push(
         `/mission/timer?executionId=${state.data.activeExecution.id}&mode=${state.source}`,
       );
@@ -139,13 +140,13 @@ export function MissionIntroScreen() {
   }
 
   const { selectedChild, mission, activeExecution } = state.data;
-  const isCompleted = mission.status === "completed";
+  const isCompleted = mission.status === 'completed';
   const canSwitch = children.length > 1;
   const ctaLabel = isCompleted
-    ? "미션 완료"
-    : activeExecution?.status === "paused"
-      ? "이어서 하기"
-      : "미션 시작하기";
+    ? '이미 완료한 미션이에요'
+    : activeExecution?.status === 'paused'
+      ? '이어서 하기'
+      : '미션 시작하기';
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-x-clip bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
@@ -156,6 +157,15 @@ export function MissionIntroScreen() {
       />
 
       <div className="relative z-10 flex flex-1 flex-col">
+        {sourceTooltipOpen ? (
+          <button
+            type="button"
+            className="fixed inset-0 z-20 cursor-default"
+            aria-label="출처 상세 닫기"
+            onClick={() => setSourceTooltipOpen(false)}
+          />
+        ) : null}
+
         <MissionHeader
           childLabel={`${selectedChild.name} (${selectedChild.ageLabel})`}
           onBack={goBack}
@@ -168,7 +178,7 @@ export function MissionIntroScreen() {
           <div className="flex w-full flex-col items-center gap-5 text-center">
             <div className="flex flex-col items-center gap-1.5">
               <p className="text-xs font-medium leading-[1.4] text-primary-300">
-                {mission.subThemeLabel ?? "아이와 10분 가까워지기"}
+                아이와 {mission.durationLabel} 가까워지기
               </p>
               <h1 className="text-2xl font-semibold leading-8 text-gray-800">
                 {mission.title}
@@ -190,12 +200,25 @@ export function MissionIntroScreen() {
               label="카테고리"
               value={mission.categoryLabel}
             />
-            <MissionMetaRow
-              icon={MISSION_META_ICONS.source}
-              label="출처"
-              value={mission.sourceLabel}
-              onClick={() => setSourceOpen(true)}
-            />
+            <div className="relative">
+              <MissionMetaRow
+                icon={MISSION_META_ICONS.source}
+                label="출처"
+                value={mission.sourceLabel}
+                onClick={() => setSourceTooltipOpen((open) => !open)}
+              />
+              {sourceTooltipOpen ? (
+                <div
+                  className="absolute left-0 top-[calc(100%+10px)] z-30 rounded-[20px] bg-[#434343] px-4 py-2 text-center text-sm font-medium leading-[1.4] text-[#fdfdfe] shadow-[0_8px_20px_rgba(0,0,0,0.16)]"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <div className="absolute -top-2 right-[88px] size-4 rotate-45 rounded-[2px] bg-[#434343]" />
+                  <p className="relative z-10 w-[263px]">
+                    {mission.sourceLabel}
+                  </p>
+                </div>
+              ) : null}
+            </div>
             {mission.goalLabel ? (
               <MissionMetaRow
                 icon={MISSION_META_ICONS.goal}
@@ -214,7 +237,7 @@ export function MissionIntroScreen() {
           ) : (
             <button
               type="button"
-              onClick={() => setSourceOpen(true)}
+              onClick={() => setSourceModalOpen(true)}
               className="text-sm font-medium leading-[1.4] text-gray-500 underline-offset-2 hover:underline"
             >
               출처 자세히 보기
@@ -240,11 +263,8 @@ export function MissionIntroScreen() {
         />
       ) : null}
 
-      {sourceOpen ? (
-        <MissionSourceSheet
-          sourceLabel={mission.sourceLabel}
-          onClose={() => setSourceOpen(false)}
-        />
+      {sourceModalOpen ? (
+        <MissionSourceSheet onClose={() => setSourceModalOpen(false)} />
       ) : null}
     </div>
   );
