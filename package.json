@@ -37,7 +37,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5"
   },
-  "description": "육아밸 — user-facing web (Next.js, served inside Expo WebView)",
+  "description": "육아벨 — user-facing web (Next.js, served inside Expo WebView)",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=24"

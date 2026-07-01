@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "육아밸",
+  title: "육아벨",
   description: "워킹맘/워킹대디를 위한 육아 정보·기록·AI 챗봇",
 };
 

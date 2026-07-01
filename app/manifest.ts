@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 
 const manifest = (): MetadataRoute.Manifest => ({
-  name: "육아밸",
-  short_name: "육아밸",
+  name: "육아벨",
+  short_name: "육아벨",
   description: "워킹맘·워킹대디를 위한 육아 정보 검색·기록 서비스",
   start_url: "/",
   display: "standalone",
