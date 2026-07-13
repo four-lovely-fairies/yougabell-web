@@ -62,7 +62,7 @@ export function ConsentBottomSheet({ initial, onClose, onConfirm }: Props) {
       aria-labelledby="consent-title"
     >
       <div
-        className="w-full max-w-97.5 rounded-t-3xl bg-white pb-5 pt-7"
+        className="w-full max-w-97.5 rounded-t-3xl bg-white pb-[max(20px,env(safe-area-inset-bottom))] pt-7"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between px-6 pb-4">

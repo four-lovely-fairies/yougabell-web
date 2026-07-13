@@ -67,9 +67,9 @@ export function MissionDoneScreen({
     : "아이";
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-safe text-gray-800">
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-safe text-gray-800">
       <div
-        className="pointer-events-none absolute left-1/2 top-48 h-63.25 w-141 -translate-x-1/2 rounded-full opacity-70 blur-[64px]"
+        className="pointer-events-none absolute left-1/2 top-48 h-63.25 w-141 -translate-x-1/2 rounded-full opacity-70 blur-3xl"
         style={{
           background:
             "radial-gradient(50% 50% at 50% 50%, rgba(149,114,255,0.12) 0%, rgba(149,114,255,0.04) 55%, rgba(149,114,255,0) 100%)",
@@ -77,7 +77,7 @@ export function MissionDoneScreen({
         aria-hidden
       />
 
-      <header className="relative z-10 flex h-14 items-center justify-between">
+      <header className="relative z-10 flex h-14 shrink-0 items-center justify-between">
         <button
           type="button"
           onClick={() =>
@@ -104,7 +104,7 @@ export function MissionDoneScreen({
         </button>
       </header>
 
-      <div className="relative z-10 flex min-h-[calc(100dvh-104px-115px)] items-center justify-center">
+      <div className="relative z-10 flex flex-1 items-center justify-center overflow-y-auto">
         <div className="flex w-68.75 flex-col items-center gap-6 text-center">
           <Mascot pose="resting" className="w-27.5" />
           <div className="space-y-3.75">
@@ -124,7 +124,7 @@ export function MissionDoneScreen({
         </div>
       </div>
 
-      <div className="relative z-10 pb-2 pt-5">
+      <div className="relative z-10 shrink-0 pb-2 pt-5">
         <button
           type="button"
           onClick={() => router.push("/")}

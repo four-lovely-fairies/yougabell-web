@@ -206,10 +206,10 @@ export function MissionTimerScreen({
   }
 
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
+    <div className="flex h-dvh flex-col bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
       <MissionHeader childLabel={childLabel} onBack={goBack} />
       <HeaderSpacer />
-      <div className="flex min-h-[calc(100dvh-103px)] flex-col items-center gap-9 pt-3">
+      <div className="flex flex-1 flex-col items-center gap-9 overflow-y-auto pt-3">
         {mission ? (
           <section className="w-full rounded-[24px] bg-[#fbfbfb] px-6 py-5 shadow-[0_4px_23px_rgba(0,0,0,0.05)]">
             <h1 className="text-lg font-bold leading-[1.4] text-gray-800">

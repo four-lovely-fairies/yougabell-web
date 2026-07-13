@@ -155,6 +155,46 @@
 - 일반 카드: `padding: space.7 (24px)` 또는 `space.8 (32px)`
 - 큰 카드: `padding: space.9 (40px)`
 
+### 화면 레이아웃 — 하단 고정 CTA 버튼 (필수 규칙)
+
+> **콘텐츠 하단에 CTA 버튼(또는 입력 바)이 있는 모든 화면은, 콘텐츠 길이와 무관하게 그 버튼이 항상 화면 하단에 보여야 한다.**
+> 짧은 콘텐츠에서 버튼이 화면 중앙에 뜨거나, 긴 콘텐츠에서 버튼이 스크롤로 사라지면 **위반**이다.
+
+#### 표준 패턴 (Flex 컬럼 + 스크롤 영역 + 고정 푸터)
+
+```tsx
+// 뷰포트 높이에 고정된 flex 컬럼
+<div className="flex h-dvh flex-col …">
+  {/* 헤더가 흐름 안에 있으면 */}
+  <header className="shrink-0 …">…</header>
+
+  {/* 콘텐츠 = 유일한 스크롤 영역. 길면 여기서 스크롤 */}
+  <div className="flex-1 overflow-y-auto …">…</div>
+
+  {/* 하단 CTA = 항상 뷰포트 하단에 고정 */}
+  <div className="shrink-0 pb-[max(20px,env(safe-area-inset-bottom))] …">
+    <button>…</button>
+  </div>
+</div>
+```
+
+- **루트**: `flex h-dvh flex-col` — 뷰포트 높이에 고정(`h-dvh`)해야 푸터가 항상 하단에 붙는다. `min-h-dvh`는 콘텐츠가 길어지면 컨테이너가 늘어나 버튼이 스크롤 밖으로 밀려나므로 **스크롤 가능한 화면에는 부적합**.
+- **콘텐츠**: `flex-1 overflow-y-auto` — 남는 공간을 채우고, 넘칠 때 **콘텐츠만** 스크롤.
+- **헤더·푸터**: `shrink-0` — 절대 줄어들지 않게.
+- **푸터 안전영역**: `pb-[max(20px,env(safe-area-inset-bottom))]` — WebView 홈 인디케이터 침범 방지 (Expo WebView 타깃 필수).
+- **레이아웃이 이미 `flex … flex-col`인 경우**(예: `app/settings/layout.tsx`, `app/onboarding/layout.tsx`): 화면 루트는 `flex flex-1 flex-col`만 쓰고 위 구조를 그대로 따른다. 단, 안전영역 padding은 레이아웃이 주지 않으면 화면이 직접 부여한다.
+
+#### 금지 (Anti-pattern)
+
+- ❌ **매직 넘버 스페이서**: `min-h-[calc(100dvh-104px-115px)]` 처럼 헤더·푸터 높이를 하드코딩해 버튼을 밀어내는 방식. 헤더 높이·안전영역·콘텐츠가 바뀌면 즉시 깨진다. → `flex-1` 필러로 대체.
+- ❌ **매직 최소높이**: `min-h-180`(=720px) 같은 고정 min-height로 상태 화면을 채우는 방식. 짧은 뷰포트에서 CTA가 화면 밖으로 밀린다. → `flex-1`로 대체.
+- ❌ **자연 높이 의존**: 콘텐츠 자연 높이에만 기대어 버튼을 배치(필러·`flex-1` 없음). 짧으면 중앙에 뜨고, 길면 스크롤로 사라진다.
+
+#### 참고 구현
+
+- 표준: `app/chat/page.tsx`, `components/mission/mission-screens/{intro,done,effect,timer,feedback}.tsx`
+- 레이아웃 상속형: `app/onboarding/**`, `app/settings/**` (루트 `flex flex-1 flex-col` + `flex-1` 필러 + 안전영역 푸터)
+
 ---
 
 ## 5. Elevation (그림자)

@@ -123,8 +123,8 @@ export function MissionFeedbackScreen({
 
   return (
     <>
-      <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-safe text-gray-800">
-        <header className="flex h-14 items-center justify-between">
+      <div className="flex h-dvh flex-col bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-safe text-gray-800">
+        <header className="flex h-14 shrink-0 items-center justify-between">
           <button
             type="button"
             onClick={() =>
@@ -148,7 +148,7 @@ export function MissionFeedbackScreen({
           </button>
         </header>
 
-        <div className="pb-8">
+        <div className="flex-1 overflow-y-auto pb-8">
           <div className="mt-6 space-y-10">
             <FeedbackChoiceGroup
               title={`오늘 진행한 미션에서\n아이의 반응은 어땠나요?`}
@@ -222,7 +222,7 @@ export function MissionFeedbackScreen({
           </div>
         </div>
 
-        <div className="pb-2 pt-3">
+        <div className="shrink-0 pb-2 pt-3">
           {error ? (
             <p className="mb-3 text-center text-xs leading-4 text-[#ff5c5c]">
               {error}
