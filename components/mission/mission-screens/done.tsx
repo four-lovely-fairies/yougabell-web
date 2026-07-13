@@ -69,7 +69,7 @@ export function MissionDoneScreen({
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-safe text-gray-800">
       <div
-        className="pointer-events-none absolute left-1/2 top-48 h-63.25 w-141 -translate-x-1/2 rounded-full opacity-70 blur-[64px]"
+        className="pointer-events-none absolute left-1/2 top-48 h-63.25 w-141 -translate-x-1/2 rounded-full opacity-70 blur-3xl"
         style={{
           background:
             "radial-gradient(50% 50% at 50% 50%, rgba(149,114,255,0.12) 0%, rgba(149,114,255,0.04) 55%, rgba(149,114,255,0) 100%)",
