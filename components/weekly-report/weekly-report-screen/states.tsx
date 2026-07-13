@@ -10,7 +10,7 @@ export const WeeklyReportEmpty = ({
   emptyState: WeeklyReportEmptyState | null;
   onStartMission: () => void;
 }) => (
-  <div className="flex min-h-180 flex-1 flex-col items-center justify-center gap-9 px-8 pb-20 text-center">
+  <div className="flex flex-1 flex-col items-center justify-center gap-9 px-8 pb-20 text-center">
     <Mascot pose="reviewing" className="w-36" />
     <div className="flex w-full flex-col items-center gap-7">
       <div className="space-y-3">
@@ -40,7 +40,7 @@ export const WeeklyReportError = ({
   error: NonNullable<WeeklyReportLoadState["error"]>;
   onRetry: () => void;
 }) => (
-  <div className="flex min-h-180 flex-1 flex-col items-center justify-center gap-6 px-8 pb-20 text-center">
+  <div className="flex flex-1 flex-col items-center justify-center gap-6 px-8 pb-20 text-center">
     <div className="size-24 rounded-full bg-error-50" aria-hidden />
     <div>
       <h2 className="text-lg font-bold leading-[25px]">
