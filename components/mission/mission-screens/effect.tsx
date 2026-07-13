@@ -124,7 +124,7 @@ export function MissionEffectScreen({
   const effectLabel = getEffectLabel(mission.effect, mission.title);
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
       <div
         className="pointer-events-none absolute left-1/2 top-[252px] h-63.25 w-141 -translate-x-1/2 rounded-full opacity-70 blur-[64px]"
         style={{
@@ -136,7 +136,7 @@ export function MissionEffectScreen({
       <MissionHeader childLabel={childLabel} onBack={() => router.push('/')} />
       <HeaderSpacer />
 
-      <div className="relative z-10 flex min-h-[calc(100dvh-103px-96px)] flex-col items-center justify-center gap-6">
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-6 overflow-y-auto">
         <Mascot pose="resting" className="w-27.5" />
         <div className="space-y-3.75 text-center">
           <h1 className="text-[20px] font-bold leading-[1.4] tracking-[-0.4px] text-gray-800">
@@ -158,7 +158,7 @@ export function MissionEffectScreen({
         </div>
       </div>
 
-      <div className="pb-2 pt-5">
+      <div className="shrink-0 pb-2 pt-5">
         {state.message ? (
           <p className="mb-3 text-center text-xs leading-4 text-gray-400">
             {state.message}
