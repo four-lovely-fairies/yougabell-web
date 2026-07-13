@@ -89,7 +89,8 @@ export function useChatTypewriter(onComplete: (parts: string[]) => void) {
         clearTimer();
         engineRef.current = freshEngine();
         setLive(null);
-        completeRef.current(parts.length ? parts : [""]);
+        // 내용이 하나도 없으면 빈 배열로 완료 — 빈 단락([""])을 커밋하지 않는다.
+        completeRef.current(parts);
         return;
       }
       // 아직 토큰이 더 올 수 있음 — 잠깐 쉬었다 재확인
