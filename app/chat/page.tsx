@@ -16,6 +16,7 @@ import { useChatTypewriter } from "@/hooks/use-chat-typewriter";
 import { track } from "@/lib/analytics";
 import { loadChat, streamChatMessage } from "@/lib/api";
 import {
+  assistantHasRenderableContent,
   INITIAL_VISIBLE_MESSAGES,
   QUICK_REPLIES,
   type ChatMessage as ChatMessageDto,
@@ -52,7 +53,11 @@ export default function ChatPage() {
   const onTurnComplete = useCallback(() => {
     const done = pendingDoneRef.current;
     pendingDoneRef.current = null;
-    if (done) {
+    // 서버 최종 본문이 비었거나 누출뿐이고 카드도 없으면 빈 말풍선이 되므로 커밋하지 않는다.
+    if (
+      done &&
+      assistantHasRenderableContent(pendingContentRef.current, done.cards)
+    ) {
       setMessages((prev) => [
         ...prev,
         {
@@ -75,7 +80,12 @@ export default function ChatPage() {
     let active = true;
     void loadChat().then((state) => {
       if (!active) return;
-      const incoming = state.data.messages;
+      // 과거에 빈/누출뿐인 채로 저장된 어시스턴트 메시지는 빈 말풍선이 되므로 걸러낸다.
+      const incoming = state.data.messages.filter(
+        (m) =>
+          m.role !== "assistant" ||
+          assistantHasRenderableContent(m.content, m.cards),
+      );
       // 콜드 진입 — 최근 N개만 노출, 나머지는 접어둠 (스크롤 점프 최소화)
       if (incoming.length > INITIAL_VISIBLE_MESSAGES) {
         hiddenHistoryRef.current = incoming.slice(

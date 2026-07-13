@@ -54,6 +54,10 @@ export function LoadingBubble() {
 }
 
 export function StreamingBubble({ text }: { text: string }) {
+  // 표시할 텍스트가 없으면(누출 절단으로 비었을 때 등) 빈 말풍선을 그리지 않는다.
+  if (!text.trim()) {
+    return null;
+  }
   return (
     <div className="flex justify-start px-5 py-2.5">
       {/* max-w-full로 좁은 화면에서도 가로 넘침 방지(고정폭이 뷰포트를 넘지 않게) */}
@@ -77,6 +81,17 @@ export function AssistantMessage({
   // 단락 분할 전에 누출 블록을 통째로 걷어낸다 — 누출만 든 단락이 빈 말풍선으로
   // 남는 것을 막는다(렌더 통로의 최후 방어는 MarkdownMessage가 한 번 더 수행).
   const paras = splitParagraphs(stripLeakedCardSyntax(content));
+
+  // 내용도 카드도 출처도 없으면 아무것도 그리지 않는다 (빈 말풍선 방지).
+  if (paras.length === 0 && cards.length === 0 && sources.length === 0) {
+    return null;
+  }
+
+  // 본문은 비었지만 카드/출처가 있으면 그것만 담은 말풍선 하나.
+  if (paras.length === 0) {
+    return <AssistantBubble content="" cards={cards} sources={sources} />;
+  }
+
   return (
     <>
       {paras.map((para, i) => {
@@ -103,10 +118,18 @@ export function AssistantBubble({
   cards: ChatMessageCard[];
   sources?: ChatSource[];
 }) {
+  const text = stripLeakedCardSyntax(content);
+  const hasText = text.trim().length > 0;
+
+  // 최후 방어 — 본문·카드·출처가 모두 없으면 빈 말풍선을 만들지 않는다.
+  if (!hasText && cards.length === 0 && sources.length === 0) {
+    return null;
+  }
+
   return (
     <div className="flex justify-start px-5 py-2.5">
       <div className="flex w-77.5 max-w-full min-w-0 flex-col gap-5 rounded-2xl bg-[#f5f1ff] px-4 py-3">
-        <MarkdownMessage content={content} />
+        {hasText ? <MarkdownMessage content={text} /> : null}
         {cards.length > 0 ? (
           <div className="flex flex-col gap-4">
             {cards
