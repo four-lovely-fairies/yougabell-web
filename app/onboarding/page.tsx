@@ -200,7 +200,7 @@ export default function OnboardingIntroPage() {
         <Mascot pose="spiky" className="w-38" />
       </div>
 
-      <div className="relative z-10 flex flex-col gap-3 px-5 pb-5">
+      <div className="relative z-10 flex shrink-0 flex-col gap-3 px-5 pb-5">
         {authError ? (
           <p className="text-center text-sm font-medium text-red-500">
             {authError}
