@@ -83,21 +83,21 @@ export default function NotificationPermissionPage() {
   const deny = () => decide("denied");
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <OnboardingHeader variant="back" />
 
-      <header className="flex flex-col gap-2 py-6">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-          알림을 받으시겠어요?
-        </h1>
-        <p className="text-sm text-gray-500">
-          맞춤 미션·마일스톤을 적절한 시간대에 알려드릴게요.
-        </p>
-      </header>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <header className="flex flex-col gap-2 py-6">
+          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+            알림을 받으시겠어요?
+          </h1>
+          <p className="text-sm text-gray-500">
+            맞춤 미션·마일스톤을 적절한 시간대에 알려드릴게요.
+          </p>
+        </header>
+      </div>
 
-      <div className="min-h-8 flex-1" />
-
-      <div className="flex flex-col gap-2 pt-2">
+      <div className="flex shrink-0 flex-col gap-2 pt-2">
         <Button size="full" onClick={allow} disabled={busy}>
           {busy ? "요청 중..." : "허용하기"}
         </Button>

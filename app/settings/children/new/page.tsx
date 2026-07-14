@@ -47,29 +47,31 @@ export default function SettingsChildrenNewPage() {
         e.preventDefault();
         void submit();
       }}
-      className="flex flex-1 flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))]"
+      className="flex h-dvh flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))]"
     >
       <OnboardingHeader variant="back" />
 
-      <header className="py-6">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-          아이 정보를
-          <br />
-          입력해 주세요
-        </h1>
-      </header>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <header className="py-6">
+          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+            아이 정보를
+            <br />
+            입력해 주세요
+          </h1>
+        </header>
 
-      <ChildCardForm index={0} child={child} onChange={setChild} />
+        <ChildCardForm index={0} child={child} onChange={setChild} />
+      </div>
 
-      <div className="min-h-8 flex-1" />
+      <div className="shrink-0">
+        {error ? (
+          <p className="pb-2 text-center text-sm text-red-500">{error}</p>
+        ) : null}
 
-      {error ? (
-        <p className="pb-2 text-center text-sm text-red-500">{error}</p>
-      ) : null}
-
-      <Button type="submit" size="full" disabled={!canSubmit || busy}>
-        {busy ? "저장 중..." : "저장"}
-      </Button>
+        <Button type="submit" size="full" disabled={!canSubmit || busy}>
+          {busy ? "저장 중..." : "저장"}
+        </Button>
+      </div>
     </form>
   );
 }

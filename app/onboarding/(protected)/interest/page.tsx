@@ -50,39 +50,41 @@ export default function InterestPage() {
         e.preventDefault();
         submit();
       }}
-      className="flex flex-1 flex-col"
+      className="flex min-h-0 flex-1 flex-col"
     >
       <OnboardingHeader variant="back" />
 
-      <header className="flex flex-col gap-2 py-6">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-          어떤 주제에
-          <br />
-          관심 있으신가요?
-        </h1>
-        <p className="text-sm text-gray-500">
-          최근 관심사를 선택해주세요 (최대 {MAX_SELECT}개)
-        </p>
-      </header>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <header className="flex flex-col gap-2 py-6">
+          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+            어떤 주제에
+            <br />
+            관심 있으신가요?
+          </h1>
+          <p className="text-sm text-gray-500">
+            최근 관심사를 선택해주세요 (최대 {MAX_SELECT}개)
+          </p>
+        </header>
 
-      <div className="flex flex-wrap gap-3 py-2">
-        {OPTIONS.map((opt) => (
-          <InterestCard
-            key={opt.id}
-            emoji={opt.emoji}
-            label={opt.label}
-            selected={selected.includes(opt.id)}
-            disabled={selected.length >= MAX_SELECT}
-            onToggle={() => toggle(opt.id)}
-          />
-        ))}
+        <div className="flex flex-wrap gap-3 py-2">
+          {OPTIONS.map((opt) => (
+            <InterestCard
+              key={opt.id}
+              emoji={opt.emoji}
+              label={opt.label}
+              selected={selected.includes(opt.id)}
+              disabled={selected.length >= MAX_SELECT}
+              onToggle={() => toggle(opt.id)}
+            />
+          ))}
+        </div>
       </div>
 
-      <div className="min-h-8 flex-1" />
-
-      <Button type="submit" size="full" disabled={!canSubmit}>
-        다음
-      </Button>
+      <div className="shrink-0">
+        <Button type="submit" size="full" disabled={!canSubmit}>
+          다음
+        </Button>
+      </div>
     </form>
   );
 }

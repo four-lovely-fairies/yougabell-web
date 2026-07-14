@@ -88,79 +88,81 @@ export default function ChildrenPage() {
         e.preventDefault();
         submit();
       }}
-      className="flex flex-col flex-1"
+      className="flex min-h-0 flex-1 flex-col"
     >
       <OnboardingHeader variant="back" onAction={back} />
 
-      <header className="mt-2 mb-7">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-          아이 정보를
-          <br />
-          입력해 주세요
-        </h1>
-      </header>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <header className="mt-2 mb-7">
+          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+            아이 정보를
+            <br />
+            입력해 주세요
+          </h1>
+        </header>
 
-      <div className="flex flex-col gap-3">
-        {children.map((c, idx) => {
-          const isEditing = editingId === c.tempId;
-          if (isEditing) {
+        <div className="flex flex-col gap-3">
+          {children.map((c, idx) => {
+            const isEditing = editingId === c.tempId;
+            if (isEditing) {
+              return (
+                <ChildCardForm
+                  key={c.tempId}
+                  index={idx}
+                  child={c}
+                  onChange={(next) => updateChild(c.tempId, next)}
+                  onRemove={
+                    idx > 0 ? () => setPendingDeleteId(c.tempId) : undefined
+                  }
+                />
+              );
+            }
             return (
-              <ChildCardForm
+              <ChildRow
                 key={c.tempId}
-                index={idx}
                 child={c}
-                onChange={(next) => updateChild(c.tempId, next)}
-                onRemove={
-                  idx > 0 ? () => setPendingDeleteId(c.tempId) : undefined
-                }
+                onEdit={() => setEditingId(c.tempId)}
+                onDelete={() => setPendingDeleteId(c.tempId)}
               />
             );
-          }
-          return (
-            <ChildRow
-              key={c.tempId}
-              child={c}
-              onEdit={() => setEditingId(c.tempId)}
-              onDelete={() => setPendingDeleteId(c.tempId)}
-            />
-          );
-        })}
+          })}
 
-        {/* Figma 2146:4948 — dashed 1.358px, rounded 16, 보라 #b69cfe / text #9572ff */}
-        <button
-          type="button"
-          onClick={addChild}
-          disabled={!canAddChild}
-          className={cn(
-            "flex h-13 items-center justify-center gap-1.75 rounded-2xl border-[1.358px] border-dashed transition-colors",
-            !canAddChild
-              ? "cursor-not-allowed border-gray-200 text-gray-300"
-              : "border-primary-200 text-primary-300 hover:bg-primary-50",
-          )}
-        >
-          <PlusIcon size={20} />
-          <span className="text-sm font-medium tracking-[-0.3px]">
-            자녀 추가
-          </span>
-        </button>
+          {/* Figma 2146:4948 — dashed 1.358px, rounded 16, 보라 #b69cfe / text #9572ff */}
+          <button
+            type="button"
+            onClick={addChild}
+            disabled={!canAddChild}
+            className={cn(
+              "flex h-13 items-center justify-center gap-1.75 rounded-2xl border-[1.358px] border-dashed transition-colors",
+              !canAddChild
+                ? "cursor-not-allowed border-gray-200 text-gray-300"
+                : "border-primary-200 text-primary-300 hover:bg-primary-50",
+            )}
+          >
+            <PlusIcon size={20} />
+            <span className="text-sm font-medium tracking-[-0.3px]">
+              자녀 추가
+            </span>
+          </button>
+        </div>
       </div>
 
-      <div className="flex-1 min-h-8" />
-
-      {editingId ? (
-        <Button
-          type="button"
-          size="full"
-          onClick={saveCurrent}
-          disabled={!isValid(children.find((c) => c.tempId === editingId)!)}
-        >
-          저장
-        </Button>
-      ) : (
-        <Button type="submit" size="full" disabled={!canProceed}>
-          저장
-        </Button>
-      )}
+      <div className="shrink-0">
+        {editingId ? (
+          <Button
+            type="button"
+            size="full"
+            onClick={saveCurrent}
+            disabled={!isValid(children.find((c) => c.tempId === editingId)!)}
+          >
+            저장
+          </Button>
+        ) : (
+          <Button type="submit" size="full" disabled={!canProceed}>
+            저장
+          </Button>
+        )}
+      </div>
 
       {pendingDeleteId ? (
         <DeleteConfirm

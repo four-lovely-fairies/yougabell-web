@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Mascot } from '@/components/characters/mascot';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Mascot } from "@/components/characters/mascot";
 import {
   api,
   getStoredSelectedChildId,
@@ -10,8 +10,8 @@ import {
   setStoredSelectedChildId,
   startMissionExecution,
   type MissionLoadState,
-} from '@/lib/api';
-import type { MissionSelectedChild } from '@/lib/mission-data';
+} from "@/lib/api";
+import type { MissionSelectedChild } from "@/lib/mission-data";
 import {
   ageLabelFromBirth,
   ChildSwitchDropdown,
@@ -22,7 +22,7 @@ import {
   MissionMetaRow,
   MissionSourceSheet,
   type MissionSwitchChild,
-} from './shared';
+} from "./shared";
 
 async function loadSwitchChildren(
   selected: MissionSelectedChild,
@@ -68,7 +68,7 @@ export function MissionIntroScreen() {
       setState(next);
       setLoading(false);
 
-      if (next.data.activeExecution?.status === 'in_progress') {
+      if (next.data.activeExecution?.status === "in_progress") {
         router.replace(
           `/mission/timer?executionId=${next.data.activeExecution.id}&mode=${next.source}`,
         );
@@ -90,7 +90,7 @@ export function MissionIntroScreen() {
       window.history.back();
       return;
     }
-    router.push('/');
+    router.push("/");
   };
 
   const onSelectChild = async (child: MissionSwitchChild) => {
@@ -103,7 +103,7 @@ export function MissionIntroScreen() {
     setState(next);
     setLoading(false);
 
-    if (next.data.activeExecution?.status === 'in_progress') {
+    if (next.data.activeExecution?.status === "in_progress") {
       router.replace(
         `/mission/timer?executionId=${next.data.activeExecution.id}&mode=${next.source}`,
       );
@@ -111,9 +111,9 @@ export function MissionIntroScreen() {
   };
 
   const onStart = async () => {
-    if (!state?.data || state.data.mission.status === 'completed') return;
+    if (!state?.data || state.data.mission.status === "completed") return;
 
-    if (state.data.activeExecution?.status === 'paused') {
+    if (state.data.activeExecution?.status === "paused") {
       router.push(
         `/mission/timer?executionId=${state.data.activeExecution.id}&mode=${state.source}`,
       );
@@ -140,23 +140,23 @@ export function MissionIntroScreen() {
   }
 
   const { selectedChild, mission, activeExecution } = state.data;
-  const isCompleted = mission.status === 'completed';
+  const isCompleted = mission.status === "completed";
   const canSwitch = children.length > 1;
   const ctaLabel = isCompleted
-    ? '이미 완료한 미션이에요'
-    : activeExecution?.status === 'paused'
-      ? '이어서 하기'
-      : '미션 시작하기';
+    ? "이미 완료한 미션이에요"
+    : activeExecution?.status === "paused"
+      ? "이어서 하기"
+      : "미션 시작하기";
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-x-clip bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
+    <div className="relative flex h-dvh flex-col overflow-x-clip bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
       {/* Figma ellipse87 — 캐릭터 뒤 보라 글로우 */}
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-20 h-64 w-[130%] -translate-x-1/2 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,rgba(149,114,255,0.18),rgba(149,114,255,0))] blur-2xl"
       />
 
-      <div className="relative z-10 flex flex-1 flex-col">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
         {sourceTooltipOpen ? (
           <button
             type="button"
@@ -173,7 +173,7 @@ export function MissionIntroScreen() {
         />
         <HeaderSpacer />
 
-        <div className="flex flex-1 flex-col items-center justify-center gap-6 py-4">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 overflow-y-auto py-4">
           <Mascot pose="resting" className="w-27.5" />
           <div className="flex w-full flex-col items-center gap-5 text-center">
             <div className="flex flex-col items-center gap-1.5">
@@ -229,7 +229,7 @@ export function MissionIntroScreen() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-4 pt-5">
+        <div className="flex shrink-0 flex-col items-center gap-4 pt-5">
           {state.message ? (
             <p className="text-center text-xs leading-4 text-gray-400">
               {state.message}

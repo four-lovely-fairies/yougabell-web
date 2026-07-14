@@ -42,30 +42,32 @@ export default function AppUsagePage() {
         e.preventDefault();
         submit();
       }}
-      className="flex flex-col flex-1"
+      className="flex min-h-0 flex-1 flex-col"
     >
       <OnboardingHeader variant="close" onAction={close} />
 
-      <header className="mt-2 mb-6 flex flex-col gap-2">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-          알림을 받고싶으신
-          <br />
-          시간대를 선택해 주세요
-        </h1>
-        <p className="text-sm text-gray-500 leading-[1.4]">
-          주간 리포트, 하루 10분 놀이 등
-          <br />
-          육아에 필요한 정보 알림만 보내드려요.
-        </p>
-      </header>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <header className="mt-2 mb-6 flex flex-col gap-2">
+          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+            알림을 받고싶으신
+            <br />
+            시간대를 선택해 주세요
+          </h1>
+          <p className="text-sm text-gray-500 leading-[1.4]">
+            주간 리포트, 하루 10분 놀이 등
+            <br />
+            육아에 필요한 정보 알림만 보내드려요.
+          </p>
+        </header>
 
-      <NotificationSlotPicker value={pref} onChange={setPref} />
+        <NotificationSlotPicker value={pref} onChange={setPref} />
+      </div>
 
-      <div className="flex-1 min-h-6" />
-
-      <Button type="submit" size="full" disabled={!isValid(pref)}>
-        알림 설정완료
-      </Button>
+      <div className="shrink-0">
+        <Button type="submit" size="full" disabled={!isValid(pref)}>
+          알림 설정완료
+        </Button>
+      </div>
     </form>
   );
 }

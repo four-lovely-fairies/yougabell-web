@@ -78,86 +78,88 @@ export default function SettingsProfilePage() {
         e.preventDefault();
         void submit();
       }}
-      className="flex flex-1 flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))]"
+      className="flex h-dvh flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))]"
     >
       <OnboardingHeader variant="back" />
 
-      <header className="py-6">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-          본인 정보 수정
-        </h1>
-      </header>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <header className="py-6">
+          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+            본인 정보 수정
+          </h1>
+        </header>
 
-      <div className="flex flex-col gap-4">
-        <Field label="이름" required>
-          <Input
-            type="text"
-            maxLength={30}
-            required
-            placeholder="이름을 입력하세요"
-            disabled={loading}
-            value={parent.name ?? ""}
-            onChange={(e) => update({ name: e.target.value })}
-            trailing={
-              parent.name ? (
-                <IconButton
-                  label="이름 지우기"
-                  onClick={() => update({ name: "" })}
-                  // 아이콘을 오른쪽 끝에 정렬 → DateInput 화살표와 같은 위치.
-                  className="m-0 h-6 w-6 justify-end text-gray-300"
-                >
-                  <ClearCircleIcon size={20} />
-                </IconButton>
-              ) : null
-            }
-          />
-        </Field>
+        <div className="flex flex-col gap-4">
+          <Field label="이름" required>
+            <Input
+              type="text"
+              maxLength={30}
+              required
+              placeholder="이름을 입력하세요"
+              disabled={loading}
+              value={parent.name ?? ""}
+              onChange={(e) => update({ name: e.target.value })}
+              trailing={
+                parent.name ? (
+                  <IconButton
+                    label="이름 지우기"
+                    onClick={() => update({ name: "" })}
+                    // 아이콘을 오른쪽 끝에 정렬 → DateInput 화살표와 같은 위치.
+                    className="m-0 h-6 w-6 justify-end text-gray-300"
+                  >
+                    <ClearCircleIcon size={20} />
+                  </IconButton>
+                ) : null
+              }
+            />
+          </Field>
 
-        <Field label="생년월일">
-          <DateInput
-            value={parent.birthDate}
-            onChange={(iso) => update({ birthDate: iso })}
-            yearMin={new Date().getFullYear() - 70}
-            yearMax={new Date().getFullYear() - 18}
-            defaultYear={new Date().getFullYear() - 30}
-          />
-        </Field>
+          <Field label="생년월일">
+            <DateInput
+              value={parent.birthDate}
+              onChange={(iso) => update({ birthDate: iso })}
+              yearMin={new Date().getFullYear() - 70}
+              yearMax={new Date().getFullYear() - 18}
+              defaultYear={new Date().getFullYear() - 30}
+            />
+          </Field>
 
-        <Field label="성별">
-          <SegmentedToggle<Gender>
-            ariaLabel="본인 성별"
-            options={[
-              { value: "female", label: "엄마" },
-              { value: "male", label: "아빠" },
-            ]}
-            value={parent.gender ?? null}
-            onChange={(v) => update({ gender: v ?? undefined })}
-          />
-        </Field>
+          <Field label="성별">
+            <SegmentedToggle<Gender>
+              ariaLabel="본인 성별"
+              options={[
+                { value: "female", label: "엄마" },
+                { value: "male", label: "아빠" },
+              ]}
+              value={parent.gender ?? null}
+              onChange={(v) => update({ gender: v ?? undefined })}
+            />
+          </Field>
 
-        <Field label="직장 유무" required>
-          <SegmentedToggle<WorkStatus>
-            ariaLabel="직장 유무"
-            allowDeselect
-            options={[
-              { value: "working", label: "일을 하고 있어요" },
-              { value: "full_time_caregiver", label: "전업 가정인이에요" },
-            ]}
-            value={parent.workStatus ?? null}
-            onChange={(v) => update({ workStatus: v })}
-          />
-        </Field>
+          <Field label="직장 유무" required>
+            <SegmentedToggle<WorkStatus>
+              ariaLabel="직장 유무"
+              allowDeselect
+              options={[
+                { value: "working", label: "일을 하고 있어요" },
+                { value: "full_time_caregiver", label: "전업 가정인이에요" },
+              ]}
+              value={parent.workStatus ?? null}
+              onChange={(v) => update({ workStatus: v })}
+            />
+          </Field>
+        </div>
       </div>
 
-      <div className="min-h-8 flex-1" />
+      <div className="shrink-0">
+        {error ? (
+          <p className="pb-2 text-center text-sm text-red-500">{error}</p>
+        ) : null}
 
-      {error ? (
-        <p className="pb-2 text-center text-sm text-red-500">{error}</p>
-      ) : null}
-
-      <Button type="submit" size="full" disabled={!canSubmit || busy}>
-        {busy ? "저장 중..." : "수정 완료"}
-      </Button>
+        <Button type="submit" size="full" disabled={!canSubmit || busy}>
+          {busy ? "저장 중..." : "수정 완료"}
+        </Button>
+      </div>
     </form>
   );
 }
