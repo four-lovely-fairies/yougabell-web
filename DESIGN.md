@@ -155,45 +155,48 @@
 - 일반 카드: `padding: space.7 (24px)` 또는 `space.8 (32px)`
 - 큰 카드: `padding: space.9 (40px)`
 
-### 화면 레이아웃 — 하단 고정 CTA 버튼 (필수 규칙)
+### 화면 레이아웃 — 헤더·하단 버튼 고정 (필수 규칙)
 
-> **콘텐츠 하단에 CTA 버튼(또는 입력 바)이 있는 모든 화면은, 콘텐츠 길이와 무관하게 그 버튼이 항상 화면 하단에 보여야 한다.**
-> 짧은 콘텐츠에서 버튼이 화면 중앙에 뜨거나, 긴 콘텐츠에서 버튼이 스크롤로 사라지면 **위반**이다.
+> **이 앱의 모든 화면에서 헤더는 항상 상단에, 하단 버튼(CTA·입력 바)은 항상 하단에 고정된다. 스크롤되는 것은 가운데 콘텐츠뿐이다.**
+> 콘텐츠 길이와 무관하게 헤더·하단 버튼은 절대 스크롤로 움직이지 않는다. 짧은 콘텐츠에서 버튼이 중앙에 뜨거나, 긴 콘텐츠에서 헤더·버튼이 스크롤로 사라지면 **위반**이다.
 
-#### 표준 패턴 (Flex 컬럼 + 스크롤 영역 + 고정 푸터)
+#### 표준 패턴 (뷰포트 고정 Flex 컬럼 + 스크롤 영역 + 고정 헤더/푸터)
 
 ```tsx
 // 뷰포트 높이에 고정된 flex 컬럼
 <div className="flex h-dvh flex-col …">
-  {/* 헤더가 흐름 안에 있으면 */}
+  {/* 헤더 = 항상 상단 고정 (흐름 안이면 shrink-0, 또는 position:fixed 헤더) */}
   <header className="shrink-0 …">…</header>
 
-  {/* 콘텐츠 = 유일한 스크롤 영역. 길면 여기서 스크롤 */}
-  <div className="flex-1 overflow-y-auto …">…</div>
+  {/* 콘텐츠 = 유일한 스크롤 영역. 길면 여기서만 스크롤 */}
+  <div className="min-h-0 flex-1 overflow-y-auto …">…</div>
 
-  {/* 하단 CTA = 항상 뷰포트 하단에 고정 */}
+  {/* 하단 CTA = 항상 뷰포트 하단 고정 */}
   <div className="shrink-0 pb-[max(20px,env(safe-area-inset-bottom))] …">
     <button>…</button>
   </div>
 </div>
 ```
 
-- **루트**: `flex h-dvh flex-col` — 뷰포트 높이에 고정(`h-dvh`)해야 푸터가 항상 하단에 붙는다. `min-h-dvh`는 콘텐츠가 길어지면 컨테이너가 늘어나 버튼이 스크롤 밖으로 밀려나므로 **스크롤 가능한 화면에는 부적합**.
-- **콘텐츠**: `flex-1 overflow-y-auto` — 남는 공간을 채우고, 넘칠 때 **콘텐츠만** 스크롤.
-- **헤더·푸터**: `shrink-0` — 절대 줄어들지 않게.
-- **푸터 안전영역**: `pb-[max(20px,env(safe-area-inset-bottom))]` — WebView 홈 인디케이터 침범 방지 (Expo WebView 타깃 필수).
-- **레이아웃이 이미 `flex … flex-col`인 경우**(예: `app/settings/layout.tsx`, `app/onboarding/layout.tsx`): 화면 루트는 `flex flex-1 flex-col`만 쓰고 위 구조를 그대로 따른다. 단, 안전영역 padding은 레이아웃이 주지 않으면 화면이 직접 부여한다.
+- **루트**: `flex h-dvh flex-col` — 뷰포트 높이에 고정(`h-dvh`)해야 헤더·푸터가 항상 붙는다. `min-h-dvh`/`min-h-screen`은 콘텐츠가 길어지면 컨테이너가 늘어나 헤더·버튼이 함께 스크롤되므로 **금지**(아래 안티패턴).
+- **헤더**: `shrink-0`(흐름 안) 또는 CSS `position: fixed`/`sticky top-0`. 이 앱의 공유 헤더 `MissionHeader`·`OnboardingHeader`·`AppHeader fixed`는 이미 `position: fixed` → 그대로 통과.
+- **콘텐츠**: `min-h-0 flex-1 overflow-y-auto` — 남는 공간을 채우고, 넘칠 때 **콘텐츠만** 스크롤. 중첩 flex에서 스크롤이 동작하려면 조상 flex 아이템에 `min-h-0` 필요.
+- **푸터**: `shrink-0` + `pb-[max(20px,env(safe-area-inset-bottom))]` — 절대 줄어들지 않고, WebView 홈 인디케이터 침범 방지(Expo WebView 타깃 필수).
+- **공유 레이아웃이 padding을 소유하면**(예: `app/onboarding/layout.tsx`의 `px-5` + 안전영역 `pb`) 레이아웃 루트를 `flex h-dvh flex-col`로 두고, 각 화면 루트는 `flex min-h-0 flex-1 flex-col`로 채운다. 레이아웃이 padding을 안 주면(예: `app/settings/layout.tsx`) 화면 루트가 직접 `flex h-dvh flex-col px-5 pb-[safe]`를 갖는다.
 
 #### 금지 (Anti-pattern)
 
-- ❌ **매직 넘버 스페이서**: `min-h-[calc(100dvh-104px-115px)]` 처럼 헤더·푸터 높이를 하드코딩해 버튼을 밀어내는 방식. 헤더 높이·안전영역·콘텐츠가 바뀌면 즉시 깨진다. → `flex-1` 필러로 대체.
-- ❌ **매직 최소높이**: `min-h-180`(=720px) 같은 고정 min-height로 상태 화면을 채우는 방식. 짧은 뷰포트에서 CTA가 화면 밖으로 밀린다. → `flex-1`로 대체.
-- ❌ **자연 높이 의존**: 콘텐츠 자연 높이에만 기대어 버튼을 배치(필러·`flex-1` 없음). 짧으면 중앙에 뜨고, 길면 스크롤로 사라진다.
+- ❌ **`min-h-*` + `flex-1` 필러 푸터**: `min-h-dvh` 루트에 `<div className="min-h-8 flex-1" />` 스페이서로 버튼을 밀어내는 방식. 짧은 콘텐츠에선 붙지만, 콘텐츠가 뷰포트를 넘으면 페이지 전체가 스크롤되어 헤더·버튼이 사라진다. → 루트를 `h-dvh`로, 콘텐츠를 `flex-1 overflow-y-auto`로.
+- ❌ **매직 넘버 스페이서**: `min-h-[calc(100dvh-104px-115px)]` 처럼 헤더·푸터 높이를 하드코딩해 버튼을 밀어내는 방식. 헤더 높이·안전영역·콘텐츠가 바뀌면 즉시 깨진다.
+- ❌ **매직 최소높이**: `min-h-180`(=720px) 같은 고정 min-height로 상태 화면을 채우는 방식. 짧은 뷰포트에서 CTA가 화면 밖으로 밀린다. → `flex-1`로.
+- ❌ **자연 높이 의존**: 콘텐츠 자연 높이에만 기대어 버튼을 배치(스크롤 영역 없음). 짧으면 중앙에 뜨고, 길면 스크롤로 사라진다.
+
+> **예외**: 중앙 정렬 상태 화면(로딩·완료·빈 상태 등 — 버튼이 콘텐츠와 함께 중앙에 놓이는 화면. 예: `app/onboarding/(protected)/done`, `mission-screens/done` 계열 안내)은 하단 고정 대상이 아니다. "콘텐츠 하단에 붙는 CTA"가 있는 화면에만 본 규칙을 적용한다.
 
 #### 참고 구현
 
-- 표준: `app/chat/page.tsx`, `components/mission/mission-screens/{intro,done,effect,timer,feedback}.tsx`
-- 레이아웃 상속형: `app/onboarding/**`, `app/settings/**` (루트 `flex flex-1 flex-col` + `flex-1` 필러 + 안전영역 푸터)
+- 표준(자체 `h-dvh`): `app/chat/page.tsx`, `components/mission/mission-screens/{intro,done,effect,timer,feedback}.tsx`, `app/settings/**`(CTA 페이지)
+- 레이아웃 `h-dvh` 상속: `app/onboarding/**`(루트 `flex min-h-0 flex-1 flex-col` + 스크롤 영역 + `shrink-0` 푸터)
 
 ---
 
