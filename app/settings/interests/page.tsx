@@ -77,45 +77,47 @@ export default function SettingsInterestsPage() {
         e.preventDefault();
         void submit();
       }}
-      className="flex flex-1 flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))]"
+      className="flex h-dvh flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))]"
     >
       <OnboardingHeader variant="back" />
 
-      <header className="flex flex-col gap-2 py-6">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-          관심사 수정
-        </h1>
-        <p className="text-sm text-gray-500">
-          하단의 버튼을 눌러 변경 후 관심사를 다시 선택해주세요.
-        </p>
-      </header>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <header className="flex flex-col gap-2 py-6">
+          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+            관심사 수정
+          </h1>
+          <p className="text-sm text-gray-500">
+            하단의 버튼을 눌러 변경 후 관심사를 다시 선택해주세요.
+          </p>
+        </header>
 
-      <div className="flex flex-wrap gap-3 py-2">
-        {OPTIONS.map((id) => (
-          <InterestCard
-            key={id}
-            emoji={INTEREST_EMOJI[id]}
-            label={INTEREST_LABEL[id]}
-            selected={selected.includes(id)}
-            disabled={selected.length >= MAX_SELECT}
-            onToggle={() => toggle(id)}
-          />
-        ))}
+        <div className="flex flex-wrap gap-3 py-2">
+          {OPTIONS.map((id) => (
+            <InterestCard
+              key={id}
+              emoji={INTEREST_EMOJI[id]}
+              label={INTEREST_LABEL[id]}
+              selected={selected.includes(id)}
+              disabled={selected.length >= MAX_SELECT}
+              onToggle={() => toggle(id)}
+            />
+          ))}
+        </div>
       </div>
 
-      <div className="min-h-8 flex-1" />
+      <div className="shrink-0">
+        {error ? (
+          <p className="pb-2 text-center text-sm text-red-500">{error}</p>
+        ) : null}
 
-      {error ? (
-        <p className="pb-2 text-center text-sm text-red-500">{error}</p>
-      ) : null}
-
-      <Button
-        type="submit"
-        size="full"
-        disabled={selected.length === 0 || busy}
-      >
-        {busy ? "저장 중..." : "변경 완료"}
-      </Button>
+        <Button
+          type="submit"
+          size="full"
+          disabled={selected.length === 0 || busy}
+        >
+          {busy ? "저장 중..." : "변경 완료"}
+        </Button>
+      </div>
     </form>
   );
 }

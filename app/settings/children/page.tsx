@@ -63,65 +63,67 @@ export default function SettingsChildrenPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))]">
+    <div className="flex h-dvh flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))]">
       <OnboardingHeader variant="back" />
 
-      <header className="py-6">
-        <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-          아이 정보를
-          <br />
-          입력해 주세요
-        </h1>
-      </header>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <header className="py-6">
+          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+            아이 정보를
+            <br />
+            입력해 주세요
+          </h1>
+        </header>
 
-      <div className="flex flex-col gap-3">
-        {loading ? (
-          <p className="py-8 text-center text-sm text-gray-400">
-            불러오는 중...
-          </p>
-        ) : children.length === 0 ? (
-          <p className="py-8 text-center text-sm text-gray-400">
-            등록된 자녀가 없어요.
-          </p>
-        ) : (
-          children.map((c) => (
-            <ChildRow
-              key={c.id}
-              child={toDraft(c)}
-              onEdit={() => router.push(`/settings/children/${c.id}`)}
-              onDelete={() => setPendingDeleteId(c.id)}
-            />
-          ))
-        )}
-
-        <button
-          type="button"
-          onClick={() => router.push("/settings/children/new")}
-          className={cn(
-            "flex h-13 items-center justify-center gap-1.75 rounded-2xl border-[1.358px] border-dashed border-[#dab2ff] text-[#9349f4] transition-colors hover:bg-primary-50",
+        <div className="flex flex-col gap-3">
+          {loading ? (
+            <p className="py-8 text-center text-sm text-gray-400">
+              불러오는 중...
+            </p>
+          ) : children.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-400">
+              등록된 자녀가 없어요.
+            </p>
+          ) : (
+            children.map((c) => (
+              <ChildRow
+                key={c.id}
+                child={toDraft(c)}
+                onEdit={() => router.push(`/settings/children/${c.id}`)}
+                onDelete={() => setPendingDeleteId(c.id)}
+              />
+            ))
           )}
-        >
-          <PlusIcon size={20} />
-          <span className="text-sm font-medium tracking-[-0.3px]">
-            자녀 추가
-          </span>
-        </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("/settings/children/new")}
+            className={cn(
+              "flex h-13 items-center justify-center gap-1.75 rounded-2xl border-[1.358px] border-dashed border-[#dab2ff] text-[#9349f4] transition-colors hover:bg-primary-50",
+            )}
+          >
+            <PlusIcon size={20} />
+            <span className="text-sm font-medium tracking-[-0.3px]">
+              자녀 추가
+            </span>
+          </button>
+        </div>
       </div>
 
-      <div className="min-h-8 flex-1" />
+      <div className="shrink-0">
+        {error ? (
+          <p className="pb-2 text-center text-sm text-red-500">{error}</p>
+        ) : null}
 
-      {error ? (
-        <p className="pb-2 text-center text-sm text-red-500">{error}</p>
-      ) : null}
-
-      <Button
-        type="button"
-        size="full"
-        disabled={children.length === 0}
-        onClick={() => router.back()}
-      >
-        다음
-      </Button>
+        <Button
+          type="button"
+          size="full"
+          disabled={children.length === 0}
+          onClick={() => router.back()}
+        >
+          다음
+        </Button>
+      </div>
 
       {pendingDeleteId ? (
         <DeleteConfirm
