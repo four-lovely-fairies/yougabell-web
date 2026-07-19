@@ -158,6 +158,33 @@ export async function requestNativePushPermissionStatus(): Promise<
   });
 }
 
+export async function requestNativePushPermission(): Promise<
+  "granted" | "denied" | null
+> {
+  if (!isNativeWebView()) {
+    return null;
+  }
+
+  return new Promise((resolve) => {
+    const timeoutId = window.setTimeout(() => {
+      unsubscribe();
+      resolve(null);
+    }, 15000);
+
+    const unsubscribe = subscribeToNativeMessages((message) => {
+      if (message.type !== "NATIVE_PUSH_PERMISSION_RESULT") {
+        return;
+      }
+
+      window.clearTimeout(timeoutId);
+      unsubscribe();
+      resolve(message.payload.permission);
+    });
+
+    notifyMobile({ type: "REQUEST_PUSH_PERMISSION" });
+  });
+}
+
 export function openNativeNotificationSettings(): void {
   notifyMobile({ type: "OPEN_SYSTEM_NOTIFICATION_SETTINGS" });
 }
