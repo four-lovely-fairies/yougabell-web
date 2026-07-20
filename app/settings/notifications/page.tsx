@@ -9,7 +9,7 @@ import { track } from "@/lib/analytics";
 import {
   isNativeWebView,
   openNativeNotificationSettings,
-  requestNativePushPermissionStatus,
+  requestNativePushPermission,
 } from "@/lib/native-bridge";
 import { NOTIFICATION_SLOT_META } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -95,7 +95,7 @@ export default function SettingsNotificationsPage() {
     setError(null);
 
     if (!prev.enabled && merged.enabled && isNativeWebView()) {
-      const permission = await requestNativePushPermissionStatus();
+      const permission = await requestNativePushPermission();
       if (permission !== "granted") {
         setError("기기 설정에서 알림 권한을 허용한 뒤 다시 켜주세요.");
         openNativeNotificationSettings();
