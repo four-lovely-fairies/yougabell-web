@@ -103,6 +103,13 @@ export function MissionTimerScreen({
   const mission = missionState?.data.mission;
 
   const goBack = () => {
+    // router.push("/mission")는 forward 이동이라 히스토리에 항목을 쌓는다. 그러면
+    // intro의 뒤로가기(history.back)가 다시 타이머로 pop되어 intro↔timer 루프에 갇힌다.
+    // 뒤로가기는 항상 pop으로 처리해 timer → intro → home으로 빠져나가게 한다.
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
     router.push("/mission");
   };
 
