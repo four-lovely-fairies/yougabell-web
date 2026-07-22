@@ -1,3 +1,4 @@
+import { RotateCcw } from "lucide-react";
 import { Mascot } from "@/components/characters/mascot";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
@@ -19,9 +20,7 @@ export const TodayMissionCard = ({
   onRestart: () => void;
 }) => {
   const isCompleted = mission?.status === "completed";
-  const buttonLabel = isCompleted
-    ? "오늘의 놀이 다시 하기"
-    : "오늘의 놀이 시작하기";
+  const buttonLabel = isCompleted ? "미션완료" : "오늘의 놀이 시작하기";
 
   return (
     <Card
@@ -29,7 +28,19 @@ export const TodayMissionCard = ({
       shadow="none"
       className="shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]"
     >
-      <Chip>아이 {mission?.durationMinutes ?? 10}분 가까워지기</Chip>
+      <div className="flex items-center justify-between gap-2">
+        <Chip>아이 {mission?.durationMinutes ?? 10}분 가까워지기</Chip>
+        {isCompleted ? (
+          <button
+            type="button"
+            onClick={onRestart}
+            aria-label="오늘의 미션 다시 하기"
+            className="flex size-8 items-center justify-center text-gray-700"
+          >
+            <RotateCcw className="size-5" aria-hidden />
+          </button>
+        ) : null}
+      </div>
       <div className="mt-3.25 flex items-center justify-between gap-4">
         <h2 className="text-[20px] font-bold leading-[1.4] tracking-[-0.4px] text-gray-800">
           {splitMissionTitle(
@@ -44,8 +55,8 @@ export const TodayMissionCard = ({
       </div>
       <button
         type="button"
-        onClick={isCompleted ? onRestart : onStart}
-        disabled={!mission || loading}
+        onClick={onStart}
+        disabled={!mission || loading || isCompleted}
         className="mt-3.25 flex h-12 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-6 text-white disabled:bg-gray-100 disabled:text-gray-600"
       >
         {buttonLabel}
