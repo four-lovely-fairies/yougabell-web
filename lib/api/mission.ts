@@ -115,6 +115,25 @@ export const startMissionExecution = async ({
   return { execution: data.execution, source: "api" };
 };
 
+// 오늘의 미션 다시 하기 — 오늘(서울) 해당 아이의 실행 기록 삭제 후 처음부터 재진행.
+export const resetTodayMission = async ({
+  childId,
+}: {
+  childId: string;
+}): Promise<{ deletedCount: number }> => {
+  const headers = await authHeaders();
+
+  if (!headers.Authorization) {
+    return { deletedCount: 0 };
+  }
+
+  return request<{ deletedCount: number }>("/mission-executions/reset", {
+    method: "POST",
+    headers,
+    json: { childId },
+  });
+};
+
 export const loadMissionExecution = async ({
   childId,
   executionId,

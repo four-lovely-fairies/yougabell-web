@@ -288,3 +288,53 @@ export const MoodCheckModal = ({
     </div>
   </div>
 );
+
+// 오늘의 미션 다시 하기 확인 — 완료된 오늘 기록을 지우고 재진행할지 묻는다.
+export const RestartMissionModal = ({
+  submitting,
+  onConfirm,
+  onClose,
+}: {
+  submitting: boolean;
+  onConfirm: () => void;
+  onClose: () => void;
+}) => (
+  <div
+    className="fixed inset-0 z-50 bg-[rgba(0,0,0,0.2)]"
+    role="dialog"
+    aria-modal="true"
+    onClick={onClose}
+  >
+    <div className="relative mx-auto flex h-full w-full max-w-107.5 items-center justify-center px-5">
+      <div
+        className="w-full rounded-[28px] bg-white p-6 shadow-[0_12px_30px_rgba(0,0,0,0.14)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 className="text-lg font-bold leading-7 text-gray-800">
+          오늘의 놀이를 다시 하시겠어요?
+        </h2>
+        <p className="mt-2 text-sm leading-5 text-gray-500">
+          지금까지의 오늘 놀이 기록이 삭제되고 처음부터 다시 진행돼요.
+        </p>
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={submitting}
+            className="h-12 flex-1 rounded-2xl bg-gray-100 text-base font-medium leading-6 text-gray-600 disabled:opacity-70"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={submitting}
+            className="h-12 flex-1 rounded-2xl bg-primary-300 text-base font-medium leading-6 text-white disabled:opacity-70"
+          >
+            {submitting ? "처리 중..." : "다시 하기"}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);

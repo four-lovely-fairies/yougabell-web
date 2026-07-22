@@ -11,13 +11,17 @@ export const TodayMissionCard = ({
   mission,
   loading,
   onStart,
+  onRestart,
 }: {
   mission: HomeDashboardData["recommendedMission"];
   loading: boolean;
   onStart: () => void;
+  onRestart: () => void;
 }) => {
   const isCompleted = mission?.status === "completed";
-  const buttonLabel = isCompleted ? "오늘의 놀이 완료" : "오늘의 놀이 시작하기";
+  const buttonLabel = isCompleted
+    ? "오늘의 놀이 다시 하기"
+    : "오늘의 놀이 시작하기";
 
   return (
     <Card
@@ -40,8 +44,8 @@ export const TodayMissionCard = ({
       </div>
       <button
         type="button"
-        onClick={onStart}
-        disabled={!mission || loading || isCompleted}
+        onClick={isCompleted ? onRestart : onStart}
+        disabled={!mission || loading}
         className="mt-3.25 flex h-12 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-6 text-white disabled:bg-gray-100 disabled:text-gray-600"
       >
         {buttonLabel}
