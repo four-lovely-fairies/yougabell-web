@@ -1,4 +1,9 @@
-export type Modal = "children" | "notifications" | "mood" | null;
+export type Modal =
+  | "children"
+  | "notifications"
+  | "mood"
+  | "restart-mission"
+  | null;
 export type MoodLevel = 1 | 2 | 3 | 4 | 5;
 
 export const MOOD_OPTION_LABELS: Record<MoodLevel, string> = {

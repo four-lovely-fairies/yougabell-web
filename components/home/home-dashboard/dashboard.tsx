@@ -9,6 +9,7 @@ import {
   loadHomeDashboard,
   markAllNotificationsRead,
   markNotificationRead,
+  resetTodayMission,
   setStoredSelectedChildId,
   submitHomeMoodCheck,
   type HomeLoadState,
@@ -19,6 +20,7 @@ import {
   ChildSwitcherDropdown,
   MoodCheckModal,
   NotificationModal,
+  RestartMissionModal,
 } from "./modals";
 import { HomeError, HomeSkeleton } from "./skeleton";
 import { TopAppBar } from "./top-app-bar";
@@ -31,6 +33,7 @@ export const HomeDashboard = () => {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [modal, setModal] = useState<Modal>(null);
   const [loading, setLoading] = useState(true);
+  const [restarting, setRestarting] = useState(false);
   const [selectedMoodLevel, setSelectedMoodLevel] = useState<MoodLevel | null>(
     null,
   );
@@ -261,6 +264,21 @@ export const HomeDashboard = () => {
     setMoodError(null);
   };
 
+  const handleRestartMission = async () => {
+    if (restarting) return;
+    setRestarting(true);
+    try {
+      if (selectedChildId) {
+        await resetTodayMission({ childId: selectedChildId });
+      }
+      router.push("/mission");
+    } catch {
+      // 리셋 실패 시 모달을 닫고 현재 상태 유지 — 사용자가 다시 시도할 수 있다.
+      setRestarting(false);
+      setModal(null);
+    }
+  };
+
   const submitMood = async () => {
     if (!selectedMoodLevel || moodSubmitting) {
       return;
@@ -355,6 +373,7 @@ export const HomeDashboard = () => {
             mission={data.recommendedMission}
             loading={loading}
             onStart={() => router.push("/mission")}
+            onRestart={() => setModal("restart-mission")}
           />
           <GrowthStageCard stage={data.growthStage} />
           <ReportSummaryCard summary={data.reportSummary} />
@@ -380,6 +399,13 @@ export const HomeDashboard = () => {
           onClose={closeMoodModal}
           onSelectLevel={setSelectedMoodLevel}
           onSubmit={() => void submitMood()}
+        />
+      ) : null}
+      {modal === "restart-mission" ? (
+        <RestartMissionModal
+          submitting={restarting}
+          onClose={() => setModal(null)}
+          onConfirm={() => void handleRestartMission()}
         />
       ) : null}
     </>
