@@ -271,11 +271,16 @@ export const HomeDashboard = () => {
       if (selectedChildId) {
         await resetTodayMission({ childId: selectedChildId });
       }
+      // 성공 즉시 모달을 닫는다. router.push 전환 동안 App Router는 현재 페이지를
+      // 계속 표시하므로, 모달을 안 닫으면 전환이 끝날 때까지 "처리 중"이 남아
+      // 멈춘 것처럼 보인다.
+      setModal(null);
       router.push("/mission");
     } catch {
       // 리셋 실패 시 모달을 닫고 현재 상태 유지 — 사용자가 다시 시도할 수 있다.
-      setRestarting(false);
       setModal(null);
+    } finally {
+      setRestarting(false);
     }
   };
 
