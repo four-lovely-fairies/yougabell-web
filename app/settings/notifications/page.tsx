@@ -10,6 +10,7 @@ import {
   isNativeWebView,
   openNativeNotificationSettings,
   requestNativePushPermission,
+  requestNativePushPermissionStatus,
 } from "@/lib/native-bridge";
 import { NOTIFICATION_SLOT_META } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -82,6 +83,19 @@ export default function SettingsNotificationsPage() {
         setPrefs(derivePrefsFromMe(me));
       } catch {
         // 초기 fetch 실패는 default로 유지 — 사용자가 변경 시 PATCH는 시도 가능
+      }
+    })();
+  }, []);
+
+  // 알림 설정 진입 시, OS 권한이 이미 허용돼 있으면 푸시 토큰을 조용히 재등록한다.
+  // (프롬프트 없음 — 상태가 granted일 때만 요청.) 온보딩에서만 등록되던 구조를 보완해,
+  // 과거 사용자가 이 화면만 열어도 토큰이 저장되도록 한다.
+  useEffect(() => {
+    if (!isNativeWebView()) return;
+    void (async () => {
+      const status = await requestNativePushPermissionStatus();
+      if (status === "granted") {
+        await requestNativePushPermission();
       }
     })();
   }, []);
