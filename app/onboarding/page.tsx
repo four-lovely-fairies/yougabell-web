@@ -50,7 +50,7 @@ export default function OnboardingIntroPage() {
       .getSession()
       .then(({ data }: { data: { session: Session | null } }) => {
         if (data.session) {
-          router.replace("/onboarding/parent");
+          router.replace("/onboarding/consent");
         }
       });
 
@@ -60,7 +60,7 @@ export default function OnboardingIntroPage() {
       (_event: AuthChangeEvent, session: Session | null) => {
         if (!session) return;
         setPendingProvider(null);
-        router.replace("/onboarding/parent");
+        router.replace("/onboarding/consent");
       },
     );
 
@@ -72,7 +72,7 @@ export default function OnboardingIntroPage() {
             refresh_token: message.payload.refreshToken,
           });
           setPendingProvider(null);
-          router.replace("/onboarding/parent");
+          router.replace("/onboarding/consent");
         })();
       }
 
@@ -134,7 +134,7 @@ export default function OnboardingIntroPage() {
       options: {
         redirectTo: buildOAuthRedirectTo(
           window.location.origin,
-          "/onboarding/parent",
+          "/onboarding/consent",
         ),
       },
     });
@@ -155,7 +155,10 @@ export default function OnboardingIntroPage() {
           이전에 작성하다 만 온보딩이 있습니다.
         </p>
         <div className="mt-2 flex flex-col gap-3">
-          <Button size="full" onClick={() => router.push("/onboarding/parent")}>
+          <Button
+            size="full"
+            onClick={() => router.push("/onboarding/consent")}
+          >
             이어서 작성하기
           </Button>
           <Button

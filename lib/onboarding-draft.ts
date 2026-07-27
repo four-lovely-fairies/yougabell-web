@@ -1,7 +1,4 @@
-import type {
-  OnboardingDraft,
-  OnboardingStep,
-} from "@/lib/types";
+import type { OnboardingDraft, OnboardingStep } from "@/lib/types";
 
 export type DraftPatch = Partial<
   Omit<OnboardingDraft, "schemaVersion" | "updatedAt">
@@ -26,7 +23,7 @@ export function mergeOnboardingDraft(
 }
 
 const STEP_TO_PATH: Record<OnboardingStep, string> = {
-  intro: "/onboarding/parent",
+  intro: "/onboarding/consent",
   consent: "/onboarding/consent",
   parent: "/onboarding/parent",
   interest: "/onboarding/interest",
@@ -35,9 +32,7 @@ const STEP_TO_PATH: Record<OnboardingStep, string> = {
   children: "/onboarding/children",
 };
 
-export function getOnboardingResumePath(
-  draft: OnboardingDraft | null,
-): string {
+export function getOnboardingResumePath(draft: OnboardingDraft | null): string {
   if (!draft) {
     return "/onboarding/parent";
   }
