@@ -23,8 +23,8 @@ export function mergeOnboardingDraft(
 }
 
 const STEP_TO_PATH: Record<OnboardingStep, string> = {
-  intro: "/onboarding/consent",
-  consent: "/onboarding/consent",
+  intro: "/onboarding/parent",
+  consent: "/onboarding/parent",
   parent: "/onboarding/parent",
   interest: "/onboarding/interest",
   notification: "/onboarding/notification",

@@ -43,13 +43,13 @@ export default function IntroPage() {
     track({ type: "onboarding_intro_view" });
   }, []);
 
-  const navigateToConsentStep = useEffectEvent(() => {
+  const navigateToParentStep = useEffectEvent(() => {
     if (isNativeWebView()) {
-      window.location.replace("/onboarding/consent");
+      window.location.replace("/onboarding/parent");
       return;
     }
 
-    router.replace("/onboarding/consent");
+    router.replace("/onboarding/parent");
   });
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function IntroPage() {
       .getSession()
       .then(({ data }: { data: { session: Session | null } }) => {
         if (data.session && !shouldShowResume) {
-          void waitForServerSession().then(() => navigateToConsentStep());
+          void waitForServerSession().then(() => navigateToParentStep());
         }
       });
 
@@ -73,7 +73,7 @@ export default function IntroPage() {
         if (!session) return;
         setPendingProvider(null);
         if (shouldShowResume) return;
-        void waitForServerSession().then(() => navigateToConsentStep());
+        void waitForServerSession().then(() => navigateToParentStep());
       },
     );
 
@@ -87,7 +87,7 @@ export default function IntroPage() {
           await waitForServerSession();
           setPendingProvider(null);
           if (shouldShowResume) return;
-          navigateToConsentStep();
+          navigateToParentStep();
         })();
       }
 
@@ -151,7 +151,7 @@ export default function IntroPage() {
       options: {
         redirectTo: buildOAuthRedirectTo(
           window.location.origin,
-          "/onboarding/consent",
+          "/onboarding/parent",
         ),
       },
     });

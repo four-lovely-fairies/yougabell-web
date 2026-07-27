@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ClearCircleIcon } from "@/components/icons";
+import { ConsentBottomSheet } from "@/components/onboarding/consent-bottom-sheet";
 import { DateInput } from "@/components/onboarding/date-input";
 import { SegmentedToggle } from "@/components/onboarding/segmented-toggle";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
@@ -12,12 +13,31 @@ import { Input } from "@/components/ui/input";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Gender, ParentDraft, WorkStatus } from "@/lib/types";
+import type {
+  ConsentDraft,
+  Gender,
+  ParentDraft,
+  WorkStatus,
+} from "@/lib/types";
 
 export default function ParentPage() {
   const router = useRouter();
   const { draft, patch } = useOnboardingDraft();
   const [parent, setParent] = useState<ParentDraft>(draft?.parent ?? {});
+
+  // 약관 동의는 프로필(개인정보) 입력 전에 받아야 한다. 로그인 직후 처음 도달한
+  // parent 화면 위에 동의 바텀시트를 오버레이로 띄우고(Figma 2146:4786), 필수 항목을
+  // 동의해야 폼을 조작할 수 있다. 이미 동의한 재방문자(draft에 필수 동의 존재)는 건너뛴다.
+  const [consentDone, setConsentDone] = useState(false);
+  const requiredConsented = Boolean(
+    draft?.consents?.service && draft?.consents?.privacy,
+  );
+  const showConsent = !requiredConsented && !consentDone;
+
+  const handleConsentConfirm = (consents: ConsentDraft) => {
+    patch({ consents });
+    setConsentDone(true);
+  };
 
   // App Store 4.0(Sign in with Apple): 이름은 Apple 인증이 제공하므로 재입력을 강요하지 않는다.
   // Apple 로그인 시 mobile이 user_metadata.full_name에 저장 → 이름이 비어 있으면 그 값으로 자동 채움.
@@ -58,117 +78,126 @@ export default function ParentPage() {
   };
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        submit();
-      }}
-      className="flex min-h-0 flex-1 flex-col"
-    >
-      <OnboardingHeader variant="back" />
+    <>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit();
+        }}
+        className="flex min-h-0 flex-1 flex-col"
+      >
+        <OnboardingHeader variant="back" />
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-        <header className="py-6">
-          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-            프로필 정보를
-            <br />
-            입력해 주세요
-          </h1>
-        </header>
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          <header className="py-6">
+            <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+              프로필 정보를
+              <br />
+              입력해 주세요
+            </h1>
+          </header>
 
-        <div className="flex flex-col gap-4">
-          <Field label="이름" required>
-            <Input
-              type="text"
-              maxLength={30}
-              required
-              placeholder="이름을 입력하세요"
-              value={parent.name ?? ""}
-              onChange={(e) => update({ name: e.target.value })}
-              trailing={
-                parent.name ? (
-                  <IconButton
-                    label="이름 지우기"
-                    onClick={() => update({ name: "" })}
-                    // 아이콘을 오른쪽 끝에 정렬 → DateInput의 화살표와 같은 위치.
-                    className="w-6 h-6 m-0 justify-end text-gray-300"
-                  >
-                    <ClearCircleIcon size={20} />
-                  </IconButton>
-                ) : null
+          <div className="flex flex-col gap-4">
+            <Field label="이름" required>
+              <Input
+                type="text"
+                maxLength={30}
+                required
+                placeholder="이름을 입력하세요"
+                value={parent.name ?? ""}
+                onChange={(e) => update({ name: e.target.value })}
+                trailing={
+                  parent.name ? (
+                    <IconButton
+                      label="이름 지우기"
+                      onClick={() => update({ name: "" })}
+                      // 아이콘을 오른쪽 끝에 정렬 → DateInput의 화살표와 같은 위치.
+                      className="w-6 h-6 m-0 justify-end text-gray-300"
+                    >
+                      <ClearCircleIcon size={20} />
+                    </IconButton>
+                  ) : null
+                }
+              />
+            </Field>
+
+            <Field
+              label="생년월일"
+              action={
+                <OptOutButton
+                  label="공개 안 함"
+                  onClick={() => update({ birthDate: undefined })}
+                />
               }
-            />
-          </Field>
-
-          <Field
-            label="생년월일"
-            action={
-              <OptOutButton
-                label="공개 안 함"
-                onClick={() => update({ birthDate: undefined })}
+            >
+              <DateInput
+                value={parent.birthDate}
+                onChange={(iso) => update({ birthDate: iso })}
+                // 부모 연령 범위 — 만 18세 이상 ~ 만 70세 이하
+                yearMin={new Date().getFullYear() - 70}
+                yearMax={new Date().getFullYear() - 18}
+                // 시작 위치: 만 30세 기준 (가장 흔한 부모 연령대)
+                defaultYear={new Date().getFullYear() - 30}
               />
-            }
-          >
-            <DateInput
-              value={parent.birthDate}
-              onChange={(iso) => update({ birthDate: iso })}
-              // 부모 연령 범위 — 만 18세 이상 ~ 만 70세 이하
-              yearMin={new Date().getFullYear() - 70}
-              yearMax={new Date().getFullYear() - 18}
-              // 시작 위치: 만 30세 기준 (가장 흔한 부모 연령대)
-              defaultYear={new Date().getFullYear() - 30}
-            />
-          </Field>
+            </Field>
 
-          <Field
-            label="성별"
-            action={
-              <OptOutButton
-                label="선택 안 함"
-                onClick={() => update({ gender: undefined })}
+            <Field
+              label="성별"
+              action={
+                <OptOutButton
+                  label="선택 안 함"
+                  onClick={() => update({ gender: undefined })}
+                />
+              }
+            >
+              <SegmentedToggle<Gender>
+                ariaLabel="본인 성별"
+                options={[
+                  { value: "female", label: "엄마" },
+                  { value: "male", label: "아빠" },
+                ]}
+                value={parent.gender ?? null}
+                onChange={(v) => update({ gender: v ?? undefined })}
               />
-            }
-          >
-            <SegmentedToggle<Gender>
-              ariaLabel="본인 성별"
-              options={[
-                { value: "female", label: "엄마" },
-                { value: "male", label: "아빠" },
-              ]}
-              value={parent.gender ?? null}
-              onChange={(v) => update({ gender: v ?? undefined })}
-            />
-          </Field>
+            </Field>
 
-          <Field
-            label="직장 유무"
-            action={
-              <OptOutButton
-                label="공개 안 함"
-                onClick={() => update({ workStatus: undefined })}
+            <Field
+              label="직장 유무"
+              action={
+                <OptOutButton
+                  label="공개 안 함"
+                  onClick={() => update({ workStatus: undefined })}
+                />
+              }
+            >
+              <SegmentedToggle<WorkStatus>
+                ariaLabel="직장 유무"
+                allowDeselect
+                options={[
+                  { value: "working", label: "일을 하고 있어요" },
+                  { value: "full_time_caregiver", label: "전업 가정인이에요" },
+                ]}
+                value={parent.workStatus ?? null}
+                onChange={(v) => update({ workStatus: v })}
               />
-            }
-          >
-            <SegmentedToggle<WorkStatus>
-              ariaLabel="직장 유무"
-              allowDeselect
-              options={[
-                { value: "working", label: "일을 하고 있어요" },
-                { value: "full_time_caregiver", label: "전업 가정인이에요" },
-              ]}
-              value={parent.workStatus ?? null}
-              onChange={(v) => update({ workStatus: v })}
-            />
-          </Field>
+            </Field>
+          </div>
         </div>
-      </div>
 
-      <div className="shrink-0">
-        <Button type="submit" size="full" disabled={!canSubmit}>
-          다음
-        </Button>
-      </div>
-    </form>
+        <div className="shrink-0">
+          <Button type="submit" size="full" disabled={!canSubmit}>
+            다음
+          </Button>
+        </div>
+      </form>
+      {showConsent ? (
+        <ConsentBottomSheet
+          initial={draft?.consents}
+          onClose={() => router.replace("/onboarding")}
+          onConfirm={handleConsentConfirm}
+        />
+      ) : null}
+    </>
   );
 }
 
