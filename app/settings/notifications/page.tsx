@@ -75,12 +75,16 @@ export default function SettingsNotificationsPage() {
     null,
   );
   const [error, setError] = useState<string | null>(null);
+  const [marketing, setMarketing] = useState(false);
 
   useEffect(() => {
     void (async () => {
       try {
         const me = await api.getMe();
         setPrefs(derivePrefsFromMe(me));
+        // 동의 이력이 없으면(null) 미동의 — 온보딩에서 값이 서버로 오지 않던 시기의
+        // 사용자가 여기 해당한다 (docs/features/20260729-consent-storage.md).
+        setMarketing(me.consents?.marketing?.agreed ?? false);
       } catch {
         // 초기 fetch 실패는 default로 유지 — 사용자가 변경 시 PATCH는 시도 가능
       }
@@ -99,6 +103,24 @@ export default function SettingsNotificationsPage() {
       }
     })();
   }, []);
+
+  /**
+   * 마케팅 수신동의 토글. 알림 preference와 달리 **동의 이력**이라 append-only로 쌓인다.
+   * 실패 시 즉시 롤백 — 동의 상태가 실제 기록과 어긋난 채 보이면 안 된다.
+   */
+  const toggleMarketing = async (next: boolean) => {
+    const prev = marketing;
+    setError(null);
+    setMarketing(next);
+    try {
+      await api.updateConsent("marketing", next);
+    } catch (e) {
+      setMarketing(prev);
+      setError(
+        e instanceof ApiError ? `저장 실패 (${e.status})` : "네트워크 오류",
+      );
+    }
+  };
 
   const patch = async (
     type: NotificationPreferenceType,
@@ -188,6 +210,26 @@ export default function SettingsNotificationsPage() {
             </section>
           );
         })}
+
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-gray-700">마케팅 수신동의</h2>
+          <div className="flex flex-col rounded-2xl bg-gray-50">
+            <Row
+              label="혜택·소식 받기"
+              control={
+                <Switch
+                  checked={marketing}
+                  onCheckedChange={(next) => void toggleMarketing(next)}
+                  ariaLabel="마케팅 수신동의"
+                />
+              }
+            />
+          </div>
+          <p className="px-1 text-xs leading-[1.5] text-gray-500">
+            새 기능·이벤트 소식을 이메일로 받아요. 선택 항목이라 끄셔도 서비스
+            이용에는 영향이 없어요.
+          </p>
+        </section>
       </div>
 
       {error ? (
