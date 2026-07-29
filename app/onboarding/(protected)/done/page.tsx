@@ -22,12 +22,10 @@ type CompletionRequestResult =
   | { kind: "already" }
   | { kind: "error"; error: unknown };
 
-let cachedCompletionRequest:
-  | {
-      key: string;
-      promise: Promise<CompletionRequestResult>;
-    }
-  | null = null;
+let cachedCompletionRequest: {
+  key: string;
+  promise: Promise<CompletionRequestResult>;
+} | null = null;
 
 function buildPayload(
   draft: OnboardingDraft | null,
@@ -37,6 +35,7 @@ function buildPayload(
   const children = draft.children ?? [];
   const notification = draft.notification;
   const interests = draft.interests ?? [];
+  const consents = draft.consents;
   // 부모는 이름만 필수 (생년월일·성별은 선택 — App Store 5.1.1). 자녀는 핵심이라 모두 필수.
   if (!p?.name) return null;
   if (children.length < 1) return null;
@@ -59,6 +58,16 @@ function buildPayload(
     })),
     notification: notification ?? undefined,
     interests: interests.map((id) => INTEREST_WEB_TO_API[id]),
+    // 필수 2건 미동의로는 여기까지 올 수 없다(바텀시트가 막는다). 다만 배포 이전에
+    // 시작해 consents가 없는 draft가 남아 있을 수 있어, 그 경우엔 필드를 통째로 빼서
+    // api의 구버전 호환 경로(source=backfill 기록)로 흘려보낸다 — 완료 자체를 막지 않는다.
+    consents: consents
+      ? {
+          service: true,
+          privacy: true,
+          marketing: Boolean(consents.marketing),
+        }
+      : undefined,
   };
 }
 

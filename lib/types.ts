@@ -92,6 +92,19 @@ export type CompleteOnboardingPayload = {
   notification?: NotificationPreference;
   // 관심 주제(최대 3개). api는 snake_case(ApiInterestId) 기대 — web의 kebab id에서 변환.
   interests?: ApiInterestId[];
+  // 약관 동의 (docs/features/20260729-consent-storage.md).
+  // 필수 2건은 true가 아니면 api가 400. 마케팅은 true일 때만 동의 이력이 남는다.
+  consents?: ConsentDraft;
+};
+
+export type ConsentType = "service" | "privacy" | "marketing";
+
+/** 동의 이력의 현재 상태. null이면 기록 없음 — "거부"가 아니라 "모름". */
+export type ConsentState = {
+  agreed: boolean;
+  version: string;
+  source: "user_action" | "backfill";
+  agreedAt: string;
 };
 
 export type ApiInterestId =
@@ -131,6 +144,7 @@ export type MeResponse = {
   }>;
   notificationPreferences: NotificationPreferenceRow[];
   notification?: NotificationPreference | null; // deprecated 호환
+  consents?: Record<ConsentType, ConsentState | null>;
 };
 
 // 온보딩의 web InterestId(kebab) ↔ api의 ApiInterestId(snake) 매핑.

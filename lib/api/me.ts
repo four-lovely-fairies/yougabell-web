@@ -34,6 +34,12 @@ export const api = {
       method: "PATCH",
       json: body,
     }),
+  // 선택 동의 변경 (마케팅 수신). append-only라 호출할 때마다 이력이 쌓인다.
+  updateConsent: (type: "marketing", agreed: boolean) =>
+    request<MeResponse>(`/me/consents/${type}`, {
+      method: "PATCH",
+      json: { agreed },
+    }),
   deleteAccount: (reason?: string) =>
     request<void>("/me", { method: "DELETE", json: { reason } }),
   // [임시] 온보딩 재진입 — 회원 정보 초기화 (User row 삭제, cascade)
