@@ -39,6 +39,10 @@ export default function ParentPage() {
     setConsentDone(true);
   };
 
+  // 로그인 계정 이메일. 마케팅 수신동의를 받는 화면에서 "어느 주소로 받는지"를
+  // 보여주지 않으면 동의의 유효성이 약하다 (docs/features/20260729-consent-storage.md §2.5).
+  const [email, setEmail] = useState<string | null>(null);
+
   // App Store 4.0(Sign in with Apple): 이름은 Apple 인증이 제공하므로 재입력을 강요하지 않는다.
   // Apple 로그인 시 mobile이 user_metadata.full_name에 저장 → 이름이 비어 있으면 그 값으로 자동 채움.
   useEffect(() => {
@@ -52,7 +56,9 @@ export default function ParentPage() {
       const name =
         meta?.full_name?.trim() ||
         [meta?.given_name, meta?.family_name].filter(Boolean).join(" ").trim();
-      if (!cancelled && name) {
+      if (cancelled) return;
+      setEmail(data.user?.email ?? null);
+      if (name) {
         setParent((prev) => (prev.name ? prev : { ...prev, name }));
       }
     })();
@@ -60,6 +66,9 @@ export default function ParentPage() {
       cancelled = true;
     };
   }, []);
+
+  // Apple 비공개 이메일 릴레이 — 사용자가 처음 보면 자기 주소가 아닌 줄 안다.
+  const isAppleRelay = Boolean(email?.endsWith("@privaterelay.appleid.com"));
 
   // App Store 5.1.1: 생년월일·성별은 핵심 기능에 불필요하므로 선택 입력. 이름만 필수.
   const canSubmit = Boolean(parent.name);
@@ -98,6 +107,27 @@ export default function ParentPage() {
           </header>
 
           <div className="flex flex-col gap-4">
+            <Field label="로그인 계정">
+              <Input
+                type="email"
+                readOnly
+                value={email ?? ""}
+                placeholder="불러오는 중…"
+                aria-describedby="email-hint"
+                // readOnly는 disabled와 달리 읽기·복사·스크린리더 접근이 가능하다.
+                // 편집 불가는 배경 톤으로만 표현한다.
+                className="bg-gray-50"
+              />
+              <p
+                id="email-hint"
+                className="text-[11px] leading-[1.4] text-gray-400"
+              >
+                {isAppleRelay
+                  ? "Apple 계정으로 로그인했어요. Apple이 만든 전달용 주소라 실제 메일함으로 연결돼요."
+                  : "이 주소로 로그인했어요. 변경할 수 없어요."}
+              </p>
+            </Field>
+
             <Field label="이름" required>
               <Input
                 type="text"
