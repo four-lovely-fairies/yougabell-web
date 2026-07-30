@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yougabell UI"
+  short_description: "Use Yougabell design tokens for UI work."
+  default_prompt: "Use $yougabell-ui when editing Yougabell UI."
