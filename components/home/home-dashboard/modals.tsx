@@ -210,7 +210,7 @@ export const SatisfactionSurveyModal = ({
         <button
           type="button"
           onClick={onParticipate}
-          className="mt-6 flex h-13 w-full items-center justify-center rounded-xl bg-primary-300 text-base font-bold leading-6 text-white"
+          className="mt-6 flex h-13 w-full items-center justify-center rounded-md bg-primary-300 text-base font-bold leading-6 text-white"
         >
           참여하기
         </button>

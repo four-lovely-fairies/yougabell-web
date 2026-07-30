@@ -229,7 +229,7 @@ export default function SatisfactionSurveyPage() {
             type="button"
             onClick={() => void handleSubmit()}
             disabled={!canSubmit}
-            className="flex h-15 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-bold leading-6 text-white disabled:bg-primary-100"
+            className="flex h-15 w-full items-center justify-center rounded-lg bg-primary-300 text-base font-bold leading-6 text-white disabled:bg-primary-100"
           >
             {submitting ? "제출 중..." : "제출하기"}
           </button>

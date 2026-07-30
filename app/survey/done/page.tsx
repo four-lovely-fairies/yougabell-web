@@ -38,7 +38,7 @@ export default function SatisfactionSurveyDonePage() {
         <button
           type="button"
           onClick={() => router.replace("/")}
-          className="flex h-15 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-bold leading-6 text-white"
+          className="flex h-15 w-full items-center justify-center rounded-lg bg-primary-300 text-base font-bold leading-6 text-white"
         >
           홈으로 가기
         </button>
