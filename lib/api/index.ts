@@ -10,3 +10,4 @@ export * from "./weekly-report";
 export * from "./mission";
 export * from "./mission-demo";
 export * from "./mission-feedback-draft";
+export * from "./survey";

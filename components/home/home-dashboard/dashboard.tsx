@@ -1,14 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
 import {
   ApiError,
   getStoredSelectedChildId,
+  getSatisfactionSurveyStatus,
   loadHomeDashboard,
   markAllNotificationsRead,
   markNotificationRead,
+  recordSatisfactionSurveyPromptDismissed,
+  recordSatisfactionSurveyPromptShown,
   resetTodayMission,
   setStoredSelectedChildId,
   submitHomeMoodCheck,
@@ -21,6 +24,7 @@ import {
   MoodCheckModal,
   NotificationModal,
   RestartMissionModal,
+  SatisfactionSurveyModal,
 } from "./modals";
 import { HomeError, HomeSkeleton } from "./skeleton";
 import { TopAppBar } from "./top-app-bar";
@@ -40,6 +44,8 @@ export const HomeDashboard = () => {
   const [moodSubmitting, setMoodSubmitting] = useState(false);
   const [moodError, setMoodError] = useState<string | null>(null);
   const [notificationSubmitting, setNotificationSubmitting] = useState(false);
+  const [surveyPromptSuppressed, setSurveyPromptSuppressed] = useState(false);
+  const surveyPromptShownRecordedRef = useRef(false);
 
   const refresh = useCallback(
     async (childId?: string | null, showLoading = true) => {
@@ -85,6 +91,35 @@ export const HomeDashboard = () => {
   }, []);
 
   const data = state?.data;
+
+  useEffect(() => {
+    if (!data || modal || surveyPromptSuppressed) return;
+    let active = true;
+
+    void (async () => {
+      try {
+        const status = await getSatisfactionSurveyStatus();
+        if (!active || !status.shouldShowPrompt) return;
+        surveyPromptShownRecordedRef.current = false;
+        setModal("survey");
+      } catch {
+        // 설문 상태 조회 실패는 홈 이용을 막지 않는다.
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [data, modal, surveyPromptSuppressed]);
+
+  useEffect(() => {
+    if (modal !== "survey" || surveyPromptShownRecordedRef.current) return;
+    surveyPromptShownRecordedRef.current = true;
+    void recordSatisfactionSurveyPromptShown().catch(() => {
+      // 노출 기록 실패는 설문 참여 흐름을 막지 않는다.
+    });
+  }, [modal]);
+
   const selectedChild = useMemo(() => {
     if (!data) return null;
     return (
@@ -230,6 +265,20 @@ export const HomeDashboard = () => {
     } finally {
       setNotificationSubmitting(false);
     }
+  };
+
+  const closeSurveyPrompt = () => {
+    setSurveyPromptSuppressed(true);
+    setModal(null);
+    void recordSatisfactionSurveyPromptDismissed().catch(() => {
+      // 닫기 기록 실패는 홈 이용을 막지 않는다.
+    });
+  };
+
+  const participateInSurvey = () => {
+    setSurveyPromptSuppressed(true);
+    setModal(null);
+    router.push("/survey");
   };
 
   const handleMarkAllNotificationsRead = async () => {
@@ -411,6 +460,12 @@ export const HomeDashboard = () => {
           submitting={restarting}
           onClose={() => setModal(null)}
           onConfirm={() => void handleRestartMission()}
+        />
+      ) : null}
+      {modal === "survey" ? (
+        <SatisfactionSurveyModal
+          onClose={closeSurveyPrompt}
+          onParticipate={participateInSurvey}
         />
       ) : null}
     </>
