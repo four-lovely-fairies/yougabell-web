@@ -1,4 +1,4 @@
-import { Mail, Pencil, Trash2, X } from "lucide-react";
+import { Pencil, Trash2, X } from "lucide-react";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
 import { MoodFace } from "./mood-face";
 import { MOOD_OPTION_LABELS, type MoodLevel } from "./types";
@@ -179,7 +179,7 @@ export const SatisfactionSurveyModal = ({
   >
     <div className="relative mx-auto flex min-h-dvh w-full max-w-107.5 items-center justify-center px-8">
       <div
-        className="relative w-full rounded-[20px] bg-white px-4.5 pb-5 pt-14 shadow-[8px_0_0_rgba(255,255,255,0.55),0_14px_32px_rgba(38,38,38,0.14)]"
+        className="relative w-full rounded-[20px] bg-white px-4.5 pb-5 pt-14 shadow-[0_14px_32px_rgba(38,38,38,0.14)]"
         onClick={(event) => event.stopPropagation()}
       >
         <button
@@ -190,12 +190,12 @@ export const SatisfactionSurveyModal = ({
         >
           <X className="size-5" aria-hidden />
         </button>
-        <div className="mx-auto flex size-15 items-center justify-center rounded-lg bg-[#eef2ff]">
-          <Mail
-            className="size-9 fill-primary-100 text-primary-200"
-            aria-hidden
-          />
-        </div>
+        <img
+          src="/images/figma/survey/letter.png"
+          alt=""
+          aria-hidden
+          className="mx-auto h-11.5 w-14.5 object-contain"
+        />
         <h2
           id="satisfaction-survey-title"
           className="mt-9 text-center text-[18px] font-bold leading-[1.4] text-gray-800"

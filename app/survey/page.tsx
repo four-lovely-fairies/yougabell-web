@@ -92,9 +92,11 @@ export default function SatisfactionSurveyPage() {
         </div>
 
         <div className="mt-7">
-          <div
-            className="mb-3 h-9 w-12 rounded-full bg-[#eee8ff] shadow-[12px_2px_0_-4px_#eee8ff,-8px_8px_0_-5px_#e9ddff]"
+          <img
+            src="/images/figma/survey/think-cloud.png"
+            alt=""
             aria-hidden
+            className="mb-3 h-9.75 w-8 object-contain"
           />
           <h1 className="text-[24px] font-bold leading-[1.35] text-gray-800">
             사용 경험은 어떠셨나요?
