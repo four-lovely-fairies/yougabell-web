@@ -120,6 +120,19 @@ export const HomeDashboard = () => {
     });
   }, [modal]);
 
+  useEffect(() => {
+    const allowSurveyPromptAgain = () => {
+      setSurveyPromptSuppressed(false);
+    };
+
+    window.addEventListener("pageshow", allowSurveyPromptAgain);
+    window.addEventListener("popstate", allowSurveyPromptAgain);
+    return () => {
+      window.removeEventListener("pageshow", allowSurveyPromptAgain);
+      window.removeEventListener("popstate", allowSurveyPromptAgain);
+    };
+  }, []);
+
   const selectedChild = useMemo(() => {
     if (!data) return null;
     return (
