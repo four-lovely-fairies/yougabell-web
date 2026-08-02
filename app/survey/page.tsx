@@ -78,9 +78,9 @@ export default function SatisfactionSurveyPage() {
   };
 
   return (
-    <main className="min-h-dvh bg-gray-20 px-5 pb-10 pt-safe text-gray-800">
+    <main className="min-h-dvh bg-gray-20 px-5 pb-10 text-gray-800">
       <div className="flex min-h-[calc(100dvh-12px)] flex-col">
-        <div className="flex h-14 items-center justify-end">
+        <div className="sticky top-0 z-20 -mx-5 flex min-h-14 items-end justify-end bg-gray-20 px-5 pb-2 pt-safe">
           <button
             type="button"
             aria-label="닫기"
@@ -122,7 +122,7 @@ export default function SatisfactionSurveyPage() {
                   onClick={() => setDiscoverySource(option.value)}
                   className={`h-10 rounded-xl border px-4 text-[14px] font-bold leading-5 transition ${
                     selected
-                      ? "border-gray-800 bg-gray-800 text-white"
+                      ? "border-primary-200 bg-primary-50 text-primary-500"
                       : "border-gray-100 bg-white text-gray-900 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
                   }`}
                 >
@@ -146,10 +146,10 @@ export default function SatisfactionSurveyPage() {
                   type="button"
                   aria-label={`${rating}점`}
                   onClick={() => setExperienceRating(rating)}
-                  className="flex size-10 items-center justify-center"
+                  className="flex size-11 touch-manipulation items-center justify-center"
                 >
                   <Star
-                    className={`size-8 ${
+                    className={`pointer-events-none size-8 ${
                       selected
                         ? "fill-primary-300 text-primary-300"
                         : "fill-white text-gray-300"
