@@ -429,7 +429,7 @@ export const HomeDashboard = () => {
           </div>
         </div>
       ) : null}
-      <div className="relative min-h-dvh bg-gray-20 px-5 pb-9 text-gray-800">
+      <div className="relative bg-gray-20 px-5 pb-9 text-gray-800">
         {/* 고정 헤더(safe-area + 56px) 높이만큼 콘텐츠 하강 */}
         <div aria-hidden className="pt-safe">
           <div className="h-14" />
