@@ -91,7 +91,7 @@ export const ReportSummaryCard = ({
 }: {
   summary: HomeDashboardData["reportSummary"];
 }) => (
-  <section className="grid grid-cols-2 gap-2">
+  <section className="grid grid-cols-2 items-start gap-2">
     <StatCard label="지난주 놀이 수행시간">
       {summary ? (
         <DurationValue label={summary.totalDurationLabel} />
