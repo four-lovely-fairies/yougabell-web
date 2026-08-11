@@ -689,70 +689,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/surveys/satisfaction/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["SurveysController_getStatus"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/surveys/satisfaction/prompt-shown": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["SurveysController_recordPromptShown"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/surveys/satisfaction/prompt-dismissed": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["SurveysController_recordPromptDismissed"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/surveys/satisfaction/responses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["SurveysController_submit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1628,50 +1564,6 @@ export interface components {
         SendChatMessageRequestDto: {
             /** @example 아이가 잠들기 전 자꾸 한 번만 더 라고 해요 */
             content: string;
-        };
-        SatisfactionSurveyStatusDto: {
-            /** @example satisfaction-2026-08 */
-            campaignKey: string;
-            hasAnyMissionExecution: boolean;
-            shouldShowPrompt: boolean;
-            /** @example 0 */
-            promptShownCount: number;
-            /** @example 2 */
-            maxPromptShows: number;
-            /** Format: date-time */
-            submittedAt: string | null;
-        };
-        SatisfactionSurveyPromptStateDto: {
-            /** @example satisfaction-2026-08 */
-            campaignKey: string;
-            hasAnyMissionExecution: boolean;
-            shouldShowPrompt: boolean;
-            /** @example 0 */
-            promptShownCount: number;
-            /** @example 2 */
-            maxPromptShows: number;
-            /** Format: date-time */
-            submittedAt: string | null;
-            /** @example 0 */
-            dismissedCount: number;
-        };
-        SubmitSatisfactionSurveyDto: {
-            /** @enum {string} */
-            discoverySource: "instagram" | "threads" | "app_store_search" | "other";
-            /** @example 4 */
-            experienceRating: number;
-            likedOptions: ("today_play_useful" | "trustworthy_info" | "quick_questions" | "easy_to_use" | "nice_design" | "easy_milestone_check" | "nothing_good")[];
-            improvementText?: string;
-            /** @description 커피 쿠폰 지급을 원하는 경우 연락처와 이름을 함께 입력. */
-            contact?: string;
-        };
-        SatisfactionSurveyResponseDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example satisfaction-2026-08 */
-            campaignKey: string;
-            /** Format: date-time */
-            createdAt: string;
         };
     };
     responses: never;
@@ -2745,86 +2637,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    SurveysController_getStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SatisfactionSurveyStatusDto"];
-                };
-            };
-        };
-    };
-    SurveysController_recordPromptShown: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SatisfactionSurveyPromptStateDto"];
-                };
-            };
-        };
-    };
-    SurveysController_recordPromptDismissed: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SatisfactionSurveyPromptStateDto"];
-                };
-            };
-        };
-    };
-    SurveysController_submit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SubmitSatisfactionSurveyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SatisfactionSurveyResponseDto"];
-                };
             };
         };
     };
