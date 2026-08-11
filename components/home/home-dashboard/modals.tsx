@@ -1,4 +1,4 @@
-import { Pencil, Trash2, X } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
 import { MoodFace } from "./mood-face";
 import { MOOD_OPTION_LABELS, type MoodLevel } from "./types";
@@ -158,62 +158,6 @@ export const NotificationModal = ({
             </p>
           )}
         </div>
-      </div>
-    </div>
-  </div>
-);
-
-export const SatisfactionSurveyModal = ({
-  onClose,
-  onParticipate,
-}: {
-  onClose: () => void;
-  onParticipate: () => void;
-}) => (
-  <div
-    className="fixed inset-0 z-[60] bg-[rgba(38,38,38,0.24)]"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="satisfaction-survey-title"
-    onClick={onClose}
-  >
-    <div className="relative mx-auto flex min-h-dvh w-full max-w-107.5 items-center justify-center px-8">
-      <div
-        className="relative w-full rounded-[20px] bg-white px-4.5 pb-5 pt-14 shadow-[0_14px_32px_rgba(38,38,38,0.14)]"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <button
-          type="button"
-          aria-label="닫기"
-          onClick={onClose}
-          className="absolute right-4 top-6 flex size-7 items-center justify-center rounded-full bg-gray-50 text-gray-300"
-        >
-          <X className="size-5" aria-hidden />
-        </button>
-        <img
-          src="/images/figma/survey/letter.png"
-          alt=""
-          aria-hidden
-          className="mx-auto h-11.5 w-14.5 object-contain"
-        />
-        <h2
-          id="satisfaction-survey-title"
-          className="mt-9 text-center text-[18px] font-bold leading-[1.4] text-gray-800"
-        >
-          육아벨, 어떠셨나요?
-        </h2>
-        <p className="mt-3 text-center text-[15px] font-medium leading-[1.6] text-[#708090]">
-          설문조사에 참여해주시면
-          <br />
-          컴포즈 아이스아메리카노 쿠폰을 100% 드려요
-        </p>
-        <button
-          type="button"
-          onClick={onParticipate}
-          className="mt-6 flex h-13 w-full items-center justify-center rounded-md bg-primary-300 text-base font-bold leading-6 text-white"
-        >
-          참여하기
-        </button>
       </div>
     </div>
   </div>

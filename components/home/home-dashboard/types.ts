@@ -2,7 +2,6 @@ export type Modal =
   | "children"
   | "notifications"
   | "mood"
-  | "survey"
   | "restart-mission"
   | null;
 export type MoodLevel = 1 | 2 | 3 | 4 | 5;
