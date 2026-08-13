@@ -46,9 +46,39 @@ void describe("stripLeakedCardSyntax — 시스템 프롬프트 되뱉음", () =
     assert.equal(stripLeakedCardSyntax(raw), "오늘도 고생 많으셨어요.");
   });
 
-  void it("맨 앞부터 프롬프트면 빈 문자열이 된다 (말풍선 미표시)", () => {
+  void it("프롬프트만 있고 답변이 없으면 빈 문자열이 된다 (말풍선 미표시)", () => {
     const raw = "[본문 작성 규칙 — 매우 중요]\n- 헤딩(#)은 사용하지 마세요.";
     assert.equal(stripLeakedCardSyntax(raw), "");
+  });
+
+  // 2026-08-12 누출 메시지 실측 구조 — 프롬프트가 맨 앞(0번 줄)부터 시작하고
+  // 맨 뒤에 정상 답변 2문단이 붙어 있었다. 저장된 과거 메시지를 렌더할 때
+  // 답변까지 날리면 안 된다.
+  void it("프롬프트가 맨 앞에 있어도 뒤에 붙은 실제 답변은 살린다", () => {
+    const raw = [
+      "[본문 작성 규칙 — 매우 중요]",
+      "- 본문은 한국어로 작성하며, 가벼운 마크다운을 쓸 수 있습니다.",
+      "",
+      "[사용자 컨텍스트]",
+      "- 부모: 츠 은 (working)",
+      "· 째이 — 10개월, female",
+      "1. (cdc · 9개월 발달 마일스톤 · https://example.com) 마일스톤 본문",
+      "",
+      "[답변 형식]",
+      "- 카드 = 별도 도구 호출로 생성되므로 본문에 적지 말 것.",
+      "네, 더 이상 기다리실 필요 없으세요!",
+      "",
+      "즐거운 놀이 시간 보내시길 바라요!",
+    ].join("\n");
+    assert.equal(
+      stripLeakedCardSyntax(raw),
+      "네, 더 이상 기다리실 필요 없으세요!\n\n즐거운 놀이 시간 보내시길 바라요!",
+    );
+  });
+
+  void it("산문 중간의 대괄호 표현은 헤더로 오탐하지 않는다", () => {
+    const raw = "육아 [원칙]은 사람마다 달라요. 편하게 해보세요.";
+    assert.equal(stripLeakedCardSyntax(raw), raw);
   });
 
   void it("[사용자 컨텍스트]·[원칙]·[답변 형식] 누출도 제거한다", () => {
@@ -67,11 +97,16 @@ void describe("stripLeakedCardSyntax — 시스템 프롬프트 되뱉음", () =
 void describe("truncateAssistantLeak — 스트리밍 중 프롬프트 누출", () => {
   void it("스트리밍 도중 프롬프트 섹션이 나오면 그 앞까지만 보여준다", () => {
     const raw = "차분히 안아주세요.\n\n[본문 작성 규칙 — 매우 중요]\n- 본문은";
-    assert.equal(truncateAssistantLeak(raw), "차분히 안아주세요.\n\n");
+    assert.equal(truncateAssistantLeak(raw).trim(), "차분히 안아주세요.");
   });
 
   void it("정상 스트리밍 본문은 그대로 흘린다", () => {
     const raw = "오늘도 차근차근 해봐요.";
+    assert.equal(truncateAssistantLeak(raw), raw);
+  });
+
+  void it("산문 중간의 대괄호 표현에는 절단하지 않는다", () => {
+    const raw = "육아 [원칙]은 사람마다 달라요.";
     assert.equal(truncateAssistantLeak(raw), raw);
   });
 });
