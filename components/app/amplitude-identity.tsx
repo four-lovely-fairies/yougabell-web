@@ -16,9 +16,11 @@ export function AmplitudeIdentity() {
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
 
-    void supabase.auth.getSession().then(({ data }) => {
-      syncUser(data.session);
-    });
+    void supabase.auth
+      .getSession()
+      .then(({ data }: { data: { session: Session | null } }) => {
+        syncUser(data.session);
+      });
 
     const {
       data: { subscription },
@@ -29,7 +31,7 @@ export function AmplitudeIdentity() {
           return;
         }
 
-        if (event === "SIGNED_OUT" || event === "USER_DELETED") {
+        if (event === "SIGNED_OUT") {
           resetAnalyticsIdentity();
         }
       },
