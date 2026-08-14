@@ -11,6 +11,7 @@
     "codegen:api": "openapi-typescript openapi/yougabell-api.json -o lib/generated/api-types.ts"
   },
   "dependencies": {
+    "@amplitude/analytics-browser": "^2.45.6",
     "@next/third-parties": "^16.2.9",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",

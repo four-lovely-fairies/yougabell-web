@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import { toAmplitudeEvent } from "./analytics";
+
+test("child identifiers are not sent to Amplitude", () => {
+  const event = toAmplitudeEvent({
+    type: "settings_child_update",
+    childId: "child-private-id",
+  });
+
+  assert.deepEqual(event, { name: "Settings Child Updated" });
+});
+
+test("chat errors do not send an error message", () => {
+  const event = toAmplitudeEvent({
+    type: "chat_response_error",
+    reason: "private chat context must not be sent",
+  });
+
+  assert.deepEqual(event, { name: "Chat Response Failed" });
+});
