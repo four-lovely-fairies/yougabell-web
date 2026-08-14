@@ -1,5 +1,6 @@
-// 분석 이벤트. 실제 발송기(GA / Mixpanel / PostHog)는 후속.
-// 본 구현은 콘솔에만 출력하는 placeholder.
+import * as amplitude from "@amplitude/analytics-browser";
+
+// 제품 분석 이벤트. 이벤트 속성에는 개인정보, 자녀 식별자, 채팅 원문을 넣지 않는다.
 
 export type OnboardingEvent =
   | { type: "onboarding_intro_view"; page?: number }
@@ -52,10 +53,135 @@ export type ChatEvent =
 
 export type AnalyticsEvent = OnboardingEvent | SettingsEvent | ChatEvent;
 
+type AmplitudeEvent = {
+  name: string;
+  properties?: Record<string, boolean | number | string>;
+};
+
+let initialized = false;
+
+function initializeAmplitude(): boolean {
+  if (typeof window === "undefined") return false;
+
+  const apiKey = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
+  if (!apiKey) return false;
+
+  if (!initialized) {
+    amplitude.init(apiKey, {
+      // 육아·채팅 UI의 입력값과 클릭 대상이 자동 수집되지 않도록 한다.
+      autocapture: false,
+      defaultTracking: false,
+    });
+    initialized = true;
+  }
+
+  return true;
+}
+
+export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
+  switch (event.type) {
+    case "onboarding_intro_view":
+      return {
+        name: "Onboarding Intro Viewed",
+        properties: { page: event.page ?? 1 },
+      };
+    case "onboarding_google_sign_in_click":
+      return {
+        name: "Onboarding Sign In Clicked",
+        properties: { provider: "google" },
+      };
+    case "onboarding_apple_sign_in_click":
+      return {
+        name: "Onboarding Sign In Clicked",
+        properties: { provider: "apple" },
+      };
+    case "onboarding_step_complete":
+      return {
+        name: "Onboarding Step Completed",
+        properties: { step: event.step },
+      };
+    case "onboarding_work_status_filled":
+      return { name: "Onboarding Work Status Filled" };
+    case "onboarding_skip":
+      return { name: "Onboarding Skipped", properties: { from: event.from } };
+    case "onboarding_finish":
+      return { name: "Onboarding Completed" };
+    case "settings_open":
+      return { name: "Settings Opened" };
+    case "settings_notification_change":
+      return {
+        name: "Settings Notification Changed",
+        properties: {
+          notification_type: event.notificationType,
+          enabled: event.enabled,
+        },
+      };
+    case "settings_interests_save":
+      return {
+        name: "Settings Interests Saved",
+        properties: { count: event.count },
+      };
+    case "settings_parent_save":
+      return { name: "Settings Parent Saved" };
+    case "settings_child_add":
+      return { name: "Settings Child Added" };
+    case "settings_child_update":
+      return { name: "Settings Child Updated" };
+    case "settings_child_delete":
+      return { name: "Settings Child Deleted" };
+    case "settings_logout":
+      return { name: "Settings Logged Out" };
+    case "settings_account_delete_confirm":
+      return { name: "Settings Account Deletion Confirmed" };
+    case "chat_open":
+      return { name: "Chat Opened" };
+    case "chat_message_send":
+      return {
+        name: "Chat Message Sent",
+        properties: { length: event.length },
+      };
+    case "chat_response_first_token":
+      return {
+        name: "Chat Response First Token",
+        properties: { latency_ms: event.latencyMs },
+      };
+    case "chat_response_complete":
+      return {
+        name: "Chat Response Completed",
+        properties: {
+          latency_ms: event.latencyMs,
+          card_count: event.cardCount,
+          source_count: event.sourceCount,
+        },
+      };
+    case "chat_response_error":
+      return { name: "Chat Response Failed" };
+    case "chat_quick_reply_use":
+      return { name: "Chat Quick Reply Used" };
+    case "chat_source_link_open":
+      return { name: "Chat Source Link Opened" };
+  }
+}
+
 export function track(event: AnalyticsEvent): void {
   if (typeof window === "undefined") return;
   if (process.env.NODE_ENV !== "production") {
     console.info("[analytics]", event.type, event);
   }
-  // TODO(analytics): 실제 트래커 통합
+  if (!initializeAmplitude()) return;
+
+  const amplitudeEvent = toAmplitudeEvent(event);
+  amplitude.track(amplitudeEvent.name, amplitudeEvent.properties);
+}
+
+/** Supabase UUID만 사용하고 이메일·이름·자녀 정보는 Amplitude에 보내지 않는다. */
+export function setAnalyticsUserId(userId: string): void {
+  if (!initializeAmplitude()) return;
+  amplitude.setUserId(userId);
+}
+
+/** 로그아웃 또는 계정 탈퇴 뒤 이전 사용자와 이후 익명 활동의 연결을 끊는다. */
+export function resetAnalyticsIdentity(): void {
+  if (!initializeAmplitude()) return;
+  amplitude.reset();
 }
