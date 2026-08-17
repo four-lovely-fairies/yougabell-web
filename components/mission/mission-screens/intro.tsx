@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { track } from "@/lib/analytics";
 import { Mascot } from "@/components/characters/mascot";
 import {
   api,
@@ -67,6 +68,7 @@ export function MissionIntroScreen() {
 
       setState(next);
       setLoading(false);
+      track({ type: "mission_view" });
 
       if (next.data.activeExecution?.status === "in_progress") {
         router.replace(
@@ -127,6 +129,7 @@ export function MissionIntroScreen() {
         missionId: state.data.mission.id,
         durationMinutes: state.data.mission.durationMinutes,
       });
+      track({ type: "mission_start" });
       router.push(
         `/mission/timer?executionId=${result.execution.id}&mode=${result.source}`,
       );

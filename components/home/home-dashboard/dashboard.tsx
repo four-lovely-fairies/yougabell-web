@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
+import { track } from "@/lib/analytics";
 import {
   ApiError,
   getStoredSelectedChildId,
@@ -66,6 +67,7 @@ export const HomeDashboard = () => {
     usePullToRefresh(onPullRefresh);
 
   useEffect(() => {
+    track({ type: "home_view" });
     let active = true;
     void (async () => {
       try {
@@ -103,6 +105,7 @@ export const HomeDashboard = () => {
   }
 
   const onSelectChild = (child: HomeChild) => {
+    track({ type: "home_child_switch" });
     setStoredSelectedChildId(child.id);
     setSelectedChildId(child.id);
     setModal(null);
@@ -222,6 +225,7 @@ export const HomeDashboard = () => {
         markNotificationReadLocally(notification.id);
       }
       setModal(null);
+      track({ type: "home_notification_open" });
       openNotificationTarget(notification);
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
@@ -242,6 +246,7 @@ export const HomeDashboard = () => {
     try {
       await markAllNotificationsRead();
       markAllNotificationsReadLocally();
+      track({ type: "home_notifications_mark_all_read" });
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         router.replace("/onboarding/intro");
@@ -276,6 +281,7 @@ export const HomeDashboard = () => {
       // 계속 표시하므로, 모달을 안 닫으면 전환이 끝날 때까지 "처리 중"이 남아
       // 멈춘 것처럼 보인다.
       setModal(null);
+      track({ type: "home_mission_restart" });
       router.push("/mission");
     } catch {
       // 리셋 실패 시 모달을 닫고 현재 상태 유지 — 사용자가 다시 시도할 수 있다.
@@ -298,6 +304,7 @@ export const HomeDashboard = () => {
       await refresh(selectedChildId, false);
       setModal(null);
       setSelectedMoodLevel(null);
+      track({ type: "home_mood_submit" });
     } catch {
       setMoodError(
         "오늘의 기분을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.",

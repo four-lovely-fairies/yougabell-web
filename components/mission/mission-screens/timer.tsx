@@ -12,6 +12,7 @@ import {
   type MissionLoadState,
 } from "@/lib/api";
 import { goBackFromMissionTimer } from "@/lib/mission-navigation";
+import { track } from "@/lib/analytics";
 import type { MissionExecutionSnapshot } from "@/lib/mission-data";
 import {
   HeaderSpacer,
@@ -139,6 +140,12 @@ export function MissionTimerScreen({
 
         if (result.execution) {
           setSnapshot(result.execution);
+          if (action === "pause") {
+            track({ type: "mission_pause" });
+          }
+          if (action === "resume") {
+            track({ type: "mission_resume" });
+          }
           if (action !== "pause" && action !== "resume") {
             setRemainingSeconds(
               computeRemainingSeconds(result.execution, Date.now()),
@@ -148,6 +155,10 @@ export function MissionTimerScreen({
           return;
         }
 
+        track({
+          type: "mission_complete",
+          completionType: action === "early_complete" ? "early" : "timer",
+        });
         router.replace(
           `/mission/effect?executionId=${snapshot.id}&mode=${result.source}`,
         );

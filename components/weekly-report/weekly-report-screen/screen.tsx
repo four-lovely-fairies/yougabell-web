@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppHeader, HeaderSpacer } from "@/components/app/app-header";
+import { track } from "@/lib/analytics";
 import {
   getStoredSelectedChildId,
   loadWeeklyReport,
@@ -55,6 +56,10 @@ export const WeeklyReportScreen = () => {
       if (!active) return;
       setState(next);
       setLoading(false);
+      track({
+        type: "weekly_report_view",
+        hasReport: Boolean(next.data?.report),
+      });
     });
     return () => {
       active = false;
@@ -70,6 +75,7 @@ export const WeeklyReportScreen = () => {
   };
 
   const startMission = () => {
+    track({ type: "weekly_report_mission_start" });
     router.push("/mission");
   };
 

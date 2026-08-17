@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { ArrowLeft, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { ArrowLeft, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { track } from "@/lib/analytics";
 import {
   ApiError,
   clearMissionFeedbackDraft,
@@ -12,18 +13,18 @@ import {
   readMissionFeedbackDraft,
   submitMissionFeedback,
   type MissionLoadState,
-} from '@/lib/api';
-import { Mascot } from '@/components/characters/mascot';
-import type { MissionFeedbackDraft } from '@/lib/mission-data';
-import { EnergySlider, FeedbackChoiceGroup } from './feedback-controls';
-import { MissionContentSkeleton } from './shared';
+} from "@/lib/api";
+import { Mascot } from "@/components/characters/mascot";
+import type { MissionFeedbackDraft } from "@/lib/mission-data";
+import { EnergySlider, FeedbackChoiceGroup } from "./feedback-controls";
+import { MissionContentSkeleton } from "./shared";
 
 export function MissionFeedbackScreen({
   executionId,
   mode,
 }: {
   executionId: string | null;
-  mode: 'api' | 'demo' | null;
+  mode: "api" | "demo" | null;
 }) {
   const router = useRouter();
   const [missionState, setMissionState] = useState<MissionLoadState | null>(
@@ -37,7 +38,7 @@ export function MissionFeedbackScreen({
     childReaction: null,
     parentEnergy: null,
     missionSatisfaction: null,
-    note: '',
+    note: "",
   });
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export function MissionFeedbackScreen({
 
     const run = async () => {
       if (!executionId) {
-        router.replace('/mission');
+        router.replace("/mission");
         return;
       }
 
@@ -63,7 +64,7 @@ export function MissionFeedbackScreen({
           childReaction: null,
           parentEnergy: 0,
           missionSatisfaction: null,
-          note: '',
+          note: "",
         },
       );
       setLoading(false);
@@ -90,7 +91,7 @@ export function MissionFeedbackScreen({
     }
 
     if (draft.childReaction === null || draft.missionSatisfaction === null) {
-      setError('모든 항목을 입력해주세요.');
+      setError("모든 항목을 입력해주세요.");
       return;
     }
 
@@ -103,14 +104,15 @@ export function MissionFeedbackScreen({
         mode,
       });
       clearMissionFeedbackDraft(executionId);
+      track({ type: "mission_feedback_submit" });
       router.push(
         `/mission/done?executionId=${executionId}&mode=${result.source}`,
       );
     } catch (submitError) {
       setError(
         submitError instanceof ApiError
-          ? '미션 피드백을 저장하지 못했어요. 다시 시도해주세요.'
-          : 'API 서버에 연결할 수 없습니다.',
+          ? "미션 피드백을 저장하지 못했어요. 다시 시도해주세요."
+          : "API 서버에 연결할 수 없습니다.",
       );
     } finally {
       setSubmitting(false);
@@ -158,17 +160,17 @@ export function MissionFeedbackScreen({
                 setDraft((current) => ({ ...current, childReaction: value }))
               }
               labels={[
-                '나빠요',
-                '별로에요',
-                '보통이에요',
-                '좋아요!',
-                '최고에요!',
+                "나빠요",
+                "별로에요",
+                "보통이에요",
+                "좋아요!",
+                "최고에요!",
               ]}
             />
 
             <div className="space-y-4">
               <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-gray-800">
-                미션을 마친 지금,{'\n'}엄마의 에너지 상태는 어떤가요?
+                미션을 마친 지금,{"\n"}엄마의 에너지 상태는 어떤가요?
               </h2>
               <EnergySlider
                 value={draft.parentEnergy}
@@ -192,17 +194,17 @@ export function MissionFeedbackScreen({
                 }))
               }
               labels={[
-                '아쉬워요',
-                '부족해요',
-                '보통이에요',
-                '만족해요',
-                '완벽해요!',
+                "아쉬워요",
+                "부족해요",
+                "보통이에요",
+                "만족해요",
+                "완벽해요!",
               ]}
             />
 
             <div className="space-y-4">
               <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-gray-800">
-                오늘 아이가 가장 많이 말한{'\n'}단어들을 적어주세요.
+                오늘 아이가 가장 많이 말한{"\n"}단어들을 적어주세요.
               </h2>
               <textarea
                 value={draft.note}
@@ -271,7 +273,7 @@ export function MissionFeedbackScreen({
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push('/')}
+                  onClick={() => router.push("/")}
                   className="flex h-5 items-center justify-center text-xs font-medium leading-[1.4] text-[#9d9d9d]"
                 >
                   건너뛰기
