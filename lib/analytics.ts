@@ -57,6 +57,7 @@ export type HomeEvent =
   | { type: "home_mood_submit" }
   | { type: "home_notification_open" }
   | { type: "home_notifications_mark_all_read" }
+  | { type: "home_mission_start_click" }
   | { type: "home_mission_restart" };
 
 export type MissionEvent =
@@ -201,6 +202,8 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
       return { name: "Home Notification Opened" };
     case "home_notifications_mark_all_read":
       return { name: "Home Notifications Marked All Read" };
+    case "home_mission_start_click":
+      return { name: "Home Mission Start Clicked" };
     case "home_mission_restart":
       return { name: "Home Mission Restarted" };
     case "mission_view":

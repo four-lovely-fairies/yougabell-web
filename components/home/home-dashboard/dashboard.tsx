@@ -314,6 +314,11 @@ export const HomeDashboard = () => {
     }
   };
 
+  const startMissionFromHome = () => {
+    track({ type: "home_mission_start_click" });
+    router.push("/mission");
+  };
+
   return (
     <>
       {/* 인스타그램식 고정 헤더 — 스크롤·당겨서새로고침(overscroll)에도 상단 고정.
@@ -385,7 +390,7 @@ export const HomeDashboard = () => {
           <TodayMissionCard
             mission={data.recommendedMission}
             loading={loading}
-            onStart={() => router.push("/mission")}
+            onStart={startMissionFromHome}
             onRestart={() => setModal("restart-mission")}
           />
           <GrowthStageCard stage={data.growthStage} />
