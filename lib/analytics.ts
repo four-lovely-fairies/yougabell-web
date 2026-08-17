@@ -51,7 +51,39 @@ export type ChatEvent =
   | { type: "chat_quick_reply_use"; label: string }
   | { type: "chat_source_link_open"; domain: string };
 
-export type AnalyticsEvent = OnboardingEvent | SettingsEvent | ChatEvent;
+export type HomeEvent =
+  | { type: "home_view" }
+  | { type: "home_child_switch" }
+  | { type: "home_mood_submit" }
+  | { type: "home_notification_open" }
+  | { type: "home_notifications_mark_all_read" }
+  | { type: "home_mission_start_click" }
+  | { type: "home_mission_restart" };
+
+export type MissionEvent =
+  | { type: "mission_view" }
+  | { type: "mission_start" }
+  | { type: "mission_resume" }
+  | { type: "mission_pause" }
+  | { type: "mission_complete"; completionType: "timer" | "early" }
+  | { type: "mission_feedback_submit" };
+
+export type RoadmapEvent =
+  | { type: "roadmap_view" }
+  | { type: "roadmap_month_select" };
+
+export type WeeklyReportEvent =
+  | { type: "weekly_report_view"; hasReport: boolean }
+  | { type: "weekly_report_mission_start" };
+
+export type AnalyticsEvent =
+  | OnboardingEvent
+  | SettingsEvent
+  | ChatEvent
+  | HomeEvent
+  | MissionEvent
+  | RoadmapEvent
+  | WeeklyReportEvent;
 
 type AmplitudeEvent = {
   name: string;
@@ -160,6 +192,46 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
       return { name: "Chat Quick Reply Used" };
     case "chat_source_link_open":
       return { name: "Chat Source Link Opened" };
+    case "home_view":
+      return { name: "Home Viewed" };
+    case "home_child_switch":
+      return { name: "Home Child Switched" };
+    case "home_mood_submit":
+      return { name: "Home Mood Submitted" };
+    case "home_notification_open":
+      return { name: "Home Notification Opened" };
+    case "home_notifications_mark_all_read":
+      return { name: "Home Notifications Marked All Read" };
+    case "home_mission_start_click":
+      return { name: "Home Mission Start Clicked" };
+    case "home_mission_restart":
+      return { name: "Home Mission Restarted" };
+    case "mission_view":
+      return { name: "Mission Viewed" };
+    case "mission_start":
+      return { name: "Mission Started" };
+    case "mission_resume":
+      return { name: "Mission Resumed" };
+    case "mission_pause":
+      return { name: "Mission Paused" };
+    case "mission_complete":
+      return {
+        name: "Mission Completed",
+        properties: { completion_type: event.completionType },
+      };
+    case "mission_feedback_submit":
+      return { name: "Mission Feedback Submitted" };
+    case "roadmap_view":
+      return { name: "Roadmap Viewed" };
+    case "roadmap_month_select":
+      return { name: "Roadmap Month Selected" };
+    case "weekly_report_view":
+      return {
+        name: "Weekly Report Viewed",
+        properties: { has_report: event.hasReport },
+      };
+    case "weekly_report_mission_start":
+      return { name: "Weekly Report Mission Started" };
   }
 }
 

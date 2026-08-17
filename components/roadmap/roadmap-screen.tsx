@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { SectionInfoCard } from "@/components/ui/section-info-card";
 import { getStoredSelectedChildId, loadRoadmap } from "@/lib/api";
+import { track } from "@/lib/analytics";
 import {
   CDC_CHECKPOINTS,
   ROADMAP_CATEGORY_DISPLAY,
@@ -44,6 +45,7 @@ export const RoadmapScreen = () => {
       setData(next.data);
       setChildMonth(next.data.targetMonth);
       setLoading(false);
+      track({ type: "roadmap_view" });
     });
     return () => {
       active = false;
@@ -72,6 +74,7 @@ export const RoadmapScreen = () => {
 
   const onSelectMonth = (month: number) => {
     if (!data || data.targetMonth === month) return;
+    track({ type: "roadmap_month_select" });
     void load(month);
   };
 

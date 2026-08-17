@@ -20,3 +20,9 @@ test("chat errors do not send an error message", () => {
 
   assert.deepEqual(event, { name: "Chat Response Failed" });
 });
+
+test("mission feedback values are not sent to Amplitude", () => {
+  const event = toAmplitudeEvent({ type: "mission_feedback_submit" });
+
+  assert.deepEqual(event, { name: "Mission Feedback Submitted" });
+});
