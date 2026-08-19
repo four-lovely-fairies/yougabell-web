@@ -223,7 +223,7 @@ export default function ParentPage() {
       {showConsent ? (
         <ConsentBottomSheet
           initial={draft?.consents}
-          onClose={() => router.replace("/onboarding")}
+          onClose={() => router.replace("/onboarding/intro")}
           onConfirm={handleConsentConfirm}
         />
       ) : null}
