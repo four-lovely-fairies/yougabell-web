@@ -36,6 +36,14 @@ export type SettingsEvent =
   | { type: "settings_logout" }
   | { type: "settings_account_delete_confirm" };
 
+// 1:1 문의 이벤트 (docs/features/20260819-inquiry.md §6).
+// 제목·본문·이메일은 개인정보를 담을 수 있어 속성으로 보내지 않는다.
+export type InquiryEvent =
+  | { type: "inquiry_list_view" }
+  | { type: "inquiry_form_view" }
+  | { type: "inquiry_submit"; category: string | null }
+  | { type: "inquiry_detail_view"; status: string };
+
 // AI 챗봇 이벤트 (docs/features/20260525-ai-integration.md §6).
 export type ChatEvent =
   | { type: "chat_open" }
@@ -83,7 +91,8 @@ export type AnalyticsEvent =
   | HomeEvent
   | MissionEvent
   | RoadmapEvent
-  | WeeklyReportEvent;
+  | WeeklyReportEvent
+  | InquiryEvent;
 
 type AmplitudeEvent = {
   name: string;
@@ -163,6 +172,20 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
       return { name: "Settings Child Deleted" };
     case "settings_logout":
       return { name: "Settings Logged Out" };
+    case "inquiry_list_view":
+      return { name: "Inquiry List Viewed" };
+    case "inquiry_form_view":
+      return { name: "Inquiry Form Viewed" };
+    case "inquiry_submit":
+      return {
+        name: "Inquiry Submitted",
+        properties: { category: event.category ?? "unspecified" },
+      };
+    case "inquiry_detail_view":
+      return {
+        name: "Inquiry Detail Viewed",
+        properties: { status: event.status },
+      };
     case "settings_account_delete_confirm":
       return { name: "Settings Account Deletion Confirmed" };
     case "chat_open":
