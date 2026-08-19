@@ -4867,11 +4867,17 @@
             "example": "parent@example.com",
             "maxLength": 254,
             "description": "답변 받을 이메일. 미지정 시 로그인 이메일을 사용한다."
+          },
+          "privacyConsent": {
+            "type": "boolean",
+            "example": true,
+            "description": "문의 처리 목적의 개인정보 수집·이용 동의. true가 아니면 400 — 동의 없이는 접수하지 않는다."
           }
         },
         "required": [
           "title",
-          "body"
+          "body",
+          "privacyConsent"
         ]
       },
       "InquiryResponseDto": {
@@ -4922,6 +4928,16 @@
           "answerBody": {
             "type": "string",
             "nullable": true
+          },
+          "privacyConsentAgreedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "개인정보 수집·이용 동의 시각"
+          },
+          "privacyConsentVersion": {
+            "type": "string",
+            "example": "2026-08-19",
+            "description": "동의 문구 버전"
           }
         },
         "required": [
@@ -4933,7 +4949,9 @@
           "createdAt",
           "body",
           "contactEmail",
-          "answerBody"
+          "answerBody",
+          "privacyConsentAgreedAt",
+          "privacyConsentVersion"
         ]
       },
       "InquiryListItemDto": {
@@ -5148,6 +5166,16 @@
             "type": "string",
             "nullable": true
           },
+          "privacyConsentAgreedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "개인정보 수집·이용 동의 시각"
+          },
+          "privacyConsentVersion": {
+            "type": "string",
+            "example": "2026-08-19",
+            "description": "동의 문구 버전"
+          },
           "userId": {
             "type": "string",
             "format": "uuid"
@@ -5183,6 +5211,8 @@
           "body",
           "contactEmail",
           "answerBody",
+          "privacyConsentAgreedAt",
+          "privacyConsentVersion",
           "userId",
           "userName",
           "userOnboardedAt",
