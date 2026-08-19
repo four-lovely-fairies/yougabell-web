@@ -1664,6 +1664,11 @@ export interface components {
              * @example parent@example.com
              */
             contactEmail?: string;
+            /**
+             * @description 문의 처리 목적의 개인정보 수집·이용 동의. true가 아니면 400 — 동의 없이는 접수하지 않는다.
+             * @example true
+             */
+            privacyConsent: boolean;
         };
         InquiryResponseDto: {
             /** Format: uuid */
@@ -1680,6 +1685,16 @@ export interface components {
             body: string;
             contactEmail: string | null;
             answerBody: string | null;
+            /**
+             * Format: date-time
+             * @description 개인정보 수집·이용 동의 시각
+             */
+            privacyConsentAgreedAt: string;
+            /**
+             * @description 동의 문구 버전
+             * @example 2026-08-19
+             */
+            privacyConsentVersion: string;
         };
         InquiryListItemDto: {
             /** Format: uuid */
@@ -1740,6 +1755,16 @@ export interface components {
             body: string;
             contactEmail: string | null;
             answerBody: string | null;
+            /**
+             * Format: date-time
+             * @description 개인정보 수집·이용 동의 시각
+             */
+            privacyConsentAgreedAt: string;
+            /**
+             * @description 동의 문구 버전
+             * @example 2026-08-19
+             */
+            privacyConsentVersion: string;
             /** Format: uuid */
             userId: string;
             userName: string;
