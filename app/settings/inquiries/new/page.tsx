@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
+import { InquiryConsentSheet } from "@/components/settings/inquiry/inquiry-consent-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { track } from "@/lib/analytics";
@@ -26,6 +27,8 @@ export default function NewInquiryPage() {
   const [category, setCategory] = useState<InquiryCategory | null>(null);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [consentSheetOpen, setConsentSheetOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,21 +36,37 @@ export default function NewInquiryPage() {
     track({ type: "inquiry_form_view" });
   }, []);
 
-  const canSubmit =
-    title.trim().length > 0 &&
-    body.trim().length >= BODY_MIN &&
-    body.trim().length <= BODY_MAX &&
-    !submitting;
+  const trimmedTitle = title.trim();
+  const trimmedBody = body.trim();
+
+  // 제출을 막는 이유. 버튼을 비활성화하는 대신 눌렀을 때 이유를 알려준다 —
+  // 비활성 버튼은 "왜 안 되는지"를 사용자에게 알려줄 방법이 없다.
+  const blockReason = ((): string | null => {
+    if (!trimmedTitle) return "제목을 입력해 주세요.";
+    if (trimmedBody.length < BODY_MIN) {
+      return `문의 내용을 ${BODY_MIN}자 이상 입력해 주세요. (현재 ${trimmedBody.length}자)`;
+    }
+    if (!privacyConsent) {
+      return "개인정보 수집·이용에 동의해 주세요.";
+    }
+    return null;
+  })();
 
   const onSubmit = async () => {
-    if (!canSubmit) return;
+    if (submitting) return;
+    if (blockReason) {
+      setError(blockReason);
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
       await createInquiry({
         ...(category ? { category } : {}),
-        title: title.trim(),
-        body: body.trim(),
+        title: trimmedTitle,
+        body: trimmedBody,
+        privacyConsent: true,
       });
       track({ type: "inquiry_submit", category });
       router.replace("/settings/inquiries");
@@ -56,6 +75,8 @@ export default function NewInquiryPage() {
       setSubmitting(false);
     }
   };
+
+  const bodyTooShort = trimmedBody.length > 0 && trimmedBody.length < BODY_MIN;
 
   return (
     <div className="flex h-dvh flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))]">
@@ -123,19 +144,50 @@ export default function NewInquiryPage() {
             value={body}
             maxLength={BODY_MAX}
             rows={8}
+            aria-describedby="inquiry-body-hint"
             placeholder={`문의 내용을 ${BODY_MIN}자 이상 적어주세요.`}
             onChange={(e) => setBody(e.target.value)}
             className="resize-none rounded-2xl border border-gray-100 bg-white px-4 py-3 text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-primary-300"
           />
-          <p className="text-right text-xs text-gray-400">
-            {body.trim().length} / {BODY_MAX}
+          {/* 최소 글자 수는 placeholder에만 있으면 입력 시작과 동시에 사라진다. */}
+          <p
+            id="inquiry-body-hint"
+            className={cn(
+              "text-right text-xs",
+              bodyTooShort ? "text-error-500" : "text-gray-400",
+            )}
+          >
+            {bodyTooShort
+              ? `${BODY_MIN}자 이상 입력해 주세요 (${trimmedBody.length}/${BODY_MIN})`
+              : `${trimmedBody.length} / ${BODY_MAX}`}
           </p>
         </div>
 
-        <p className="pb-2 text-xs leading-[1.5] text-gray-400">
-          답변은 가입하신 이메일로 안내드리며, 앱 알림으로도 알려드려요.
-          주민등록번호·카드번호 등 민감한 개인정보는 적지 말아주세요.
-        </p>
+        <div className="flex flex-col gap-2 pb-2">
+          <div className="flex items-start gap-2.5">
+            <input
+              id="inquiry-privacy-consent"
+              type="checkbox"
+              checked={privacyConsent}
+              onChange={(e) => setPrivacyConsent(e.target.checked)}
+              className="mt-0.5 size-5 shrink-0 accent-primary-300"
+            />
+            <label
+              htmlFor="inquiry-privacy-consent"
+              className="text-sm leading-[1.5] text-gray-800"
+            >
+              개인정보 수집·이용에 동의합니다{" "}
+              <span className="text-error-500">(필수)</span>
+            </label>
+          </div>
+          <button
+            type="button"
+            onClick={() => setConsentSheetOpen(true)}
+            className="self-start pl-7.5 text-xs text-gray-500 underline"
+          >
+            수집 항목·목적·보유기간 자세히 보기
+          </button>
+        </div>
       </div>
 
       <div className="shrink-0 pt-3">
@@ -150,12 +202,23 @@ export default function NewInquiryPage() {
         <Button
           type="button"
           size="full"
-          disabled={!canSubmit}
+          disabled={submitting}
           onClick={() => void onSubmit()}
         >
           {submitting ? "보내는 중..." : "문의 보내기"}
         </Button>
       </div>
+
+      {consentSheetOpen ? (
+        <InquiryConsentSheet
+          onClose={() => setConsentSheetOpen(false)}
+          onAgree={() => {
+            setPrivacyConsent(true);
+            setConsentSheetOpen(false);
+            setError(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
