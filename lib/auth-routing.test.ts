@@ -6,7 +6,7 @@ void describe("auth routing", () => {
   void it("allows the onboarding intro without a session", () => {
     assert.equal(
       getOnboardingRedirectPath({
-        pathname: "/onboarding",
+        pathname: "/onboarding/intro",
         hasSession: false,
         onboardedAt: null,
       }),
@@ -21,7 +21,7 @@ void describe("auth routing", () => {
         hasSession: false,
         onboardedAt: null,
       }),
-      "/onboarding",
+      "/onboarding/intro",
     );
   });
 
@@ -42,7 +42,7 @@ void describe("auth routing", () => {
         hasSession: false,
         onboardedAt: null,
       }),
-      "/onboarding",
+      "/onboarding/intro",
     );
   });
 
@@ -52,7 +52,7 @@ void describe("auth routing", () => {
         hasSession: true,
         onboardedAt: null,
       }),
-      "/onboarding",
+      "/onboarding/intro",
     );
   });
 

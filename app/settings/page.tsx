@@ -50,7 +50,7 @@ export default function SettingsPage() {
     notifyMobile({ type: "LOGOUT" });
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
-    router.replace("/onboarding");
+    router.replace("/onboarding/intro");
   };
 
   return (
@@ -242,7 +242,7 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
       notifyMobile({ type: "LOGOUT" });
       const supabase = createSupabaseBrowserClient();
       await supabase.auth.signOut();
-      router.replace("/onboarding");
+      router.replace("/onboarding/intro");
     } catch (e) {
       const message =
         e instanceof ApiError

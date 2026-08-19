@@ -1,3 +1,6 @@
+// 온보딩 인트로의 정본 경로. `/onboarding`은 alias로만 남아 이 경로로 redirect된다.
+const ONBOARDING_INTRO_PATH = "/onboarding/intro";
+
 type AuthRoutingInput = {
   hasSession: boolean;
   onboardedAt: string | null;
@@ -16,12 +19,12 @@ export function getOnboardingRedirectPath({
     return "/";
   }
 
-  if (pathname === "/onboarding") {
+  if (pathname === ONBOARDING_INTRO_PATH) {
     return null;
   }
 
   if (!hasSession) {
-    return "/onboarding";
+    return ONBOARDING_INTRO_PATH;
   }
 
   return null;
@@ -32,11 +35,11 @@ export function getAppRedirectPath({
   onboardedAt,
 }: AuthRoutingInput): string | null {
   if (!hasSession) {
-    return "/onboarding";
+    return ONBOARDING_INTRO_PATH;
   }
 
   if (!onboardedAt) {
-    return "/onboarding";
+    return ONBOARDING_INTRO_PATH;
   }
 
   return null;
