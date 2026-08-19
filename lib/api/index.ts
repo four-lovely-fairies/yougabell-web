@@ -4,6 +4,7 @@ export * from "./me";
 export * from "./storage";
 export * from "./home";
 export * from "./notification";
+export * from "./inquiry";
 export * from "./chat";
 export * from "./roadmap";
 export * from "./weekly-report";

@@ -26,3 +26,24 @@ test("mission feedback values are not sent to Amplitude", () => {
 
   assert.deepEqual(event, { name: "Mission Feedback Submitted" });
 });
+
+test("inquiry submissions do not send title or body", () => {
+  const event = toAmplitudeEvent({
+    type: "inquiry_submit",
+    category: "service_error",
+  });
+
+  assert.deepEqual(event, {
+    name: "Inquiry Submitted",
+    properties: { category: "service_error" },
+  });
+});
+
+test("uncategorized inquiries fall back to a fixed label", () => {
+  const event = toAmplitudeEvent({ type: "inquiry_submit", category: null });
+
+  assert.deepEqual(event, {
+    name: "Inquiry Submitted",
+    properties: { category: "unspecified" },
+  });
+});

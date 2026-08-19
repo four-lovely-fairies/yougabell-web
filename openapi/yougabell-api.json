@@ -1773,6 +1773,319 @@
           "admin/stats"
         ]
       }
+    },
+    "/inquiries": {
+      "post": {
+        "description": "contactEmail 미지정 시 로그인 이메일을 사용한다. 미답변 문의가 5건 이상이면 409.",
+        "operationId": "InquiriesController_createInquiry",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInquiryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TOO_MANY_OPEN_INQUIRIES"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "문의 등록",
+        "tags": [
+          "inquiries"
+        ]
+      },
+      "get": {
+        "description": "최신순. 목록에는 본문·답변 전문을 싣지 않는다.",
+        "operationId": "InquiriesController_listInquiries",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-based",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "내 문의 목록",
+        "tags": [
+          "inquiries"
+        ]
+      }
+    },
+    "/inquiries/{id}": {
+      "get": {
+        "operationId": "InquiriesController_getInquiry",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "INQUIRY_NOT_FOUND (타인 문의 포함)"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "내 문의 상세",
+        "tags": [
+          "inquiries"
+        ]
+      }
+    },
+    "/admin/inquiries": {
+      "get": {
+        "description": "미답변 우선, 그 안에서 오래 기다린 순. status/category/q 필터.",
+        "operationId": "AdminInquiriesController_listInquiries",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "상태 필터. default all",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "received",
+                "in_progress",
+                "answered",
+                "all"
+              ]
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "service_error",
+                "account",
+                "content",
+                "suggestion",
+                "etc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "제목·본문 LIKE 검색",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-based",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminInquiryListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "문의 목록 (운영자)",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/inquiries/{id}": {
+      "get": {
+        "description": "답변 판단에 필요한 작성자 컨텍스트를 함께 반환한다.",
+        "operationId": "AdminInquiriesController_getInquiry",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminInquiryDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "INQUIRY_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "문의 상세 (운영자)",
+        "tags": [
+          "admin"
+        ]
+      },
+      "patch": {
+        "description": "answerBody가 오면 상태를 answered로 전환하고 첫 답변일 때만 사용자 알림을 만든다.",
+        "operationId": "AdminInquiriesController_updateInquiry",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInquiryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminInquiryDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ANSWER_BODY_REQUIRED"
+          },
+          "404": {
+            "description": "INQUIRY_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "상태 변경 / 답변 저장 (운영자)",
+        "tags": [
+          "admin"
+        ]
+      }
     }
   },
   "info": {
@@ -2865,7 +3178,8 @@
               "roadmap_update",
               "mental_check_reminder",
               "chat_follow_up",
-              "system_notice"
+              "system_notice",
+              "inquiry_answered"
             ]
           },
           "title": {
@@ -2894,7 +3208,8 @@
               "weekly_report",
               "child",
               "chat_session",
-              "url"
+              "url",
+              "inquiry"
             ],
             "nullable": true
           },
@@ -4521,6 +4836,377 @@
         "required": [
           "content"
         ]
+      },
+      "CreateInquiryDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "service_error",
+              "account",
+              "content",
+              "suggestion",
+              "etc"
+            ],
+            "description": "문의 유형. 선택 입력 — 미분류 제출을 허용한다."
+          },
+          "title": {
+            "type": "string",
+            "example": "미션 타이머가 멈춰요",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "body": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          },
+          "contactEmail": {
+            "type": "string",
+            "example": "parent@example.com",
+            "maxLength": 254,
+            "description": "답변 받을 이메일. 미지정 시 로그인 이메일을 사용한다."
+          }
+        },
+        "required": [
+          "title",
+          "body"
+        ]
+      },
+      "InquiryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "service_error",
+              "account",
+              "content",
+              "suggestion",
+              "etc"
+            ],
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "received",
+              "in_progress",
+              "answered"
+            ]
+          },
+          "answeredAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "body": {
+            "type": "string"
+          },
+          "contactEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "answerBody": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "title",
+          "status",
+          "answeredAt",
+          "createdAt",
+          "body",
+          "contactEmail",
+          "answerBody"
+        ]
+      },
+      "InquiryListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "service_error",
+              "account",
+              "content",
+              "suggestion",
+              "etc"
+            ],
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "received",
+              "in_progress",
+              "answered"
+            ]
+          },
+          "answeredAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "title",
+          "status",
+          "answeredAt",
+          "createdAt"
+        ]
+      },
+      "InquiryListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InquiryListItemDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "AdminInquiryListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userName": {
+            "type": "string",
+            "description": "작성자 이름"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "service_error",
+              "account",
+              "content",
+              "suggestion",
+              "etc"
+            ],
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "received",
+              "in_progress",
+              "answered"
+            ]
+          },
+          "answeredAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "userName",
+          "category",
+          "title",
+          "status",
+          "answeredAt",
+          "createdAt"
+        ]
+      },
+      "AdminInquiryListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminInquiryListItemDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "openCount": {
+            "type": "number",
+            "description": "미답변(received + in_progress) 총 건수"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "openCount",
+          "page",
+          "limit"
+        ]
+      },
+      "AdminInquiryDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "service_error",
+              "account",
+              "content",
+              "suggestion",
+              "etc"
+            ],
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "received",
+              "in_progress",
+              "answered"
+            ]
+          },
+          "answeredAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "body": {
+            "type": "string"
+          },
+          "contactEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "answerBody": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "userOnboardedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "작성자 온보딩 완료 시각. null이면 미완료"
+          },
+          "userCreatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "작성자 가입 시각"
+          },
+          "userDeletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "작성자 탈퇴 시각. null이면 활성 계정"
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "title",
+          "status",
+          "answeredAt",
+          "createdAt",
+          "body",
+          "contactEmail",
+          "answerBody",
+          "userId",
+          "userName",
+          "userOnboardedAt",
+          "userCreatedAt",
+          "userDeletedAt"
+        ]
+      },
+      "UpdateInquiryDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "received",
+              "in_progress",
+              "answered"
+            ]
+          },
+          "answerBody": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          }
+        }
       }
     }
   }

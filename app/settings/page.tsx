@@ -17,6 +17,7 @@ import {
   FileText,
   Flag,
   LogOut,
+  MessageCircleQuestion,
   ScrollText,
   Settings as SettingsIcon,
   Smile,
@@ -150,6 +151,13 @@ export default function SettingsPage() {
             }
             icon={ScrollText}
             title="서비스 약관"
+            divider
+          />
+          <Row
+            href="/settings/inquiries"
+            icon={MessageCircleQuestion}
+            title="문의하기"
+            subtitle="궁금한 점이나 불편한 점을 알려주세요"
           />
         </Section>
       </div>
