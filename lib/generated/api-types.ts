@@ -689,6 +689,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/inquiries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 내 문의 목록
+         * @description 최신순. 목록에는 본문·답변 전문을 싣지 않는다.
+         */
+        get: operations["InquiriesController_listInquiries"];
+        put?: never;
+        /**
+         * 문의 등록
+         * @description contactEmail 미지정 시 로그인 이메일을 사용한다. 미답변 문의가 5건 이상이면 409.
+         */
+        post: operations["InquiriesController_createInquiry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inquiries/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 내 문의 상세 */
+        get: operations["InquiriesController_getInquiry"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/inquiries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 문의 목록 (운영자)
+         * @description 미답변 우선, 그 안에서 오래 기다린 순. status/category/q 필터.
+         */
+        get: operations["AdminInquiriesController_listInquiries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/inquiries/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 문의 상세 (운영자)
+         * @description 답변 판단에 필요한 작성자 컨텍스트를 함께 반환한다.
+         */
+        get: operations["AdminInquiriesController_getInquiry"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * 상태 변경 / 답변 저장 (운영자)
+         * @description answerBody가 오면 상태를 answered로 전환하고 첫 답변일 때만 사용자 알림을 만든다.
+         */
+        patch: operations["AdminInquiriesController_updateInquiry"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1051,13 +1136,13 @@ export interface components {
             /** Format: uuid */
             id: string;
             /** @enum {string} */
-            type: "mission_reminder" | "mission_feedback" | "weekly_report_ready" | "roadmap_update" | "mental_check_reminder" | "chat_follow_up" | "system_notice";
+            type: "mission_reminder" | "mission_feedback" | "weekly_report_ready" | "roadmap_update" | "mental_check_reminder" | "chat_follow_up" | "system_notice" | "inquiry_answered";
             title: string;
             body: string;
             /** @enum {string} */
             actionType: "none" | "open_home" | "open_mission" | "open_roadmap" | "open_chat" | "open_report" | "url";
             /** @enum {string|null} */
-            targetType: "mission" | "mission_execution" | "weekly_report" | "child" | "chat_session" | "url" | null;
+            targetType: "mission" | "mission_execution" | "weekly_report" | "child" | "chat_session" | "url" | "inquiry" | null;
             /** Format: uuid */
             targetId: string | null;
             targetUrl: string | null;
@@ -1564,6 +1649,120 @@ export interface components {
         SendChatMessageRequestDto: {
             /** @example 아이가 잠들기 전 자꾸 한 번만 더 라고 해요 */
             content: string;
+        };
+        CreateInquiryDto: {
+            /**
+             * @description 문의 유형. 선택 입력 — 미분류 제출을 허용한다.
+             * @enum {string}
+             */
+            category?: "service_error" | "account" | "content" | "suggestion" | "etc";
+            /** @example 미션 타이머가 멈춰요 */
+            title: string;
+            body: string;
+            /**
+             * @description 답변 받을 이메일. 미지정 시 로그인 이메일을 사용한다.
+             * @example parent@example.com
+             */
+            contactEmail?: string;
+        };
+        InquiryResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string|null} */
+            category: "service_error" | "account" | "content" | "suggestion" | "etc" | null;
+            title: string;
+            /** @enum {string} */
+            status: "received" | "in_progress" | "answered";
+            /** Format: date-time */
+            answeredAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            body: string;
+            contactEmail: string | null;
+            answerBody: string | null;
+        };
+        InquiryListItemDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string|null} */
+            category: "service_error" | "account" | "content" | "suggestion" | "etc" | null;
+            title: string;
+            /** @enum {string} */
+            status: "received" | "in_progress" | "answered";
+            /** Format: date-time */
+            answeredAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        InquiryListResponseDto: {
+            items: components["schemas"]["InquiryListItemDto"][];
+            total: number;
+            page: number;
+            limit: number;
+        };
+        AdminInquiryListItemDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            userId: string;
+            /** @description 작성자 이름 */
+            userName: string;
+            /** @enum {string|null} */
+            category: "service_error" | "account" | "content" | "suggestion" | "etc" | null;
+            title: string;
+            /** @enum {string} */
+            status: "received" | "in_progress" | "answered";
+            /** Format: date-time */
+            answeredAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AdminInquiryListResponseDto: {
+            items: components["schemas"]["AdminInquiryListItemDto"][];
+            total: number;
+            /** @description 미답변(received + in_progress) 총 건수 */
+            openCount: number;
+            page: number;
+            limit: number;
+        };
+        AdminInquiryDetailDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string|null} */
+            category: "service_error" | "account" | "content" | "suggestion" | "etc" | null;
+            title: string;
+            /** @enum {string} */
+            status: "received" | "in_progress" | "answered";
+            /** Format: date-time */
+            answeredAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            body: string;
+            contactEmail: string | null;
+            answerBody: string | null;
+            /** Format: uuid */
+            userId: string;
+            userName: string;
+            /**
+             * Format: date-time
+             * @description 작성자 온보딩 완료 시각. null이면 미완료
+             */
+            userOnboardedAt: string | null;
+            /**
+             * Format: date-time
+             * @description 작성자 가입 시각
+             */
+            userCreatedAt: string;
+            /**
+             * Format: date-time
+             * @description 작성자 탈퇴 시각. null이면 활성 계정
+             */
+            userDeletedAt: string | null;
+        };
+        UpdateInquiryDto: {
+            /** @enum {string} */
+            status?: "received" | "in_progress" | "answered";
+            answerBody?: string;
         };
     };
     responses: never;
@@ -2633,6 +2832,182 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    InquiriesController_listInquiries: {
+        parameters: {
+            query?: {
+                /** @description 1-based */
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InquiryListResponseDto"];
+                };
+            };
+        };
+    };
+    InquiriesController_createInquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInquiryDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InquiryResponseDto"];
+                };
+            };
+            /** @description TOO_MANY_OPEN_INQUIRIES */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    InquiriesController_getInquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InquiryResponseDto"];
+                };
+            };
+            /** @description INQUIRY_NOT_FOUND (타인 문의 포함) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminInquiriesController_listInquiries: {
+        parameters: {
+            query?: {
+                /** @description 상태 필터. default all */
+                status?: "received" | "in_progress" | "answered" | "all";
+                category?: "service_error" | "account" | "content" | "suggestion" | "etc";
+                /** @description 제목·본문 LIKE 검색 */
+                q?: string;
+                /** @description 1-based */
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminInquiryListResponseDto"];
+                };
+            };
+        };
+    };
+    AdminInquiriesController_getInquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminInquiryDetailDto"];
+                };
+            };
+            /** @description INQUIRY_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminInquiriesController_updateInquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateInquiryDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminInquiryDetailDto"];
+                };
+            };
+            /** @description ANSWER_BODY_REQUIRED */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description INQUIRY_NOT_FOUND */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
