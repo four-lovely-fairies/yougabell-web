@@ -59,6 +59,18 @@ function isPlayNotificationDisabled(
   );
 }
 
+function getDebugNotificationPermission(): "denied" | null {
+  if (process.env.NODE_ENV !== "development" || typeof window === "undefined") {
+    return null;
+  }
+
+  return new URLSearchParams(window.location.search).get(
+    "notificationPromptDebug",
+  ) === "denied"
+    ? "denied"
+    : null;
+}
+
 export function MissionEffectScreen({
   executionId,
   mode,
@@ -132,7 +144,13 @@ export function MissionEffectScreen({
   }, [executionId, mode, router]);
 
   useEffect(() => {
-    if (loading || !state || promptCheckStarted.current || !isNativeWebView()) {
+    const debugPermission = getDebugNotificationPermission();
+    if (
+      loading ||
+      !state ||
+      promptCheckStarted.current ||
+      (!isNativeWebView() && !debugPermission)
+    ) {
       return;
     }
 
@@ -140,7 +158,8 @@ export function MissionEffectScreen({
     let cancelled = false;
     const timeoutId = window.setTimeout(() => {
       void (async () => {
-        const status = await requestNativePushPermissionStatus();
+        const status =
+          debugPermission ?? (await requestNativePushPermissionStatus());
         if (cancelled || !status) return;
 
         // OS 권한이 허용된 경우에도 앱 내부의 놀이 알림이 꺼져 있으면
