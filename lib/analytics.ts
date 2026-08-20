@@ -84,6 +84,20 @@ export type WeeklyReportEvent =
   | { type: "weekly_report_view"; hasReport: boolean }
   | { type: "weekly_report_mission_start" };
 
+/**
+ * 하단 네비게이션 유입 (2026-08-20 추가).
+ *
+ * 탭별로 이벤트를 나누지 않고 `tab` 속성으로 구분한다 — 탭이 늘거나 이름이 바뀌어도
+ * 이벤트 목록이 흔들리지 않고, Amplitude에서 탭 간 비교를 한 차트로 볼 수 있다.
+ *
+ * 이미 열려 있는 탭을 다시 누른 경우는 보내지 않는다. "어느 경로로 들어왔는가"를
+ * 보려는 지표라 화면 전환이 없는 탭은 유입이 아니다.
+ */
+export type NavigationEvent = {
+  type: "bottom_nav_tap";
+  tab: "home" | "play" | "roadmap" | "chat" | "report";
+};
+
 export type AnalyticsEvent =
   | OnboardingEvent
   | SettingsEvent
@@ -92,7 +106,8 @@ export type AnalyticsEvent =
   | MissionEvent
   | RoadmapEvent
   | WeeklyReportEvent
-  | InquiryEvent;
+  | InquiryEvent
+  | NavigationEvent;
 
 type AmplitudeEvent = {
   name: string;
@@ -255,6 +270,8 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
       };
     case "weekly_report_mission_start":
       return { name: "Weekly Report Mission Started" };
+    case "bottom_nav_tap":
+      return { name: "Bottom Nav Tapped", properties: { tab: event.tab } };
   }
 }
 

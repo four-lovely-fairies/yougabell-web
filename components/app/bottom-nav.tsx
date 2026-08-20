@@ -2,6 +2,8 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import type { CSSProperties } from "react";
+import { track } from "@/lib/analytics";
+import type { NavigationEvent } from "@/lib/analytics";
 
 const NAV_ICON_PATHS = {
   home: "/icons/figma/nav/home.svg",
@@ -14,6 +16,8 @@ const NAV_ICON_PATHS = {
 type BottomNavItem = {
   label: string;
   href: string;
+  /** 분석용 탭 식별자. 라벨은 바뀔 수 있으므로 지표는 이 값으로 고정한다. */
+  tab: NavigationEvent["tab"];
   iconSrc: string;
   iconClassName: string;
   matches: (pathname: string) => boolean;
@@ -24,6 +28,7 @@ const items: BottomNavItem[] = [
   {
     label: "홈",
     href: "/",
+    tab: "home",
     iconSrc: NAV_ICON_PATHS.home,
     iconClassName: "size-6",
     matches: (pathname: string) => pathname === "/",
@@ -31,6 +36,7 @@ const items: BottomNavItem[] = [
   {
     label: "놀이",
     href: "/mission",
+    tab: "play",
     iconSrc: NAV_ICON_PATHS.play,
     iconClassName: "size-6",
     matches: (pathname: string) => pathname.startsWith("/mission"),
@@ -38,6 +44,7 @@ const items: BottomNavItem[] = [
   {
     label: "로드맵",
     href: "/roadmap",
+    tab: "roadmap",
     iconSrc: NAV_ICON_PATHS.roadmap,
     iconClassName: "size-6",
     matches: (pathname: string) => pathname.startsWith("/roadmap"),
@@ -45,6 +52,7 @@ const items: BottomNavItem[] = [
   {
     label: "AI 상담",
     href: "/chat",
+    tab: "chat",
     iconSrc: NAV_ICON_PATHS.ai,
     iconClassName: "size-5",
     matches: (pathname: string) => pathname.startsWith("/chat"),
@@ -52,6 +60,7 @@ const items: BottomNavItem[] = [
   {
     label: "리포트",
     href: "/weekly-report",
+    tab: "report",
     iconSrc: NAV_ICON_PATHS.report,
     iconClassName: "size-5",
     matches: (pathname: string) => pathname.startsWith("/weekly-report"),
@@ -86,9 +95,10 @@ export const BottomNav = () => {
               key={item.label}
               type="button"
               onClick={() => {
-                if (item.href !== pathname) {
-                  router.push(item.href);
-                }
+                // 이미 열려 있는 탭이면 화면 전환이 없으므로 유입으로 세지 않는다.
+                if (item.href === pathname) return;
+                track({ type: "bottom_nav_tap", tab: item.tab });
+                router.push(item.href);
               }}
               aria-current={active ? "page" : undefined}
               className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-full py-1 text-xs leading-[1.4] ${
