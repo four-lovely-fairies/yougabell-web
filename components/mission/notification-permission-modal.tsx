@@ -71,7 +71,7 @@ export function NotificationPermissionModal({
           type="button"
           onClick={onConfirm}
           disabled={busy}
-          className="mt-5 flex min-h-12 w-full items-center justify-center rounded-md bg-primary-300 px-4 py-3 text-sm font-normal leading-5 text-white disabled:opacity-60"
+          className="mt-5 flex min-h-12 w-full items-center justify-center rounded-md bg-primary-300 px-4 py-3 text-sm font-medium leading-5 text-white disabled:opacity-60"
         >
           {busy ? "확인 중..." : isSettings ? "설정하러 가기" : "알려주세요"}
         </button>
