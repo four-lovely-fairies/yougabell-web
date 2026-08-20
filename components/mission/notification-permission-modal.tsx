@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { Mascot } from "@/components/characters/mascot";
 import { XIcon } from "@/components/icons";
 
 type Props = {
@@ -38,9 +37,7 @@ export function NotificationPermissionModal({
         </button>
 
         <div className="flex flex-col items-center">
-          {isSettings ? (
-            <Mascot pose="resting" className="mb-4 w-18" />
-          ) : (
+          {!isSettings ? (
             <Image
               src="/images/figma/mission/notification-lead.png"
               alt=""
@@ -50,7 +47,7 @@ export function NotificationPermissionModal({
               unoptimized
               className="mb-4 size-30 object-contain"
             />
-          )}
+          ) : null}
           <h2
             id="notification-permission-title"
             className="text-center text-lg font-bold leading-[1.4] text-gray-800"
