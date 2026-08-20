@@ -9,6 +9,10 @@ import type {
 
 export const api = {
   getMe: () => request<MeResponse>("/me"),
+  claimNotificationPromptExposure: () =>
+    request<{ shouldShow: boolean }>("/me/notification-prompt-exposure", {
+      method: "POST",
+    }),
   completeOnboarding: (payload: CompleteOnboardingPayload) =>
     request<MeResponse>("/onboarding/complete", {
       method: "POST",

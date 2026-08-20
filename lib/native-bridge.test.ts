@@ -89,6 +89,19 @@ void describe("native bridge parser", () => {
     );
   });
 
+  void it("accepts an undetermined native push permission status", () => {
+    assert.deepEqual(
+      parseNativeMessage({
+        type: "NATIVE_PUSH_PERMISSION_STATUS",
+        payload: { permission: "undetermined" },
+      }),
+      {
+        type: "NATIVE_PUSH_PERMISSION_STATUS",
+        payload: { permission: "undetermined" },
+      },
+    );
+  });
+
   void it("requests native push permission and resolves the result", async () => {
     const originalWindow = globalThis.window;
     let postedMessage: string | null = null;
