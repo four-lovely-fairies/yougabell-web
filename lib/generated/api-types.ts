@@ -80,6 +80,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/notification-prompt-exposure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 놀이 완료 알림 권한 안내를 계정당 최초 1회로 예약
+         * @description 모달을 실제로 띄우기 직전에 호출한다. 동시 요청에도 최초 한 요청만 shouldShow=true를 받는다.
+         */
+        post: operations["UsersController_claimNotificationPromptExposure"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/parent": {
         parameters: {
             query?: never;
@@ -1884,6 +1904,23 @@ export interface operations {
         };
         responses: {
             204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_claimNotificationPromptExposure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

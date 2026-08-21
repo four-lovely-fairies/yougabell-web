@@ -1,25 +1,34 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Mascot } from '@/components/characters/mascot';
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { Mascot } from "@/components/characters/mascot";
+import { NotificationPermissionModal } from "@/components/mission/notification-permission-modal";
+import { NotificationScheduleScreen } from "@/components/mission/notification-schedule-screen";
 import {
   ApiError,
+  api,
   getStoredSelectedChildId,
   loadCurrentMission,
   loadMissionExecutionEffect,
   type MissionEffectLoadState,
   type MissionLoadState,
-} from '@/lib/api';
+} from "@/lib/api";
+import {
+  isNativeWebView,
+  openNativeNotificationSettings,
+  requestNativePushPermission,
+  requestNativePushPermissionStatus,
+} from "@/lib/native-bridge";
 import {
   HeaderSpacer,
   MissionContentSkeleton,
   MissionErrorState,
   MissionHeader,
-} from './shared';
+} from "./shared";
 
 function getEffectLabel(effect: string, fallback: string) {
-  const normalized = effect.replace(/\s+/g, ' ').trim();
+  const normalized = effect.replace(/\s+/g, " ").trim();
   const quoted = normalized.match(/[“"]([^”"]+)[”"]/);
 
   if (quoted?.[1]) {
@@ -41,12 +50,33 @@ function getEffectLabel(effect: string, fallback: string) {
   return fallback;
 }
 
+function isPlayNotificationDisabled(
+  preferences: Array<{ type: string; enabled: boolean }>,
+) {
+  return !preferences.some(
+    (preference) =>
+      preference.type === "play_10min" && preference.enabled === true,
+  );
+}
+
+function getDebugNotificationPermission(): "denied" | null {
+  if (process.env.NODE_ENV !== "development" || typeof window === "undefined") {
+    return null;
+  }
+
+  return new URLSearchParams(window.location.search).get(
+    "notificationPromptDebug",
+  ) === "denied"
+    ? "denied"
+    : null;
+}
+
 export function MissionEffectScreen({
   executionId,
   mode,
 }: {
   executionId: string | null;
-  mode: 'api' | 'demo' | null;
+  mode: "api" | "demo" | null;
 }) {
   const router = useRouter();
   const [state, setState] = useState<MissionEffectLoadState | null>(null);
@@ -55,13 +85,22 @@ export function MissionEffectScreen({
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [prompt, setPrompt] = useState<
+    "request" | "settings" | "schedule" | null
+  >(null);
+  const [promptBusy, setPromptBusy] = useState(false);
+  const [permissionStatus, setPermissionStatus] = useState<
+    "granted" | "denied" | "undetermined" | null
+  >(null);
+  const [notificationToast, setNotificationToast] = useState(false);
+  const promptCheckStarted = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
 
     const run = async () => {
       if (!executionId) {
-        router.replace('/mission');
+        router.replace("/mission");
         return;
       }
 
@@ -87,8 +126,8 @@ export function MissionEffectScreen({
 
         setError(
           loadError instanceof ApiError
-            ? '미션 효과 정보를 불러오지 못했어요.'
-            : 'API 서버에 연결할 수 없습니다.',
+            ? "미션 효과 정보를 불러오지 못했어요."
+            : "API 서버에 연결할 수 없습니다.",
         );
       } finally {
         if (!cancelled) {
@@ -104,6 +143,116 @@ export function MissionEffectScreen({
     };
   }, [executionId, mode, router]);
 
+  useEffect(() => {
+    const debugPermission = getDebugNotificationPermission();
+    if (
+      loading ||
+      !state ||
+      promptCheckStarted.current ||
+      (!isNativeWebView() && !debugPermission)
+    ) {
+      return;
+    }
+
+    promptCheckStarted.current = true;
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      void (async () => {
+        const status =
+          debugPermission ?? (await requestNativePushPermissionStatus());
+        if (cancelled || !status) return;
+
+        // OS 권한이 허용된 경우에도 앱 내부의 놀이 알림이 꺼져 있으면
+        // 시간대 설정으로 유도한다. 이때는 OS 권한을 다시 요청하지 않는다.
+        if (status === "granted") {
+          try {
+            const me = await api.getMe();
+            if (
+              cancelled ||
+              !isPlayNotificationDisabled(me.notificationPreferences)
+            ) {
+              return;
+            }
+          } catch {
+            return;
+          }
+        }
+
+        try {
+          // 실제 모달을 열기 직전에 계정 기준 최초 노출을 원자적으로 예약한다.
+          const exposure = await api.claimNotificationPromptExposure();
+          if (!cancelled && exposure.shouldShow) {
+            setPermissionStatus(status);
+            setPrompt("request");
+          }
+        } catch {
+          // 노출 이력을 확실히 기록할 수 없으면 반복 노출을 피하기 위해 모달을 띄우지 않는다.
+        }
+      })();
+    }, 500);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [loading, state]);
+
+  useEffect(() => {
+    if (prompt !== "settings") return;
+
+    const recheckPermission = () => {
+      void requestNativePushPermissionStatus().then((status) => {
+        if (status === "granted") {
+          setPermissionStatus(status);
+          setPrompt("schedule");
+        }
+      });
+    };
+
+    window.addEventListener("focus", recheckPermission);
+    document.addEventListener("visibilitychange", recheckPermission);
+    return () => {
+      window.removeEventListener("focus", recheckPermission);
+      document.removeEventListener("visibilitychange", recheckPermission);
+    };
+  }, [prompt]);
+
+  const handlePromptConfirm = async () => {
+    if (prompt === "settings") {
+      openNativeNotificationSettings();
+      return;
+    }
+
+    if (permissionStatus === "denied") {
+      setPrompt("settings");
+      return;
+    }
+
+    if (permissionStatus === "granted") {
+      setPrompt("schedule");
+      return;
+    }
+
+    setPromptBusy(true);
+    const result = await requestNativePushPermission();
+    setPromptBusy(false);
+
+    if (result === "granted") {
+      setPermissionStatus(result);
+      setPrompt("schedule");
+      return;
+    }
+
+    setPermissionStatus("denied");
+    setPrompt("settings");
+  };
+
+  const handleScheduleComplete = () => {
+    setPrompt(null);
+    setNotificationToast(true);
+    window.setTimeout(() => setNotificationToast(false), 3000);
+  };
+
   if (loading) {
     return <MissionContentSkeleton />;
   }
@@ -111,17 +260,26 @@ export function MissionEffectScreen({
   if (!state || !executionId || error) {
     return (
       <MissionErrorState
-        message={error ?? '미션 효과 정보를 불러오지 못했어요.'}
-        onBack={() => router.push('/')}
+        message={error ?? "미션 효과 정보를 불러오지 못했어요."}
+        onBack={() => router.push("/")}
       />
     );
   }
 
   const childLabel = missionState
     ? `${missionState.data.selectedChild.name} (${missionState.data.selectedChild.ageLabel})`
-    : '아이';
+    : "아이";
   const mission = state.data.mission;
   const effectLabel = getEffectLabel(mission.effect, mission.title);
+
+  if (prompt === "schedule") {
+    return (
+      <NotificationScheduleScreen
+        onClose={() => setPrompt(null)}
+        onComplete={handleScheduleComplete}
+      />
+    );
+  }
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
@@ -129,11 +287,11 @@ export function MissionEffectScreen({
         className="pointer-events-none absolute left-1/2 top-[252px] h-63.25 w-141 -translate-x-1/2 rounded-full opacity-70 blur-3xl"
         style={{
           background:
-            'radial-gradient(50% 50% at 50% 50%, rgba(149,114,255,0.12) 0%, rgba(149,114,255,0.04) 55%, rgba(149,114,255,0) 100%)',
+            "radial-gradient(50% 50% at 50% 50%, rgba(149,114,255,0.12) 0%, rgba(149,114,255,0.04) 55%, rgba(149,114,255,0) 100%)",
         }}
         aria-hidden
       />
-      <MissionHeader childLabel={childLabel} onBack={() => router.push('/')} />
+      <MissionHeader childLabel={childLabel} onBack={() => router.push("/")} />
       <HeaderSpacer />
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-6 overflow-y-auto">
@@ -159,6 +317,11 @@ export function MissionEffectScreen({
       </div>
 
       <div className="shrink-0 pb-2 pt-5">
+        {notificationToast ? (
+          <p className="mb-3 rounded-xl bg-gray-800 px-4 py-3 text-center text-xs font-medium text-white">
+            알림 설정이 완료되었어요! 🎉
+          </p>
+        ) : null}
         {state.message ? (
           <p className="mb-3 text-center text-xs leading-4 text-gray-400">
             {state.message}
@@ -176,6 +339,15 @@ export function MissionEffectScreen({
           다음
         </button>
       </div>
+
+      {prompt === "request" || prompt === "settings" ? (
+        <NotificationPermissionModal
+          variant={prompt}
+          busy={promptBusy}
+          onClose={() => setPrompt(null)}
+          onConfirm={() => void handlePromptConfirm()}
+        />
+      ) : null}
     </div>
   );
 }

@@ -30,7 +30,7 @@ export type NativeToWebMessage =
     }
   | {
       type: "NATIVE_PUSH_PERMISSION_STATUS";
-      payload: { permission: "granted" | "denied" };
+      payload: { permission: "granted" | "denied" | "undetermined" };
     };
 
 declare global {
@@ -93,12 +93,22 @@ export function parseNativeMessage(
       }
       return null;
     case "NATIVE_PUSH_PERMISSION_RESULT":
-    case "NATIVE_PUSH_PERMISSION_STATUS":
       if (
         candidate.payload &&
         typeof candidate.payload === "object" &&
         (candidate.payload.permission === "granted" ||
           candidate.payload.permission === "denied")
+      ) {
+        return candidate as NativeToWebMessage;
+      }
+      return null;
+    case "NATIVE_PUSH_PERMISSION_STATUS":
+      if (
+        candidate.payload &&
+        typeof candidate.payload === "object" &&
+        (candidate.payload.permission === "granted" ||
+          candidate.payload.permission === "denied" ||
+          candidate.payload.permission === "undetermined")
       ) {
         return candidate as NativeToWebMessage;
       }
@@ -132,7 +142,7 @@ export function subscribeToNativeMessages(
 }
 
 export async function requestNativePushPermissionStatus(): Promise<
-  "granted" | "denied" | null
+  "granted" | "denied" | "undetermined" | null
 > {
   if (!isNativeWebView()) {
     return null;
