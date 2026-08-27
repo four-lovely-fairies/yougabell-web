@@ -1,4 +1,4 @@
-import { ChevronRight, Sparkles } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { Mascot } from "@/components/characters/mascot";
 import { Card } from "@/components/ui/card";
@@ -15,9 +15,15 @@ export const ReportProgressBanner = ({
 }) => (
   <div className="flex min-h-12 items-center justify-between gap-3 rounded-full bg-primary-50 px-4">
     <div className="flex min-w-0 items-center gap-2">
-      <Sparkles className="size-5 shrink-0 fill-primary-400 text-primary-400" />
+      <Image
+        src="/images/figma/home/star-shine.png"
+        alt=""
+        width={15}
+        height={13}
+        className="shrink-0"
+      />
       <p className="truncate text-sm font-medium text-gray-800">
-        주간리포트 생성까지 {daysRemaining}일 남았어요!
+        주간 리포트 생성까지 {daysRemaining}일 남았어요!
       </p>
     </div>
     <span className="shrink-0 rounded-full bg-white px-3 py-2 text-xs font-semibold text-primary-300">
