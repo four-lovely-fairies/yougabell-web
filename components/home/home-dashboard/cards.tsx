@@ -155,7 +155,6 @@ export const AiConsultationCard = ({ onClick }: { onClick: () => void }) => (
         alt=""
         width={14}
         height={15.48}
-        className="w-auto shrink-0"
       />
       궁금한게 있으면 Ai 에게 물어보세요
     </span>
