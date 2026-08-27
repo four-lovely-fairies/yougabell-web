@@ -14,6 +14,12 @@ export type WeeklyReportViewData = {
   emptyState: WeeklyReportEmptyState | null;
 };
 
+export function isFirstPlayEmptyState(
+  emptyState: WeeklyReportEmptyState | null,
+): boolean {
+  return emptyState?.reason === "no_mission_yet";
+}
+
 export type DurationSegment = {
   value: string;
   unit: string;
