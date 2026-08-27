@@ -6,26 +6,31 @@ import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
 import { track } from "@/lib/analytics";
 import {
   ApiError,
+  api,
   getStoredSelectedChildId,
   loadHomeDashboard,
   markAllNotificationsRead,
   markNotificationRead,
-  resetTodayMission,
   setStoredSelectedChildId,
-  submitHomeMoodCheck,
   type HomeLoadState,
 } from "@/lib/api";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
-import { GrowthStageCard, ReportSummaryCard, TodayMissionCard } from "./cards";
+import { NotificationScheduleScreen } from "@/components/mission/notification-schedule-screen";
+import { daysUntilWeeklyReport } from "@/lib/report-progress";
+import {
+  AiConsultationCard,
+  HomeShortcutCards,
+  ReportProgressBanner,
+  TodayMissionCard,
+} from "./cards";
 import {
   ChildSwitcherDropdown,
-  MoodCheckModal,
+  NotificationConfiguredModal,
   NotificationModal,
-  RestartMissionModal,
 } from "./modals";
 import { HomeError, HomeSkeleton } from "./skeleton";
 import { TopAppBar } from "./top-app-bar";
-import type { Modal, MoodLevel } from "./types";
+import type { Modal } from "./types";
 import { WeeklyCalendar } from "./weekly-calendar";
 
 export const HomeDashboard = () => {
@@ -34,13 +39,9 @@ export const HomeDashboard = () => {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [modal, setModal] = useState<Modal>(null);
   const [loading, setLoading] = useState(true);
-  const [restarting, setRestarting] = useState(false);
-  const [selectedMoodLevel, setSelectedMoodLevel] = useState<MoodLevel | null>(
-    null,
-  );
-  const [moodSubmitting, setMoodSubmitting] = useState(false);
-  const [moodError, setMoodError] = useState<string | null>(null);
   const [notificationSubmitting, setNotificationSubmitting] = useState(false);
+  const [checkingNotification, setCheckingNotification] = useState(false);
+  const [showNotificationNudge, setShowNotificationNudge] = useState(false);
 
   const refresh = useCallback(
     async (childId?: string | null, showLoading = true) => {
@@ -75,6 +76,12 @@ export const HomeDashboard = () => {
         if (!active) return;
         setState(next);
         setSelectedChildId(next.data.selectedChild.id);
+        try {
+          const exposure = await api.claimHomeNotificationNudgeExposure();
+          if (active) setShowNotificationNudge(exposure.shouldShow);
+        } catch {
+          // 노출 예약에 실패하면 재방문 계정에 잘못 보이는 것보다 숨김을 우선한다.
+        }
       } catch {
         // 초기 로드 실패 — 렌더에서 에러 UI 노출
       } finally {
@@ -257,73 +264,35 @@ export const HomeDashboard = () => {
     }
   };
 
-  const openMoodModal = () => {
-    setSelectedMoodLevel(null);
-    setMoodError(null);
-    setModal("mood");
-  };
-
-  const closeMoodModal = () => {
-    if (moodSubmitting) return;
-    setModal(null);
-    setSelectedMoodLevel(null);
-    setMoodError(null);
-  };
-
-  const handleRestartMission = async () => {
-    if (restarting) return;
-    setRestarting(true);
-    try {
-      if (selectedChildId) {
-        await resetTodayMission({ childId: selectedChildId });
-      }
-      // 성공 즉시 모달을 닫는다. router.push 전환 동안 App Router는 현재 페이지를
-      // 계속 표시하므로, 모달을 안 닫으면 전환이 끝날 때까지 "처리 중"이 남아
-      // 멈춘 것처럼 보인다.
-      setModal(null);
-      track({ type: "home_mission_restart" });
-      router.push("/mission");
-    } catch {
-      // 리셋 실패 시 모달을 닫고 현재 상태 유지 — 사용자가 다시 시도할 수 있다.
-      setModal(null);
-    } finally {
-      setRestarting(false);
-    }
-  };
-
-  const submitMood = async () => {
-    if (!selectedMoodLevel || moodSubmitting) {
-      return;
-    }
-
-    setMoodSubmitting(true);
-    setMoodError(null);
-
-    try {
-      await submitHomeMoodCheck(selectedMoodLevel);
-      await refresh(selectedChildId, false);
-      setModal(null);
-      setSelectedMoodLevel(null);
-      track({ type: "home_mood_submit" });
-    } catch {
-      setMoodError(
-        "오늘의 기분을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.",
-      );
-    } finally {
-      setMoodSubmitting(false);
-    }
-  };
-
   const startMissionFromHome = () => {
     track({ type: "home_mission_start_click" });
     router.push("/mission");
+  };
+
+  const openNotificationNudge = async () => {
+    if (checkingNotification) return;
+    setCheckingNotification(true);
+    try {
+      const me = await api.getMe();
+      const configured = me.notificationPreferences.some(
+        (preference) => preference.type === "play_10min" && preference.enabled,
+      );
+      setModal(
+        configured ? "notification-configured" : "notification-schedule",
+      );
+    } catch {
+      // 상태를 확인하지 못해도 설정 화면에서 다시 저장할 수 있게 한다.
+      setModal("notification-schedule");
+    } finally {
+      setCheckingNotification(false);
+    }
   };
 
   return (
     <>
       {/* 인스타그램식 고정 헤더 — 스크롤·당겨서새로고침(overscroll)에도 상단 고정.
           sticky는 iOS 러버밴드 때 함께 움직여 fixed로 처리. */}
-      <div className="fixed inset-x-0 top-0 z-50 mx-auto w-full max-w-107.5 bg-gray-20 px-5 pt-safe">
+      <div className="fixed inset-x-0 top-0 z-50 mx-auto w-full max-w-107.5 bg-white px-5 pt-safe">
         <div className="relative">
           <TopAppBar
             child={selectedChild}
@@ -380,21 +349,35 @@ export const HomeDashboard = () => {
           </div>
         </div>
       ) : null}
-      <div className="relative bg-gray-20 px-5 pb-9 text-gray-800">
+      <div className="relative bg-gray-20 pb-9 text-gray-800">
         {/* 고정 헤더(safe-area + 56px) 높이만큼 콘텐츠 하강 */}
         <div aria-hidden className="pt-safe">
           <div className="h-14" />
         </div>
-        <div className="mt-4 flex flex-col gap-5">
-          <WeeklyCalendar data={data} onOpenTodayMood={openMoodModal} />
+        <div className="bg-white px-5 pt-4">
+          <ReportProgressBanner
+            daysRemaining={daysUntilWeeklyReport()}
+            streak={data.playStreakDays}
+          />
+        </div>
+        <WeeklyCalendar data={data} />
+        <div className="flex flex-col gap-4 px-5 pt-4">
           <TodayMissionCard
             mission={data.recommendedMission}
             loading={loading}
+            showNotificationNudge={showNotificationNudge}
             onStart={startMissionFromHome}
-            onRestart={() => setModal("restart-mission")}
+            onNotification={() => void openNotificationNudge()}
           />
-          <GrowthStageCard stage={data.growthStage} />
-          <ReportSummaryCard summary={data.reportSummary} />
+          <HomeShortcutCards
+            completedPlayCount={data.reportSummary?.completedPlayCount ?? 0}
+            positiveReactionRate={
+              data.reportSummary?.childPositiveReactionRate ?? 0
+            }
+            onRoadmap={() => router.push("/roadmap")}
+            onReport={() => router.push("/weekly-report")}
+          />
+          <AiConsultationCard onClick={() => router.push("/chat")} />
         </div>
       </div>
       {modal === "notifications" ? (
@@ -409,22 +392,24 @@ export const HomeDashboard = () => {
           }
         />
       ) : null}
-      {modal === "mood" ? (
-        <MoodCheckModal
-          selectedLevel={selectedMoodLevel}
-          submitting={moodSubmitting}
-          errorMessage={moodError}
-          onClose={closeMoodModal}
-          onSelectLevel={setSelectedMoodLevel}
-          onSubmit={() => void submitMood()}
-        />
+      {modal === "notification-configured" ? (
+        <NotificationConfiguredModal onClose={() => setModal(null)} />
       ) : null}
-      {modal === "restart-mission" ? (
-        <RestartMissionModal
-          submitting={restarting}
-          onClose={() => setModal(null)}
-          onConfirm={() => void handleRestartMission()}
-        />
+      {modal === "notification-schedule" ? (
+        <div className="fixed inset-0 z-60 mx-auto w-full max-w-107.5">
+          <NotificationScheduleScreen
+            onClose={() => setModal(null)}
+            onComplete={() => setModal("notification-configured")}
+          />
+        </div>
+      ) : null}
+      {checkingNotification ? (
+        <div
+          className="fixed inset-0 z-60 flex items-center justify-center bg-black/20"
+          aria-label="알림 설정 확인 중"
+        >
+          <span className="size-7 animate-spin rounded-full border-2 border-white border-t-primary-300" />
+        </div>
       ) : null}
     </>
   );

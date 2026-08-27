@@ -50,20 +50,20 @@ const items: BottomNavItem[] = [
     matches: (pathname: string) => pathname.startsWith("/roadmap"),
   },
   {
-    label: "AI 상담",
-    href: "/chat",
-    tab: "chat",
-    iconSrc: NAV_ICON_PATHS.ai,
-    iconClassName: "size-5",
-    matches: (pathname: string) => pathname.startsWith("/chat"),
-  },
-  {
     label: "리포트",
     href: "/weekly-report",
     tab: "report",
     iconSrc: NAV_ICON_PATHS.report,
     iconClassName: "size-5",
     matches: (pathname: string) => pathname.startsWith("/weekly-report"),
+  },
+  {
+    label: "AI 상담",
+    href: "/chat",
+    tab: "chat",
+    iconSrc: NAV_ICON_PATHS.ai,
+    iconClassName: "size-5",
+    matches: (pathname: string) => pathname.startsWith("/chat"),
   },
 ];
 

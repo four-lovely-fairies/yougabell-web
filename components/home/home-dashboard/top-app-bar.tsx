@@ -20,8 +20,8 @@ export const TopAppBar = ({
       aria-label="아이 목록 열기"
       aria-haspopup="dialog"
     >
-      <span className="max-w-45 truncate">
-        {child.name} ({child.ageLabel})
+      <span className="max-w-45 truncate text-[17px] font-bold">
+        {child.name} ({formatAgeLabel(child.ageLabel)})
       </span>
       <FigmaIcon
         src={HOME_ICON_PATHS.childSwitcherChevron}
@@ -59,3 +59,10 @@ export const TopAppBar = ({
     </div>
   </header>
 );
+
+function formatAgeLabel(ageLabel: string): string {
+  const months = ageLabel.match(/^(\d+)개월$/)?.[1];
+  if (!months) return ageLabel;
+  const monthCount = Number(months);
+  return monthCount >= 12 ? `만${Math.floor(monthCount / 12)}세` : ageLabel;
+}

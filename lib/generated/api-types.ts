@@ -100,6 +100,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/home-notification-nudge-exposure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 홈 첫 진입 알림 유도 문구를 계정당 최초 1회로 예약
+         * @description 홈을 처음 불러올 때 호출한다. 동시 요청에도 최초 한 요청만 shouldShow=true를 받는다.
+         */
+        post: operations["UsersController_claimHomeNotificationNudgeExposure"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/parent": {
         parameters: {
             query?: never;
@@ -1096,6 +1116,8 @@ export interface components {
             weekEnd: string;
             /** @example 지난주 아이와 함께한 놀이 시간 */
             title: string;
+            /** @example 4 */
+            completedPlayCount: number;
             /** @example 4620 */
             totalDurationSeconds: number;
             /** @example 1시간 17분 */
@@ -1129,6 +1151,8 @@ export interface components {
             selectedChild: components["schemas"]["HomeChildDto"];
             children: components["schemas"]["HomeChildDto"][];
             week: components["schemas"]["HomeWeekDto"];
+            /** @example 3 */
+            playStreakDays: number;
             recommendedMission: components["schemas"]["HomeRecommendedMissionDto"] | null;
             growthStage: components["schemas"]["HomeGrowthStageDto"] | null;
             reportSummary: components["schemas"]["HomeReportSummaryDto"] | null;
@@ -1912,6 +1936,23 @@ export interface operations {
         };
     };
     UsersController_claimNotificationPromptExposure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_claimHomeNotificationNudgeExposure: {
         parameters: {
             query?: never;
             header?: never;
