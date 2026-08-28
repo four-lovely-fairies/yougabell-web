@@ -277,6 +277,7 @@ export const HomeDashboard = () => {
 
   const openNotificationNudge = async () => {
     if (checkingNotification) return;
+    track({ type: "home_play_notification_nudge_click" });
     setCheckingNotification(true);
     try {
       const me = await api.getMe();

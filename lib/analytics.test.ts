@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { toAmplitudeEvent } from "./analytics";
+import { toAmplitudeEvent, toGoogleAnalyticsEventName } from "./analytics";
 
 test("child identifiers are not sent to Amplitude", () => {
   const event = toAmplitudeEvent({
@@ -55,4 +55,24 @@ test("bottom nav taps carry only the tab identifier", () => {
     name: "Bottom Nav Tapped",
     properties: { tab: "play" },
   });
+});
+
+test("home play notification nudge clicks have a dedicated Amplitude event", () => {
+  const event = toAmplitudeEvent({
+    type: "home_play_notification_nudge_click",
+  });
+
+  assert.deepEqual(event, {
+    name: "Home Play Notification Nudge Clicked",
+  });
+});
+
+test("home play notification nudge clicks have a dedicated GA event", () => {
+  assert.equal(
+    toGoogleAnalyticsEventName({
+      type: "home_play_notification_nudge_click",
+    }),
+    "home_play_notification_nudge_click",
+  );
+  assert.equal(toGoogleAnalyticsEventName({ type: "home_view" }), null);
 });
