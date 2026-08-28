@@ -13,11 +13,6 @@ export const api = {
     request<{ shouldShow: boolean }>("/me/notification-prompt-exposure", {
       method: "POST",
     }),
-  claimHomeNotificationNudgeExposure: () =>
-    request<{ shouldShow: boolean }>(
-      "/me/home-notification-nudge-exposure",
-      { method: "POST" },
-    ),
   completeOnboarding: (payload: CompleteOnboardingPayload) =>
     request<MeResponse>("/onboarding/complete", {
       method: "POST",

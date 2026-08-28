@@ -77,21 +77,16 @@ export const HomeDashboard = () => {
         setState(next);
         setSelectedChildId(next.data.selectedChild.id);
         try {
-          const [me, exposure] = await Promise.all([
-            api.getMe(),
-            api.claimHomeNotificationNudgeExposure(),
-          ]);
+          const me = await api.getMe();
           const playNotificationEnabled = me.notificationPreferences.some(
             (preference) =>
               preference.type === "play_10min" && preference.enabled,
           );
           if (active) {
-            setShowNotificationNudge(
-              exposure.shouldShow && !playNotificationEnabled,
-            );
+            setShowNotificationNudge(!playNotificationEnabled);
           }
         } catch {
-          // 설정/노출 상태를 확인하지 못하면 잘못 보이는 것보다 숨김을 우선한다.
+          // 설정 상태를 확인하지 못하면 잘못 보이는 것보다 숨김을 우선한다.
         }
       } catch {
         // 초기 로드 실패 — 렌더에서 에러 UI 노출
