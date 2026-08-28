@@ -1,4 +1,5 @@
 import * as amplitude from "@amplitude/analytics-browser";
+import { sendGAEvent } from "@next/third-parties/google";
 
 // 제품 분석 이벤트. 이벤트 속성에는 개인정보, 자녀 식별자, 채팅 원문을 넣지 않는다.
 
@@ -66,6 +67,7 @@ export type HomeEvent =
   | { type: "home_notification_open" }
   | { type: "home_notifications_mark_all_read" }
   | { type: "home_mission_start_click" }
+  | { type: "home_play_notification_nudge_click" }
   | { type: "home_mission_restart" };
 
 export type MissionEvent =
@@ -242,6 +244,8 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
       return { name: "Home Notifications Marked All Read" };
     case "home_mission_start_click":
       return { name: "Home Mission Start Clicked" };
+    case "home_play_notification_nudge_click":
+      return { name: "Home Play Notification Nudge Clicked" };
     case "home_mission_restart":
       return { name: "Home Mission Restarted" };
     case "mission_view":
@@ -275,11 +279,25 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
   }
 }
 
+export function toGoogleAnalyticsEventName(
+  event: AnalyticsEvent,
+): string | null {
+  return event.type === "home_play_notification_nudge_click"
+    ? "home_play_notification_nudge_click"
+    : null;
+}
+
 export function track(event: AnalyticsEvent): void {
   if (typeof window === "undefined") return;
   if (process.env.NODE_ENV !== "production") {
     console.info("[analytics]", event.type, event);
   }
+
+  const googleAnalyticsEventName = toGoogleAnalyticsEventName(event);
+  if (googleAnalyticsEventName && process.env.NEXT_PUBLIC_GA_ID) {
+    sendGAEvent("event", googleAnalyticsEventName);
+  }
+
   if (!initializeAmplitude()) return;
 
   const amplitudeEvent = toAmplitudeEvent(event);

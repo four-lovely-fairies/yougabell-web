@@ -1,4 +1,5 @@
 import { Pencil, Trash2 } from "lucide-react";
+import { XIcon } from "@/components/icons";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
 import { MoodFace } from "./mood-face";
 import { MOOD_OPTION_LABELS, type MoodLevel } from "./types";
@@ -195,6 +196,50 @@ function formatMonthDay(date: Date): string {
   const day = `${date.getDate()}`;
   return `${month}월${day}일`;
 }
+
+export const NotificationConfiguredModal = ({
+  onClose,
+}: {
+  onClose: () => void;
+}) => (
+  <div
+    className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 px-3"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notification-configured-title"
+    onClick={onClose}
+  >
+    <div
+      className="relative w-full max-w-107.5 rounded-[28px] bg-white px-5 pb-6 pt-20"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="닫기"
+        className="absolute right-6 top-6 flex size-8 items-center justify-center rounded-full bg-gray-50 text-gray-300"
+      >
+        <XIcon size={20} />
+      </button>
+      <h2
+        id="notification-configured-title"
+        className="text-center text-[20px] font-bold leading-[1.4] text-gray-800"
+      >
+        이미 알람 설정이 완료되어있어요!
+      </h2>
+      <p className="mt-4 text-center text-base text-gray-500">
+        정해진 시간에 알려드릴게요
+      </p>
+      <button
+        type="button"
+        onClick={onClose}
+        className="mt-8 flex h-17 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium text-white"
+      >
+        좋아요
+      </button>
+    </div>
+  </div>
+);
 
 export const MoodCheckModal = ({
   selectedLevel,

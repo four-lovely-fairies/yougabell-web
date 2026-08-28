@@ -1,142 +1,167 @@
-import { RotateCcw } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import Image from "next/image";
 import { Mascot } from "@/components/characters/mascot";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
-import { SectionInfoCard } from "@/components/ui/section-info-card";
-import { StatCard, StatValue } from "@/components/ui/stat-card";
 import type { HomeDashboard as HomeDashboardData } from "@/lib/home-data";
 import { splitMissionTitle } from "./helpers";
-import { FigmaIcon, HOME_ICON_PATHS } from "./icons";
+
+export const ReportProgressBanner = ({
+  daysRemaining,
+  streak,
+}: {
+  daysRemaining: number;
+  streak: number;
+}) => (
+  <div className="flex min-h-12 items-center justify-between gap-3 rounded-full bg-primary-50 px-4">
+    <div className="flex min-w-0 items-center gap-2">
+      <Image
+        src="/images/figma/home/star-shine.png"
+        alt=""
+        width={15}
+        height={13}
+        className="shrink-0"
+      />
+      <p className="truncate text-sm font-medium text-gray-800">
+        주간 리포트 생성까지 {daysRemaining}일 남았어요!
+      </p>
+    </div>
+    <span className="shrink-0 rounded-full bg-white px-3 py-2 text-xs font-semibold text-primary-300">
+      🔥 {streak}일 연속
+    </span>
+  </div>
+);
 
 export const TodayMissionCard = ({
   mission,
   loading,
+  showNotificationNudge,
   onStart,
-  onRestart,
+  onNotification,
 }: {
   mission: HomeDashboardData["recommendedMission"];
   loading: boolean;
+  showNotificationNudge: boolean;
   onStart: () => void;
-  onRestart: () => void;
+  onNotification: () => void;
 }) => {
   const isCompleted = mission?.status === "completed";
-  const buttonLabel = isCompleted ? "미션완료" : "오늘의 놀이 시작하기";
 
   return (
     <Card
       radius="xxl"
       shadow="none"
-      className="shadow-[0_4px_11.5px_rgba(0,0,0,0.05)]"
+      className="flex flex-col gap-5 rounded-[28px] px-6 py-7 shadow-[0_8px_28px_rgba(38,38,38,0.05)]"
     >
-      <div className="flex items-center justify-between gap-2">
-        <Chip>아이 {mission?.durationMinutes ?? 10}분 가까워지기</Chip>
-        {isCompleted ? (
-          <button
-            type="button"
-            onClick={onRestart}
-            aria-label="오늘의 미션 다시 하기"
-            className="flex size-8 items-center justify-center text-gray-700"
-          >
-            <RotateCcw className="size-5" aria-hidden />
-          </button>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-col items-start gap-2">
+          <Chip>아이 {mission?.durationMinutes ?? 10}분 가까워지기</Chip>
+          <h2 className="text-[20px] font-bold leading-[1.45] tracking-[-0.4px] text-gray-800">
+            {splitMissionTitle(
+              mission?.title ?? "아이와 눈을 마주치며 이야기를 해보아요",
+            ).map((line) => (
+              <span key={line} className="block whitespace-pre-wrap">
+                {line}
+              </span>
+            ))}
+          </h2>
+        </div>
+        <Mascot pose="reading" className="w-20 shrink-0" />
+      </div>
+      <div className="flex flex-col gap-4">
+        <button
+          type="button"
+          onClick={onStart}
+          disabled={!mission || loading || isCompleted}
+          className="flex h-13 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium text-white disabled:bg-gray-100 disabled:text-gray-600"
+        >
+          {isCompleted ? "오늘의 놀이 완료" : "오늘의 놀이 시작하기"}
+        </button>
+        {showNotificationNudge ? (
+          <p className="text-center text-xs text-gray-500">
+            지금 어려우신가요?{" "}
+            <button
+              type="button"
+              onClick={onNotification}
+              className="font-semibold text-primary-300"
+            >
+              편한 시간에 알림 받기
+            </button>
+          </p>
         ) : null}
       </div>
-      <div className="mt-3.25 flex items-center justify-between gap-4">
-        <h2 className="text-[20px] font-bold leading-[1.4] tracking-[-0.4px] text-gray-800">
-          {splitMissionTitle(
-            mission?.title ?? "아이와 눈을 마주치며 이야기를 해보아요",
-          ).map((line) => (
-            <span key={line} className="block whitespace-pre-wrap">
-              {line}
-            </span>
-          ))}
-        </h2>
-        <Mascot pose="cheer" className="w-21 shrink-0" />
-      </div>
-      <button
-        type="button"
-        onClick={onStart}
-        disabled={!mission || loading || isCompleted}
-        className="mt-3.25 flex h-12 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-6 text-white disabled:bg-gray-100 disabled:text-gray-600"
-      >
-        {buttonLabel}
-      </button>
     </Card>
   );
 };
 
-export const GrowthStageCard = ({
-  stage,
+export const HomeShortcutCards = ({
+  completedPlayCount,
+  positiveReactionRate,
+  onRoadmap,
+  onReport,
 }: {
-  stage: HomeDashboardData["growthStage"];
+  completedPlayCount: number;
+  positiveReactionRate: number;
+  onRoadmap: () => void;
+  onReport: () => void;
 }) => (
-  <SectionInfoCard
-    icon={
-      <FigmaIcon
-        src={HOME_ICON_PATHS.growthStage}
-        alt=""
-        className="size-5 shrink-0"
-      />
-    }
-    label={`현재 상황 [ ${stage?.name ?? "확인 중"} ]`}
-    body={
-      stage?.summary ??
-      '아이의 독립심이 싹트고 있어요. "내가 할래!"라는 말은 성장의 건강한 신호입니다.'
-    }
-  />
-);
-
-export const ReportSummaryCard = ({
-  summary,
-}: {
-  summary: HomeDashboardData["reportSummary"];
-}) => (
-  <section className="grid grid-cols-2 items-start gap-2">
-    <StatCard label="지난주 놀이 수행시간">
-      {summary ? (
-        <DurationValue label={summary.totalDurationLabel} />
-      ) : (
-        <NoRecord />
-      )}
-    </StatCard>
-    <StatCard
-      label="아이 반응 긍정률"
-      icon={
-        summary ? (
-          <FigmaIcon
-            src="/icons/figma/shared/positive-rate.svg"
-            alt=""
-            className="size-4.5 self-center"
-          />
-        ) : undefined
-      }
-    >
-      {summary ? (
-        <StatValue value={summary.childPositiveReactionRate} unit="%" />
-      ) : (
-        <NoRecord />
-      )}
-    </StatCard>
+  <section className="grid grid-cols-2 gap-3 px-2">
+    <ShortcutCard
+      title="로드맵"
+      description="발달 항목 확인하기"
+      onClick={onRoadmap}
+    />
+    <ShortcutCard
+      title="주간리포트"
+      description={`놀이 ${completedPlayCount}회 · 아이 반응 ${positiveReactionRate}%`}
+      onClick={onReport}
+    />
   </section>
 );
 
-const NoRecord = () => (
-  <span className="text-sm font-medium leading-5 text-gray-400">기록 없음</span>
+const ShortcutCard = ({
+  title,
+  description,
+  onClick,
+}: {
+  title: string;
+  description: string;
+  onClick: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex min-h-24 flex-col items-start justify-center rounded-[24px] bg-white p-4 text-left shadow-[0_8px_28px_rgba(38,38,38,0.04)]"
+  >
+    <span className="flex w-full items-center justify-between text-[17px] font-bold text-gray-800">
+      {title}
+      <ChevronRight className="size-5" strokeWidth={2} aria-hidden />
+    </span>
+    <span className="mt-1 whitespace-nowrap text-xs text-gray-500">
+      {description}
+    </span>
+  </button>
 );
 
-// "1시간 17분" → StatValue 조합 (숫자는 SUIT)
-const DurationValue = ({ label }: { label: string }) => {
-  const parts = label.match(/^(?:(\d+)시간)?(?:\s*)?(?:(\d+)분)?$/);
-
-  if (!parts) {
-    return <StatValue value={label} />;
-  }
-
-  const [, hours, minutes] = parts;
-  return (
-    <>
-      {hours ? <StatValue value={hours} unit="시간" /> : null}
-      {minutes ? <StatValue value={minutes} unit="분" /> : null}
-    </>
-  );
-};
+export const AiConsultationCard = ({ onClick }: { onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex min-h-16 w-full items-center justify-between rounded-[24px] bg-white px-5 shadow-[0_8px_28px_rgba(38,38,38,0.04)]"
+  >
+    <span className="flex items-center gap-2 text-sm font-medium text-gray-800">
+      <Image
+        src="/images/figma/home/question-mark.png"
+        alt=""
+        width={14}
+        height={15.48}
+      />
+      궁금한게 있으면 Ai 에게 물어보세요
+    </span>
+    <ChevronRight
+      className="size-5 text-gray-800"
+      strokeWidth={2}
+      aria-hidden
+    />
+  </button>
+);

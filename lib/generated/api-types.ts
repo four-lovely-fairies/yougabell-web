@@ -1096,6 +1096,8 @@ export interface components {
             weekEnd: string;
             /** @example 지난주 아이와 함께한 놀이 시간 */
             title: string;
+            /** @example 4 */
+            completedPlayCount: number;
             /** @example 4620 */
             totalDurationSeconds: number;
             /** @example 1시간 17분 */
@@ -1129,6 +1131,8 @@ export interface components {
             selectedChild: components["schemas"]["HomeChildDto"];
             children: components["schemas"]["HomeChildDto"][];
             week: components["schemas"]["HomeWeekDto"];
+            /** @example 3 */
+            playStreakDays: number;
             recommendedMission: components["schemas"]["HomeRecommendedMissionDto"] | null;
             growthStage: components["schemas"]["HomeGrowthStageDto"] | null;
             reportSummary: components["schemas"]["HomeReportSummaryDto"] | null;

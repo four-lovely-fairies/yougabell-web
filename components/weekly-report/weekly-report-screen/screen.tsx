@@ -80,7 +80,7 @@ export const WeeklyReportScreen = () => {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
+    <div className="fixed inset-0 z-40 mx-auto flex h-dvh w-full max-w-107.5 flex-col bg-gray-20 text-gray-800">
       <AppHeader
         fixed
         title="주간 리포트"
