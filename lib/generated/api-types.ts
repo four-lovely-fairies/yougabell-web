@@ -236,6 +236,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/weekly-reports/unviewed-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WeeklyReportsController_getUnviewedStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/weekly-reports/{id}/viewed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["WeeklyReportsController_markViewed"];
+        trace?: never;
+    };
     "/weekly-reports/{id}": {
         parameters: {
             query?: never;
@@ -1013,6 +1045,13 @@ export interface components {
             selectedChild: components["schemas"]["WeeklyReportSelectedChildDto"];
             report: components["schemas"]["WeeklyReportDetailDto"] | null;
             emptyState: components["schemas"]["WeeklyReportEmptyStateDto"] | null;
+        };
+        WeeklyReportUnviewedStatusDto: {
+            hasUnviewedReport: boolean;
+        };
+        WeeklyReportViewedResponseDto: {
+            /** @example true */
+            viewed: boolean;
         };
         HomeChildDto: {
             /** Format: uuid */
@@ -2088,6 +2127,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WeeklyReportCurrentResponseDto"];
+                };
+            };
+        };
+    };
+    WeeklyReportsController_getUnviewedStatus: {
+        parameters: {
+            query?: {
+                childId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeeklyReportUnviewedStatusDto"];
+                };
+            };
+        };
+    };
+    WeeklyReportsController_markViewed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeeklyReportViewedResponseDto"];
                 };
             };
         };

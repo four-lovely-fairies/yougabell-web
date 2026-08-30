@@ -427,6 +427,77 @@
         ]
       }
     },
+    "/weekly-reports/unviewed-status": {
+      "get": {
+        "operationId": "WeeklyReportsController_getUnviewedStatus",
+        "parameters": [
+          {
+            "name": "childId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyReportUnviewedStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "weekly-reports"
+        ]
+      }
+    },
+    "/weekly-reports/{id}/viewed": {
+      "patch": {
+        "operationId": "WeeklyReportsController_markViewed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyReportViewedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "weekly-reports"
+        ]
+      }
+    },
     "/weekly-reports/{id}": {
       "get": {
         "operationId": "WeeklyReportsController_getById",
@@ -2762,6 +2833,29 @@
           "selectedChild",
           "report",
           "emptyState"
+        ]
+      },
+      "WeeklyReportUnviewedStatusDto": {
+        "type": "object",
+        "properties": {
+          "hasUnviewedReport": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "hasUnviewedReport"
+        ]
+      },
+      "WeeklyReportViewedResponseDto": {
+        "type": "object",
+        "properties": {
+          "viewed": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "viewed"
         ]
       },
       "HomeChildDto": {

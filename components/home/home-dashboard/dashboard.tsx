@@ -16,7 +16,7 @@ import {
 } from "@/lib/api";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
 import { NotificationScheduleScreen } from "@/components/mission/notification-schedule-screen";
-import { daysUntilWeeklyReport } from "@/lib/report-progress";
+import { getWeeklyReportCountdown } from "@/lib/report-progress";
 import {
   AiConsultationCard,
   HomeShortcutCards,
@@ -363,7 +363,7 @@ export const HomeDashboard = () => {
         </div>
         <div className="bg-white px-5 pt-4">
           <ReportProgressBanner
-            daysRemaining={daysUntilWeeklyReport()}
+            countdown={getWeeklyReportCountdown()}
             streak={data.playStreakDays}
           />
         </div>

@@ -8,6 +8,7 @@ import { track } from "@/lib/analytics";
 import {
   getStoredSelectedChildId,
   loadWeeklyReport,
+  markWeeklyReportViewed,
   type WeeklyReportLoadState,
 } from "@/lib/api";
 import {
@@ -48,6 +49,9 @@ export const WeeklyReportScreen = () => {
     const next = await requestReport();
     setState(next);
     setLoading(false);
+    if (next.data?.report) {
+      void markWeeklyReportViewed(next.data.report.id);
+    }
   }, [requestReport]);
 
   useEffect(() => {
@@ -56,6 +60,9 @@ export const WeeklyReportScreen = () => {
       if (!active) return;
       setState(next);
       setLoading(false);
+      if (next.data?.report) {
+        void markWeeklyReportViewed(next.data.report.id);
+      }
       track({
         type: "weekly_report_view",
         hasReport: Boolean(next.data?.report),
