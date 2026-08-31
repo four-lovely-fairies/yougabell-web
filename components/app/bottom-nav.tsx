@@ -126,7 +126,7 @@ export const BottomNav = () => {
             role="status"
             className="pointer-events-none absolute bottom-[calc(100%+18px)] left-[70%] z-10 -translate-x-1/2"
           >
-            <div className="motion-safe:animate-[report-tooltip-bob_1.4s_ease-in-out_infinite]">
+            <div className="report-tooltip-bounce">
               <div className="relative whitespace-nowrap rounded-full bg-gray-700 px-5 py-3 text-sm font-medium text-white shadow-2">
                 생성된 리포트가 있어요!
                 <span
