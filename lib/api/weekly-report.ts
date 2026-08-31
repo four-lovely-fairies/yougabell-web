@@ -75,6 +75,43 @@ export const loadWeeklyReport = async ({
   }
 };
 
+export const loadWeeklyReportUnviewedStatus = async (
+  childId?: string | null,
+): Promise<boolean> => {
+  const headers = await authHeaders();
+  if (!headers.Authorization) return false;
+
+  const { data, error, response } = await openApiClient.GET(
+    "/weekly-reports/unviewed-status",
+    {
+      params: { query: { childId: childId ?? undefined } },
+      headers,
+    },
+  );
+  if (error || !data) {
+    throw new ApiError((response as Response).status, error ?? {});
+  }
+  return data.hasUnviewedReport;
+};
+
+export const markWeeklyReportViewed = async (
+  reportId: string,
+): Promise<void> => {
+  const headers = await authHeaders();
+  if (!headers.Authorization) return;
+
+  const { error, response } = await openApiClient.PATCH(
+    "/weekly-reports/{id}/viewed",
+    {
+      params: { path: { id: reportId } },
+      headers,
+    },
+  );
+  if (error) {
+    throw new ApiError((response as Response).status, error);
+  }
+};
+
 function toWeeklyReportViewData(
   data: WeeklyReportCurrent | WeeklyReportDetail,
 ): WeeklyReportViewData {

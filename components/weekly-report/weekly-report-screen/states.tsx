@@ -3,7 +3,7 @@ import { Mascot } from "@/components/characters/mascot";
 import { type WeeklyReportLoadState } from "@/lib/api";
 import { type WeeklyReportEmptyState } from "@/lib/weekly-report-data";
 import { isFirstPlayEmptyState } from "@/lib/weekly-report-data";
-import { daysUntilWeeklyReport } from "@/lib/report-progress";
+import { getWeeklyReportCountdown } from "@/lib/report-progress";
 
 export const WeeklyReportEmpty = ({
   emptyState,
@@ -38,7 +38,7 @@ export const WeeklyReportEmpty = ({
     );
   }
 
-  const daysRemaining = daysUntilWeeklyReport();
+  const countdown = getWeeklyReportCountdown();
 
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-8 pb-16 text-center">
@@ -49,8 +49,17 @@ export const WeeklyReportEmpty = ({
       <div className="relative flex w-full flex-col items-center">
         <Mascot pose="reviewing" className="w-28" />
         <h2 className="mt-12 text-[20px] font-bold leading-[1.4] tracking-[-0.4px] text-gray-800">
-          주간 리포트 생성까지{" "}
-          <span className="text-primary-300">{daysRemaining}일</span> 남았어요!
+          {countdown.kind === "generation_tomorrow" ? (
+            "주간 리포트가 내일 아침에 생성돼요."
+          ) : (
+            <>
+              주간 리포트 생성까지{" "}
+              <span className="text-primary-300">
+                {countdown.daysRemaining}일
+              </span>{" "}
+              남았어요!
+            </>
+          )}
         </h2>
         <p className="mt-4 text-sm leading-[1.65] text-gray-400">
           아이와 놀이하고 기록하면 매주 일요일,

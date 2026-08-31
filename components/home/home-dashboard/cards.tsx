@@ -4,13 +4,14 @@ import { Mascot } from "@/components/characters/mascot";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import type { HomeDashboard as HomeDashboardData } from "@/lib/home-data";
+import type { WeeklyReportCountdown } from "@/lib/report-progress";
 import { splitMissionTitle } from "./helpers";
 
 export const ReportProgressBanner = ({
-  daysRemaining,
+  countdown,
   streak,
 }: {
-  daysRemaining: number;
+  countdown: WeeklyReportCountdown;
   streak: number;
 }) => (
   <div className="flex min-h-12 items-center justify-between gap-3 rounded-full bg-primary-50 px-4">
@@ -23,7 +24,9 @@ export const ReportProgressBanner = ({
         className="shrink-0"
       />
       <p className="truncate text-sm font-medium text-gray-800">
-        주간 리포트 생성까지 {daysRemaining}일 남았어요!
+        {countdown.kind === "generation_tomorrow"
+          ? "주간 리포트가 내일 아침에 생성돼요."
+          : `주간 리포트 생성까지 ${countdown.daysRemaining}일 남았어요!`}
       </p>
     </div>
     <span className="shrink-0 rounded-full bg-white px-3 py-2 text-xs font-semibold text-primary-300">

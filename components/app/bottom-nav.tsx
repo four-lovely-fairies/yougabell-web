@@ -1,7 +1,11 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import {
+  getStoredSelectedChildId,
+  loadWeeklyReportUnviewedStatus,
+} from "@/lib/api";
 import { track } from "@/lib/analytics";
 import type { NavigationEvent } from "@/lib/analytics";
 
@@ -83,10 +87,56 @@ const maskStyle = (src: string): CSSProperties => ({
 export const BottomNav = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const [showReportTooltip, setShowReportTooltip] = useState(false);
+
+  useEffect(() => {
+    if (pathname.startsWith("/weekly-report")) {
+      return;
+    }
+
+    let active = true;
+    const checkUnviewedReport = () => {
+      void loadWeeklyReportUnviewedStatus(getStoredSelectedChildId())
+        .then((hasUnviewedReport) => {
+          if (active) setShowReportTooltip(hasUnviewedReport);
+        })
+        .catch(() => {
+          if (active) setShowReportTooltip(false);
+        });
+    };
+
+    checkUnviewedReport();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") checkUnviewedReport();
+    };
+    window.addEventListener("focus", checkUnviewedReport);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", checkUnviewedReport);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [pathname]);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 w-full px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5 md:left-1/2 md:max-w-97.5 md:-translate-x-1/2">
-      <div className="flex items-center gap-1 rounded-full bg-gray-20 p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.04)]">
+      <div className="relative flex items-center gap-1 rounded-full bg-gray-20 p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.04)]">
+        {showReportTooltip && !pathname.startsWith("/weekly-report") ? (
+          <div
+            role="status"
+            className="pointer-events-none absolute bottom-[calc(100%+18px)] left-[70%] z-10 -translate-x-1/2"
+          >
+            <div className="report-tooltip-bounce">
+              <div className="relative whitespace-nowrap rounded-full bg-gray-700 px-5 py-3 text-sm font-medium text-white shadow-2">
+                생성된 리포트가 있어요!
+                <span
+                  aria-hidden
+                  className="absolute -bottom-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 bg-gray-700"
+                />
+              </div>
+            </div>
+          </div>
+        ) : null}
         {items.map((item) => {
           const active = item.matches(pathname);
 

@@ -113,6 +113,33 @@ body {
   color: var(--color-gray-800);
 }
 
+@keyframes report-tooltip-bob {
+  0%,
+  24%,
+  48%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  12% {
+    transform: translateY(-9px) scale(1.025);
+  }
+  36% {
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+.report-tooltip-bounce {
+  transform-origin: bottom center;
+  animation: report-tooltip-bob 1.8s cubic-bezier(0.34, 1.56, 0.64, 1)
+    infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-tooltip-bounce {
+    animation: none;
+  }
+}
+
 body {
   font-feature-settings: "ss03", "tnum";
   -webkit-tap-highlight-color: transparent;
