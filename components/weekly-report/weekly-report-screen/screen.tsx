@@ -102,13 +102,15 @@ export const WeeklyReportScreen = () => {
         }
       />
       <HeaderSpacer />
-      {loading ? (
-        <WeeklyReportSkeleton />
-      ) : state?.error ? (
-        <WeeklyReportError error={state.error} onRetry={load} />
-      ) : state?.data ? (
-        <WeeklyReportContent data={state.data} onStartMission={startMission} />
-      ) : null}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+        {loading ? (
+          <WeeklyReportSkeleton />
+        ) : state?.error ? (
+          <WeeklyReportError error={state.error} onRetry={load} />
+        ) : state?.data ? (
+          <WeeklyReportContent data={state.data} onStartMission={startMission} />
+        ) : null}
+      </div>
     </div>
   );
 };
