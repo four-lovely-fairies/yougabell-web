@@ -370,7 +370,7 @@ const CategoryCard = ({
           <Chip
             shape="square"
             tone={tone}
-            className="size-6 shrink-0 justify-center rounded-lg p-0"
+            className="size-6 shrink-0 justify-center rounded-[10px] p-[3px]"
             aria-hidden
           >
             <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
@@ -459,7 +459,7 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
     <span
       role="img"
       aria-hidden
-      className="size-5 shrink-0 bg-contain bg-center bg-no-repeat"
+      className="block size-full shrink-0 bg-contain bg-center bg-no-repeat"
       style={{ backgroundImage: `url("${src}")` }}
     />
   );
