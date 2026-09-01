@@ -455,26 +455,24 @@ const CategoryCard = ({
         <ul className="space-y-2.5">
           {group.items.map((item) => (
             <li key={item.id} className="flex items-start gap-3">
-              <button
-                type="button"
-                role="checkbox"
-                aria-checked={item.completed}
-                aria-label={`${item.description} ${item.completed ? "체크 해제" : "체크"}`}
-                disabled={pendingMilestoneIds.has(item.id)}
-                onClick={() => onToggle(item.id, !item.completed)}
-                className="flex size-4.5 shrink-0 items-center justify-center disabled:opacity-60"
-              >
-                <span
-                  className={`flex size-4.5 items-center justify-center rounded-xs border transition-colors ${
+              <div className="flex shrink-0 p-[3px]">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={item.completed}
+                  aria-label={`${item.description} ${item.completed ? "체크 해제" : "체크"}`}
+                  disabled={pendingMilestoneIds.has(item.id)}
+                  onClick={() => onToggle(item.id, !item.completed)}
+                  className={`flex size-4.5 items-center justify-center rounded-xs border transition-colors disabled:opacity-60 ${
                     item.completed
                       ? "border-primary-400 bg-primary-400 text-white"
                       : "border-gray-200 bg-white text-transparent"
                   }`}
                 >
-                  <Check className="size-3.5" strokeWidth={3} aria-hidden />
-                </span>
-              </button>
-              <span className="-translate-y-px text-sm font-normal leading-5 text-gray-600">
+                  <Check className="size-3" strokeWidth={3} aria-hidden />
+                </button>
+              </div>
+              <span className="text-sm font-normal leading-5 text-gray-600">
                 {item.description}
               </span>
             </li>
