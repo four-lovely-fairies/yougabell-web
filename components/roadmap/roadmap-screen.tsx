@@ -371,7 +371,7 @@ const CategoryCard = ({
             shape="square"
             tone={tone}
             className="size-6 shrink-0 justify-center"
-            style={{ borderRadius: 10, padding: 0 }}
+            style={{ borderRadius: 10, padding: 3 }}
             aria-hidden
           >
             <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
