@@ -258,7 +258,7 @@ const ChecklistProgress = ({
     <div className="mt-1">
       <div className="flex items-center justify-between text-xs font-medium leading-5">
         <span className="text-gray-500">체크리스트</span>
-        <span className="font-bold text-primary-300">{progress}%</span>
+        <span className="font-bold text-primary-400">{progress}%</span>
       </div>
       <div
         className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100"
