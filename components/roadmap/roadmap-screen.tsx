@@ -321,7 +321,7 @@ const CategoryCardList = ({
   pendingMilestoneIds: Set<string>;
   onToggle: (milestoneId: string, completed: boolean) => void;
 }) => (
-  <section className="mt-3 flex flex-col gap-3 px-5 pb-8">
+  <section className="mt-5 flex flex-col gap-5 px-5 pb-8">
     {groups.map((group) => (
       <CategoryCard
         key={group.categoryId}
@@ -359,68 +359,72 @@ const CategoryCard = ({
 
   return (
     <Card
-      padding="md"
+      padding="none"
       radius="xxl"
       shadow="none"
-      className="flex gap-4 border border-gray-50"
+      className="border border-gray-50 px-7 py-6"
       aria-labelledby={`category-${group.categoryId}`}
     >
-      <Chip
-        shape="square"
-        tone={tone}
-        className="size-7 shrink-0 justify-center p-0"
-        aria-hidden
-      >
-        <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
-      </Chip>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <Chip
+            shape="square"
+            tone={tone}
+            className="size-9 shrink-0 justify-center rounded-xl p-0"
+            aria-hidden
+          >
+            <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
+          </Chip>
           <h3
             id={`category-${group.categoryId}`}
-            className="text-sm font-bold leading-5 text-gray-800"
+            className="truncate text-xl font-bold leading-7 tracking-[-0.4px] text-gray-800"
           >
             {group.categoryLabel || fallback.label}
           </h3>
-          <span
-            className="shrink-0 text-xs font-semibold text-gray-600"
-            aria-label={`${group.items.length}개 중 ${completedCount}개 완료`}
-          >
-            {completedCount}/{group.items.length}
-          </span>
         </div>
-        <div className="mt-1 text-sm leading-[1.7] text-gray-600">
-          {group.items.length === 0 ? (
-            <p className="text-gray-400">이 월령의 자료가 곧 추가됩니다.</p>
-          ) : (
-            <ul className="space-y-0.5">
-              {group.items.map((item) => (
-                <li key={item.id} className="flex items-start gap-1.5">
-                  <button
-                    type="button"
-                    role="checkbox"
-                    aria-checked={item.completed}
-                    aria-label={`${item.description} ${item.completed ? "체크 해제" : "체크"}`}
-                    disabled={pendingMilestoneIds.has(item.id)}
-                    onClick={() => onToggle(item.id, !item.completed)}
-                    className="-ml-2 flex size-8 shrink-0 items-center justify-center disabled:opacity-60"
-                  >
-                    <span
-                      className={`flex size-4.5 items-center justify-center rounded-xs border transition-colors ${
-                        item.completed
-                          ? "border-primary-400 bg-primary-400 text-white"
-                          : "border-gray-200 bg-white text-transparent"
-                      }`}
-                    >
-                      <Check className="size-3.5" strokeWidth={3} aria-hidden />
-                    </span>
-                  </button>
-                  <span className="pt-1">{item.description}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <span
+          className="shrink-0 text-lg font-medium leading-7 text-gray-800"
+          aria-label={`${group.items.length}개 중 ${completedCount}개 완료`}
+        >
+          <span className="font-bold text-primary-300">{completedCount}</span>/
+          {group.items.length}
+        </span>
       </div>
+      <div className="my-5 h-px bg-gray-50" />
+      {group.items.length === 0 ? (
+        <p className="text-base leading-7 text-gray-400">
+          이 월령의 자료가 곧 추가됩니다.
+        </p>
+      ) : (
+        <ul className="space-y-2.5">
+          {group.items.map((item) => (
+            <li key={item.id} className="flex items-start gap-3">
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={item.completed}
+                aria-label={`${item.description} ${item.completed ? "체크 해제" : "체크"}`}
+                disabled={pendingMilestoneIds.has(item.id)}
+                onClick={() => onToggle(item.id, !item.completed)}
+                className="-ml-1 flex size-8 shrink-0 items-center justify-center disabled:opacity-60"
+              >
+                <span
+                  className={`flex size-7 items-center justify-center rounded-sm border transition-colors ${
+                    item.completed
+                      ? "border-primary-400 bg-primary-400 text-white"
+                      : "border-gray-200 bg-white text-transparent"
+                  }`}
+                >
+                  <Check className="size-5" strokeWidth={3} aria-hidden />
+                </span>
+              </button>
+              <span className="pt-0.5 text-lg leading-7 tracking-[-0.4px] text-gray-600">
+                {item.description}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </Card>
   );
 };
