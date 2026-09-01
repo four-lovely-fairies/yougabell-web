@@ -13,7 +13,7 @@ export const loadRoadmap = async ({
 
   if (!headers.Authorization) {
     return {
-      data: getDemoRoadmap(),
+      data: getDemoRoadmap(targetMonth ?? undefined),
       source: "demo",
       message: "로그인 세션이 연결되면 실제 로드맵을 표시합니다.",
     };
@@ -46,7 +46,7 @@ export const loadRoadmap = async ({
         : "API 서버에 연결할 수 없어 샘플 데이터를 표시합니다.";
 
     return {
-      data: getDemoRoadmap(),
+      data: getDemoRoadmap(targetMonth ?? undefined),
       source: "demo",
       message,
     };
