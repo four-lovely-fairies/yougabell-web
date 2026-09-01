@@ -125,6 +125,13 @@ export const RoadmapScreen = () => {
 
   if (!data) return <RoadmapSkeleton />;
 
+  const milestoneItems = data.milestonesByCategory.flatMap(
+    (group) => group.items,
+  );
+  const completedMilestoneCount = milestoneItems.filter(
+    (item) => item.completed,
+  ).length;
+
   return (
     <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
       <AppHeader
@@ -151,7 +158,12 @@ export const RoadmapScreen = () => {
             tooltipRef={tooltipRef}
           />
         ) : null}
-        <CurrentStageCard ageLabel={data.child.ageLabel} stage={data.stage} />
+        <CurrentStageCard
+          ageLabel={data.child.ageLabel}
+          stage={data.stage}
+          completedCount={completedMilestoneCount}
+          totalCount={milestoneItems.length}
+        />
         <MonthTabs
           target={data.targetMonth}
           childMonth={childMonth}
@@ -198,9 +210,13 @@ const SourceTooltip = ({
 const CurrentStageCard = ({
   ageLabel,
   stage,
+  completedCount,
+  totalCount,
 }: {
   ageLabel: string;
   stage: RoadmapStage | null;
+  completedCount: number;
+  totalCount: number;
 }) => (
   <section className="px-5 pt-5">
     <SectionInfoCard
@@ -214,6 +230,12 @@ const CurrentStageCard = ({
       }
       label={`현재 상황 [ ${stage?.name ?? "확인 중"} ]`}
       title={ageLabel}
+      belowTitle={
+        <ChecklistProgress
+          completedCount={completedCount}
+          totalCount={totalCount}
+        />
+      }
       body={
         stage?.summary ??
         "아이의 성장 단계를 확인하는 중이에요. 잠시만 기다려주세요."
@@ -221,6 +243,39 @@ const CurrentStageCard = ({
     />
   </section>
 );
+
+const ChecklistProgress = ({
+  completedCount,
+  totalCount,
+}: {
+  completedCount: number;
+  totalCount: number;
+}) => {
+  const progress =
+    totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+
+  return (
+    <div className="mt-1">
+      <div className="flex items-center justify-between text-sm font-medium leading-5">
+        <span className="text-gray-500">체크리스트</span>
+        <span className="font-bold text-primary-300">{progress}%</span>
+      </div>
+      <div
+        className="mt-2 h-2.5 overflow-hidden rounded-full bg-gray-100"
+        role="progressbar"
+        aria-label="체크리스트 완료율"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+      >
+        <div
+          className="h-full rounded-full bg-primary-300 transition-[width]"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </div>
+  );
+};
 
 const MonthTabs = ({
   target,

@@ -9,12 +9,14 @@ export const SectionInfoCard = ({
   icon,
   label,
   title,
+  belowTitle,
   body,
   className,
 }: {
   icon?: ReactNode;
   label: string;
   title?: string;
+  belowTitle?: ReactNode;
   body: ReactNode;
   className?: string;
 }) => {
@@ -31,6 +33,7 @@ export const SectionInfoCard = ({
           {title}
         </p>
       ) : null}
+      {belowTitle}
       <p className="text-sm font-medium leading-[1.4] text-gray-600">{body}</p>
     </Card>
   );
