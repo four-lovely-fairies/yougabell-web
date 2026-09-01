@@ -1,13 +1,17 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Info, Star } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Info, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppHeader, HeaderSpacer } from "@/components/app/app-header";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { SectionInfoCard } from "@/components/ui/section-info-card";
-import { getStoredSelectedChildId, loadRoadmap } from "@/lib/api";
+import {
+  getStoredSelectedChildId,
+  loadRoadmap,
+  setRoadmapMilestoneCompletion,
+} from "@/lib/api";
 import { track } from "@/lib/analytics";
 import {
   CDC_CHECKPOINTS,
@@ -15,6 +19,7 @@ import {
   type RoadmapCategoryGroup,
   type RoadmapResponse,
   type RoadmapStage,
+  updateRoadmapMilestoneCompletion,
 } from "@/lib/roadmap-data";
 
 export const RoadmapScreen = () => {
@@ -24,6 +29,11 @@ export const RoadmapScreen = () => {
   // 이후 월령 탭을 옮겨도 바뀌지 않으므로, 다른 월령을 보고 있을 때 내 아이 탭을 표시하는 기준이 된다.
   const [childMonth, setChildMonth] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState<"api" | "demo">("demo");
+  const [pendingMilestoneIds, setPendingMilestoneIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const infoButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -35,6 +45,7 @@ export const RoadmapScreen = () => {
       targetMonth,
     });
     setData(next.data);
+    setSource(next.source);
     setLoading(false);
   }, []);
 
@@ -43,6 +54,7 @@ export const RoadmapScreen = () => {
     void loadRoadmap({ childId: getStoredSelectedChildId() }).then((next) => {
       if (!active) return;
       setData(next.data);
+      setSource(next.source);
       setChildMonth(next.data.targetMonth);
       setLoading(false);
       track({ type: "roadmap_view" });
@@ -76,6 +88,39 @@ export const RoadmapScreen = () => {
     if (!data || data.targetMonth === month) return;
     track({ type: "roadmap_month_select" });
     void load(month);
+  };
+
+  const onToggleMilestone = async (milestoneId: string, completed: boolean) => {
+    if (!data || pendingMilestoneIds.has(milestoneId)) return;
+
+    setSaveError(null);
+    setData(updateRoadmapMilestoneCompletion(data, milestoneId, completed));
+
+    if (source === "demo") return;
+
+    setPendingMilestoneIds((current) => new Set(current).add(milestoneId));
+    try {
+      await setRoadmapMilestoneCompletion({
+        childId: data.child.id,
+        milestoneId,
+        completed,
+      });
+    } catch {
+      setData((current) =>
+        current
+          ? updateRoadmapMilestoneCompletion(current, milestoneId, !completed)
+          : current,
+      );
+      setSaveError(
+        "체크 상태를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.",
+      );
+    } finally {
+      setPendingMilestoneIds((current) => {
+        const next = new Set(current);
+        next.delete(milestoneId);
+        return next;
+      });
+    }
   };
 
   if (!data) return <RoadmapSkeleton />;
@@ -113,7 +158,17 @@ export const RoadmapScreen = () => {
           disabled={loading}
           onSelect={onSelectMonth}
         />
-        <CategoryCardList groups={data.milestonesByCategory} />
+        <CategoryCardList
+          groups={data.milestonesByCategory}
+          pendingMilestoneIds={pendingMilestoneIds}
+          onToggle={onToggleMilestone}
+        />
+        <p
+          aria-live="polite"
+          className="min-h-5 px-5 pb-3 text-center text-xs text-error-500"
+        >
+          {saveError}
+        </p>
       </div>
     </div>
   );
@@ -257,10 +312,23 @@ const MonthTabs = ({
   );
 };
 
-const CategoryCardList = ({ groups }: { groups: RoadmapCategoryGroup[] }) => (
+const CategoryCardList = ({
+  groups,
+  pendingMilestoneIds,
+  onToggle,
+}: {
+  groups: RoadmapCategoryGroup[];
+  pendingMilestoneIds: Set<string>;
+  onToggle: (milestoneId: string, completed: boolean) => void;
+}) => (
   <section className="mt-3 flex flex-col gap-3 px-5 pb-8">
     {groups.map((group) => (
-      <CategoryCard key={group.categoryId} group={group} />
+      <CategoryCard
+        key={group.categoryId}
+        group={group}
+        pendingMilestoneIds={pendingMilestoneIds}
+        onToggle={onToggle}
+      />
     ))}
   </section>
 );
@@ -276,9 +344,18 @@ const CATEGORY_TONE: Record<
   physical: "cyan",
 };
 
-const CategoryCard = ({ group }: { group: RoadmapCategoryGroup }) => {
+const CategoryCard = ({
+  group,
+  pendingMilestoneIds,
+  onToggle,
+}: {
+  group: RoadmapCategoryGroup;
+  pendingMilestoneIds: Set<string>;
+  onToggle: (milestoneId: string, completed: boolean) => void;
+}) => {
   const tone = CATEGORY_TONE[group.categoryId] ?? "gray";
   const fallback = ROADMAP_CATEGORY_DISPLAY[group.categoryId];
+  const completedCount = group.items.filter((item) => item.completed).length;
 
   return (
     <Card
@@ -297,19 +374,48 @@ const CategoryCard = ({ group }: { group: RoadmapCategoryGroup }) => {
         <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
       </Chip>
       <div className="min-w-0 flex-1">
-        <h3
-          id={`category-${group.categoryId}`}
-          className="text-sm font-bold leading-5 text-gray-800"
-        >
-          {group.categoryLabel || fallback.label}
-        </h3>
+        <div className="flex items-center justify-between gap-3">
+          <h3
+            id={`category-${group.categoryId}`}
+            className="text-sm font-bold leading-5 text-gray-800"
+          >
+            {group.categoryLabel || fallback.label}
+          </h3>
+          <span
+            className="shrink-0 text-xs font-semibold text-gray-600"
+            aria-label={`${group.items.length}개 중 ${completedCount}개 완료`}
+          >
+            {completedCount}/{group.items.length}
+          </span>
+        </div>
         <div className="mt-1 text-sm leading-[1.7] text-gray-600">
           {group.items.length === 0 ? (
             <p className="text-gray-400">이 월령의 자료가 곧 추가됩니다.</p>
           ) : (
-            <ul className="list-disc space-y-1 pl-5">
+            <ul className="space-y-0.5">
               {group.items.map((item) => (
-                <li key={item.id}>{item.description}</li>
+                <li key={item.id} className="flex items-start gap-1.5">
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={item.completed}
+                    aria-label={`${item.description} ${item.completed ? "체크 해제" : "체크"}`}
+                    disabled={pendingMilestoneIds.has(item.id)}
+                    onClick={() => onToggle(item.id, !item.completed)}
+                    className="-ml-2 flex size-8 shrink-0 items-center justify-center disabled:opacity-60"
+                  >
+                    <span
+                      className={`flex size-4.5 items-center justify-center rounded-xs border transition-colors ${
+                        item.completed
+                          ? "border-primary-400 bg-primary-400 text-white"
+                          : "border-gray-200 bg-white text-transparent"
+                      }`}
+                    >
+                      <Check className="size-3.5" strokeWidth={3} aria-hidden />
+                    </span>
+                  </button>
+                  <span className="pt-1">{item.description}</span>
+                </li>
               ))}
             </ul>
           )}

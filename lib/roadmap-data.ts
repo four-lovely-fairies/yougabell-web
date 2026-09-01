@@ -30,6 +30,26 @@ export const ROADMAP_CATEGORY_DISPLAY: Record<
   physical: { label: "신체", iconKey: "barefoot" },
 };
 
+export const updateRoadmapMilestoneCompletion = (
+  roadmap: RoadmapResponse,
+  milestoneId: string,
+  completed: boolean,
+): RoadmapResponse => ({
+  ...roadmap,
+  milestonesByCategory: roadmap.milestonesByCategory.map((group) => ({
+    ...group,
+    items: group.items.map((item) =>
+      item.id === milestoneId
+        ? {
+            ...item,
+            completed,
+            completedAt: completed ? new Date().toISOString() : null,
+          }
+        : item,
+    ),
+  })),
+});
+
 /**
  * api 미연결·세션 없음 fallback. Figma `2516:5324` 4개월차 본문 그대로 + 기획 문서 §1 출처.
  */
@@ -59,6 +79,8 @@ export const getDemoRoadmap = (): RoadmapResponse => ({
           id: "demo-social-4",
           description:
             "말을 걸거나 들어 올리면 차분해진다. 상대의 얼굴을 바라본다. 아이에게 다가가면 좋아한다. 아이에게 말하거나 미소를 지을 때 미소를 짓는다.",
+          completed: false,
+          completedAt: null,
           sources: [{ citation: "CDC", url: null }],
         },
       ],
@@ -72,6 +94,8 @@ export const getDemoRoadmap = (): RoadmapResponse => ({
           id: "demo-language-4",
           description:
             "울음 소리 이외의 소리를 낸다. 시끄러운 소리에 반응한다.",
+          completed: false,
+          completedAt: null,
           sources: [{ citation: "CDC", url: null }],
         },
       ],
@@ -83,7 +107,10 @@ export const getDemoRoadmap = (): RoadmapResponse => ({
       items: [
         {
           id: "demo-cognitive-4",
-          description: "움직임에 따라 상대를 주시한다. 수 초 동안 장난감을 본다.",
+          description:
+            "움직임에 따라 상대를 주시한다. 수 초 동안 장난감을 본다.",
+          completed: false,
+          completedAt: null,
           sources: [{ citation: "CDC", url: null }],
         },
       ],
@@ -97,6 +124,8 @@ export const getDemoRoadmap = (): RoadmapResponse => ({
           id: "demo-physical-4",
           description:
             "머리를 가눌 수 있다. 엎드린 자세에서 팔에 의지해 머리를 든다.",
+          completed: false,
+          completedAt: null,
           sources: [{ citation: "CDC", url: null }],
         },
       ],

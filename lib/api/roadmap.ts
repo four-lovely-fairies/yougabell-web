@@ -52,3 +52,37 @@ export const loadRoadmap = async ({
     };
   }
 };
+
+export const setRoadmapMilestoneCompletion = async ({
+  childId,
+  milestoneId,
+  completed,
+}: {
+  childId: string;
+  milestoneId: string;
+  completed: boolean;
+}) => {
+  const headers = await authHeaders();
+  if (!headers.Authorization) {
+    throw new ApiError(401, { code: "UNAUTHORIZED" });
+  }
+
+  const { data, error, response } = await openApiClient.PATCH(
+    "/me/roadmap/milestones/{milestoneId}",
+    {
+      params: { path: { milestoneId } },
+      body: { childId, completed },
+      headers,
+    },
+  );
+  const status = response.status;
+
+  if (error) {
+    throw new ApiError(status, error);
+  }
+  if (!data) {
+    throw new ApiError(status, {});
+  }
+
+  return data;
+};

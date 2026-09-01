@@ -689,6 +689,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/roadmap/milestones/{milestoneId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 자녀별 발달 지표 체크 상태 저장 */
+        patch: operations["RoadmapController_setMilestoneCompletion"];
+        trace?: never;
+    };
     "/me/chat": {
         parameters: {
             query?: never;
@@ -1623,6 +1640,16 @@ export interface components {
             id: string;
             /** @example 말을 걸거나 들어 올리면 차분해진다. 상대의 얼굴을 바라본다. */
             description: string;
+            /**
+             * @description 해당 자녀의 체크 여부
+             * @example true
+             */
+            completed: boolean;
+            /**
+             * Format: date-time
+             * @description 체크 시각. 미체크면 null.
+             */
+            completedAt: string | null;
             sources: components["schemas"]["RoadmapMilestoneSourceDto"][];
         };
         RoadmapCategoryGroupDto: {
@@ -1660,6 +1687,29 @@ export interface components {
             monthTabRange: components["schemas"]["RoadmapMonthTabRangeDto"];
             milestonesByCategory: components["schemas"]["RoadmapCategoryGroupDto"][];
             sourceTooltip: components["schemas"]["RoadmapSourceTooltipDto"];
+        };
+        SetMilestoneCompletionDto: {
+            /**
+             * Format: uuid
+             * @description 체크 상태를 저장할 자녀 ID
+             */
+            childId: string;
+            /**
+             * @description 체크 여부
+             * @example true
+             */
+            completed: boolean;
+        };
+        MilestoneCompletionResponseDto: {
+            /** Format: uuid */
+            milestoneId: string;
+            /** @example true */
+            completed: boolean;
+            /**
+             * Format: date-time
+             * @example 2026-09-01T09:00:00.000Z
+             */
+            completedAt: string | null;
         };
         ChatSessionDto: {
             /** Format: uuid */
@@ -2905,6 +2955,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoadmapResponseDto"];
+                };
+            };
+        };
+    };
+    RoadmapController_setMilestoneCompletion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                milestoneId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetMilestoneCompletionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MilestoneCompletionResponseDto"];
                 };
             };
         };
