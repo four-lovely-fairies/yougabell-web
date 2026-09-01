@@ -228,8 +228,8 @@ const CurrentStageCard = ({
           aria-hidden
         />
       }
-      label={`현재 상황 [ ${stage?.name ?? "확인 중"} ]`}
-      title={ageLabel}
+      label={stage?.name ?? "확인 중"}
+      title={ageLabel.endsWith("개월") ? `${ageLabel} 차` : ageLabel}
       belowTitle={
         <ChecklistProgress
           completedCount={completedCount}
@@ -256,12 +256,12 @@ const ChecklistProgress = ({
 
   return (
     <div className="mt-1">
-      <div className="flex items-center justify-between text-sm font-medium leading-5">
+      <div className="flex items-center justify-between text-xs font-medium leading-5">
         <span className="text-gray-500">체크리스트</span>
         <span className="font-bold text-primary-300">{progress}%</span>
       </div>
       <div
-        className="mt-2 h-2.5 overflow-hidden rounded-full bg-gray-100"
+        className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100"
         role="progressbar"
         aria-label="체크리스트 완료율"
         aria-valuemin={0}
