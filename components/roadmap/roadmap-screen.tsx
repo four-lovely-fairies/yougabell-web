@@ -472,7 +472,7 @@ const CategoryCard = ({
                   <Check className="size-3" strokeWidth={3} aria-hidden />
                 </button>
               </div>
-              <span className="-translate-y-px text-sm font-normal leading-5 text-gray-600">
+              <span className="text-sm font-normal leading-5 text-gray-600">
                 {item.description}
               </span>
             </li>
