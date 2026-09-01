@@ -253,7 +253,7 @@ const MonthTabs = ({
 
   return (
     <section className="mt-5 px-5">
-      <h2 className="text-base font-bold leading-[25px] text-gray-800">
+      <h2 className="text-lg font-bold leading-[25px] text-gray-800">
         발달 지표
       </h2>
       <div
@@ -362,7 +362,7 @@ const CategoryCard = ({
       padding="none"
       radius="xxl"
       shadow="none"
-      className="border border-gray-50 px-7 py-6"
+      className="border border-gray-50 p-5"
       aria-labelledby={`category-${group.categoryId}`}
     >
       <div className="flex items-center justify-between gap-4">
@@ -377,13 +377,13 @@ const CategoryCard = ({
           </Chip>
           <h3
             id={`category-${group.categoryId}`}
-            className="truncate text-xl font-bold leading-7 tracking-[-0.4px] text-gray-800"
+            className="truncate text-sm font-bold leading-5 text-gray-800"
           >
             {group.categoryLabel || fallback.label}
           </h3>
         </div>
         <span
-          className="shrink-0 text-lg font-medium leading-7 text-gray-800"
+          className="shrink-0 text-xs font-medium leading-5 text-gray-800"
           aria-label={`${group.items.length}개 중 ${completedCount}개 완료`}
         >
           <span className="font-bold text-primary-300">{completedCount}</span>/
@@ -392,7 +392,7 @@ const CategoryCard = ({
       </div>
       <div className="my-5 h-px bg-gray-50" />
       {group.items.length === 0 ? (
-        <p className="text-base leading-7 text-gray-400">
+        <p className="text-sm leading-5 text-gray-400">
           이 월령의 자료가 곧 추가됩니다.
         </p>
       ) : (
@@ -406,19 +406,19 @@ const CategoryCard = ({
                 aria-label={`${item.description} ${item.completed ? "체크 해제" : "체크"}`}
                 disabled={pendingMilestoneIds.has(item.id)}
                 onClick={() => onToggle(item.id, !item.completed)}
-                className="-ml-1 flex size-8 shrink-0 items-center justify-center disabled:opacity-60"
+                className="flex size-4.5 shrink-0 items-center justify-center disabled:opacity-60"
               >
                 <span
-                  className={`flex size-7 items-center justify-center rounded-sm border transition-colors ${
+                  className={`flex size-4.5 items-center justify-center rounded-sm border transition-colors ${
                     item.completed
                       ? "border-primary-400 bg-primary-400 text-white"
                       : "border-gray-200 bg-white text-transparent"
                   }`}
                 >
-                  <Check className="size-5" strokeWidth={3} aria-hidden />
+                  <Check className="size-3.5" strokeWidth={3} aria-hidden />
                 </span>
               </button>
-              <span className="pt-0.5 text-lg leading-7 tracking-[-0.4px] text-gray-600">
+              <span className="text-sm font-normal leading-5 text-gray-600">
                 {item.description}
               </span>
             </li>
