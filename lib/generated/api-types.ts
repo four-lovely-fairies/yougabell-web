@@ -1137,6 +1137,14 @@ export interface components {
             name: string;
             summary: string;
         };
+        HomeRoadmapProgressDto: {
+            /** @example 36 */
+            targetMonth: number;
+            /** @example 18 */
+            completedCount: number;
+            /** @example 18 */
+            totalCount: number;
+        };
         HomeReportSummaryDto: {
             /** Format: uuid */
             reportId: string;
@@ -1191,6 +1199,7 @@ export interface components {
             playStreakDays: number;
             recommendedMission: components["schemas"]["HomeRecommendedMissionDto"] | null;
             growthStage: components["schemas"]["HomeGrowthStageDto"] | null;
+            roadmapProgress: components["schemas"]["HomeRoadmapProgressDto"];
             reportSummary: components["schemas"]["HomeReportSummaryDto"] | null;
             notifications: components["schemas"]["HomeNotificationsDto"];
         };

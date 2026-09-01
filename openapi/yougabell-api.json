@@ -3084,6 +3084,31 @@
           "summary"
         ]
       },
+      "HomeRoadmapProgressDto": {
+        "type": "object",
+        "properties": {
+          "targetMonth": {
+            "type": "number",
+            "example": 36,
+            "minimum": 0
+          },
+          "completedCount": {
+            "type": "number",
+            "example": 18,
+            "minimum": 0
+          },
+          "totalCount": {
+            "type": "number",
+            "example": 18,
+            "minimum": 0
+          }
+        },
+        "required": [
+          "targetMonth",
+          "completedCount",
+          "totalCount"
+        ]
+      },
       "HomeReportSummaryDto": {
         "type": "object",
         "properties": {
@@ -3263,6 +3288,9 @@
               }
             ]
           },
+          "roadmapProgress": {
+            "$ref": "#/components/schemas/HomeRoadmapProgressDto"
+          },
           "reportSummary": {
             "nullable": true,
             "type": "object",
@@ -3283,6 +3311,7 @@
           "playStreakDays",
           "recommendedMission",
           "growthStage",
+          "roadmapProgress",
           "reportSummary",
           "notifications"
         ]

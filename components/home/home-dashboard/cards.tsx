@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { Mascot } from "@/components/characters/mascot";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
@@ -98,11 +99,13 @@ export const TodayMissionCard = ({
 };
 
 export const HomeShortcutCards = ({
+  roadmapProgress,
   completedPlayCount,
   positiveReactionRate,
   onRoadmap,
   onReport,
 }: {
+  roadmapProgress: HomeDashboardData["roadmapProgress"];
   completedPlayCount: number;
   positiveReactionRate: number;
   onRoadmap: () => void;
@@ -111,7 +114,15 @@ export const HomeShortcutCards = ({
   <section className="grid grid-cols-2 gap-3 px-2">
     <ShortcutCard
       title="로드맵"
-      description="발달 항목 확인하기"
+      description={
+        <>
+          발달체크 항목{" "}
+          <span className="font-semibold text-primary-300">
+            {roadmapProgress.completedCount}
+          </span>
+          /{roadmapProgress.totalCount}개
+        </>
+      }
       onClick={onRoadmap}
     />
     <ShortcutCard
@@ -128,7 +139,7 @@ const ShortcutCard = ({
   onClick,
 }: {
   title: string;
-  description: string;
+  description: ReactNode;
   onClick: () => void;
 }) => (
   <button
