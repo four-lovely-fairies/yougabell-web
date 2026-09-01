@@ -370,7 +370,7 @@ const CategoryCard = ({
           <Chip
             shape="square"
             tone={tone}
-            className="size-9 shrink-0 justify-center rounded-xl p-0"
+            className="size-6 shrink-0 justify-center rounded-lg p-0"
             aria-hidden
           >
             <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
@@ -409,7 +409,7 @@ const CategoryCard = ({
                 className="flex size-4.5 shrink-0 items-center justify-center disabled:opacity-60"
               >
                 <span
-                  className={`flex size-4.5 items-center justify-center rounded-sm border transition-colors ${
+                  className={`flex size-4.5 items-center justify-center rounded-xs border transition-colors ${
                     item.completed
                       ? "border-primary-400 bg-primary-400 text-white"
                       : "border-gray-200 bg-white text-transparent"
