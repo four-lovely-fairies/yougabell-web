@@ -125,6 +125,13 @@ export const RoadmapScreen = () => {
 
   if (!data) return <RoadmapSkeleton />;
 
+  const milestoneItems = data.milestonesByCategory.flatMap(
+    (group) => group.items,
+  );
+  const completedMilestoneCount = milestoneItems.filter(
+    (item) => item.completed,
+  ).length;
+
   return (
     <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
       <AppHeader
@@ -151,7 +158,12 @@ export const RoadmapScreen = () => {
             tooltipRef={tooltipRef}
           />
         ) : null}
-        <CurrentStageCard ageLabel={data.child.ageLabel} stage={data.stage} />
+        <CurrentStageCard
+          ageLabel={data.child.ageLabel}
+          stage={data.stage}
+          completedCount={completedMilestoneCount}
+          totalCount={milestoneItems.length}
+        />
         <MonthTabs
           target={data.targetMonth}
           childMonth={childMonth}
@@ -198,9 +210,13 @@ const SourceTooltip = ({
 const CurrentStageCard = ({
   ageLabel,
   stage,
+  completedCount,
+  totalCount,
 }: {
   ageLabel: string;
   stage: RoadmapStage | null;
+  completedCount: number;
+  totalCount: number;
 }) => (
   <section className="px-5 pt-5">
     <SectionInfoCard
@@ -212,8 +228,14 @@ const CurrentStageCard = ({
           aria-hidden
         />
       }
-      label={`현재 상황 [ ${stage?.name ?? "확인 중"} ]`}
-      title={ageLabel}
+      label={stage?.name ?? "확인 중"}
+      title={ageLabel.endsWith("개월") ? `${ageLabel} 차` : ageLabel}
+      belowTitle={
+        <ChecklistProgress
+          completedCount={completedCount}
+          totalCount={totalCount}
+        />
+      }
       body={
         stage?.summary ??
         "아이의 성장 단계를 확인하는 중이에요. 잠시만 기다려주세요."
@@ -221,6 +243,39 @@ const CurrentStageCard = ({
     />
   </section>
 );
+
+const ChecklistProgress = ({
+  completedCount,
+  totalCount,
+}: {
+  completedCount: number;
+  totalCount: number;
+}) => {
+  const progress =
+    totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+
+  return (
+    <div className="mt-1">
+      <div className="flex items-center justify-between text-xs font-medium leading-5">
+        <span className="text-gray-500">체크리스트</span>
+        <span className="font-bold text-primary-400">{progress}%</span>
+      </div>
+      <div
+        className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100"
+        role="progressbar"
+        aria-label="체크리스트 완료율"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+      >
+        <div
+          className="h-full rounded-full bg-primary-300 transition-[width]"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </div>
+  );
+};
 
 const MonthTabs = ({
   target,
@@ -253,7 +308,7 @@ const MonthTabs = ({
 
   return (
     <section className="mt-5 px-5">
-      <h2 className="text-base font-bold leading-[25px] text-gray-800">
+      <h2 className="text-lg font-bold leading-[25px] text-gray-800">
         발달 지표
       </h2>
       <div
@@ -321,7 +376,7 @@ const CategoryCardList = ({
   pendingMilestoneIds: Set<string>;
   onToggle: (milestoneId: string, completed: boolean) => void;
 }) => (
-  <section className="mt-3 flex flex-col gap-3 px-5 pb-8">
+  <section className="mt-5 flex flex-col gap-5 px-5 pb-8">
     {groups.map((group) => (
       <CategoryCard
         key={group.categoryId}
@@ -359,68 +414,73 @@ const CategoryCard = ({
 
   return (
     <Card
-      padding="md"
+      padding="none"
       radius="xxl"
       shadow="none"
-      className="flex gap-4 border border-gray-50"
+      className="border border-gray-50 p-5"
       aria-labelledby={`category-${group.categoryId}`}
     >
-      <Chip
-        shape="square"
-        tone={tone}
-        className="size-7 shrink-0 justify-center p-0"
-        aria-hidden
-      >
-        <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
-      </Chip>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <Chip
+            shape="square"
+            tone={tone}
+            className="size-6 shrink-0 justify-center"
+            style={{ borderRadius: 10, padding: 3 }}
+            aria-hidden
+          >
+            <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
+          </Chip>
           <h3
             id={`category-${group.categoryId}`}
-            className="text-sm font-bold leading-5 text-gray-800"
+            className="truncate text-sm font-bold leading-5 text-gray-800"
           >
             {group.categoryLabel || fallback.label}
           </h3>
-          <span
-            className="shrink-0 text-xs font-semibold text-gray-600"
-            aria-label={`${group.items.length}개 중 ${completedCount}개 완료`}
-          >
-            {completedCount}/{group.items.length}
-          </span>
         </div>
-        <div className="mt-1 text-sm leading-[1.7] text-gray-600">
-          {group.items.length === 0 ? (
-            <p className="text-gray-400">이 월령의 자료가 곧 추가됩니다.</p>
-          ) : (
-            <ul className="space-y-0.5">
-              {group.items.map((item) => (
-                <li key={item.id} className="flex items-start gap-1.5">
-                  <button
-                    type="button"
-                    role="checkbox"
-                    aria-checked={item.completed}
-                    aria-label={`${item.description} ${item.completed ? "체크 해제" : "체크"}`}
-                    disabled={pendingMilestoneIds.has(item.id)}
-                    onClick={() => onToggle(item.id, !item.completed)}
-                    className="-ml-2 flex size-8 shrink-0 items-center justify-center disabled:opacity-60"
-                  >
-                    <span
-                      className={`flex size-4.5 items-center justify-center rounded-xs border transition-colors ${
-                        item.completed
-                          ? "border-primary-400 bg-primary-400 text-white"
-                          : "border-gray-200 bg-white text-transparent"
-                      }`}
-                    >
-                      <Check className="size-3.5" strokeWidth={3} aria-hidden />
-                    </span>
-                  </button>
-                  <span className="pt-1">{item.description}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <span
+          className="shrink-0 text-xs font-medium leading-5 text-gray-800"
+          aria-label={`${group.items.length}개 중 ${completedCount}개 완료`}
+        >
+          <span className="font-bold text-primary-300">{completedCount}</span>/
+          {group.items.length}
+        </span>
       </div>
+      <div className="my-5 h-px bg-gray-50" />
+      {group.items.length === 0 ? (
+        <p className="text-sm leading-5 text-gray-400">
+          이 월령의 자료가 곧 추가됩니다.
+        </p>
+      ) : (
+        <ul className="space-y-2.5">
+          {group.items.map((item) => (
+            <li key={item.id} className="flex items-start gap-3">
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={item.completed}
+                aria-label={`${item.description} ${item.completed ? "체크 해제" : "체크"}`}
+                disabled={pendingMilestoneIds.has(item.id)}
+                onClick={() => onToggle(item.id, !item.completed)}
+                className="flex size-4.5 shrink-0 items-center justify-center disabled:opacity-60"
+              >
+                <span
+                  className={`flex size-4.5 items-center justify-center rounded-xs border transition-colors ${
+                    item.completed
+                      ? "border-primary-400 bg-primary-400 text-white"
+                      : "border-gray-200 bg-white text-transparent"
+                  }`}
+                >
+                  <Check className="size-3.5" strokeWidth={3} aria-hidden />
+                </span>
+              </button>
+              <span className="-translate-y-px text-sm font-normal leading-5 text-gray-600">
+                {item.description}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </Card>
   );
 };
@@ -455,7 +515,7 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
     <span
       role="img"
       aria-hidden
-      className="size-5 shrink-0 bg-contain bg-center bg-no-repeat"
+      className="block size-full shrink-0 bg-contain bg-center bg-no-repeat"
       style={{ backgroundImage: `url("${src}")` }}
     />
   );
