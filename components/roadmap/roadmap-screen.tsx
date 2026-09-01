@@ -370,7 +370,8 @@ const CategoryCard = ({
           <Chip
             shape="square"
             tone={tone}
-            className="size-6 shrink-0 justify-center rounded-[10px] p-[3px]"
+            className="size-6 shrink-0 justify-center"
+            style={{ borderRadius: 10, padding: 0 }}
             aria-hidden
           >
             <CategoryIcon iconKey={group.iconKey || fallback.iconKey} />
@@ -418,7 +419,7 @@ const CategoryCard = ({
                   <Check className="size-3.5" strokeWidth={3} aria-hidden />
                 </span>
               </button>
-              <span className="text-sm font-normal leading-5 text-gray-600">
+              <span className="-translate-y-px text-sm font-normal leading-5 text-gray-600">
                 {item.description}
               </span>
             </li>
