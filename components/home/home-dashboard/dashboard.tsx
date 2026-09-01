@@ -377,6 +377,7 @@ export const HomeDashboard = () => {
             onNotification={() => void openNotificationNudge()}
           />
           <HomeShortcutCards
+            roadmapProgress={data.roadmapProgress}
             completedPlayCount={data.reportSummary?.completedPlayCount ?? 0}
             positiveReactionRate={
               data.reportSummary?.childPositiveReactionRate ?? 0

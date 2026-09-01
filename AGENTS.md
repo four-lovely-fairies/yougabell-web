@@ -31,6 +31,7 @@ pnpm lint         # eslint
 - **모바일 WebView Apple 로그인**: web이 직접 OAuth를 시작하지 않는다. iOS는 native Apple Authentication, Android는 외부 보안 브라우저 Apple OAuth를 mobile이 수행한다.
 - **BFF는 가볍게**: 도메인 로직은 API에. Next route handler는 프록시·이미지 변환·캐시 정도만.
 - **컴포넌트 파일명**: kebab-case (`nav-bar.tsx`), 함수형 + `const`, Server Component 기본.
+- **PR 생성**: `.claude/skills/release/SKILL.md`의 4단계에 따라 실제 개행 here-document로 Markdown 본문을 만들고, 생성/수정 뒤 `gh pr view --json body --jq .body`로 렌더링 전 원문을 반드시 검증한다.
 
 ## 디렉토리 (예정, src 없는 형식)
 
