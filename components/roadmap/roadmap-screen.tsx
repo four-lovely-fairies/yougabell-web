@@ -454,7 +454,7 @@ const CategoryCard = ({
       ) : (
         <ul className="space-y-2.5">
           {group.items.map((item) => (
-            <li key={item.id} className="flex items-start gap-3">
+            <li key={item.id} className="flex items-center gap-3">
               <div className="flex shrink-0 p-[3px]">
                 <button
                   type="button"
