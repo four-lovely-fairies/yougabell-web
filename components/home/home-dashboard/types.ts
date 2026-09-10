@@ -2,7 +2,6 @@ export type Modal =
   | "children"
   | "notifications"
   | "notification-configured"
-  | "notification-schedule"
   | "mood"
   | "restart-mission"
   | null;

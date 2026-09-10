@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
+import { useNotificationSetupFlow } from "@/hooks/use-notification-setup-flow";
 import { track } from "@/lib/analytics";
 import { useScreenPerformance } from "@/hooks/use-screen-performance";
 import {
@@ -16,6 +17,7 @@ import {
   type HomeLoadState,
 } from "@/lib/api";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
+import { NotificationPermissionModal } from "@/components/mission/notification-permission-modal";
 import { NotificationScheduleScreen } from "@/components/mission/notification-schedule-screen";
 import { getWeeklyReportCountdown } from "@/lib/report-progress";
 import {
@@ -43,6 +45,7 @@ export const HomeDashboard = () => {
   const [notificationSubmitting, setNotificationSubmitting] = useState(false);
   const [checkingNotification, setCheckingNotification] = useState(false);
   const [showNotificationNudge, setShowNotificationNudge] = useState(false);
+  const notificationSetup = useNotificationSetupFlow();
   useScreenPerformance("/", state ? "api" : loading ? "pending" : "error");
 
   const refresh = useCallback(
@@ -288,12 +291,15 @@ export const HomeDashboard = () => {
       const configured = me.notificationPreferences.some(
         (preference) => preference.type === "play_10min" && preference.enabled,
       );
-      setModal(
-        configured ? "notification-configured" : "notification-schedule",
-      );
+      if (configured) {
+        setModal("notification-configured");
+        return;
+      }
+
+      notificationSetup.start();
     } catch {
-      // 상태를 확인하지 못해도 설정 화면에서 다시 저장할 수 있게 한다.
-      setModal("notification-schedule");
+      // 설정 조회가 실패해도 사용자가 권한과 시간대를 새로 설정할 수 있게 한다.
+      notificationSetup.start();
     } finally {
       setCheckingNotification(false);
     }
@@ -405,13 +411,30 @@ export const HomeDashboard = () => {
       {modal === "notification-configured" ? (
         <NotificationConfiguredModal onClose={() => setModal(null)} />
       ) : null}
-      {modal === "notification-schedule" ? (
+      {notificationSetup.view === "schedule" ? (
         <div className="fixed inset-0 z-60 mx-auto w-full max-w-107.5">
           <NotificationScheduleScreen
-            onClose={() => setModal(null)}
-            onComplete={() => setModal("notification-configured")}
+            onClose={notificationSetup.close}
+            onComplete={() => {
+              setShowNotificationNudge(false);
+              notificationSetup.close();
+              setModal("notification-configured");
+            }}
           />
         </div>
+      ) : null}
+      {notificationSetup.view === "permission-prompt" ||
+      notificationSetup.view === "system-settings-prompt" ? (
+        <NotificationPermissionModal
+          variant={
+            notificationSetup.view === "permission-prompt"
+              ? "request"
+              : "settings"
+          }
+          busy={notificationSetup.busy}
+          onClose={notificationSetup.close}
+          onConfirm={() => void notificationSetup.confirmPermission()}
+        />
       ) : null}
       {checkingNotification ? (
         <div

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useNotificationSetupFlow } from "@/hooks/use-notification-setup-flow";
 import { Mascot } from "@/components/characters/mascot";
 import { NotificationPermissionModal } from "@/components/mission/notification-permission-modal";
 import { NotificationScheduleScreen } from "@/components/mission/notification-schedule-screen";
@@ -14,12 +15,7 @@ import {
   type MissionEffectLoadState,
   type MissionLoadState,
 } from "@/lib/api";
-import {
-  isNativeWebView,
-  openNativeNotificationSettings,
-  requestNativePushPermission,
-  requestNativePushPermissionStatus,
-} from "@/lib/native-bridge";
+import { isNativeWebView } from "@/lib/native-bridge";
 import {
   HeaderSpacer,
   MissionContentSkeleton,
@@ -59,16 +55,16 @@ function isPlayNotificationDisabled(
   );
 }
 
-function getDebugNotificationPermission(): "denied" | null {
+function isNotificationPromptDebugEnabled(): boolean {
   if (process.env.NODE_ENV !== "development" || typeof window === "undefined") {
-    return null;
+    return false;
   }
 
-  return new URLSearchParams(window.location.search).get(
-    "notificationPromptDebug",
-  ) === "denied"
-    ? "denied"
-    : null;
+  return (
+    new URLSearchParams(window.location.search).get(
+      "notificationPromptDebug",
+    ) === "denied"
+  );
 }
 
 export function MissionEffectScreen({
@@ -85,15 +81,10 @@ export function MissionEffectScreen({
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState<
-    "request" | "settings" | "schedule" | null
-  >(null);
-  const [promptBusy, setPromptBusy] = useState(false);
-  const [permissionStatus, setPermissionStatus] = useState<
-    "granted" | "denied" | "undetermined" | null
-  >(null);
   const [notificationToast, setNotificationToast] = useState(false);
   const promptCheckStarted = useRef(false);
+  const notificationSetup = useNotificationSetupFlow();
+  const startNotificationSetup = notificationSetup.start;
 
   useEffect(() => {
     let cancelled = false;
@@ -144,12 +135,12 @@ export function MissionEffectScreen({
   }, [executionId, mode, router]);
 
   useEffect(() => {
-    const debugPermission = getDebugNotificationPermission();
+    const debugPrompt = isNotificationPromptDebugEnabled();
     if (
       loading ||
       !state ||
       promptCheckStarted.current ||
-      (!isNativeWebView() && !debugPermission)
+      (!isNativeWebView() && !debugPrompt)
     ) {
       return;
     }
@@ -158,16 +149,6 @@ export function MissionEffectScreen({
     let cancelled = false;
     const timeoutId = window.setTimeout(() => {
       void (async () => {
-        const status =
-          debugPermission ?? (await requestNativePushPermissionStatus());
-        if (cancelled || !status) return;
-
-        // 앱 내부의 놀이 알림이 이미 켜져 있으면 OS 권한 상태와 무관하게
-        // 다시 요청하지 않는다. 홈 카드의 알림 설정은 서버 설정만 저장하고
-        // OS 권한은 건드리지 않으므로, granted 조건으로만 걸러내면 이미
-        // 설정을 마친 사용자에게 요청 모달이 다시 노출된다.
-        // 알림이 꺼져 있고 OS 권한이 허용된 경우에는 시간대 설정으로
-        // 유도하며, 이때 OS 권한을 다시 요청하지는 않는다.
         try {
           const me = await api.getMe();
           if (
@@ -184,8 +165,7 @@ export function MissionEffectScreen({
           // 실제 모달을 열기 직전에 계정 기준 최초 노출을 원자적으로 예약한다.
           const exposure = await api.claimNotificationPromptExposure();
           if (!cancelled && exposure.shouldShow) {
-            setPermissionStatus(status);
-            setPrompt("request");
+            startNotificationSetup({ forceNative: debugPrompt });
           }
         } catch {
           // 노출 이력을 확실히 기록할 수 없으면 반복 노출을 피하기 위해 모달을 띄우지 않는다.
@@ -197,60 +177,10 @@ export function MissionEffectScreen({
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [loading, state]);
-
-  useEffect(() => {
-    if (prompt !== "settings") return;
-
-    const recheckPermission = () => {
-      void requestNativePushPermissionStatus().then((status) => {
-        if (status === "granted") {
-          setPermissionStatus(status);
-          setPrompt("schedule");
-        }
-      });
-    };
-
-    window.addEventListener("focus", recheckPermission);
-    document.addEventListener("visibilitychange", recheckPermission);
-    return () => {
-      window.removeEventListener("focus", recheckPermission);
-      document.removeEventListener("visibilitychange", recheckPermission);
-    };
-  }, [prompt]);
-
-  const handlePromptConfirm = async () => {
-    if (prompt === "settings") {
-      openNativeNotificationSettings();
-      return;
-    }
-
-    if (permissionStatus === "denied") {
-      setPrompt("settings");
-      return;
-    }
-
-    if (permissionStatus === "granted") {
-      setPrompt("schedule");
-      return;
-    }
-
-    setPromptBusy(true);
-    const result = await requestNativePushPermission();
-    setPromptBusy(false);
-
-    if (result === "granted") {
-      setPermissionStatus(result);
-      setPrompt("schedule");
-      return;
-    }
-
-    setPermissionStatus("denied");
-    setPrompt("settings");
-  };
+  }, [loading, startNotificationSetup, state]);
 
   const handleScheduleComplete = () => {
-    setPrompt(null);
+    notificationSetup.close();
     setNotificationToast(true);
     window.setTimeout(() => setNotificationToast(false), 3000);
   };
@@ -274,10 +204,10 @@ export function MissionEffectScreen({
   const mission = state.data.mission;
   const effectLabel = getEffectLabel(mission.effect, mission.title);
 
-  if (prompt === "schedule") {
+  if (notificationSetup.view === "schedule") {
     return (
       <NotificationScheduleScreen
-        onClose={() => setPrompt(null)}
+        onClose={notificationSetup.close}
         onComplete={handleScheduleComplete}
       />
     );
@@ -342,12 +272,17 @@ export function MissionEffectScreen({
         </button>
       </div>
 
-      {prompt === "request" || prompt === "settings" ? (
+      {notificationSetup.view === "permission-prompt" ||
+      notificationSetup.view === "system-settings-prompt" ? (
         <NotificationPermissionModal
-          variant={prompt}
-          busy={promptBusy}
-          onClose={() => setPrompt(null)}
-          onConfirm={() => void handlePromptConfirm()}
+          variant={
+            notificationSetup.view === "permission-prompt"
+              ? "request"
+              : "settings"
+          }
+          busy={notificationSetup.busy}
+          onClose={notificationSetup.close}
+          onConfirm={() => void notificationSetup.confirmPermission()}
         />
       ) : null}
     </div>
