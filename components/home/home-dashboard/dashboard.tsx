@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
+import { useNotificationSetupFlow } from "@/hooks/use-notification-setup-flow";
 import { track } from "@/lib/analytics";
 import { useScreenPerformance } from "@/hooks/use-screen-performance";
 import {
@@ -16,15 +17,8 @@ import {
   type HomeLoadState,
 } from "@/lib/api";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
-import { resolveHomeNotificationStep } from "@/lib/home-notification-flow";
 import { NotificationPermissionModal } from "@/components/mission/notification-permission-modal";
 import { NotificationScheduleScreen } from "@/components/mission/notification-schedule-screen";
-import {
-  isNativeWebView,
-  openNativeNotificationSettings,
-  requestNativePushPermission,
-  requestNativePushPermissionStatus,
-} from "@/lib/native-bridge";
 import { getWeeklyReportCountdown } from "@/lib/report-progress";
 import {
   AiConsultationCard,
@@ -51,11 +45,7 @@ export const HomeDashboard = () => {
   const [notificationSubmitting, setNotificationSubmitting] = useState(false);
   const [checkingNotification, setCheckingNotification] = useState(false);
   const [showNotificationNudge, setShowNotificationNudge] = useState(false);
-  const [notificationPermissionPrompt, setNotificationPermissionPrompt] =
-    useState<"request" | "settings" | null>(null);
-  const [notificationPermissionBusy, setNotificationPermissionBusy] =
-    useState(false);
-  const permissionRecoveryBusy = useRef(false);
+  const notificationSetup = useNotificationSetupFlow();
   useScreenPerformance("/", state ? "api" : loading ? "pending" : "error");
 
   const refresh = useCallback(
@@ -125,37 +115,6 @@ export const HomeDashboard = () => {
       data.selectedChild
     );
   }, [data, selectedChildId]);
-
-  useEffect(() => {
-    if (notificationPermissionPrompt !== "settings") return;
-
-    const recheckPermission = () => {
-      if (permissionRecoveryBusy.current) return;
-
-      permissionRecoveryBusy.current = true;
-      void requestNativePushPermissionStatus()
-        .then(async (permission) => {
-          if (permission !== "granted") return;
-
-          const registeredPermission = await requestNativePushPermission();
-          if (registeredPermission === "granted") {
-            setNotificationPermissionPrompt(null);
-            setModal("notification-schedule");
-          }
-        })
-        .catch(() => undefined)
-        .finally(() => {
-          permissionRecoveryBusy.current = false;
-        });
-    };
-
-    window.addEventListener("focus", recheckPermission);
-    document.addEventListener("visibilitychange", recheckPermission);
-    return () => {
-      window.removeEventListener("focus", recheckPermission);
-      document.removeEventListener("visibilitychange", recheckPermission);
-    };
-  }, [notificationPermissionPrompt]);
 
   if (!data || !selectedChild) {
     return loading ? (
@@ -337,68 +296,13 @@ export const HomeDashboard = () => {
         return;
       }
 
-      const native = isNativeWebView();
-      const permission = native
-        ? await requestNativePushPermissionStatus()
-        : null;
-      const nextStep = resolveHomeNotificationStep({
-        configured,
-        native,
-        permission,
-      });
-
-      if (nextStep === "configured") {
-        setModal("notification-configured");
-        return;
-      }
-
-      if (nextStep === "schedule") {
-        setModal("notification-schedule");
-        return;
-      }
-
-      if (nextStep === "register") {
-        // 이미 허용된 기기도 토큰이 없거나 교체됐을 수 있으므로 시간 설정 전에
-        // 네이티브 등록 경로를 한 번 거친다.
-        const registeredPermission = await requestNativePushPermission();
-        setModal(
-          registeredPermission === "granted" ? "notification-schedule" : null,
-        );
-        if (registeredPermission !== "granted") {
-          setNotificationPermissionPrompt("settings");
-        }
-        return;
-      }
-
-      setNotificationPermissionPrompt(nextStep);
+      notificationSetup.start();
     } catch {
-      // 네이티브 상태 확인 실패 시에도 서버 설정만 저장된 것처럼 보이지 않게
-      // 권한 안내에서 다시 시도할 수 있도록 한다.
-      setNotificationPermissionPrompt(isNativeWebView() ? "request" : null);
-      if (!isNativeWebView()) setModal("notification-schedule");
+      // 설정 조회가 실패해도 사용자가 권한과 시간대를 새로 설정할 수 있게 한다.
+      notificationSetup.start();
     } finally {
       setCheckingNotification(false);
     }
-  };
-
-  const handleNotificationPermissionConfirm = async () => {
-    if (notificationPermissionPrompt === "settings") {
-      openNativeNotificationSettings();
-      return;
-    }
-
-    setNotificationPermissionBusy(true);
-    const permission = await requestNativePushPermission().finally(() => {
-      setNotificationPermissionBusy(false);
-    });
-
-    if (permission === "granted") {
-      setNotificationPermissionPrompt(null);
-      setModal("notification-schedule");
-      return;
-    }
-
-    setNotificationPermissionPrompt("settings");
   };
 
   return (
@@ -507,23 +411,29 @@ export const HomeDashboard = () => {
       {modal === "notification-configured" ? (
         <NotificationConfiguredModal onClose={() => setModal(null)} />
       ) : null}
-      {modal === "notification-schedule" ? (
+      {notificationSetup.view === "schedule" ? (
         <div className="fixed inset-0 z-60 mx-auto w-full max-w-107.5">
           <NotificationScheduleScreen
-            onClose={() => setModal(null)}
+            onClose={notificationSetup.close}
             onComplete={() => {
               setShowNotificationNudge(false);
+              notificationSetup.close();
               setModal("notification-configured");
             }}
           />
         </div>
       ) : null}
-      {notificationPermissionPrompt ? (
+      {notificationSetup.view === "permission-prompt" ||
+      notificationSetup.view === "system-settings-prompt" ? (
         <NotificationPermissionModal
-          variant={notificationPermissionPrompt}
-          busy={notificationPermissionBusy}
-          onClose={() => setNotificationPermissionPrompt(null)}
-          onConfirm={() => void handleNotificationPermissionConfirm()}
+          variant={
+            notificationSetup.view === "permission-prompt"
+              ? "request"
+              : "settings"
+          }
+          busy={notificationSetup.busy}
+          onClose={notificationSetup.close}
+          onConfirm={() => void notificationSetup.confirmPermission()}
         />
       ) : null}
       {checkingNotification ? (
