@@ -14,6 +14,18 @@ export type NotificationSetupView =
   | "schedule"
   | null;
 
+export function getNotificationSetupEntryView(
+  native: boolean,
+): Exclude<NotificationSetupView, "system-settings-prompt" | null> {
+  return native ? "permission-prompt" : "schedule";
+}
+
+export function getViewAfterPermissionRequest(
+  permission: "granted" | "denied" | null,
+): Exclude<NotificationSetupView, "permission-prompt" | null> {
+  return permission === "granted" ? "schedule" : "system-settings-prompt";
+}
+
 export function useNotificationSetupFlow() {
   const [view, setView] = useState<NotificationSetupView>(null);
   const [busy, setBusy] = useState(false);
@@ -21,9 +33,7 @@ export function useNotificationSetupFlow() {
 
   const start = useCallback(
     ({ forceNative = false }: { forceNative?: boolean } = {}) => {
-      setView(
-        isNativeWebView() || forceNative ? "permission-prompt" : "schedule",
-      );
+      setView(getNotificationSetupEntryView(isNativeWebView() || forceNative));
     },
     [],
   );
@@ -45,7 +55,7 @@ export function useNotificationSetupFlow() {
       // 이미 허용된 경우에도 이 호출이 현재 기기의 Expo push token을
       // 서버에 (재)등록한다.
       const permission = await requestNativePushPermission();
-      setView(permission === "granted" ? "schedule" : "system-settings-prompt");
+      setView(getViewAfterPermissionRequest(permission));
     } finally {
       setBusy(false);
     }
