@@ -94,6 +94,7 @@ export function MissionEffectScreen({
   >(null);
   const [notificationToast, setNotificationToast] = useState(false);
   const promptCheckStarted = useRef(false);
+  const permissionRecoveryBusy = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -203,12 +204,27 @@ export function MissionEffectScreen({
     if (prompt !== "settings") return;
 
     const recheckPermission = () => {
-      void requestNativePushPermissionStatus().then((status) => {
-        if (status === "granted") {
-          setPermissionStatus(status);
-          setPrompt("schedule");
-        }
-      });
+      if (permissionRecoveryBusy.current) return;
+
+      permissionRecoveryBusy.current = true;
+      void requestNativePushPermissionStatus()
+        .then(async (status) => {
+          if (status !== "granted") return;
+
+          // 시스템 설정에서 권한을 켠 뒤에도 새 토큰 또는 변경된 토큰을
+          // 서버에 등록하고 나서 알림 시간대를 저장한다.
+          setPromptBusy(true);
+          const registeredPermission = await requestNativePushPermission();
+          if (registeredPermission === "granted") {
+            setPermissionStatus(registeredPermission);
+            setPrompt("schedule");
+          }
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          permissionRecoveryBusy.current = false;
+          setPromptBusy(false);
+        });
     };
 
     window.addEventListener("focus", recheckPermission);
@@ -230,14 +246,10 @@ export function MissionEffectScreen({
       return;
     }
 
-    if (permissionStatus === "granted") {
-      setPrompt("schedule");
-      return;
-    }
-
     setPromptBusy(true);
-    const result = await requestNativePushPermission();
-    setPromptBusy(false);
+    const result = await requestNativePushPermission().finally(() => {
+      setPromptBusy(false);
+    });
 
     if (result === "granted") {
       setPermissionStatus(result);
