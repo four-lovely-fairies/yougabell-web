@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppHeader, HeaderSpacer } from "@/components/app/app-header";
+import { useMainShellReport } from "@/components/app/main-shell-report-context";
 import { track } from "@/lib/analytics";
 import { useScreenPerformance } from "@/hooks/use-screen-performance";
 import {
@@ -35,6 +36,7 @@ export const WeeklyReportScreen = () => {
   const router = useRouter();
   const [state, setState] = useState<WeeklyReportLoadState | null>(null);
   const [loading, setLoading] = useState(true);
+  const { setHasUnviewedWeeklyReport } = useMainShellReport();
   useScreenPerformance(
     "/weekly-report",
     loading
@@ -61,9 +63,11 @@ export const WeeklyReportScreen = () => {
     setState(next);
     setLoading(false);
     if (next.data?.report) {
-      void markWeeklyReportViewed(next.data.report.id);
+      void markWeeklyReportViewed(next.data.report.id)
+        .then(() => setHasUnviewedWeeklyReport(false))
+        .catch(() => undefined);
     }
-  }, [requestReport]);
+  }, [requestReport, setHasUnviewedWeeklyReport]);
 
   useEffect(() => {
     let active = true;
@@ -72,7 +76,9 @@ export const WeeklyReportScreen = () => {
       setState(next);
       setLoading(false);
       if (next.data?.report) {
-        void markWeeklyReportViewed(next.data.report.id);
+        void markWeeklyReportViewed(next.data.report.id)
+          .then(() => setHasUnviewedWeeklyReport(false))
+          .catch(() => undefined);
       }
       track({
         type: "weekly_report_view",
@@ -82,7 +88,7 @@ export const WeeklyReportScreen = () => {
     return () => {
       active = false;
     };
-  }, [requestReport]);
+  }, [requestReport, setHasUnviewedWeeklyReport]);
 
   const goBack = () => {
     if (window.history.length > 1) {

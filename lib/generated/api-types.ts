@@ -72,7 +72,7 @@ export interface paths {
         post?: never;
         /**
          * 계정 탈퇴 (Figma 2395:8988)
-         * @description soft delete (deletedAt set). 30일 후 cron으로 hard delete + cascade.
+         * @description soft delete (deletedAt set). 물리 삭제 배치는 후속 작업으로 분리한다.
          */
         delete: operations["UsersController_deleteAccount"];
         options?: never;
@@ -189,7 +189,7 @@ export interface paths {
         };
         /**
          * 사용자 목록 (운영자)
-         * @description 온보딩 완료자 기본. q(이름 LIKE) / page / limit / onboarded 필터.
+         * @description 온보딩 완료자 기본. q(이름 또는 이메일 검색) / page / limit / onboarded 필터. 이메일은 마스킹하여 반환.
          */
         get: operations["AdminController_listUsers"];
         put?: never;
@@ -1201,6 +1201,10 @@ export interface components {
             growthStage: components["schemas"]["HomeGrowthStageDto"] | null;
             roadmapProgress: components["schemas"]["HomeRoadmapProgressDto"];
             reportSummary: components["schemas"]["HomeReportSummaryDto"] | null;
+            /** @example true */
+            playNotificationEnabled: boolean;
+            /** @example true */
+            hasUnviewedWeeklyReport: boolean;
             notifications: components["schemas"]["HomeNotificationsDto"];
         };
         UpsertHomeMoodDto: {
@@ -2125,7 +2129,7 @@ export interface operations {
             query?: {
                 /** @description 온보딩 필터. default true (완료자만) */
                 onboarded?: "true" | "false" | "all";
-                /** @description 이름 LIKE 검색 */
+                /** @description 이름 또는 이메일 부분 검색 */
                 q?: string;
                 /** @description 1-based */
                 page?: number;
