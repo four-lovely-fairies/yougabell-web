@@ -81,7 +81,7 @@
         ]
       },
       "delete": {
-        "description": "soft delete (deletedAt set). 30일 후 cron으로 hard delete + cascade.",
+        "description": "soft delete (deletedAt set). 물리 삭제 배치는 후속 작업으로 분리한다.",
         "operationId": "UsersController_deleteAccount",
         "parameters": [],
         "requestBody": {
@@ -284,7 +284,7 @@
     },
     "/admin/users": {
       "get": {
-        "description": "온보딩 완료자 기본. q(이름 LIKE) / page / limit / onboarded 필터.",
+        "description": "온보딩 완료자 기본. q(이름 또는 이메일 검색) / page / limit / onboarded 필터. 이메일은 마스킹하여 반환.",
         "operationId": "AdminController_listUsers",
         "parameters": [
           {
@@ -305,7 +305,7 @@
             "name": "q",
             "required": false,
             "in": "query",
-            "description": "이름 LIKE 검색",
+            "description": "이름 또는 이메일 부분 검색",
             "schema": {
               "type": "string"
             }
@@ -3300,6 +3300,14 @@
               }
             ]
           },
+          "playNotificationEnabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "hasUnviewedWeeklyReport": {
+            "type": "boolean",
+            "example": true
+          },
           "notifications": {
             "$ref": "#/components/schemas/HomeNotificationsDto"
           }
@@ -3313,6 +3321,8 @@
           "growthStage",
           "roadmapProgress",
           "reportSummary",
+          "playNotificationEnabled",
+          "hasUnviewedWeeklyReport",
           "notifications"
         ]
       },

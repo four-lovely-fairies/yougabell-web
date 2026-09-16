@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
 import { useNotificationSetupFlow } from "@/hooks/use-notification-setup-flow";
+import { useMainShellReport } from "@/components/app/main-shell-report-context";
 import { track } from "@/lib/analytics";
 import { useScreenPerformance } from "@/hooks/use-screen-performance";
 import {
   ApiError,
-  api,
   getStoredSelectedChildId,
   loadHomeDashboard,
   markAllNotificationsRead,
@@ -43,25 +43,35 @@ export const HomeDashboard = () => {
   const [modal, setModal] = useState<Modal>(null);
   const [loading, setLoading] = useState(true);
   const [notificationSubmitting, setNotificationSubmitting] = useState(false);
-  const [checkingNotification, setCheckingNotification] = useState(false);
   const [showNotificationNudge, setShowNotificationNudge] = useState(false);
   const notificationSetup = useNotificationSetupFlow();
+  const { clear: clearReportState, replaceFromHome } = useMainShellReport();
   useScreenPerformance("/", state ? "api" : loading ? "pending" : "error");
+
+  const applyHome = useCallback(
+    (next: HomeLoadState) => {
+      setState(next);
+      setSelectedChildId(next.data.selectedChild.id);
+      setStoredSelectedChildId(next.data.selectedChild.id);
+      setShowNotificationNudge(!next.data.playNotificationEnabled);
+      replaceFromHome(next.data);
+    },
+    [replaceFromHome],
+  );
 
   const refresh = useCallback(
     async (childId?: string | null, showLoading = true) => {
       if (showLoading) setLoading(true);
       try {
         const next = await loadHomeDashboard(childId);
-        setState(next);
-        setSelectedChildId(next.data.selectedChild.id);
+        applyHome(next);
       } catch {
         // 데이터가 아직 없으면 렌더에서 에러 UI를 노출. 기존 데이터가 있으면 유지한다.
       } finally {
         setLoading(false);
       }
     },
-    [],
+    [applyHome],
   );
 
   // 당겨서새로고침 — 로딩 스켈레톤 대신 헤더 아래 스피너만 노출(showLoading=false).
@@ -76,35 +86,19 @@ export const HomeDashboard = () => {
     track({ type: "home_view" });
     let active = true;
     void (async () => {
-      // 홈 데이터와 알림 설정 상태는 서로 의존하지 않는다. 직렬로 기다리면
-      // API 왕복이 2번 쌓여 첫 화면이 그만큼 늦어지므로 함께 띄운다.
-      const [home, me] = await Promise.allSettled([
-        loadHomeDashboard(getStoredSelectedChildId()),
-        api.getMe(),
-      ]);
-      if (!active) return;
-
-      if (home.status === "fulfilled") {
-        setState(home.value);
-        setSelectedChildId(home.value.data.selectedChild.id);
+      try {
+        const home = await loadHomeDashboard(getStoredSelectedChildId());
+        if (active) applyHome(home);
+      } catch {
+        // state가 없으므로 렌더에서 에러 UI를 노출한다.
+      } finally {
+        if (active) setLoading(false);
       }
-      // 실패 시 state가 없으므로 렌더에서 에러 UI가 노출된다.
-
-      if (me.status === "fulfilled") {
-        const playNotificationEnabled = me.value.notificationPreferences.some(
-          (preference) =>
-            preference.type === "play_10min" && preference.enabled,
-        );
-        setShowNotificationNudge(!playNotificationEnabled);
-      }
-      // 설정 상태를 확인하지 못하면 잘못 보이는 것보다 숨김을 우선한다.
-
-      setLoading(false);
     })();
     return () => {
       active = false;
     };
-  }, []);
+  }, [applyHome]);
 
   const data = state?.data;
 
@@ -128,6 +122,7 @@ export const HomeDashboard = () => {
     track({ type: "home_child_switch" });
     setStoredSelectedChildId(child.id);
     setSelectedChildId(child.id);
+    clearReportState();
     setModal(null);
     void refresh(child.id);
   };
@@ -282,27 +277,14 @@ export const HomeDashboard = () => {
     router.push("/mission");
   };
 
-  const openNotificationNudge = async () => {
-    if (checkingNotification) return;
+  const openNotificationNudge = () => {
     track({ type: "home_play_notification_nudge_click" });
-    setCheckingNotification(true);
-    try {
-      const me = await api.getMe();
-      const configured = me.notificationPreferences.some(
-        (preference) => preference.type === "play_10min" && preference.enabled,
-      );
-      if (configured) {
-        setModal("notification-configured");
-        return;
-      }
-
-      notificationSetup.start();
-    } catch {
-      // 설정 조회가 실패해도 사용자가 권한과 시간대를 새로 설정할 수 있게 한다.
-      notificationSetup.start();
-    } finally {
-      setCheckingNotification(false);
+    if (data.playNotificationEnabled) {
+      setModal("notification-configured");
+      return;
     }
+
+    notificationSetup.start();
   };
 
   return (
@@ -384,7 +366,7 @@ export const HomeDashboard = () => {
             loading={loading}
             showNotificationNudge={showNotificationNudge}
             onStart={startMissionFromHome}
-            onNotification={() => void openNotificationNudge()}
+            onNotification={openNotificationNudge}
           />
           <HomeShortcutCards
             roadmapProgress={data.roadmapProgress}
@@ -416,6 +398,17 @@ export const HomeDashboard = () => {
           <NotificationScheduleScreen
             onClose={notificationSetup.close}
             onComplete={() => {
+              setState((current) =>
+                current
+                  ? {
+                      ...current,
+                      data: {
+                        ...current.data,
+                        playNotificationEnabled: true,
+                      },
+                    }
+                  : current,
+              );
               setShowNotificationNudge(false);
               notificationSetup.close();
               setModal("notification-configured");
@@ -435,14 +428,6 @@ export const HomeDashboard = () => {
           onClose={notificationSetup.close}
           onConfirm={() => void notificationSetup.confirmPermission()}
         />
-      ) : null}
-      {checkingNotification ? (
-        <div
-          className="fixed inset-0 z-60 flex items-center justify-center bg-black/20"
-          aria-label="알림 설정 확인 중"
-        >
-          <span className="size-7 animate-spin rounded-full border-2 border-white border-t-primary-300" />
-        </div>
       ) : null}
     </>
   );

@@ -1,13 +1,16 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, type CSSProperties } from "react";
+import { useMainShellReport } from "@/components/app/main-shell-report-context";
 import {
   getStoredSelectedChildId,
   loadWeeklyReportUnviewedStatus,
 } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import { beginScreen } from "@/lib/performance";
+import { reportStateForChild } from "@/lib/main-shell-report-state";
+import { createSingleFlight } from "@/lib/single-flight";
 import type { NavigationEvent } from "@/lib/analytics";
 
 const NAV_ICON_PATHS = {
@@ -88,7 +91,12 @@ const maskStyle = (src: string): CSSProperties => ({
 export const BottomNav = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const [showReportTooltip, setShowReportTooltip] = useState(false);
+  const { state, replaceForChild } = useMainShellReport();
+  const selectedChildId = getStoredSelectedChildId();
+  const selectedChildState = reportStateForChild(state, selectedChildId);
+  const showReportTooltip =
+    selectedChildState?.hasUnviewedWeeklyReport ?? false;
+  const runStatusRequest = useMemo(() => createSingleFlight<boolean>(), []);
 
   useEffect(() => {
     if (pathname.startsWith("/weekly-report")) {
@@ -97,16 +105,20 @@ export const BottomNav = () => {
 
     let active = true;
     const checkUnviewedReport = () => {
-      void loadWeeklyReportUnviewedStatus(getStoredSelectedChildId())
+      const childId = getStoredSelectedChildId();
+
+      void runStatusRequest(() => loadWeeklyReportUnviewedStatus(childId))
         .then((hasUnviewedReport) => {
-          if (active) setShowReportTooltip(hasUnviewedReport);
+          if (active && getStoredSelectedChildId() === childId) {
+            replaceForChild(childId, hasUnviewedReport);
+          }
         })
-        .catch(() => {
-          if (active) setShowReportTooltip(false);
-        });
+        .catch(() => undefined);
     };
 
-    checkUnviewedReport();
+    // 홈에서는 HomeDashboard가 같은 /home 응답으로 context를 채운다.
+    // 비홈 직접 진입 또는 다른 자녀의 상태만 있을 때 fallback을 사용한다.
+    if (pathname !== "/" && !selectedChildState) checkUnviewedReport();
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") checkUnviewedReport();
     };
@@ -117,7 +129,7 @@ export const BottomNav = () => {
       window.removeEventListener("focus", checkUnviewedReport);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [pathname]);
+  }, [pathname, replaceForChild, runStatusRequest, selectedChildState]);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 w-full px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5 md:left-1/2 md:max-w-97.5 md:-translate-x-1/2">
