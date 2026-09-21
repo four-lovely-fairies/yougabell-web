@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { cache } from "react";
 import type { HomeDashboard } from "./home-data";
 import { SELECTED_CHILD_COOKIE } from "./api/storage";
@@ -17,7 +18,7 @@ export const fetchServerHome = cache(async (): Promise<ServerHomeResult> => {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (!session) throw new Error("Home session is unavailable");
+  if (!session) redirect("/onboarding/intro");
 
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
   if (!baseUrl) throw new Error("NEXT_PUBLIC_API_BASE_URL is required.");
@@ -41,6 +42,7 @@ export const fetchServerHome = cache(async (): Promise<ServerHomeResult> => {
     response = await fetchHome();
     selectionResetRequired = true;
   }
+  if (response.status === 401) redirect("/onboarding/intro");
   if (!response.ok) throw new Error(`Home API failed (${response.status})`);
   return {
     data: (await response.json()) as HomeDashboard,

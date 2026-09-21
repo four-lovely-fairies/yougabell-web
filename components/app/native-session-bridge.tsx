@@ -30,10 +30,13 @@ export function NativeSessionBridge() {
               return;
             }
 
-            await supabase.auth.setSession({
+            const { data: synced } = await supabase.auth.setSession({
               access_token: message.payload.accessToken,
               refresh_token: message.payload.refreshToken,
             });
+            if (current?.user.id && synced.user?.id !== current.user.id) {
+              clearStoredSelectedChildId();
+            }
             return;
           }
           case "SUPABASE_SESSION_CLEARED": {
