@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
+import { clearStoredSelectedChildId } from "@/lib/api/storage";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function SettingsPage() {
   const onLogout = async () => {
     track({ type: "settings_logout" });
     notifyMobile({ type: "LOGOUT" });
+    clearStoredSelectedChildId();
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
     router.replace("/onboarding/intro");
@@ -248,6 +250,7 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
       await api.deleteAccount();
       track({ type: "settings_account_delete_confirm" });
       notifyMobile({ type: "LOGOUT" });
+      clearStoredSelectedChildId();
       const supabase = createSupabaseBrowserClient();
       await supabase.auth.signOut();
       router.replace("/onboarding/intro");

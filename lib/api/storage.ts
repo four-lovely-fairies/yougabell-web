@@ -1,17 +1,26 @@
-export const getStoredSelectedChildId = () => {
-  if (typeof window === "undefined") {
+export const SELECTED_CHILD_COOKIE = "yougabell-selected-child-id";
+
+export const getStoredSelectedChildId = (): string | null => {
+  if (typeof document === "undefined") return null;
+  const prefix = `${SELECTED_CHILD_COOKIE}=`;
+  const entry = document.cookie
+    .split("; ")
+    .find((part) => part.startsWith(prefix));
+  if (!entry) return null;
+  try {
+    return decodeURIComponent(entry.slice(prefix.length)) || null;
+  } catch {
     return null;
   }
-  return window.localStorage.getItem("home:selected-child-id");
 };
 
 export const setStoredSelectedChildId = (childId: string) => {
-  window.localStorage.setItem("home:selected-child-id", childId);
+  if (typeof document === "undefined") return;
+  const secure = location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${SELECTED_CHILD_COOKIE}=${encodeURIComponent(childId)}; Path=/; SameSite=Lax${secure}`;
 };
 
 export const clearStoredSelectedChildId = () => {
-  if (typeof window === "undefined") {
-    return;
-  }
-  window.localStorage.removeItem("home:selected-child-id");
+  if (typeof document === "undefined") return;
+  document.cookie = `${SELECTED_CHILD_COOKIE}=; Path=/; SameSite=Lax; Max-Age=0`;
 };

@@ -7,6 +7,7 @@ import {
   subscribeToNativeMessages,
 } from "@/lib/native-bridge";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { clearStoredSelectedChildId } from "@/lib/api/storage";
 
 export function NativeSessionBridge() {
   useEffect(() => {
@@ -36,6 +37,7 @@ export function NativeSessionBridge() {
             return;
           }
           case "SUPABASE_SESSION_CLEARED": {
+            clearStoredSelectedChildId();
             const { data } = await supabase.auth.getSession();
 
             if (!data.session) {
