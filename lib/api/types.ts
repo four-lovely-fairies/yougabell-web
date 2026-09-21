@@ -1,4 +1,3 @@
-import type { HomeDashboard } from "../home-data";
 import type {
   CurrentMissionResponse,
   MissionExecutionEffect,
@@ -6,10 +5,6 @@ import type {
 import type { RoadmapResponse } from "../roadmap-data";
 import type { ChatResponse } from "../chat-data";
 import type { WeeklyReportViewData } from "../weekly-report-data";
-
-export type HomeLoadState = {
-  data: HomeDashboard;
-};
 
 export type WeeklyReportLoadState =
   | {

@@ -1,7 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useOptimistic,
+  useState,
+  useTransition,
+} from "react";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
 import { useNotificationSetupFlow } from "@/hooks/use-notification-setup-flow";
 import { useMainShellReport } from "@/components/app/main-shell-report-context";
@@ -10,13 +17,15 @@ import { useScreenPerformance } from "@/hooks/use-screen-performance";
 import {
   ApiError,
   getStoredSelectedChildId,
-  loadHomeDashboard,
   markAllNotificationsRead,
   markNotificationRead,
   setStoredSelectedChildId,
-  type HomeLoadState,
 } from "@/lib/api";
-import type { HomeChild, HomeNotification } from "@/lib/home-data";
+import type {
+  HomeChild,
+  HomeDashboard as HomeDashboardData,
+  HomeNotification,
+} from "@/lib/home-data";
 import { NotificationPermissionModal } from "@/components/mission/notification-permission-modal";
 import { NotificationScheduleScreen } from "@/components/mission/notification-schedule-screen";
 import { getWeeklyReportCountdown } from "@/lib/report-progress";
@@ -31,162 +40,90 @@ import {
   NotificationConfiguredModal,
   NotificationModal,
 } from "./modals";
-import { HomeError, HomeSkeleton } from "./skeleton";
+import {
+  applyNotificationAction,
+  type NotificationAction,
+} from "./notification-state";
 import { TopAppBar } from "./top-app-bar";
 import type { Modal } from "./types";
 import { WeeklyCalendar } from "./weekly-calendar";
 
-export const HomeDashboard = () => {
+export const HomeDashboard = ({
+  initialHome,
+  selectionResetRequired,
+}: {
+  initialHome: HomeDashboardData;
+  selectionResetRequired: boolean;
+}) => {
   const router = useRouter();
-  const [state, setState] = useState<HomeLoadState | null>(null);
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  // Confirmed client-only patches belong to this server payload, not future RSC props.
+  const [confirmed, setConfirmed] = useState<{
+    source: HomeDashboardData;
+    data: HomeDashboardData;
+  } | null>(null);
+  const base = confirmed?.source === initialHome ? confirmed.data : initialHome;
+  const [data, applyOptimistic] = useOptimistic(base, applyNotificationAction);
+  const [pendingSelection, setPendingSelection] = useState<{
+    source: HomeDashboardData;
+    id: string;
+  } | null>(null);
+  const [refreshPending, startRefresh] = useTransition();
+  const selectionPending =
+    pendingSelection?.source === initialHome && refreshPending
+      ? pendingSelection.id
+      : null;
   const [modal, setModal] = useState<Modal>(null);
-  const [loading, setLoading] = useState(true);
   const [notificationSubmitting, setNotificationSubmitting] = useState(false);
-  const [showNotificationNudge, setShowNotificationNudge] = useState(false);
+  const [notificationError, setNotificationError] = useState<string | null>(
+    null,
+  );
   const notificationSetup = useNotificationSetupFlow();
   const { clear: clearReportState, replaceFromHome } = useMainShellReport();
-  useScreenPerformance("/", state ? "api" : loading ? "pending" : "error");
+  useScreenPerformance("/", "api");
 
-  const applyHome = useCallback(
-    (next: HomeLoadState) => {
-      setState(next);
-      setSelectedChildId(next.data.selectedChild.id);
-      setStoredSelectedChildId(next.data.selectedChild.id);
-      setShowNotificationNudge(!next.data.playNotificationEnabled);
-      replaceFromHome(next.data);
-    },
-    [replaceFromHome],
-  );
+  useEffect(() => {
+    // A stale/deleted cookie is repaired from the server-selected default child.
+    if (
+      selectionResetRequired ||
+      getStoredSelectedChildId() !== initialHome.selectedChild.id
+    ) {
+      setStoredSelectedChildId(initialHome.selectedChild.id);
+    }
+    replaceFromHome(initialHome);
+  }, [initialHome, replaceFromHome, selectionResetRequired]);
 
-  const refresh = useCallback(
-    async (childId?: string | null, showLoading = true) => {
-      if (showLoading) setLoading(true);
-      try {
-        const next = await loadHomeDashboard(childId);
-        applyHome(next);
-      } catch {
-        // 데이터가 아직 없으면 렌더에서 에러 UI를 노출. 기존 데이터가 있으면 유지한다.
-      } finally {
-        setLoading(false);
-      }
-    },
-    [applyHome],
-  );
+  const refresh = useCallback(() => {
+    startRefresh(() => router.refresh());
+  }, [router]);
 
-  // 당겨서새로고침 — 로딩 스켈레톤 대신 헤더 아래 스피너만 노출(showLoading=false).
-  const onPullRefresh = useCallback(
-    () => refresh(selectedChildId ?? getStoredSelectedChildId(), false),
-    [refresh, selectedChildId],
-  );
+  const onPullRefresh = useCallback(() => refresh(), [refresh]);
   const { distance: pullDistance, refreshing: pullRefreshing } =
     usePullToRefresh(onPullRefresh);
 
   useEffect(() => {
     track({ type: "home_view" });
-    let active = true;
-    void (async () => {
-      try {
-        const home = await loadHomeDashboard(getStoredSelectedChildId());
-        if (active) applyHome(home);
-      } catch {
-        // state가 없으므로 렌더에서 에러 UI를 노출한다.
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [applyHome]);
+  }, []);
 
-  const data = state?.data;
-
-  const selectedChild = useMemo(() => {
-    if (!data) return null;
-    return (
-      data.children.find((child) => child.id === selectedChildId) ??
-      data.selectedChild
-    );
-  }, [data, selectedChildId]);
-
-  if (!data || !selectedChild) {
-    return loading ? (
-      <HomeSkeleton />
-    ) : (
-      <HomeError onRetry={() => void refresh(getStoredSelectedChildId())} />
-    );
-  }
+  const selectedChild = data.selectedChild;
 
   const onSelectChild = (child: HomeChild) => {
+    if (child.id === selectedChild.id || selectionPending) return;
     track({ type: "home_child_switch" });
     setStoredSelectedChildId(child.id);
-    setSelectedChildId(child.id);
+    setPendingSelection({ source: initialHome, id: child.id });
     clearReportState();
     setModal(null);
-    void refresh(child.id);
+    refresh();
   };
 
-  const markNotificationReadLocally = (notificationId: string) => {
-    setState((current) => {
-      if (!current) return current;
-
-      let changed = false;
-      const latest = current.data.notifications.latest.map((notification) => {
-        if (notification.id !== notificationId || notification.readAt) {
-          return notification;
-        }
-
-        changed = true;
-        return {
-          ...notification,
-          readAt: new Date().toISOString(),
-        };
-      });
-
-      if (!changed) {
-        return current;
-      }
-
-      return {
-        ...current,
-        data: {
-          ...current.data,
-          notifications: {
-            ...current.data.notifications,
-            unreadCount: Math.max(
-              0,
-              current.data.notifications.unreadCount - 1,
-            ),
-            latest,
-          },
-        },
-      };
-    });
-  };
-
-  const markAllNotificationsReadLocally = () => {
-    setState((current) => {
-      if (!current) return current;
-
-      const latest = current.data.notifications.latest.map((notification) =>
-        notification.readAt
-          ? notification
-          : { ...notification, readAt: new Date().toISOString() },
-      );
-
-      return {
-        ...current,
-        data: {
-          ...current.data,
-          notifications: {
-            ...current.data.notifications,
-            unreadCount: 0,
-            latest,
-          },
-        },
-      };
-    });
+  const confirmNotification = (action: NotificationAction) => {
+    setConfirmed((current) => ({
+      source: initialHome,
+      data: applyNotificationAction(
+        current?.source === initialHome ? current.data : initialHome,
+        action,
+      ),
+    }));
   };
 
   const openNotificationTarget = (notification: HomeNotification) => {
@@ -228,48 +165,60 @@ export const HomeDashboard = () => {
     }
   };
 
-  const handleNotificationOpen = async (notification: HomeNotification) => {
+  const handleNotificationOpen = (notification: HomeNotification) => {
     if (notificationSubmitting) {
       return;
     }
 
+    const action: NotificationAction = { type: "read", id: notification.id };
     setNotificationSubmitting(true);
-    try {
-      if (!notification.readAt) {
-        await markNotificationRead(notification.id);
-        markNotificationReadLocally(notification.id);
+    setNotificationError(null);
+    startTransition(async () => {
+      try {
+        if (!notification.readAt) {
+          applyOptimistic(action);
+          await markNotificationRead(notification.id);
+          confirmNotification(action);
+        }
+        setModal(null);
+        track({ type: "home_notification_open" });
+        openNotificationTarget(notification);
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          router.replace("/onboarding/intro");
+        } else {
+          setNotificationError("알림을 처리하지 못했어요. 다시 시도해 주세요.");
+        }
+      } finally {
+        setNotificationSubmitting(false);
       }
-      setModal(null);
-      track({ type: "home_notification_open" });
-      openNotificationTarget(notification);
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
-        router.replace("/onboarding/intro");
-        return;
-      }
-    } finally {
-      setNotificationSubmitting(false);
-    }
+    });
   };
 
-  const handleMarkAllNotificationsRead = async () => {
-    if (notificationSubmitting || data?.notifications.unreadCount === 0) {
+  const handleMarkAllNotificationsRead = () => {
+    if (notificationSubmitting || data.notifications.unreadCount === 0) {
       return;
     }
 
     setNotificationSubmitting(true);
-    try {
-      await markAllNotificationsRead();
-      markAllNotificationsReadLocally();
-      track({ type: "home_notifications_mark_all_read" });
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
-        router.replace("/onboarding/intro");
-        return;
+    setNotificationError(null);
+    startTransition(async () => {
+      try {
+        const action: NotificationAction = { type: "read-all" };
+        applyOptimistic(action);
+        await markAllNotificationsRead();
+        confirmNotification(action);
+        track({ type: "home_notifications_mark_all_read" });
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          router.replace("/onboarding/intro");
+        } else {
+          setNotificationError("알림을 처리하지 못했어요. 다시 시도해 주세요.");
+        }
+      } finally {
+        setNotificationSubmitting(false);
       }
-    } finally {
-      setNotificationSubmitting(false);
-    }
+    });
   };
 
   const startMissionFromHome = () => {
@@ -327,7 +276,7 @@ export const HomeDashboard = () => {
         </div>
       </div>
       {/* 당겨서새로고침 스피너 — 고정 헤더 바로 아래(z-40 < 헤더 z-50)에 표시 */}
-      {pullDistance > 0 || pullRefreshing ? (
+      {pullDistance > 0 || pullRefreshing || refreshPending ? (
         <div
           aria-hidden
           className="pointer-events-none fixed inset-x-0 top-0 z-40 mx-auto w-full max-w-107.5 pt-safe"
@@ -336,13 +285,17 @@ export const HomeDashboard = () => {
           <div className="flex justify-center">
             <div
               className={`mt-2 size-6 rounded-full border-2 border-gray-200 border-t-primary-300 ${
-                pullRefreshing ? "animate-spin" : ""
+                pullRefreshing || refreshPending ? "animate-spin" : ""
               }`}
               style={{
-                transform: pullRefreshing
-                  ? undefined
-                  : `translateY(${pullDistance}px) rotate(${pullDistance * 3}deg)`,
-                opacity: pullRefreshing ? 1 : Math.min(1, pullDistance / 40),
+                transform:
+                  pullRefreshing || refreshPending
+                    ? undefined
+                    : `translateY(${pullDistance}px) rotate(${pullDistance * 3}deg)`,
+                opacity:
+                  pullRefreshing || refreshPending
+                    ? 1
+                    : Math.min(1, pullDistance / 40),
               }}
             />
           </div>
@@ -363,8 +316,8 @@ export const HomeDashboard = () => {
         <div className="flex flex-col gap-4 px-5 pt-4">
           <TodayMissionCard
             mission={data.recommendedMission}
-            loading={loading}
-            showNotificationNudge={showNotificationNudge}
+            loading={Boolean(selectionPending)}
+            showNotificationNudge={!data.playNotificationEnabled}
             onStart={startMissionFromHome}
             onNotification={openNotificationNudge}
           />
@@ -383,11 +336,10 @@ export const HomeDashboard = () => {
           notifications={data.notifications.latest}
           unreadCount={data.notifications.unreadCount}
           submitting={notificationSubmitting}
+          errorMessage={notificationError}
           onClose={() => setModal(null)}
-          onMarkAllRead={() => void handleMarkAllNotificationsRead()}
-          onOpenNotification={(notification) =>
-            void handleNotificationOpen(notification)
-          }
+          onMarkAllRead={handleMarkAllNotificationsRead}
+          onOpenNotification={handleNotificationOpen}
         />
       ) : null}
       {modal === "notification-configured" ? (
@@ -398,18 +350,15 @@ export const HomeDashboard = () => {
           <NotificationScheduleScreen
             onClose={notificationSetup.close}
             onComplete={() => {
-              setState((current) =>
-                current
-                  ? {
-                      ...current,
-                      data: {
-                        ...current.data,
-                        playNotificationEnabled: true,
-                      },
-                    }
-                  : current,
-              );
-              setShowNotificationNudge(false);
+              setConfirmed((current) => ({
+                source: initialHome,
+                data: {
+                  ...(current?.source === initialHome
+                    ? current.data
+                    : initialHome),
+                  playNotificationEnabled: true,
+                },
+              }));
               notificationSetup.close();
               setModal("notification-configured");
             }}

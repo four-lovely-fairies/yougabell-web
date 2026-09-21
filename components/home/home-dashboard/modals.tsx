@@ -76,6 +76,7 @@ export const NotificationModal = ({
   notifications,
   unreadCount,
   submitting,
+  errorMessage,
   onClose,
   onMarkAllRead,
   onOpenNotification,
@@ -83,6 +84,7 @@ export const NotificationModal = ({
   notifications: HomeNotification[];
   unreadCount: number;
   submitting: boolean;
+  errorMessage: string | null;
   onClose: () => void;
   onMarkAllRead: () => void;
   onOpenNotification: (notification: HomeNotification) => void;
@@ -124,6 +126,11 @@ export const NotificationModal = ({
           </div>
         </div>
         <div className="mt-4 space-y-3">
+          {errorMessage ? (
+            <p role="alert" className="text-sm text-error-600">
+              {errorMessage}
+            </p>
+          ) : null}
           {notifications.length > 0 ? (
             notifications.map((notification) => (
               <button

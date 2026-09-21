@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { HomeDashboard } from "@/components/home/home-dashboard";
+import { fetchServerHome } from "@/lib/server-home";
 import { fetchServerMe } from "@/lib/supabase/server";
 
 export default async function HomePage() {
@@ -8,5 +9,11 @@ export default async function HomePage() {
     redirect("/onboarding/intro");
   }
 
-  return <HomeDashboard />;
+  const home = await fetchServerHome();
+  return (
+    <HomeDashboard
+      initialHome={home.data}
+      selectionResetRequired={home.selectionResetRequired}
+    />
+  );
 }
