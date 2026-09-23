@@ -93,12 +93,13 @@ export const HomeDashboard = ({
   }, [initialHome, replaceFromHome, selectionResetRequired]);
 
   const refresh = useCallback(() => {
+    if (refreshPending) return;
     startRefresh(() => router.refresh());
-  }, [router]);
+  }, [refreshPending, router]);
 
   const onPullRefresh = useCallback(() => refresh(), [refresh]);
   const { distance: pullDistance, refreshing: pullRefreshing } =
-    usePullToRefresh(onPullRefresh);
+    usePullToRefresh(onPullRefresh, !refreshPending);
 
   useEffect(() => {
     track({ type: "home_view" });
@@ -107,7 +108,9 @@ export const HomeDashboard = ({
   const selectedChild = data.selectedChild;
 
   const onSelectChild = (child: HomeChild) => {
-    if (child.id === selectedChild.id || selectionPending) return;
+    if (child.id === selectedChild.id || selectionPending || refreshPending) {
+      return;
+    }
     track({ type: "home_child_switch" });
     setStoredSelectedChildId(child.id);
     setPendingSelection({ source: initialHome, id: child.id });

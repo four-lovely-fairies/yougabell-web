@@ -6,7 +6,7 @@ import { PlusIcon, TrashIcon } from "@/components/icons";
 import { ChildRow } from "@/components/onboarding/child-card";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, clearSelectedChildIdIfMatches } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import type { ChildDraft, MeResponse } from "@/lib/types";
@@ -49,6 +49,7 @@ export default function SettingsChildrenPage() {
     setError(null);
     try {
       await api.deleteChild(id);
+      clearSelectedChildIdIfMatches(id);
       track({ type: "settings_child_delete", childId: id });
       setChildren((prev) => prev.filter((c) => c.id !== id));
     } catch (e) {

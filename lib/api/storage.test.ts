@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
 import {
+  SELECTED_CHILD_COOKIE,
+  clearSelectedChildIdIfMatches,
   clearStoredSelectedChildId,
   getStoredSelectedChildId,
   setStoredSelectedChildId,
@@ -51,6 +53,26 @@ void describe("selected child cookie", () => {
     assert.match(written, /Path=\/; SameSite=Lax; Secure/);
     assert.equal(getStoredSelectedChildId(), "child-1");
     clearStoredSelectedChildId();
+    assert.match(written, /Max-Age=0/);
+  });
+
+  void it("clears only the deleted child selection", () => {
+    let written = `${SELECTED_CHILD_COOKIE}=child-1`;
+    Object.defineProperty(globalThis, "document", {
+      configurable: true,
+      value: {
+        get cookie() {
+          return written;
+        },
+        set cookie(value: string) {
+          written = value;
+        },
+      },
+    });
+
+    assert.equal(clearSelectedChildIdIfMatches("child-2"), false);
+    assert.equal(written, `${SELECTED_CHILD_COOKIE}=child-1`);
+    assert.equal(clearSelectedChildIdIfMatches("child-1"), true);
     assert.match(written, /Max-Age=0/);
   });
 });

@@ -24,3 +24,9 @@ export const clearStoredSelectedChildId = () => {
   if (typeof document === "undefined") return;
   document.cookie = `${SELECTED_CHILD_COOKIE}=; Path=/; SameSite=Lax; Max-Age=0`;
 };
+
+export const clearSelectedChildIdIfMatches = (childId: string) => {
+  if (getStoredSelectedChildId() !== childId) return false;
+  clearStoredSelectedChildId();
+  return true;
+};

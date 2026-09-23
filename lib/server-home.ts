@@ -42,7 +42,9 @@ export const fetchServerHome = cache(async (): Promise<ServerHomeResult> => {
     response = await fetchHome();
     selectionResetRequired = true;
   }
-  if (response.status === 401) redirect("/onboarding/intro");
+  if (response.status === 401 || response.status === 403) {
+    redirect("/onboarding/intro");
+  }
   if (!response.ok) throw new Error(`Home API failed (${response.status})`);
   return {
     data: (await response.json()) as HomeDashboard,
