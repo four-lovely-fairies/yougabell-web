@@ -48,6 +48,7 @@
   --color-gray-600: #555555;
   --color-gray-700: #434343;
   --color-gray-800: #262626;
+  --color-gray-900: #000000;
 
   /* Semantic — Error. Figma 컴포넌트(Input/필수표시) 실측 기본은 error-500 #ff5050.
      50/100/600(#ec003f)은 Foundation에 정의 없는 legacy — 배경·텍스트용으로만 잔존. */
@@ -84,6 +85,29 @@
   --shadow-3: 0 8px 16px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.12);
   --shadow-4: 0 16px 24px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.12);
   --shadow-nav: 0 4px 12px rgba(0, 0, 0, 0.04);
+
+  /* Motion — 온보딩 가이드 등 진입 연출. 위→아래 한 방향 + 디졸브만 사용. */
+  --animate-enter-up: enter-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-dissolve: dissolve 700ms ease-out both;
+
+  @keyframes enter-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 12px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  @keyframes dissolve {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 /* 의미 변수 — 홈 대시보드 등에서 색상을 의미 이름으로 참조할 때 사용.
@@ -135,8 +159,7 @@ body {
 
 .report-tooltip-bounce {
   transform-origin: bottom center;
-  animation: report-tooltip-bob 1.8s cubic-bezier(0.34, 1.56, 0.64, 1)
-    infinite;
+  animation: report-tooltip-bob 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
