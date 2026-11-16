@@ -2,6 +2,11 @@ import { Pencil, Trash2 } from "lucide-react";
 import { XIcon } from "@/components/icons";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
 import { MoodFace } from "./mood-face";
+import {
+  getNotificationKind,
+  NOTIFICATION_KIND_LABEL,
+  NotificationIcon,
+} from "./notification-icon";
 import { MOOD_OPTION_LABELS, type MoodLevel } from "./types";
 
 // 자녀 선택 드롭다운 — Figma 2395:10959.
@@ -72,13 +77,13 @@ export const ChildSwitcherDropdown = ({
   </div>
 );
 
+// 알림 — 전체 화면. 우측 상단 닫기, 큰 제목, 종류 아이콘 + 라벨/시간 + 내용 목록.
+// 읽지 않은 알림은 회색 배경으로 구분하고, 누르면 읽음 처리 후 해당 화면으로 이동한다.
 export const NotificationModal = ({
   notifications,
-  unreadCount,
   submitting,
   errorMessage,
   onClose,
-  onMarkAllRead,
   onOpenNotification,
 }: {
   notifications: HomeNotification[];
@@ -90,83 +95,76 @@ export const NotificationModal = ({
   onOpenNotification: (notification: HomeNotification) => void;
 }) => (
   <div
-    className="fixed inset-0 z-40 bg-[rgba(38,38,38,0.24)]"
+    className="fixed inset-0 z-40 mx-auto flex w-full max-w-107.5 animate-dissolve flex-col bg-white motion-reduce:animate-none"
     role="dialog"
     aria-modal="true"
-    onClick={onClose}
+    aria-labelledby="notification-title"
+    style={{ animationDuration: "240ms" }}
   >
-    <div className="relative mx-auto h-full w-full max-w-107.5">
-      <div
-        className="absolute inset-x-5 top-26 rounded-[28px] bg-white p-5 shadow-[0_12px_30px_rgba(0,0,0,0.14)]"
-        onClick={(event) => event.stopPropagation()}
+    <header className="flex h-14 shrink-0 items-center justify-end px-4 pt-[max(0px,env(safe-area-inset-top))] box-content">
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="알림 닫기"
+        className="flex size-11 items-center justify-center text-gray-800"
       >
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-lg font-bold leading-6 text-gray-800">알림</h2>
-            <p className="mt-1 text-sm font-medium leading-5 text-gray-500">
-              읽지 않은 알림 {unreadCount}개
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onMarkAllRead}
-              disabled={unreadCount === 0 || submitting}
-              className="text-sm font-medium leading-5 text-primary-300 disabled:text-[#c4c4c4]"
-            >
-              모두 읽기
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-sm font-medium leading-5 text-primary-300"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-        <div className="mt-4 space-y-3">
-          {errorMessage ? (
-            <p role="alert" className="text-sm text-error-600">
-              {errorMessage}
-            </p>
-          ) : null}
-          {notifications.length > 0 ? (
-            notifications.map((notification) => (
-              <button
-                key={notification.id}
-                type="button"
-                onClick={() => onOpenNotification(notification)}
-                disabled={submitting}
-                className={`w-full rounded-xl p-4 text-left transition disabled:opacity-70 ${
-                  notification.readAt ? "bg-transparent" : "bg-primary-50"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm font-bold leading-5 text-gray-800">
-                    {notification.title}
-                  </p>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className="text-xs font-medium leading-4 text-gray-400">
-                      {formatNotificationTime(notification.createdAt)}
+        <XIcon size={24} />
+      </button>
+    </header>
+    <h2
+      id="notification-title"
+      className="shrink-0 p-5 text-[24px] font-bold leading-[1.4] text-gray-800"
+    >
+      알림
+    </h2>
+    <div className="min-h-0 flex-1 overflow-y-auto pb-[max(20px,env(safe-area-inset-bottom))]">
+      {errorMessage ? (
+        <p role="alert" className="px-5 pb-2 text-sm text-error-600">
+          {errorMessage}
+        </p>
+      ) : null}
+      {notifications.length > 0 ? (
+        <ul className="flex flex-col gap-2">
+          {notifications.map((notification) => {
+            const kind = getNotificationKind(notification);
+            const message = [notification.title, notification.body]
+              .filter(Boolean)
+              .join(" ");
+            return (
+              <li key={notification.id}>
+                <button
+                  type="button"
+                  onClick={() => onOpenNotification(notification)}
+                  disabled={submitting}
+                  className={`flex w-full gap-1 px-5 py-4 text-left transition-colors disabled:opacity-70 ${
+                    notification.readAt ? "bg-white" : "bg-gray-50"
+                  }`}
+                >
+                  <NotificationIcon kind={kind} />
+                  <span className="flex min-w-0 flex-1 flex-col gap-1 font-medium leading-[1.5]">
+                    <span className="flex items-center justify-between gap-3 text-black/40">
+                      <span className="text-[13px]">
+                        {NOTIFICATION_KIND_LABEL[kind]}
+                        {notification.readAt ? null : (
+                          <span className="sr-only"> (읽지 않음)</span>
+                        )}
+                      </span>
+                      <span className="shrink-0 text-xs">
+                        {formatNotificationTime(notification.createdAt)}
+                      </span>
                     </span>
-                    {!notification.readAt ? (
-                      <span className="size-2 rounded-full bg-error-600" />
-                    ) : null}
-                  </div>
-                </div>
-                <p className="mt-1 text-sm leading-5 text-gray-600">
-                  {notification.body}
-                </p>
-              </button>
-            ))
-          ) : (
-            <p className="rounded-xl bg-gray-50 p-5 text-center text-sm font-medium leading-5 text-gray-500">
-              아직 새 알림이 없어요
-            </p>
-          )}
-        </div>
-      </div>
+                    <span className="text-[15px] text-black/90">{message}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="px-5 py-10 text-center text-[15px] font-medium leading-[1.5] text-gray-500">
+          아직 새 알림이 없어요
+        </p>
+      )}
     </div>
   </div>
 );
