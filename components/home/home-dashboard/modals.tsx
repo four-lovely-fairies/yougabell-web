@@ -136,7 +136,7 @@ export const NotificationModal = ({
         </p>
       ) : null}
       {notifications.length > 0 ? (
-        <ul className="flex flex-col divide-y divide-white">
+        <ul className="flex flex-col">
           {notifications.map((notification) => {
             const kind = getNotificationKind(notification);
             const message = [notification.title, notification.body]
