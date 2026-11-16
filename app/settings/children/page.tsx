@@ -10,6 +10,7 @@ import { api, ApiError, clearSelectedChildIdIfMatches } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import type { ChildDraft, MeResponse } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Item = MeResponse["children"][number];
 
@@ -78,9 +79,14 @@ export default function SettingsChildrenPage() {
 
         <div className="flex flex-col gap-3">
           {loading ? (
-            <p className="py-8 text-center text-sm text-gray-400">
-              불러오는 중...
-            </p>
+            <div
+              className="flex flex-col gap-3"
+              role="status"
+              aria-label="불러오는 중"
+            >
+              <Skeleton className="h-18 rounded-2xl" />
+              <Skeleton className="h-18 rounded-2xl" />
+            </div>
           ) : children.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-400">
               등록된 자녀가 없어요.

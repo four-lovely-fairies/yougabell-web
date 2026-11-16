@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { api, ApiError } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import type { ChildDraft } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /** 자녀 수정 — Figma 2395:9398. */
 export default function SettingsChildrenEditPage() {
@@ -88,9 +89,16 @@ export default function SettingsChildrenEditPage() {
         {child ? (
           <ChildCardForm index={0} child={child} onChange={setChild} />
         ) : (
-          <p className="py-8 text-center text-sm text-gray-400">
-            불러오는 중...
-          </p>
+          <div
+            className="flex flex-col gap-3"
+            role="status"
+            aria-label="불러오는 중"
+          >
+            <Skeleton className="h-6 w-24 rounded-full" />
+            <Skeleton className="h-13 rounded-xl" />
+            <Skeleton className="h-13 rounded-xl" />
+            <Skeleton className="h-13 rounded-xl" />
+          </div>
         )}
       </div>
 

@@ -11,6 +11,7 @@ import {
   getInquiry,
   type Inquiry,
 } from "@/lib/api/inquiry";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /** 문의 상세 — 질문과 답변 (docs/features/20260819-inquiry.md §4.2). */
 export default function InquiryDetailPage() {
@@ -39,9 +40,15 @@ export default function InquiryDetailPage() {
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         {loading ? (
-          <p className="py-8 text-center text-sm text-gray-400">
-            불러오는 중...
-          </p>
+          <div className="flex flex-col" role="status" aria-label="불러오는 중">
+            <div className="flex flex-col gap-3 py-6">
+              <Skeleton className="h-7 w-3/4 rounded-full" />
+              <Skeleton className="h-4 w-32 rounded-full" />
+            </div>
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="mt-6 h-5 w-12 rounded-full" />
+            <Skeleton className="mt-2.5 h-24 rounded-2xl" />
+          </div>
         ) : error || !inquiry ? (
           <p className="py-8 text-center text-sm text-error-500">
             {error ?? "문의를 찾을 수 없습니다."}

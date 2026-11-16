@@ -12,6 +12,7 @@ import {
   type InquiryListItem,
   listInquiries,
 } from "@/lib/api/inquiry";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /** 내 문의 목록 (docs/features/20260819-inquiry.md §4.2). */
 export default function InquiriesPage() {
@@ -49,9 +50,15 @@ export default function InquiriesPage() {
         </header>
 
         {loading ? (
-          <p className="py-8 text-center text-sm text-gray-400">
-            불러오는 중...
-          </p>
+          <div
+            className="flex flex-col gap-3"
+            role="status"
+            aria-label="불러오는 중"
+          >
+            <Skeleton className="h-19 rounded-2xl" />
+            <Skeleton className="h-19 rounded-2xl" />
+            <Skeleton className="h-19 rounded-2xl" />
+          </div>
         ) : error ? (
           <p className="py-8 text-center text-sm text-error-500">{error}</p>
         ) : items.length === 0 ? (
