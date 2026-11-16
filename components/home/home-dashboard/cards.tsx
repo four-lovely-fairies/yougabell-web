@@ -134,7 +134,7 @@ export const HomeShortcutCards = ({
   onRoadmap: () => void;
   onReport: () => void;
 }) => (
-  <section className="grid grid-cols-2 gap-3 px-2">
+  <section className="grid grid-cols-2 gap-3">
     <ShortcutCard
       title="로드맵"
       description={
