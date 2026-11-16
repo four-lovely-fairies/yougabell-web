@@ -99,10 +99,10 @@ export const TodayMissionCard = ({
 };
 
 // 홈 카드가 보여주는 수치는 지난주 리포트다. 카드 폭이 좁아 Figma 문구(놀이 N회 · 반응 N%)를
-// 그대로 쓰고 숫자만 강조한다. 지난주 리포트 자체가 없으면 생성 시점을 안내한다.
+// 그대로 쓰고 숫자만 강조한다. 지난주 리포트가 아직 없으면 한 줄짜리 안내만 보여준다
+// (생성 시점은 위 배너에서 안내).
 const reportSummaryDescription = (
   reportSummary: HomeDashboardData["reportSummary"],
-  countdown: WeeklyReportCountdown,
 ) => {
   if (reportSummary) {
     return (
@@ -120,21 +120,17 @@ const reportSummaryDescription = (
     );
   }
 
-  return countdown.kind === "generation_tomorrow"
-    ? "첫 리포트가 내일 아침에 생성돼요"
-    : `첫 리포트까지 ${countdown.daysRemaining}일 남았어요`;
+  return "리포트 생성 전이에요";
 };
 
 export const HomeShortcutCards = ({
   roadmapProgress,
   reportSummary,
-  reportCountdown,
   onRoadmap,
   onReport,
 }: {
   roadmapProgress: HomeDashboardData["roadmapProgress"];
   reportSummary: HomeDashboardData["reportSummary"];
-  reportCountdown: WeeklyReportCountdown;
   onRoadmap: () => void;
   onReport: () => void;
 }) => (
@@ -154,7 +150,7 @@ export const HomeShortcutCards = ({
     />
     <ShortcutCard
       title="주간리포트"
-      description={reportSummaryDescription(reportSummary, reportCountdown)}
+      description={reportSummaryDescription(reportSummary)}
       onClick={onReport}
     />
   </section>
