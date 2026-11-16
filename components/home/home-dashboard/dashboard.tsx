@@ -127,6 +127,11 @@ export const HomeDashboard = ({
         action,
       ),
     }));
+
+    // 읽음 처리는 이 화면 상태에만 반영되므로, 다른 화면에 다녀오면 브라우저에 남아 있던
+    // 예전 홈 데이터(읽지 않은 알림 있음)가 다시 쓰여 빨간 점이 되살아난다.
+    // 서버에서 홈을 다시 받아 저장된 화면 데이터도 최신으로 바꾼다.
+    router.refresh();
   };
 
   const openNotificationTarget = (notification: HomeNotification) => {
