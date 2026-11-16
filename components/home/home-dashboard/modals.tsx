@@ -77,13 +77,15 @@ export const ChildSwitcherDropdown = ({
   </div>
 );
 
-// 알림 — 전체 화면. 우측 상단 닫기, 큰 제목, 종류 아이콘 + 라벨/시간 + 내용 목록.
+// 알림 — 전체 화면. 우측 상단 닫기, 큰 제목 + 모두 읽기, 종류 아이콘 + 라벨/시간 + 내용 목록.
 // 읽지 않은 알림은 회색 배경으로 구분하고, 누르면 읽음 처리 후 해당 화면으로 이동한다.
 export const NotificationModal = ({
   notifications,
+  unreadCount,
   submitting,
   errorMessage,
   onClose,
+  onMarkAllRead,
   onOpenNotification,
 }: {
   notifications: HomeNotification[];
@@ -95,7 +97,7 @@ export const NotificationModal = ({
   onOpenNotification: (notification: HomeNotification) => void;
 }) => (
   <div
-    className="fixed inset-0 z-40 mx-auto flex w-full max-w-107.5 animate-dissolve flex-col bg-white motion-reduce:animate-none"
+    className="fixed inset-0 z-[55] mx-auto flex w-full max-w-107.5 animate-dissolve flex-col bg-white motion-reduce:animate-none"
     role="dialog"
     aria-modal="true"
     aria-labelledby="notification-title"
@@ -111,12 +113,22 @@ export const NotificationModal = ({
         <XIcon size={24} />
       </button>
     </header>
-    <h2
-      id="notification-title"
-      className="shrink-0 p-5 text-[24px] font-bold leading-[1.4] text-gray-800"
-    >
-      알림
-    </h2>
+    <div className="flex shrink-0 items-center justify-between p-5">
+      <h2
+        id="notification-title"
+        className="text-[24px] font-bold leading-[1.4] text-gray-800"
+      >
+        알림
+      </h2>
+      <button
+        type="button"
+        onClick={onMarkAllRead}
+        disabled={unreadCount === 0 || submitting}
+        className="-mr-2 px-2 py-2 text-sm font-medium leading-[1.4] text-primary-300 disabled:text-gray-300"
+      >
+        모두 읽기
+      </button>
+    </div>
     <div className="min-h-0 flex-1 overflow-y-auto pb-[max(20px,env(safe-area-inset-bottom))]">
       {errorMessage ? (
         <p role="alert" className="px-5 pb-2 text-sm text-error-600">
@@ -124,7 +136,7 @@ export const NotificationModal = ({
         </p>
       ) : null}
       {notifications.length > 0 ? (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col">
           {notifications.map((notification) => {
             const kind = getNotificationKind(notification);
             const message = [notification.title, notification.body]
@@ -136,7 +148,7 @@ export const NotificationModal = ({
                   type="button"
                   onClick={() => onOpenNotification(notification)}
                   disabled={submitting}
-                  className={`flex w-full gap-1 px-5 py-4 text-left transition-colors disabled:opacity-70 ${
+                  className={`flex w-full gap-1 px-5 py-5 text-left transition-colors disabled:opacity-70 ${
                     notification.readAt ? "bg-white" : "bg-gray-50"
                   }`}
                 >
