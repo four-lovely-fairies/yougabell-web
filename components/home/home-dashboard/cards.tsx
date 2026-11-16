@@ -174,7 +174,7 @@ const ShortcutCard = ({
       {title}
       <ChevronRight className="size-5" strokeWidth={2} aria-hidden />
     </span>
-    <span className="mt-1 break-keep text-xs leading-[1.4] text-gray-500">
+    <span className="mt-1 break-keep text-[13px] leading-[1.4] text-gray-500">
       {description}
     </span>
   </button>
