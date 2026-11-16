@@ -4,6 +4,7 @@ import { type WeeklyReportLoadState } from "@/lib/api";
 import { type WeeklyReportEmptyState } from "@/lib/weekly-report-data";
 import { isFirstPlayEmptyState } from "@/lib/weekly-report-data";
 import { getWeeklyReportCountdown } from "@/lib/report-progress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const WeeklyReportEmpty = ({
   emptyState,
@@ -105,11 +106,15 @@ export const WeeklyReportError = ({
 );
 
 export const WeeklyReportSkeleton = () => (
-  <div className="flex flex-1 flex-col gap-8 px-5 pb-12 pt-5">
+  <div
+    className="flex flex-1 flex-col gap-8 px-5 pb-12 pt-5"
+    role="status"
+    aria-label="불러오는 중"
+  >
     {Array.from({ length: 5 }).map((_, index) => (
       <div key={index} className="space-y-3">
-        <div className="h-6 w-40 animate-pulse rounded-full bg-[#eeeeee]" />
-        <div className="h-32 animate-pulse rounded-xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_2px_rgba(0,0,0,0.05)]" />
+        <Skeleton className="h-6 w-40 rounded-full" />
+        <Skeleton className="h-32 rounded-xl" />
       </div>
     ))}
   </div>

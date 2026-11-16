@@ -12,6 +12,7 @@ import {
   type InquiryListItem,
   listInquiries,
 } from "@/lib/api/inquiry";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /** 내 문의 목록 (docs/features/20260819-inquiry.md §4.2). */
 export default function InquiriesPage() {
@@ -40,18 +41,37 @@ export default function InquiriesPage() {
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <header className="py-6">
-          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-            문의하기
-          </h1>
-          <p className="pt-2 text-sm leading-[1.4] text-gray-500">
-            궁금한 점이나 불편한 점을 알려주세요.
-          </p>
+          {loading ? (
+            <div aria-hidden>
+              <div className="flex h-[34px] items-center">
+                <Skeleton className="h-7 w-28 rounded-full" />
+              </div>
+              <div className="flex h-[27px] items-end">
+                <Skeleton className="h-4 w-56 rounded-full" />
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+                문의하기
+              </h1>
+              <p className="pt-2 text-sm leading-[1.4] text-gray-500">
+                궁금한 점이나 불편한 점을 알려주세요.
+              </p>
+            </>
+          )}
         </header>
 
         {loading ? (
-          <p className="py-8 text-center text-sm text-gray-400">
-            불러오는 중...
-          </p>
+          <div
+            className="flex flex-col gap-3"
+            role="status"
+            aria-label="불러오는 중"
+          >
+            <Skeleton className="h-19 rounded-2xl" />
+            <Skeleton className="h-19 rounded-2xl" />
+            <Skeleton className="h-19 rounded-2xl" />
+          </div>
         ) : error ? (
           <p className="py-8 text-center text-sm text-error-500">{error}</p>
         ) : items.length === 0 ? (

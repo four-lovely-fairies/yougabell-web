@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { api, ApiError } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import type { ChildDraft } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /** 자녀 수정 — Figma 2395:9398. */
 export default function SettingsChildrenEditPage() {
@@ -78,19 +79,33 @@ export default function SettingsChildrenEditPage() {
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <header className="py-6">
-          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-            수정할 아이 정보를
-            <br />
-            입력해 주세요
-          </h1>
+          {!child ? (
+            <div className="flex h-[67px] flex-col justify-around" aria-hidden>
+              <Skeleton className="h-7 w-32 rounded-full" />
+              <Skeleton className="h-7 w-44 rounded-full" />
+            </div>
+          ) : (
+            <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+              수정할 아이 정보를
+              <br />
+              입력해 주세요
+            </h1>
+          )}
         </header>
 
         {child ? (
           <ChildCardForm index={0} child={child} onChange={setChild} />
         ) : (
-          <p className="py-8 text-center text-sm text-gray-400">
-            불러오는 중...
-          </p>
+          <div
+            className="flex flex-col gap-3"
+            role="status"
+            aria-label="불러오는 중"
+          >
+            <Skeleton className="h-6 w-24 rounded-full" />
+            <Skeleton className="h-13 rounded-xl" />
+            <Skeleton className="h-13 rounded-xl" />
+            <Skeleton className="h-13 rounded-xl" />
+          </div>
         )}
       </div>
 

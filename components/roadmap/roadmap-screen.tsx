@@ -22,6 +22,7 @@ import {
   type RoadmapStage,
   updateRoadmapMilestoneCompletion,
 } from "@/lib/roadmap-data";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const RoadmapScreen = () => {
   const router = useRouter();
@@ -522,7 +523,21 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
 };
 
 const RoadmapSkeleton = () => (
-  <div className="flex min-h-dvh items-center justify-center bg-gray-20">
-    <div className="size-8 animate-pulse rounded-full bg-primary-300" />
+  <div
+    className="min-h-dvh bg-gray-20 px-5 pb-5 pt-safe"
+    role="status"
+    aria-label="불러오는 중"
+  >
+    <Skeleton className="h-14 rounded-2xl" />
+    <div className="mt-6 flex gap-2">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Skeleton key={index} className="h-9 w-15 shrink-0 rounded-full" />
+      ))}
+    </div>
+    <div className="mt-6 space-y-3">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Skeleton key={index} className="h-24 rounded-[24px]" />
+      ))}
+    </div>
   </div>
 );
