@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ChevronDown, ChevronRight, X } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { Skeleton } from "@/components/ui/skeleton";
 
 // fixed 헤더 높이만큼 콘텐츠를 내리는 스페이서 (미션 화면용 re-export).
 export { HeaderSpacer } from '@/components/app/app-header';
@@ -371,13 +372,13 @@ export function TimerRing({ progress }: { progress: number }) {
 
 export function MissionIntroSkeleton() {
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-safe">
-      <div className="h-14 animate-pulse rounded-2xl bg-[#f2f2f2]" />
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-safe" role="status" aria-label="불러오는 중">
+      <Skeleton className="h-14 rounded-2xl" />
       <div className="mt-10 space-y-5">
-        <div className="mx-auto h-23 w-27.5 animate-pulse rounded-[24px] bg-[#f2f2f2]" />
-        <div className="mx-auto h-8 w-48 animate-pulse rounded-full bg-[#f2f2f2]" />
-        <div className="h-32.5 animate-pulse rounded-[24px] bg-[#f2f2f2]" />
-        <div className="h-42 animate-pulse rounded-[24px] bg-[#f2f2f2]" />
+        <Skeleton className="mx-auto h-23 w-27.5 rounded-[24px]" />
+        <Skeleton className="mx-auto h-8 w-48 rounded-full" />
+        <Skeleton className="h-32.5 rounded-[24px]" />
+        <Skeleton className="h-42 rounded-[24px]" />
       </div>
     </div>
   );
@@ -385,10 +386,10 @@ export function MissionIntroSkeleton() {
 
 export function MissionTimerSkeleton() {
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-safe">
-      <div className="h-14 animate-pulse rounded-2xl bg-[#f2f2f2]" />
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-safe" role="status" aria-label="불러오는 중">
+      <Skeleton className="h-14 rounded-2xl" />
       <div className="flex min-h-[calc(100dvh-103px)] items-center justify-center">
-        <div className="size-68.25 animate-pulse rounded-full bg-[#f2f2f2]" />
+        <Skeleton className="size-68.25 rounded-full" />
       </div>
     </div>
   );
@@ -396,12 +397,12 @@ export function MissionTimerSkeleton() {
 
 export function MissionContentSkeleton() {
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-safe">
-      <div className="h-14 animate-pulse rounded-2xl bg-[#f2f2f2]" />
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-safe" role="status" aria-label="불러오는 중">
+      <Skeleton className="h-14 rounded-2xl" />
       <div className="mt-10 space-y-5">
-        <div className="mx-auto h-8 w-44 animate-pulse rounded-full bg-[#f2f2f2]" />
-        <div className="mx-auto h-33 w-39.5 animate-pulse rounded-[28px] bg-[#f2f2f2]" />
-        <div className="h-45 animate-pulse rounded-[28px] bg-[#f2f2f2]" />
+        <Skeleton className="mx-auto h-8 w-44 rounded-full" />
+        <Skeleton className="mx-auto h-33 w-39.5 rounded-[28px]" />
+        <Skeleton className="h-45 rounded-[28px]" />
       </div>
     </div>
   );
@@ -415,7 +416,7 @@ export function MissionErrorState({
   onBack: () => void;
 }) {
   return (
-    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-safe">
+    <div className="min-h-dvh bg-[#fbfbfb] px-5 pb-5 pt-safe" role="status" aria-label="불러오는 중">
       <div className="flex min-h-[calc(100dvh-47px)] flex-col items-center justify-center gap-4 text-center">
         <p className="text-sm leading-[1.6] text-[#666]">{message}</p>
         <button

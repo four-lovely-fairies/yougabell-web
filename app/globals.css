@@ -108,6 +108,14 @@
       opacity: 1;
     }
   }
+  @keyframes shimmer {
+    from {
+      background-position: -150% 0;
+    }
+    to {
+      background-position: 250% 0;
+    }
+  }
 }
 
 /* 의미 변수 — 홈 대시보드 등에서 색상을 의미 이름으로 참조할 때 사용.
@@ -205,6 +213,26 @@ a {
    Figma의 StatusBar(47px)를 헤더 높이에 박지 말고 화면 최상단 컨테이너에서 이 유틸로 대체한다. */
 @utility pt-safe {
   padding-top: max(12px, env(safe-area-inset-top));
+}
+
+/* 스켈레톤 — 옅은 회색 위로 밝은 띠가 왼쪽→오른쪽으로 지나가는 로딩 표시.
+   컴포넌트는 components/ui/skeleton.tsx의 <Skeleton>을 쓴다. 동작 줄이기 설정이면 띠를 멈춘다. */
+@utility skeleton {
+  background-color: color-mix(in srgb, var(--color-gray-100) 65%, white);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-gray-20) 90%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 60% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.4s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background-image: none;
+  }
 }
 
 /* 전역 스크롤바 — 오버레이 스타일 (레이아웃 비침습).
