@@ -15,7 +15,7 @@ export const ReportProgressBanner = ({
   countdown: WeeklyReportCountdown;
   streak: number;
 }) => (
-  <div className="flex min-h-12 items-center justify-between gap-3 rounded-full bg-primary-50 px-4">
+  <div className="flex min-h-12 items-center justify-between gap-3 rounded-[24px] bg-primary-50 px-4 py-2.5">
     <div className="flex min-w-0 items-center gap-2">
       <Image
         src="/images/figma/home/star-shine.png"
@@ -24,7 +24,7 @@ export const ReportProgressBanner = ({
         height={13}
         className="shrink-0"
       />
-      <p className="truncate text-sm font-medium text-gray-800">
+      <p className="break-keep text-sm font-medium leading-[1.4] text-gray-800">
         {countdown.kind === "generation_tomorrow"
           ? "주간 리포트가 내일 아침에 생성돼요."
           : `주간 리포트 생성까지 ${countdown.daysRemaining}일 남았어요!`}
@@ -98,15 +98,26 @@ export const TodayMissionCard = ({
   );
 };
 
-// 홈 카드가 보여주는 수치는 항상 "지난주" 리포트다. 이번 주에 막 시작한
-// 사용자가 0회를 오늘 기록이 누락된 것으로 오해하지 않도록 주차를 명시하고,
-// 지난주 리포트 자체가 없으면 생성 시점을 안내한다.
+// 홈 카드가 보여주는 수치는 지난주 리포트다. 카드 폭이 좁아 Figma 문구(놀이 N회 · 반응 N%)를
+// 그대로 쓰고 숫자만 강조한다. 지난주 리포트 자체가 없으면 생성 시점을 안내한다.
 const reportSummaryDescription = (
   reportSummary: HomeDashboardData["reportSummary"],
   countdown: WeeklyReportCountdown,
 ) => {
   if (reportSummary) {
-    return `지난주 놀이 ${reportSummary.completedPlayCount}회 · 아이 반응 ${reportSummary.childPositiveReactionRate}%`;
+    return (
+      <>
+        놀이{" "}
+        <span className="font-semibold text-primary-300">
+          {reportSummary.completedPlayCount}
+        </span>
+        회 · 반응{" "}
+        <span className="font-semibold text-primary-300">
+          {reportSummary.childPositiveReactionRate}
+        </span>
+        %
+      </>
+    );
   }
 
   return countdown.kind === "generation_tomorrow"
@@ -167,7 +178,7 @@ const ShortcutCard = ({
       {title}
       <ChevronRight className="size-5" strokeWidth={2} aria-hidden />
     </span>
-    <span className="mt-1 whitespace-nowrap text-xs text-gray-500">
+    <span className="mt-1 break-keep text-xs leading-[1.4] text-gray-500">
       {description}
     </span>
   </button>
