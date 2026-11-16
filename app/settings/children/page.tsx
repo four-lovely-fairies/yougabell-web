@@ -70,11 +70,18 @@ export default function SettingsChildrenPage() {
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <header className="py-6">
-          <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-            아이 정보를
-            <br />
-            입력해 주세요
-          </h1>
+          {loading ? (
+            <div className="flex h-[67px] flex-col justify-around" aria-hidden>
+              <Skeleton className="h-7 w-32 rounded-full" />
+              <Skeleton className="h-7 w-44 rounded-full" />
+            </div>
+          ) : (
+            <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
+              아이 정보를
+              <br />
+              입력해 주세요
+            </h1>
+          )}
         </header>
 
         <div className="flex flex-col gap-3">
