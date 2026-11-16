@@ -3,6 +3,7 @@
 import { ArrowLeft, ChevronDown, ChevronRight, X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEdgeSwipeBack } from '@/hooks/use-edge-swipe-back';
 
 // fixed 헤더 높이만큼 콘텐츠를 내리는 스페이서 (미션 화면용 re-export).
 export { HeaderSpacer } from '@/components/app/app-header';
@@ -31,6 +32,7 @@ export function MissionHeader({
   /** 전달 시 자녀 라벨이 자녀 변경 트리거 버튼이 된다. 미전달 시 정적 표시. */
   onSwitchChild?: () => void;
 }) {
+  useEdgeSwipeBack(onBack);
   return (
     <header
       className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-107.5 px-5 pt-safe"

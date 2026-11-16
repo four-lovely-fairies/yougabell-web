@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { HeaderSpacer } from "@/components/app/app-header";
 import { ArrowLeftIcon, XIcon } from "@/components/icons";
 import { IconButton } from "@/components/ui/icon-button";
+import { useEdgeSwipeBack } from "@/hooks/use-edge-swipe-back";
 
 type Props = {
   variant?: "back" | "close" | "none";
@@ -16,6 +17,8 @@ export function OnboardingHeader({ variant = "back", onAction }: Props) {
     if (onAction) onAction();
     else router.back();
   };
+  // 뒤로가기 버튼이 있을 때만 왼쪽 가장자리 스와이프로도 같은 동작을 한다.
+  useEdgeSwipeBack(handle, variant === "back");
 
   return (
     <>

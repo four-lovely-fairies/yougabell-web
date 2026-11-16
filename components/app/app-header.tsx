@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { ArrowLeftIcon } from "@/components/icons";
 import { IconButton } from "@/components/ui/icon-button";
+import { useEdgeSwipeBack } from "@/hooks/use-edge-swipe-back";
 import { cn } from "@/lib/utils";
 
 // 공통 Sub LNB 헤더 (전 화면). Figma: h56, bg white.
@@ -35,6 +36,7 @@ export const AppHeader = ({
 }: Props) => {
   const router = useRouter();
   const handleBack = () => (onBack ? onBack() : router.back());
+  useEdgeSwipeBack(handleBack, variant === "back");
 
   return (
     // pt-safe로 OS 상태바 안전영역을 헤더가 직접 책임진다 (Figma StatusBar 47px 하드코딩 제거).
