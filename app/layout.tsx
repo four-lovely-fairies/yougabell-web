@@ -2,6 +2,7 @@ import { AmplitudeIdentity } from "@/components/app/amplitude-identity";
 import { PerformanceObserver } from "@/components/app/performance-observer";
 import { GoogleAnalytics } from "@/components/app/google-analytics";
 import { NativeSessionBridge } from "@/components/app/native-session-bridge";
+import { ToastHost } from "@/components/ui/toast-host";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
@@ -37,6 +38,8 @@ export default function RootLayout({
         >
           {children}
         </div>
+        {/* 앱 공통 토스트 — 어느 화면에서든 showToast()로 띄운다 */}
+        <ToastHost />
       </body>
     </html>
   );

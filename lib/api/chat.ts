@@ -158,6 +158,7 @@ const UUID_PATTERN =
 export const sendChatFeedback = async (
   messageId: string,
   helpful: boolean,
+  comment?: string,
 ): Promise<void> => {
   if (!UUID_PATTERN.test(messageId)) return;
   const headers = await authHeaders();
@@ -168,7 +169,9 @@ export const sendChatFeedback = async (
       {
         method: "PUT",
         headers: { "Content-Type": "application/json", ...headers },
-        body: JSON.stringify({ helpful }),
+        body: JSON.stringify(
+          comment === undefined ? { helpful } : { helpful, comment },
+        ),
       },
     );
   } catch {

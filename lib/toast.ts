@@ -2,7 +2,14 @@
 // 화면 이동(router.back/replace) 직전에 불러도 보이도록, 레이아웃에 있는 <ToastHost />가 받아서 그린다.
 export const TOAST_EVENT = "yb:toast";
 
-export function showToast(message: string) {
+export type ToastIcon = "check";
+export type ToastDetail = { message: string; icon?: ToastIcon };
+
+export function showToast(message: string, options?: { icon?: ToastIcon }) {
   if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent<string>(TOAST_EVENT, { detail: message }));
+  window.dispatchEvent(
+    new CustomEvent<ToastDetail>(TOAST_EVENT, {
+      detail: { message, icon: options?.icon },
+    }),
+  );
 }

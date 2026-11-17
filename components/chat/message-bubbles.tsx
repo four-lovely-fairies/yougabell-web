@@ -5,6 +5,10 @@ import { track } from "@/lib/analytics";
 import { sendChatFeedback } from "@/lib/api/chat";
 import type { ChatMessageCard } from "@/lib/chat-data";
 import { stripLeakedCardSyntax } from "@/lib/chat-sanitize";
+import { showToast } from "@/lib/toast";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { Button } from "@/components/ui/button";
+import { ThumbsDown, ThumbsUp } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -237,42 +241,102 @@ function FeedbackButtons({ messageId }: { messageId: string }) {
     if (saved) setValue(saved);
   }, [messageId]);
 
+  const [sheetOpen, setSheetOpen] = useState(false);
+
   const choose = (next: "up" | "down") => {
-    if (value === next) return;
+    // 이미 "도움이 안돼요"를 골랐으면 다시 눌러 아쉬운 점을 고쳐 쓸 수 있다.
+    if (value === next) {
+      if (next === "down") setSheetOpen(true);
+      return;
+    }
     setValue(next);
     writeFeedback(messageId, next);
     track({ type: "chat_feedback", helpful: next === "up" });
     void sendChatFeedback(messageId, next === "up");
+    if (next === "up") {
+      showToast("알려주셔서 고마워요! 도움이 되어서 정말 기뻐요.", { icon: "check" });
+    } else {
+      setSheetOpen(true);
+    }
   };
 
   const button = (kind: "up" | "down", label: string) => {
     const selected = value === kind;
+    const Icon = kind === "up" ? ThumbsUp : ThumbsDown;
     return (
       <button
         type="button"
         onClick={() => choose(kind)}
         aria-pressed={selected}
-        className={`flex items-center gap-1.5 rounded-full border py-2 pl-3 pr-3.5 text-sm leading-[1.4] transition-colors ${
+        className={`flex h-8 items-center gap-1 rounded-full border px-3 text-[13px] font-medium leading-none transition-colors ${
           selected
-            ? "border-primary-300 bg-primary-50 text-primary-400"
-            : "border-[#e5e5e7] bg-white text-gray-600"
+            ? "border-gray-800 bg-gray-800 text-white"
+            : "border-[#eeeef0] bg-white text-gray-500"
         }`}
       >
-        <Image
-          src={kind === "up" ? "/icons/figma/chat/thumb-up.svg" : "/icons/figma/chat/thumb-down.svg"}
-          alt=""
-          width={16}
-          height={16}
-        />
+        <Icon className="size-3.5" strokeWidth={1.8} aria-hidden />
         {label}
       </button>
     );
   };
 
   return (
-    <div className="flex gap-2">
-      {button("up", "도움이 돼요")}
-      {button("down", "도움이 안돼요")}
-    </div>
+    <>
+      <div className="flex gap-1.5">
+        {button("up", "도움이 돼요")}
+        {button("down", "도움이 안돼요")}
+      </div>
+      {sheetOpen ? (
+        <FeedbackCommentSheet
+          onClose={() => setSheetOpen(false)}
+          onSubmit={(comment) => {
+            setSheetOpen(false);
+            void sendChatFeedback(messageId, false, comment);
+            showToast("소중한 의견 고마워요! 더 나은 답변을 만들게요.", { icon: "check" });
+          }}
+        />
+      ) : null}
+    </>
+  );
+}
+
+// "도움이 안돼요" 후 아쉬운 점 입력 — 적은 내용은 답변과 함께 DB(ChatMessageFeedback.comment)에 쌓인다.
+function FeedbackCommentSheet({
+  onClose,
+  onSubmit,
+}: {
+  onClose: () => void;
+  onSubmit: (comment: string) => void;
+}) {
+  const [text, setText] = useState("");
+  const trimmed = text.trim();
+  return (
+    <BottomSheet
+      title="어떤 점이 아쉬웠나요?"
+      description="남겨주신 의견은 더 나은 답변을 만드는 데 활용돼요."
+      onClose={onClose}
+      labelledById="chat-feedback-title"
+    >
+      <form
+        className="flex flex-col gap-4 px-6 pt-1"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (trimmed) onSubmit(trimmed);
+        }}
+      >
+        <textarea
+          autoFocus
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          maxLength={500}
+          rows={4}
+          placeholder="예) 우리 아이 나이에 맞지 않는 놀이를 알려줬어요."
+          className="w-full resize-none rounded-2xl border border-gray-200 px-4 py-3.5 text-[15px] leading-[1.5] text-gray-800 outline-none placeholder:text-gray-400 focus:border-gray-800"
+        />
+        <Button type="submit" size="full" disabled={!trimmed}>
+          확인
+        </Button>
+      </form>
+    </BottomSheet>
   );
 }
