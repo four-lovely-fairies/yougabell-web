@@ -70,7 +70,7 @@ export function ConsentBottomSheet({ initial, onClose, onConfirm }: Props) {
             id="consent-title"
             className="text-lg font-bold leading-[1.4] text-gray-800"
           >
-            서비스를 이용을 위해 동의가 필요해요
+            서비스 이용을 위해 동의가 필요해요
           </h2>
           <button type="button" onClick={onClose} aria-label="닫기">
             <XIcon size={24} />
