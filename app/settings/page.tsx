@@ -12,6 +12,7 @@ import type { ApiInterestId } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { clearStoredSelectedChildId } from "@/lib/api/storage";
+import { forgetOnboarded } from "@/lib/onboarded-cookie";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function SettingsPage() {
     track({ type: "settings_logout" });
     notifyMobile({ type: "LOGOUT" });
     clearStoredSelectedChildId();
+    forgetOnboarded();
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
     router.replace("/onboarding/intro");

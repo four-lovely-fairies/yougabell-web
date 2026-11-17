@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { cache } from "react";
+import { ONBOARDED_COOKIE } from "../onboarded-cookie";
 import { measureServer } from "../server-performance";
 
 /**
@@ -59,6 +60,12 @@ export const fetchServerMe = cache(
       data: { session },
     } = await supabase.auth.getSession();
     if (!session) return null;
+
+    // 이미 온보딩을 마친 같은 사용자면 API 왕복 없이 통과 (화면 전환 지연의 주원인이었다).
+    const remembered = (await cookies()).get(ONBOARDED_COOKIE)?.value;
+    if (remembered && decodeURIComponent(remembered) === session.user.id) {
+      return { id: session.user.id, onboardedAt: "remembered" };
+    }
 
     return measureServer("server_me", async (record) => {
       const res = await fetch(`${getRequiredPublicApiBaseUrl()}/me`, {

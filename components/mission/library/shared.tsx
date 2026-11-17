@@ -137,17 +137,24 @@ const ORDER_LABEL: Record<LibraryOrder, string> = { latest: "최신순", oldest:
 // 개수 + 정렬(최신순/오래된순). 누르면 작은 메뉴가 열린다.
 export function CountAndSort({
   countLabel,
+  countBold = false,
   order,
   onOrderChange,
 }: {
   countLabel: string;
+  /** 개수를 굵게 (놀이 내역) */
+  countBold?: boolean;
   order: LibraryOrder;
   onOrderChange: (order: LibraryOrder) => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative flex items-center justify-between pb-1 pl-1">
-      <p className="text-sm font-medium leading-[1.4] text-gray-500">{countLabel}</p>
+      <p
+        className={`text-sm leading-[1.4] ${countBold ? "font-bold text-gray-800" : "font-medium text-gray-500"}`}
+      >
+        {countLabel}
+      </p>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

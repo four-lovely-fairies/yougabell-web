@@ -387,7 +387,10 @@ export function MissionIntroScreen() {
       ) : null}
 
       {sourceModalOpen ? (
-        <MissionSourceSheet onClose={() => setSourceModalOpen(false)} />
+        <MissionSourceSheet
+          citation={mission.sourceLabel}
+          onClose={() => setSourceModalOpen(false)}
+        />
       ) : null}
 
       {exitSheetOpen ? (
