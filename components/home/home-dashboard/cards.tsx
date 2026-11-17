@@ -70,14 +70,16 @@ export const TodayMissionCard = ({
             ))}
           </h2>
         </div>
-        <Mascot pose="reading" className="w-20 shrink-0" />
+        <div className="w-20 shrink-0 animate-float-soft motion-reduce:animate-none">
+          <Mascot pose="reading" className="w-20" />
+        </div>
       </div>
       <div className="flex flex-col gap-4">
         <button
           type="button"
           onClick={onStart}
           disabled={!mission || loading || isCompleted}
-          className="flex h-13 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium text-white disabled:bg-gray-100 disabled:text-gray-600"
+          className="flex h-13 w-full items-center justify-center rounded-2xl bg-primary-300 text-base font-medium text-white transition-transform duration-200 active:scale-[0.98] disabled:bg-gray-100 disabled:text-gray-600 disabled:active:scale-100"
         >
           {isCompleted ? "오늘의 놀이 완료" : "오늘의 놀이 시작하기"}
         </button>
@@ -168,7 +170,7 @@ const ShortcutCard = ({
   <button
     type="button"
     onClick={onClick}
-    className="flex min-h-24 flex-col items-start justify-center rounded-[24px] bg-white p-4 text-left shadow-[0_8px_28px_rgba(38,38,38,0.04)]"
+    className="flex min-h-24 flex-col items-start justify-center rounded-[24px] bg-white p-4 text-left shadow-[0_8px_28px_rgba(38,38,38,0.04)] transition-transform duration-200 active:scale-[0.97]"
   >
     <span className="flex w-full items-center justify-between text-[17px] font-bold text-gray-800">
       {title}
@@ -184,7 +186,7 @@ export const AiConsultationCard = ({ onClick }: { onClick: () => void }) => (
   <button
     type="button"
     onClick={onClick}
-    className="flex min-h-16 w-full items-center justify-between rounded-[24px] bg-white px-5 shadow-[0_8px_28px_rgba(38,38,38,0.04)]"
+    className="flex min-h-16 w-full items-center justify-between rounded-[24px] bg-white px-5 shadow-[0_8px_28px_rgba(38,38,38,0.04)] transition-transform duration-200 active:scale-[0.98]"
   >
     <span className="flex items-center gap-2 text-sm font-medium text-gray-800">
       <Image

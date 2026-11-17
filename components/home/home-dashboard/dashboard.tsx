@@ -48,6 +48,10 @@ import { TopAppBar } from "./top-app-bar";
 import type { Modal } from "./types";
 import { WeeklyCalendar } from "./weekly-calendar";
 
+// 홈 첫 진입 연출 — 블록이 위에서 아래 순서로 살짝 올라오며 나타난다 (과하지 않게 80ms 간격).
+const ENTER = "animate-enter-up motion-reduce:animate-none";
+const enterDelay = (ms: number) => ({ animationDelay: `${ms}ms` });
+
 export const HomeDashboard = ({
   initialHome,
   selectionResetRequired,
@@ -314,28 +318,36 @@ export const HomeDashboard = ({
         <div aria-hidden className="pt-safe">
           <div className="h-14" />
         </div>
-        <div className="bg-white px-5 pt-4">
+        <div className={`bg-white px-5 pt-4 ${ENTER}`} style={enterDelay(0)}>
           <ReportProgressBanner
             countdown={getWeeklyReportCountdown()}
             streak={data.playStreakDays}
           />
         </div>
-        <WeeklyCalendar data={data} />
+        <div className={ENTER} style={enterDelay(80)}>
+          <WeeklyCalendar data={data} />
+        </div>
         <div className="flex flex-col gap-4 px-5 pt-4">
-          <TodayMissionCard
-            mission={data.recommendedMission}
-            loading={Boolean(selectionPending)}
-            showNotificationNudge={!data.playNotificationEnabled}
-            onStart={startMissionFromHome}
-            onNotification={openNotificationNudge}
-          />
-          <HomeShortcutCards
-            roadmapProgress={data.roadmapProgress}
-            reportSummary={data.reportSummary}
-            onRoadmap={() => router.push("/roadmap")}
-            onReport={() => router.push("/weekly-report")}
-          />
-          <AiConsultationCard onClick={() => router.push("/chat")} />
+          <div className={ENTER} style={enterDelay(160)}>
+            <TodayMissionCard
+              mission={data.recommendedMission}
+              loading={Boolean(selectionPending)}
+              showNotificationNudge={!data.playNotificationEnabled}
+              onStart={startMissionFromHome}
+              onNotification={openNotificationNudge}
+            />
+          </div>
+          <div className={ENTER} style={enterDelay(240)}>
+            <HomeShortcutCards
+              roadmapProgress={data.roadmapProgress}
+              reportSummary={data.reportSummary}
+              onRoadmap={() => router.push("/roadmap")}
+              onReport={() => router.push("/weekly-report")}
+            />
+          </div>
+          <div className={ENTER} style={enterDelay(320)}>
+            <AiConsultationCard onClick={() => router.push("/chat")} />
+          </div>
         </div>
       </div>
       {modal === "notifications" ? (
