@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowLeft, ChevronDown, ChevronRight, X } from 'lucide-react';
+import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEdgeSwipeBack } from '@/hooks/use-edge-swipe-back';
@@ -26,9 +27,12 @@ export function MissionHeader({
   childLabel,
   onBack,
   onSwitchChild,
+  favorite,
 }: {
   childLabel: string;
   onBack: () => void;
+  /** 전달 시 오른쪽에 관심 놀이 하트를 보여 준다. */
+  favorite?: { on: boolean; onToggle: () => void; busy?: boolean };
   /** 전달 시 자녀 라벨이 자녀 변경 트리거 버튼이 된다. 미전달 시 정적 표시. */
   onSwitchChild?: () => void;
 }) {
@@ -70,7 +74,25 @@ export function MissionHeader({
             <span className="max-w-50 truncate">{childLabel}</span>
           </div>
         )}
-        <div className="size-11 opacity-0" aria-hidden />
+        {favorite ? (
+          <button
+            type="button"
+            onClick={favorite.onToggle}
+            disabled={favorite.busy}
+            aria-pressed={favorite.on}
+            aria-label={favorite.on ? "관심 놀이에서 빼기" : "관심 놀이에 저장"}
+            className="flex size-11 items-center justify-center transition-transform active:scale-90"
+          >
+            <Image
+              src={favorite.on ? "/icons/figma/mission/heart-on.svg" : "/icons/figma/mission/heart-off.svg"}
+              alt=""
+              width={24}
+              height={24}
+            />
+          </button>
+        ) : (
+          <div className="size-11 opacity-0" aria-hidden />
+        )}
       </div>
     </header>
   );
@@ -231,7 +253,7 @@ export function MissionSourceSheet({ onClose }: { onClose: () => void }) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.2)] px-7"
       role="dialog"
       aria-modal="true"
-      aria-label="미션 출처"
+      aria-label="놀이 출처"
       onClick={onClose}
     >
       <div className="mx-auto w-full max-w-83.5">
@@ -286,88 +308,164 @@ export function MissionSourceSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
+// 놀이 타이머 링 — Figma 6009:13164(Group 33922) 재현.
+// - 배경 링: 보라→회색 5% 그라데이션 채움 + 바깥·안쪽 가장자리의 옅은 그라데이션 테두리
+// - 진행 링: 오른쪽 위 진보라 → 왼쪽 아래 연보라 그라데이션, 흰색 안쪽 그림자로 광택
+// - 손잡이: 흰색 → 연보라 세로 그라데이션 원(진행 링보다 조금 작아 링 색이 테두리처럼 보임)
 export function TimerRing({ progress }: { progress: number }) {
-  const outerSize = 273;
-  const ringThickness = 30;
-  const knobSize = 30;
-  const knobBorderWidth = 3;
+  const size = 273;
+  const thickness = 32.5;
+  const knobRadius = 13.5;
   const safeProgress = Math.max(0, Math.min(1, progress));
-  const center = outerSize / 2;
-  const radius = center - ringThickness / 2;
-  const circumference = 2 * Math.PI * radius;
-  const startAngle = 135;
-  const endAngle = startAngle + safeProgress * 360;
-  const knobRadians = endAngle * (Math.PI / 180);
-  const knobX = center + Math.cos(knobRadians) * radius;
-  const knobY = center + Math.sin(knobRadians) * radius;
+  const center = size / 2;
+  const radius = center - thickness / 2;
+  const outerEdge = center - 0.5;
+  const innerEdge = center - thickness + 0.5;
+  // Figma에서 진행 링은 왼쪽 아래(약 112°)에서 시작해 시계 방향으로 자란다.
+  const startAngle = 112;
+  const endRadians = (startAngle + safeProgress * 360) * (Math.PI / 180);
+  const knobX = center + Math.cos(endRadians) * radius;
+  const knobY = center + Math.sin(endRadians) * radius;
+  // 회전(transform)으로 시작점을 옮기면 그라데이션까지 같이 돌아가므로, 호를 경로로 직접 그린다.
+  const startRadians = startAngle * (Math.PI / 180);
+  const startX = center + Math.cos(startRadians) * radius;
+  const startY = center + Math.sin(startRadians) * radius;
+  const largeArc = safeProgress > 0.5 ? 1 : 0;
+  const arcPath =
+    safeProgress >= 0.999
+      ? null
+      : `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${knobX} ${knobY}`;
 
   return (
     <div className="relative size-68.25">
       <svg
-        viewBox={`0 0 ${outerSize} ${outerSize}`}
+        viewBox={`0 0 ${size} ${size}`}
         className="absolute inset-0 size-full overflow-visible"
         aria-hidden
       >
         <defs>
-          <filter
-            id="mission-timer-ring-glow"
-            x="-25%"
-            y="-25%"
-            width="150%"
-            height="150%"
+          <linearGradient
+            id="mission-timer-track"
+            x1="84.5"
+            y1="263.5"
+            x2="273"
+            y2="147.5"
+            gradientUnits="userSpaceOnUse"
           >
-            <feGaussianBlur stdDeviation="7" result="blur" />
+            <stop stopColor="#9b78ff" stopOpacity="0.05" />
+            <stop offset="1" stopColor="#666666" stopOpacity="0.05" />
+          </linearGradient>
+          <linearGradient
+            id="mission-timer-track-edge"
+            x1="136.8"
+            y1="0"
+            x2="283.7"
+            y2="266.4"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#000000" stopOpacity="0.12" />
+            <stop offset="0.5" stopColor="#000000" stopOpacity="0" />
+            <stop offset="1" stopColor="#000000" stopOpacity="0.12" />
+          </linearGradient>
+          <linearGradient
+            id="mission-timer-progress"
+            x1="249.5"
+            y1="60"
+            x2="54.5"
+            y2="343"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#9b78ff" />
+            <stop offset="0.356" stopColor="#9672ff" />
+            <stop offset="1" stopColor="#ede8fe" />
+          </linearGradient>
+          <linearGradient id="mission-timer-knob" x1="0" y1="0" x2="0" y2="1">
+            <stop stopColor="#ffffff" />
+            <stop offset="1" stopColor="#e5deff" />
+          </linearGradient>
+          {/* 진행 링 안쪽 가장자리에 흰 빛이 번지는 광택 (Figma inner shadow, 흰색 80% blur 5.6) */}
+          {/* 범위를 링 전체(선 굵기 포함) 기준으로 잡는다. 도형 기준(%)이면 선 굵기가 빠져 링 끝이 잘린다. */}
+          <filter
+            id="mission-timer-gloss"
+            filterUnits="userSpaceOnUse"
+            x={-thickness}
+            y={-thickness}
+            width={size + thickness * 2}
+            height={size + thickness * 2}
+            colorInterpolationFilters="sRGB"
+          >
             <feColorMatrix
-              in="blur"
+              in="SourceAlpha"
               type="matrix"
-              values="0 0 0 0 0.584 0 0 0 0 0.447 0 0 0 0 1 0 0 0 0.28 0"
+              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+              result="alpha"
             />
-            <feMerge>
-              <feMergeNode />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+            <feGaussianBlur stdDeviation="5.56" />
+            <feComposite in2="alpha" operator="arithmetic" k2="-1" k3="1" />
+            <feColorMatrix
+              type="matrix"
+              values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.8 0"
+            />
+            <feBlend mode="normal" in2="SourceGraphic" />
           </filter>
         </defs>
+
         <circle
           cx={center}
           cy={center}
           r={radius}
           fill="none"
-          stroke="#f0f0f0"
-          strokeWidth={ringThickness}
+          stroke="url(#mission-timer-track)"
+          strokeWidth={thickness}
         />
+        <circle
+          cx={center}
+          cy={center}
+          r={outerEdge}
+          fill="none"
+          stroke="url(#mission-timer-track-edge)"
+          strokeWidth={1}
+        />
+        <circle
+          cx={center}
+          cy={center}
+          r={innerEdge}
+          fill="none"
+          stroke="url(#mission-timer-track-edge)"
+          strokeWidth={1}
+        />
+
         {safeProgress > 0 ? (
-          <circle
-            cx={center}
-            cy={center}
-            r={radius}
-            fill="none"
-            stroke="#9672ff"
-            strokeWidth={ringThickness}
-            strokeLinecap="round"
-            strokeDasharray={`${circumference * safeProgress} ${circumference}`}
-            strokeDashoffset={0}
-            transform={`rotate(${startAngle} ${center} ${center})`}
-            filter="url(#mission-timer-ring-glow)"
-          />
+          <>
+            {arcPath ? (
+              <path
+                d={arcPath}
+                fill="none"
+                stroke="url(#mission-timer-progress)"
+                strokeWidth={thickness}
+                strokeLinecap="round"
+                filter="url(#mission-timer-gloss)"
+              />
+            ) : (
+              <circle
+                cx={center}
+                cy={center}
+                r={radius}
+                fill="none"
+                stroke="url(#mission-timer-progress)"
+                strokeWidth={thickness}
+                filter="url(#mission-timer-gloss)"
+              />
+            )}
+            <circle
+              cx={knobX}
+              cy={knobY}
+              r={knobRadius}
+              fill="url(#mission-timer-knob)"
+            />
+          </>
         ) : null}
       </svg>
-      <div
-        className="absolute rounded-full bg-[#fbfbfb] shadow-[inset_0_0_3px_rgba(0,0,0,0.04)]"
-        style={{ inset: ringThickness }}
-      />
-      {safeProgress > 0 ? (
-        <div
-          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-[#a88dff] bg-white"
-          style={{
-            left: knobX,
-            top: knobY,
-            width: knobSize,
-            height: knobSize,
-            borderWidth: knobBorderWidth,
-          }}
-        />
-      ) : null}
     </div>
   );
 }

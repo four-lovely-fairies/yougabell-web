@@ -1,6 +1,6 @@
 "use client";
 
-import { Pause, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -185,7 +185,7 @@ export function MissionTimerScreen({
             ? "잠시 멈추는 데 실패했어요. 다시 시도해주세요."
             : action === "resume"
               ? "다시 시작하는 데 실패했어요. 다시 시도해주세요."
-              : "미션 상태를 업데이트하지 못했어요.",
+              : "놀이 상태를 업데이트하지 못했어요.",
         );
 
         if (error instanceof ApiError) {
@@ -221,9 +221,12 @@ export function MissionTimerScreen({
     <div className="flex h-dvh flex-col bg-[#fbfbfb] px-5 pb-[max(20px,env(safe-area-inset-bottom))] text-gray-800">
       <MissionHeader childLabel={childLabel} onBack={goBack} />
       <HeaderSpacer />
-      <div className="flex flex-1 flex-col items-center gap-9 overflow-y-auto pt-3">
+      {/* 타이머는 화면 세로 가운데, 설명 카드는 위쪽, 버튼은 타이머 아래 화면 높이 비율 간격.
+          위·아래 행을 1fr로 같게 두어 타이머를 가운데에 놓고, 헤더 높이만큼 아래 여백(pb-12)을 더해
+          헤더를 뺀 영역이 아니라 화면 전체 기준으로 가운데에 오게 한다 (Figma 6009:13146). */}
+      <div className="grid min-h-0 flex-1 grid-rows-[1fr_auto_1fr] justify-items-center overflow-y-auto pb-12 pt-3">
         {mission ? (
-          <section className="w-full rounded-[24px] bg-[#fbfbfb] px-6 py-5 shadow-[0_4px_23px_rgba(0,0,0,0.05)]">
+          <section className="mb-4 self-start w-full rounded-[24px] bg-[#fbfbfb] px-6 py-5 shadow-[0_4px_23px_rgba(0,0,0,0.05)]">
             <h1 className="text-lg font-bold leading-[1.4] text-gray-800">
               {mission.title}
             </h1>
@@ -231,7 +234,9 @@ export function MissionTimerScreen({
               {mission.description}
             </p>
           </section>
-        ) : null}
+        ) : (
+          <div />
+        )}
 
         <div className="relative grid place-items-center">
           <TimerRing progress={progress} />
@@ -242,7 +247,7 @@ export function MissionTimerScreen({
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-3.75">
+        <div className="flex flex-col items-center gap-3.75 self-start pt-[clamp(24px,8dvh,68px)]">
           {actionError ? (
             <p className="text-center text-sm font-medium leading-[1.4] text-[#ff5c5c]">
               {actionError}
@@ -259,7 +264,7 @@ export function MissionTimerScreen({
             {snapshot.status === "paused" ? (
               <Play className="size-5" aria-hidden />
             ) : (
-              <Pause className="size-5" aria-hidden />
+              <StopIcon />
             )}
             <span>
               {snapshot.status === "paused" ? "다시 시작하기" : "멈추기"}
@@ -349,4 +354,16 @@ function formatTimer(seconds: number) {
   return `${minutes.toString().padStart(2, "0")}:${remainder
     .toString()
     .padStart(2, "0")}`;
+}
+
+// 멈추기 아이콘 — Figma 6009:13171 (원 안의 둥근 사각형)
+function StopIcon() {
+  return (
+    <svg viewBox="0 0 20 20" className="size-5" fill="none" aria-hidden>
+      <path
+        fill="currentColor"
+        d="M10 1.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17ZM8.5 6.5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-3Z"
+      />
+    </svg>
+  );
 }

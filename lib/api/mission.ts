@@ -34,7 +34,7 @@ export const loadCurrentMission = async (
     return {
       data: getDemoCurrentMission(),
       source: "demo",
-      message: "로그인 세션이 연결되면 실제 미션 데이터를 표시합니다.",
+      message: "로그인 세션이 연결되면 실제 놀이 데이터를 표시합니다.",
     };
   }
 
@@ -68,8 +68,8 @@ export const loadCurrentMission = async (
 
     const message =
       error instanceof ApiError
-        ? `API 응답을 가져오지 못해 샘플 미션을 표시합니다. (${error.status})`
-        : "API 서버에 연결할 수 없어 샘플 미션을 표시합니다.";
+        ? `API 응답을 가져오지 못해 샘플 놀이를 표시합니다. (${error.status})`
+        : "API 서버에 연결할 수 없어 샘플 놀이를 표시합니다.";
 
     return {
       data: getDemoCurrentMission(),
@@ -177,22 +177,25 @@ export const applyMissionExecutionAction = async ({
   executionId,
   action,
   mode,
+  elapsedSeconds,
 }: {
   executionId: string;
   action: MissionExecutionAction;
   mode?: "api" | "demo" | null;
+  // complete 전용 — 타이머 없이 완료할 때 화면에서 보낸 시간(초). 서버가 잰 시간보다 길면 반영된다.
+  elapsedSeconds?: number;
 }): Promise<{
   execution: MissionExecutionSnapshot | null;
   source: "api" | "demo";
 }> => {
   if (mode === "demo") {
-    const execution = applyDemoMissionAction(executionId, action);
+    const execution = applyDemoMissionAction(executionId, action, elapsedSeconds);
     return { execution, source: "demo" };
   }
 
   const headers = await authHeaders();
   if (!headers.Authorization) {
-    const execution = applyDemoMissionAction(executionId, action);
+    const execution = applyDemoMissionAction(executionId, action, elapsedSeconds);
     return { execution, source: "demo" };
   }
 
@@ -201,7 +204,10 @@ export const applyMissionExecutionAction = async ({
     {
       method: "POST",
       headers,
-      json: { action },
+      json:
+        action === "complete" && elapsedSeconds !== undefined
+          ? { action, elapsedSeconds }
+          : { action },
     },
   );
 
@@ -227,7 +233,7 @@ export const loadMissionExecutionEffect = async ({
     return {
       data: readDemoMissionEffect(executionId) ?? getDemoMissionEffect(),
       source: "demo",
-      message: "로그인 세션이 연결되면 실제 미션 효과 데이터를 표시합니다.",
+      message: "로그인 세션이 연결되면 실제 놀이 효과 데이터를 표시합니다.",
     };
   }
 
