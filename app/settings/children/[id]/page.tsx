@@ -1,5 +1,6 @@
 "use client";
 
+import { showToast } from "@/lib/toast";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChildCardForm } from "@/components/onboarding/child-card";
@@ -57,6 +58,7 @@ export default function SettingsChildrenEditPage() {
         notes: child.notes ?? null,
       });
       track({ type: "settings_child_update", childId });
+      showToast("아이 프로필 수정이 완료되었어요");
       router.replace("/settings/children");
     } catch (e) {
       const message =

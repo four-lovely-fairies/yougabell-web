@@ -1,4 +1,5 @@
 import { getAppRedirectPath } from "@/lib/auth-routing";
+import { ToastHost } from "@/components/ui/toast-host";
 import { fetchServerMe } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -21,6 +22,7 @@ export default async function SettingsLayout({
   return (
     <main className="flex min-h-dvh flex-col overflow-x-clip bg-gray-20 text-gray-800">
       {children}
+      <ToastHost />
     </main>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { showToast } from "@/lib/toast";
 import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
@@ -114,6 +115,7 @@ export default function SettingsNotificationsPage() {
     setMarketing(next);
     try {
       await api.updateConsent("marketing", next);
+      showToast(next ? "마케팅 정보 수신에 동의했어요" : "마케팅 정보 수신 동의를 철회했어요");
     } catch (e) {
       setMarketing(prev);
       setError(
@@ -150,6 +152,12 @@ export default function SettingsNotificationsPage() {
         notificationType: type,
         enabled: merged.enabled,
       });
+      const label = type === "weekly_report" ? "주간 리포트" : "10분 놀이";
+      showToast(
+        merged.enabled !== prev.enabled
+          ? `${label} 알림을 ${merged.enabled ? "켰어요" : "껐어요"}`
+          : "알림 시간이 변경되었어요",
+      );
     } catch (e) {
       // 롤백
       setPrefs((p) => ({ ...p, [type]: prev }));

@@ -1,5 +1,6 @@
 "use client";
 
+import { showToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ChildCardForm } from "@/components/onboarding/child-card";
@@ -31,6 +32,7 @@ export default function SettingsChildrenNewPage() {
         notes: child.notes ?? null,
       });
       track({ type: "settings_child_add" });
+      showToast("아이 프로필이 추가되었어요");
       router.replace("/settings/children");
     } catch (e) {
       const message =
