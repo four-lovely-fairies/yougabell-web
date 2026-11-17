@@ -5,8 +5,13 @@ import { truncateAssistantLeak } from "@/lib/chat-sanitize";
 
 // 타자기 노출 속도 (글자당 ms). 네트워크 도착과 분리해 일정 속도로 흘려보낸다.
 const REVEAL_MS = 22;
-// 단락(\n\n) 사이 "..." 점 말풍선을 보여주는 의도적 딜레이.
-const INTERLUDE_MS = 650;
+// 단락(\n\n) 사이 "..." 점 말풍선을 보여주는 의도적 딜레이. (650ms → 350ms: 답이 길면 기다림이 쌓였다)
+const INTERLUDE_MS = 350;
+
+// 한 번에 노출할 글자 수. 기본 2글자(초당 약 90자)이고, 도착한 글이 많이 밀려 있으면 더 빨리 따라잡는다.
+// 한 글자씩만 보여 주면 긴 답은 표시에만 1분 넘게 걸렸고, 폰 WebView는 타이머가 더 느려 체감이 훨씬 길었다.
+const charsPerTick = (backlog: number) =>
+  backlog > 240 ? 8 : backlog > 120 ? 5 : backlog > 40 ? 3 : 2;
 
 export type LiveRender = {
   // 노출이 끝난 단락들 (각각 말풍선 1개)
@@ -115,9 +120,12 @@ export function useChatTypewriter(onComplete: (parts: string[]) => void) {
       return;
     }
 
-    // 한 글자 노출
-    e.typingText += e.buffer[e.cursor];
-    e.cursor += 1;
+    // 글자 노출 — 다음 단락 경계를 넘지 않는 범위에서 몇 글자씩
+    const nextBreak = rest.search(/\n{2,}/);
+    const untilBreak = nextBreak === -1 ? rest.length : nextBreak;
+    const take = Math.max(1, Math.min(charsPerTick(rest.length), untilBreak));
+    e.typingText += rest.slice(0, take);
+    e.cursor += take;
     if (e.phase !== "typing") e.phase = "typing";
     publish();
     timerRef.current = setTimeout(tick, REVEAL_MS);

@@ -45,6 +45,9 @@ export default function ChatPage() {
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const suppressScrollRef = useRef(false);
+  // 사용자가 바닥 근처를 보고 있을 때만 새 글을 따라 내려간다.
+  // 답이 나오는 동안 위로 올려 읽으면 따라가기를 멈추고, 다시 바닥으로 내리면 이어서 따라간다.
+  const followBottomRef = useRef(true);
   const idRef = useRef(0);
   // onDone에서 받은 최종 메시지 데이터 — 타자기 애니메이션 완료 시 커밋에 사용
   const pendingDoneRef = useRef<{
@@ -117,11 +120,19 @@ export default function ChatPage() {
       suppressScrollRef.current = false;
       return;
     }
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
-    });
+    const scroller = scrollRef.current;
+    if (!scroller || !followBottomRef.current) return;
+    // 타이핑 중에는 글자마다 부드러운 스크롤을 다시 걸면 화면이 계속 끌려가 손으로 움직일 수 없었다.
+    // 즉시 이동(auto)으로 바꿔 끌림 없이 바닥만 유지한다.
+    scroller.scrollTo({ top: scroller.scrollHeight, behavior: "auto" });
   }, [messages, typewriter.live]);
+
+  const onScroll = () => {
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    const distance = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight;
+    followBottomRef.current = distance < 80;
+  };
 
   const revealHistory = () => {
     suppressScrollRef.current = true; // 과거를 위로 펼칠 때는 바닥으로 점프 X
@@ -150,6 +161,8 @@ export default function ChatPage() {
     setInput("");
     setBusy(true);
     setErrorBanner(null);
+    // 내가 보낸 메시지는 항상 보이도록 바닥 따라가기를 다시 켠다.
+    followBottomRef.current = true;
     typewriter.begin();
     pendingContentRef.current = "";
     track({ type: "chat_message_send", length: text.length });
@@ -237,7 +250,8 @@ export default function ChatPage() {
 
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto"
+        onScroll={onScroll}
+        className="flex-1 overflow-y-auto overscroll-contain"
         aria-live="polite"
       >
         {isEmpty ? (
