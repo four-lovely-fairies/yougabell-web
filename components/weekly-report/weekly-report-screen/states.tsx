@@ -28,10 +28,10 @@ export const WeeklyReportEmpty = ({
     // 지난주 기록이 없을 때는 웹 문구로 고정
     const noRecordLastWeek = emptyState?.reason === "no_mission_for_week";
     const title = noRecordLastWeek
-      ? "지난주에는 리포트로 만들 기록이 없었어요."
+      ? "아직 주간 리포트가 없어요"
       : (emptyState?.title ?? "주간 리포트를 준비하고 있어요");
     const description = noRecordLastWeek
-      ? "이번 주 놀이를 시작해보세요"
+      ? "지난주에는 리포트로 만들 기록이 없었어요.\n이번 주 놀이를 시작해보세요"
       : (emptyState?.description ?? "리포트가 준비되면 알림으로 알려드릴게요.");
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-9 px-8 pb-20 text-center">
@@ -41,7 +41,7 @@ export const WeeklyReportEmpty = ({
             <h2 className="text-lg font-bold leading-[25px]">
               {title}
             </h2>
-            <p className="mx-auto max-w-65 whitespace-pre-line text-sm leading-5 text-gray-500">
+            <p className="mx-auto max-w-75 whitespace-pre-line break-keep text-sm leading-5 text-gray-500">
               {description}
             </p>
           </div>
