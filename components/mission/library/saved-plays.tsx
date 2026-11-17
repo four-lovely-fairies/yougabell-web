@@ -96,6 +96,7 @@ export function SavedPlaysScreen() {
           fill
           title="아직 저장한 놀이가 없어요"
           body={"마음에 드는 놀이에 하트를 누르면\n여기에 모아 볼 수 있어요"}
+          action={{ label: "놀이 내역 보러 가기", href: "/mission/history" }}
         />
       </div>
     );

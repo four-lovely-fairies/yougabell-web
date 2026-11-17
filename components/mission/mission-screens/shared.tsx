@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { useEdgeSwipeBack } from '@/hooks/use-edge-swipe-back';
 
 // fixed 헤더 높이만큼 콘텐츠를 내리는 스페이서 (미션 화면용 re-export).
@@ -242,24 +243,8 @@ export function MissionSourceSheet({
   onClose: () => void;
 }) {
   return (
-    <div
-      className="fixed inset-0 z-50 mx-auto flex w-full max-w-107.5 flex-col justify-end"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="mission-source-title"
-    >
-      <button
-        type="button"
-        aria-label="닫기"
-        onClick={onClose}
-        className="absolute inset-0 animate-dissolve cursor-default bg-black/50 motion-reduce:animate-none"
-        style={{ animationDuration: '200ms' }}
-      />
-      <div className="relative flex max-h-[85dvh] animate-sheet-up flex-col gap-6 overflow-y-auto rounded-t-[24px] bg-white px-6 pb-[max(40px,env(safe-area-inset-bottom))] pt-3 motion-reduce:animate-none">
-        <div className="mx-auto h-1 w-10 shrink-0 rounded-[2px] bg-[#e0e0e0]" aria-hidden />
-        <h2 id="mission-source-title" className="text-lg font-bold leading-[1.4] text-gray-800">
-          자료 출처
-        </h2>
+    <BottomSheet title="자료 출처" onClose={onClose} labelledById="mission-source-title">
+      <div className="flex flex-col gap-6 px-6">
         {citation ? (
           <p className="whitespace-pre-line rounded-xl bg-[#f5f5f7] p-4 text-sm leading-[1.4] text-gray-600">
             {citation}
@@ -286,7 +271,7 @@ export function MissionSourceSheet({
           확인
         </button>
       </div>
-    </div>
+    </BottomSheet>
   );
 }
 

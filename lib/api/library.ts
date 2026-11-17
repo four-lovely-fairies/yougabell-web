@@ -22,6 +22,8 @@ export type LibraryPlayItem = {
   durationLabel: string;
   categoryId: string;
   categoryLabel: string;
+  // 놀이 출처 — API 배포 전 응답에는 없을 수 있다
+  sourceLabel?: string;
   isFavorite: boolean;
 };
 
@@ -64,6 +66,7 @@ const DEMO_PLAYS: LibraryPlayItem[] = [
     durationLabel: "10분",
     categoryId: "language",
     categoryLabel: "언어발달",
+    sourceLabel: "CDC 2022",
     isFavorite: false,
   },
   {
@@ -75,6 +78,7 @@ const DEMO_PLAYS: LibraryPlayItem[] = [
     durationLabel: "10분",
     categoryId: "social",
     categoryLabel: "사회성",
+    sourceLabel: "AAP 2021",
     isFavorite: false,
   },
   {
@@ -86,6 +90,7 @@ const DEMO_PLAYS: LibraryPlayItem[] = [
     durationLabel: "15분",
     categoryId: "cognitive",
     categoryLabel: "인지발달",
+    sourceLabel: "Tomasello 1995",
     isFavorite: false,
   },
   {
@@ -97,6 +102,7 @@ const DEMO_PLAYS: LibraryPlayItem[] = [
     durationLabel: "10분",
     categoryId: "physical",
     categoryLabel: "신체발달",
+    sourceLabel: "WHO 2023",
     isFavorite: false,
   },
 ];
