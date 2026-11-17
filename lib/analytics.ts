@@ -58,7 +58,8 @@ export type ChatEvent =
     }
   | { type: "chat_response_error"; reason: string }
   | { type: "chat_quick_reply_use"; label: string }
-  | { type: "chat_source_link_open"; domain: string };
+  | { type: "chat_source_link_open"; domain: string }
+  | { type: "chat_feedback"; helpful: boolean };
 
 export type HomeEvent =
   | { type: "home_view" }
@@ -232,6 +233,8 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
       return { name: "Chat Quick Reply Used" };
     case "chat_source_link_open":
       return { name: "Chat Source Link Opened" };
+    case "chat_feedback":
+      return { name: "Chat Feedback Submitted", properties: { helpful: event.helpful } };
     case "home_view":
       return { name: "Home Viewed" };
     case "home_child_switch":

@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="AI &#236;&#149;&#132;&#236;&#157;&#180;&#236;&#189;&#152;">
+<path id="&#235;&#179;&#132;" d="M10.6 1.6C11.5333 0.4 12.4667 0.4 13.4 1.6C15.6 5.8 18.2 8.4 22.4 10.6C23.6 11.5333 23.6 12.4667 22.4 13.4C18.2 15.6 15.6 18.2 13.4 22.4C12.4667 23.6 11.5333 23.6 10.6 22.4C8.4 18.2 5.8 15.6 1.6 13.4C0.4 12.4667 0.4 11.5333 1.6 10.6C5.8 8.4 8.4 5.8 10.6 1.6Z" fill="url(#paint0_linear_0_18)"/>
+<rect id="&#236;&#187;&#164;&#236;&#132;&#156;" x="10.8" y="7.75" width="2.4" height="8.5" rx="1.2" fill="#FDFDFE"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_18" x1="12" y1="0.7" x2="12" y2="23.3" gradientUnits="userSpaceOnUse">
+<stop stop-color="#9572FF"/>
+<stop offset="1" stop-color="#6EC8FF"/>
+</linearGradient>
+</defs>
+</svg>
