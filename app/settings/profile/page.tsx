@@ -1,5 +1,6 @@
 "use client";
 
+import { showToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ClearCircleIcon } from "@/components/icons";
@@ -62,6 +63,7 @@ export default function SettingsProfilePage() {
         workStatus: parent.workStatus ?? null,
       });
       track({ type: "settings_parent_save" });
+      showToast("내 프로필 수정이 완료되었어요");
       router.back();
     } catch (e) {
       const message =

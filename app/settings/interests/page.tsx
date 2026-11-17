@@ -1,5 +1,6 @@
 "use client";
 
+import { showToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
@@ -61,6 +62,7 @@ export default function SettingsInterestsPage() {
     try {
       await api.updateInterests(selected.map((id) => INTEREST_WEB_TO_API[id]));
       track({ type: "settings_interests_save", count: selected.length });
+      showToast("관심사 수정이 완료되었어요");
       router.back();
     } catch (e) {
       const message =

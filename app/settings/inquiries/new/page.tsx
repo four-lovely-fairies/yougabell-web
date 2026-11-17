@@ -1,5 +1,6 @@
 "use client";
 
+import { showToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
@@ -69,6 +70,7 @@ export default function NewInquiryPage() {
         privacyConsent: true,
       });
       track({ type: "inquiry_submit", category });
+      showToast("문의가 접수되었어요");
       router.replace("/settings/inquiries");
     } catch (e) {
       setError(toErrorMessage(e));

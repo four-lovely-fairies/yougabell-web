@@ -1,5 +1,6 @@
 "use client";
 
+import { showToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PlusIcon, TrashIcon } from "@/components/icons";
@@ -52,6 +53,7 @@ export default function SettingsChildrenPage() {
       await api.deleteChild(id);
       clearSelectedChildIdIfMatches(id);
       track({ type: "settings_child_delete", childId: id });
+      showToast("아이 프로필이 삭제되었어요");
       setChildren((prev) => prev.filter((c) => c.id !== id));
     } catch (e) {
       const message =
