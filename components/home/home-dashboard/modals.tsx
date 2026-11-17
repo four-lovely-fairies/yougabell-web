@@ -1,4 +1,5 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Check, Pencil, Trash2 } from "lucide-react";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { XIcon } from "@/components/icons";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
 import { MoodFace } from "./mood-face";
@@ -9,72 +10,76 @@ import {
 } from "./notification-icon";
 import { MOOD_OPTION_LABELS, type MoodLevel } from "./types";
 
-// 자녀 선택 드롭다운 — Figma 2395:10959.
-// 위치(헤더 아래 앵커링)는 호출부(dashboard)에서 관리하고, 여기서는 메뉴 카드만 그린다.
-export const ChildSwitcherDropdown = ({
+// 자녀 선택 바텀시트 — 공통 BottomSheet + 월 선택 시트와 같은 목록 행.
+// 선택된 아이는 보라 이름 + 체크, 오른쪽에 수정·삭제 아이콘.
+export const ChildSwitcherSheet = ({
   childItems,
   selectedChildId,
   onSelect,
   onEdit,
   onDelete,
+  onClose,
 }: {
   childItems: HomeChild[];
   selectedChildId: string;
   onSelect: (child: HomeChild) => void;
   onEdit: (child: HomeChild) => void;
   onDelete: (child: HomeChild) => void;
+  onClose: () => void;
 }) => (
-  <div
-    role="menu"
-    aria-label="아이 선택"
-    className="w-65 overflow-hidden rounded-[32px] border border-[#ebecf0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
-  >
-    {childItems.map((child) => {
-      const selected = child.id === selectedChildId;
+  <BottomSheet title="아이 선택" onClose={onClose} labelledById="child-switcher-title">
+    <ul role="radiogroup" aria-labelledby="child-switcher-title">
+      {childItems.map((child) => {
+        const selected = child.id === selectedChildId;
 
-      return (
-        <div
-          key={child.id}
-          className={`flex items-center justify-between gap-3 px-6 py-5 ${
-            selected ? "bg-primary-50" : "bg-white"
-          }`}
-        >
-          <button
-            type="button"
-            onClick={() => onSelect(child)}
-            className="min-w-0 flex-1 text-left"
-            role="menuitemradio"
-            aria-checked={selected}
-          >
-            <span className="block truncate text-sm font-bold leading-[1.4] text-[#1f2127]">
-              {child.name}
-            </span>
-            <span className="block truncate text-xs font-normal leading-[1.4] text-[#6f7885]">
-              {child.ageLabel} ({new Date(child.birthDate).getFullYear()}년생)
-            </span>
-          </button>
-          <div className="flex shrink-0 items-center gap-2 text-gray-700">
+        return (
+          <li key={child.id} className="flex items-center gap-2 pr-4 active:bg-gray-50">
             <button
               type="button"
-              onClick={() => onEdit(child)}
-              className="flex size-5 items-center justify-center"
-              aria-label={`${child.name} 수정`}
+              onClick={() => onSelect(child)}
+              className="flex min-w-0 flex-1 items-center gap-2 py-3.5 pl-6 text-left"
+              role="radio"
+              aria-checked={selected}
             >
-              <Pencil className="size-4.5" aria-hidden />
+              <span className="min-w-0">
+                <span
+                  className={`block truncate text-base font-medium leading-[1.4] ${
+                    selected ? "text-primary-300" : "text-gray-800"
+                  }`}
+                >
+                  {child.name}
+                </span>
+                <span className="block truncate text-sm leading-[1.4] text-gray-500">
+                  {child.ageLabel} ({new Date(child.birthDate).getFullYear()}년생)
+                </span>
+              </span>
+              {selected ? (
+                <Check className="size-5 shrink-0 text-primary-300" aria-hidden />
+              ) : null}
             </button>
-            <button
-              type="button"
-              onClick={() => onDelete(child)}
-              className="flex size-5 items-center justify-center"
-              aria-label={`${child.name} 삭제`}
-            >
-              <Trash2 className="size-4.5" aria-hidden />
-            </button>
-          </div>
-        </div>
-      );
-    })}
-  </div>
+            <div className="flex shrink-0 items-center text-gray-500">
+              <button
+                type="button"
+                onClick={() => onEdit(child)}
+                className="flex size-10 items-center justify-center"
+                aria-label={`${child.name} 수정`}
+              >
+                <Pencil className="size-4.5" aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={() => onDelete(child)}
+                className="flex size-10 items-center justify-center"
+                aria-label={`${child.name} 삭제`}
+              >
+                <Trash2 className="size-4.5" aria-hidden />
+              </button>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  </BottomSheet>
 );
 
 // 알림 — 전체 화면. 우측 상단 닫기, 큰 제목 + 모두 읽기, 종류 아이콘 + 라벨/시간 + 내용 목록.

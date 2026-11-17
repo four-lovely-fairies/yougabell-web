@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -167,8 +167,8 @@ export function ageLabelFromBirth(birthDate: string): string {
   return `만${Math.max(0, age)}세`;
 }
 
-/** 헤더 자녀 라벨 아래로 펼쳐지는 자녀 변경 드롭다운(Figma 미션 시작하기 헤더). */
-export function ChildSwitchDropdown({
+/** 자녀 변경 바텀시트 — 공통 BottomSheet + 월 선택 시트와 같은 목록 행. */
+export function ChildSwitchSheet({
   childItems,
   selectedChildId,
   onSelect,
@@ -180,46 +180,39 @@ export function ChildSwitchDropdown({
   onClose: () => void;
 }) {
   return (
-    <div
-      className="fixed inset-0 z-40"
-      role="dialog"
-      aria-modal="true"
-      aria-label="자녀 선택"
-      onClick={onClose}
-    >
-      <div className="relative mx-auto h-full w-full max-w-107.5">
-        <div
-          className="-translate-x-1/2 absolute left-1/2 top-[calc(env(safe-area-inset-top)+56px)] w-60 overflow-hidden rounded-3xl border border-[#ebecf0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)]"
-          onClick={(event) => event.stopPropagation()}
-        >
-          {childItems.map((child) => {
-            const selected = child.id === selectedChildId;
-            return (
-              <button
-                key={child.id}
-                type="button"
-                onClick={() => onSelect(child)}
-                className={`flex w-full items-center justify-between px-5 py-4 text-left ${
-                  selected ? 'bg-primary-50' : 'bg-white'
-                }`}
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold leading-[1.4] text-gray-800">
-                    {child.name}
-                  </span>
-                  <span className="block truncate text-xs font-normal leading-[1.4] text-gray-500">
-                    {child.ageLabel}
-                  </span>
+    <BottomSheet title="아이 선택" onClose={onClose} labelledById="mission-child-switch-title">
+      <div role="radiogroup" aria-labelledby="mission-child-switch-title">
+        {childItems.map((child) => {
+          const selected = child.id === selectedChildId;
+          return (
+            <button
+              key={child.id}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => onSelect(child)}
+              className="flex w-full items-center justify-between gap-3 px-6 py-3.5 text-left active:bg-gray-50"
+            >
+              <span className="min-w-0">
+                <span
+                  className={`block truncate text-base font-medium leading-[1.4] ${
+                    selected ? 'text-primary-300' : 'text-gray-800'
+                  }`}
+                >
+                  {child.name}
                 </span>
-                {selected ? (
-                  <span className="ml-3 size-2 shrink-0 rounded-full bg-primary-300" />
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
+                <span className="block truncate text-sm leading-[1.4] text-gray-500">
+                  {child.ageLabel}
+                </span>
+              </span>
+              {selected ? (
+                <Check className="size-5 shrink-0 text-primary-300" aria-hidden />
+              ) : null}
+            </button>
+          );
+        })}
       </div>
-    </div>
+    </BottomSheet>
   );
 }
 

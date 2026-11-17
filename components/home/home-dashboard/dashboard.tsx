@@ -36,7 +36,7 @@ import {
   TodayMissionCard,
 } from "./cards";
 import {
-  ChildSwitcherDropdown,
+  ChildSwitcherSheet,
   NotificationConfiguredModal,
   NotificationModal,
 } from "./modals";
@@ -260,31 +260,6 @@ export const HomeDashboard = ({
             onOpenChildren={() => setModal("children")}
             onOpenNotifications={() => setModal("notifications")}
           />
-          {modal === "children" ? (
-            <>
-              <button
-                type="button"
-                aria-label="닫기"
-                className="fixed inset-0 z-40 cursor-default"
-                onClick={() => setModal(null)}
-              />
-              <div className="absolute left-0 top-14 z-50">
-                <ChildSwitcherDropdown
-                  childItems={data.children}
-                  selectedChildId={selectedChild.id}
-                  onSelect={onSelectChild}
-                  onEdit={(child) => {
-                    setModal(null);
-                    router.push(`/settings/children/${child.id}`);
-                  }}
-                  onDelete={() => {
-                    setModal(null);
-                    router.push("/settings/children");
-                  }}
-                />
-              </div>
-            </>
-          ) : null}
         </div>
       </div>
       {/* 당겨서새로고침 스피너 — 고정 헤더 바로 아래(z-40 < 헤더 z-50)에 표시 */}
@@ -350,6 +325,22 @@ export const HomeDashboard = ({
           </div>
         </div>
       </div>
+      {modal === "children" ? (
+        <ChildSwitcherSheet
+          childItems={data.children}
+          selectedChildId={selectedChild.id}
+          onSelect={onSelectChild}
+          onEdit={(child) => {
+            setModal(null);
+            router.push(`/settings/children/${child.id}`);
+          }}
+          onDelete={() => {
+            setModal(null);
+            router.push("/settings/children");
+          }}
+          onClose={() => setModal(null)}
+        />
+      ) : null}
       {modal === "notifications" ? (
         <NotificationModal
           notifications={data.notifications.latest}
