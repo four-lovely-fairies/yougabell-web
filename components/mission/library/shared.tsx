@@ -2,7 +2,7 @@
 
 import type { LibraryOrder, LibraryPlayItem, PlayCategoryId } from "@/lib/api";
 import { useEdgeSwipeBack } from "@/hooks/use-edge-swipe-back";
-import { ArrowLeft, Check, ChevronDown, Search, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, Search, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -307,9 +307,12 @@ export function LibraryEmpty({
   title,
   body,
   fill = false,
+  action,
 }: {
   title: string;
   body?: string;
+  /** 작은 CTA — 마이페이지 "초대하러 가기"와 같은 보라 알약 버튼 */
+  action?: { label: string; href: string };
   /** 남는 높이 전체를 채워 화면 가운데에 놓는다. */
   fill?: boolean;
 }) {
@@ -324,6 +327,15 @@ export function LibraryEmpty({
       <p className="mt-5 text-lg font-bold text-gray-800">{title}</p>
       {body ? (
         <p className="mt-1.5 whitespace-pre-line text-sm text-gray-500">{body}</p>
+      ) : null}
+      {action ? (
+        <Link
+          href={action.href}
+          className="mt-6 flex items-center gap-0.5 rounded-full bg-primary-300 py-1.5 pl-3 pr-2 text-xs font-bold leading-[1.4] text-white transition-transform active:scale-95"
+        >
+          {action.label}
+          <ChevronRight className="size-4" aria-hidden />
+        </Link>
       ) : null}
     </div>
   );

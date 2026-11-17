@@ -22,6 +22,7 @@ import {
   MissionHeader,
   MissionIntroSkeleton,
   MissionMetaRow,
+  MissionSourceSheet,
 } from "../mission-screens/shared";
 import { FavoriteSavedToast } from "./shared";
 
@@ -36,6 +37,7 @@ export function SavedPlayDetailScreen({ missionId }: { missionId: string }) {
   const [busy, setBusy] = useState(false);
   const [favoriteBusy, setFavoriteBusy] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
+  const [sourceOpen, setSourceOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const enteredAtRef = useRef<number | null>(null);
 
@@ -184,6 +186,14 @@ export function SavedPlayDetailScreen({ missionId }: { missionId: string }) {
           >
             <MissionMetaRow icon={MISSION_META_ICONS.time} label="시간" value={play.durationLabel} />
             <MissionMetaRow icon={MISSION_META_ICONS.category} label="카테고리" value={play.categoryLabel} />
+            {play.sourceLabel ? (
+              <MissionMetaRow
+                icon={MISSION_META_ICONS.source}
+                label="출처"
+                value={play.sourceLabel}
+                onClick={() => setSourceOpen(true)}
+              />
+            ) : null}
           </div>
         </div>
 
@@ -215,6 +225,9 @@ export function SavedPlayDetailScreen({ missionId }: { missionId: string }) {
         </div>
       </div>
       {toastOpen ? <FavoriteSavedToast onClose={() => setToastOpen(false)} /> : null}
+      {sourceOpen ? (
+        <MissionSourceSheet citation={play.sourceLabel} onClose={() => setSourceOpen(false)} />
+      ) : null}
     </div>
   );
 }

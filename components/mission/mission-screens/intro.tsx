@@ -30,6 +30,7 @@ import {
   type MissionSwitchChild,
 } from "./shared";
 import { FavoriteSavedToast } from "../library/shared";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 
 // 놀이 화면 진입 연출 — 과하지 않게 디졸브만, 위에서 아래 순서로 살짝 시차를 둔다.
 const DISSOLVE = "animate-dissolve motion-reduce:animate-none";
@@ -437,35 +438,13 @@ function MissionExitSheet({
   onClose: () => void;
 }) {
   return (
-    <div
-      className="fixed inset-0 z-50 mx-auto flex w-full max-w-107.5 flex-col justify-end"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="mission-exit-title"
+    <BottomSheet
+      title="오늘 놀이, 해보셨나요?"
+      description="기록을 남기면 주간 리포트에 반영돼요."
+      onClose={onClose}
+      labelledById="mission-exit-title"
     >
-      <button
-        type="button"
-        aria-label="닫기"
-        onClick={onClose}
-        className="absolute inset-0 animate-dissolve cursor-default bg-black/50 motion-reduce:animate-none"
-        style={{ animationDuration: "200ms" }}
-      />
-      <div className="relative flex animate-sheet-up flex-col gap-6 rounded-t-[24px] bg-white px-6 pb-[max(40px,env(safe-area-inset-bottom))] pt-3 motion-reduce:animate-none">
-        <div
-          className="mx-auto h-1 w-10 rounded-[2px] bg-[#e0e0e0]"
-          aria-hidden
-        />
-        <div className="flex flex-col gap-1.5 leading-[1.4]">
-          <h2
-            id="mission-exit-title"
-            className="text-lg font-bold text-gray-800"
-          >
-            오늘 놀이, 해보셨나요?
-          </h2>
-          <p className="text-sm text-gray-500">
-            기록을 남기면 주간 리포트에 반영돼요.
-          </p>
-        </div>
+      <div className="flex flex-col gap-6 px-6">
         <div className="flex flex-col gap-2">
           <button
             type="button"
@@ -488,12 +467,12 @@ function MissionExitSheet({
           <button
             type="button"
             onClick={onLeave}
-            className="flex w-full justify-center pt-2 text-sm font-medium leading-[1.4] text-gray-400"
+            className="flex w-full justify-center py-2 text-sm font-medium leading-[1.4] text-gray-400"
           >
             그냥 나가기
           </button>
         </div>
       </div>
-    </div>
+    </BottomSheet>
   );
 }

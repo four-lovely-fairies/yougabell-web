@@ -10,6 +10,7 @@ import {
 } from "@/lib/api";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 import Image from "next/image";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -445,40 +446,24 @@ function MonthSheet({
     return { year: date.getFullYear(), month: date.getMonth() + 1 };
   });
   return (
-    <div
-      className="fixed inset-0 z-50 mx-auto flex w-full max-w-107.5 flex-col justify-end"
-      role="dialog"
-      aria-modal="true"
-      aria-label="월 선택"
-    >
-      <button
-        type="button"
-        aria-label="닫기"
-        onClick={onClose}
-        className="absolute inset-0 animate-dissolve cursor-default bg-black/50 motion-reduce:animate-none"
-        style={{ animationDuration: "200ms" }}
-      />
-      <div className="relative flex max-h-[70dvh] animate-sheet-up flex-col rounded-t-[24px] bg-white pb-[max(24px,env(safe-area-inset-bottom))] pt-3 motion-reduce:animate-none">
-        <div className="mx-auto h-1 w-10 rounded-[2px] bg-[#e0e0e0]" aria-hidden />
-        <h2 className="px-6 pb-2 pt-5 text-lg font-bold leading-[1.4] text-gray-800">월 선택</h2>
-        {/* 6개월 정도만 보이고 나머지는 스크롤 (한 줄 50px) */}
-        <div className="max-h-75 overflow-y-auto overscroll-contain">
-          {months.map((m) => {
-            const selected = sameMonth(m, current);
-            return (
-              <button
-                key={monthLabel(m)}
-                type="button"
-                onClick={() => onSelect(m)}
-                className="flex w-full items-center justify-between px-6 py-3.5 text-base font-medium leading-[1.4] text-gray-800 active:bg-gray-50"
-              >
-                {m.year}년 {m.month}월
-                {selected ? <Check className="size-5 text-primary-300" aria-hidden /> : null}
-              </button>
-            );
-          })}
-        </div>
+    <BottomSheet title="월 선택" onClose={onClose} labelledById="month-sheet-title">
+      {/* 6개월 정도만 보이고 나머지는 스크롤 (한 줄 50px) */}
+      <div className="max-h-75 overflow-y-auto overscroll-contain">
+        {months.map((m) => {
+          const selected = sameMonth(m, current);
+          return (
+            <button
+              key={monthLabel(m)}
+              type="button"
+              onClick={() => onSelect(m)}
+              className="flex w-full items-center justify-between px-6 py-3.5 text-base font-medium leading-[1.4] text-gray-800 active:bg-gray-50"
+            >
+              {m.year}년 {m.month}월
+              {selected ? <Check className="size-5 text-primary-300" aria-hidden /> : null}
+            </button>
+          );
+        })}
       </div>
-    </div>
+    </BottomSheet>
   );
 }
