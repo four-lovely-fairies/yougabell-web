@@ -174,6 +174,7 @@ export const RoadmapScreen = () => {
           onSelect={onSelectMonth}
         />
         <CategoryCardList
+          key={data.targetMonth}
           groups={data.milestonesByCategory}
           pendingMilestoneIds={pendingMilestoneIds}
           onToggle={onToggleMilestone}
@@ -256,6 +257,12 @@ const ChecklistProgress = ({
 }) => {
   const progress =
     totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+  // 처음 들어왔을 때 0에서 현재 값까지 차오르게 한 프레임 늦게 너비를 준다
+  const [filled, setFilled] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setFilled(true), 120);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   return (
     <div className="mt-1">
@@ -272,8 +279,8 @@ const ChecklistProgress = ({
         aria-valuenow={progress}
       >
         <div
-          className="h-full rounded-full bg-primary-300 transition-[width]"
-          style={{ width: `${progress}%` }}
+          className="h-full rounded-full bg-primary-300 transition-[width] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+          style={{ width: `${filled ? progress : 0}%` }}
         />
       </div>
     </div>
@@ -292,22 +299,39 @@ const MonthTabs = ({
   onSelect: (month: number) => void;
 }) => {
   const activeRef = useRef<HTMLButtonElement | null>(null);
+  const tabsRef = useRef<HTMLDivElement | null>(null);
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+  // 누르는 즉시 선택 표시를 옮긴다 (데이터 로딩을 기다리지 않음). 실제 선택이 바뀌면 그 값을 따른다.
+  const [pending, setPending] = useState<{ month: number; from: number } | null>(null);
+  const shown = pending && pending.from === target ? pending.month : target;
+  const select = (month: number) => {
+    if (month === shown) return;
+    setPending({ month, from: target });
+    onSelect(month);
+  };
 
-  const targetIndex = (CDC_CHECKPOINTS as readonly number[]).indexOf(target);
+  const targetIndex = (CDC_CHECKPOINTS as readonly number[]).indexOf(shown);
   const prevMonth = targetIndex > 0 ? CDC_CHECKPOINTS[targetIndex - 1] : null;
   const nextMonth =
     targetIndex >= 0 && targetIndex < CDC_CHECKPOINTS.length - 1
       ? CDC_CHECKPOINTS[targetIndex + 1]
       : null;
 
-  // 선택된 월령이 바뀌면 가로 스크롤에서 가운데로 보이도록 이동.
+  // 선택된 월령이 바뀌면 가로 스크롤에서 가운데로 보이도록 이동하고, 보라 표시를 그 탭 위치로 옮긴다.
   useEffect(() => {
-    activeRef.current?.scrollIntoView({
+    const active = activeRef.current;
+    if (!active) return;
+    active.scrollIntoView({
       inline: "center",
       block: "nearest",
       behavior: "smooth",
     });
-  }, [target]);
+    const measure = () => setIndicator({ left: active.offsetLeft, width: active.offsetWidth });
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (tabsRef.current) observer.observe(tabsRef.current);
+    return () => observer.disconnect();
+  }, [shown]);
 
   return (
     <section className="mt-5 px-5">
@@ -321,16 +345,29 @@ const MonthTabs = ({
       >
         <button
           type="button"
-          onClick={() => prevMonth !== null && onSelect(prevMonth)}
+          onClick={() => prevMonth !== null && select(prevMonth)}
           disabled={prevMonth === null || disabled}
           aria-label="이전 월령 보기"
           className="flex size-8 shrink-0 items-center justify-center text-gray-800 disabled:text-gray-300"
         >
           <ChevronLeft className="size-6" aria-hidden />
         </button>
-        <div className="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
+        <div ref={tabsRef} className="no-scrollbar relative flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
+          {/* 선택된 월령 표시 — 탭 사이를 살짝 튕기듯 미끄러진다 */}
+          {indicator ? (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 left-0 rounded-md bg-primary-300 motion-reduce:transition-none"
+              style={{
+                width: indicator.width,
+                transform: `translateX(${indicator.left}px)`,
+                transition:
+                  "transform 480ms cubic-bezier(0.34, 1.56, 0.64, 1), width 480ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
+            />
+          ) : null}
           {CDC_CHECKPOINTS.map((month) => {
-            const active = month === target;
+            const active = month === shown;
             // 지금 보고 있는 월령(active)이 아니면서 내 아이 월령인 탭은 연한 색으로 구분.
             const isChildMonth = !active && month === childMonth;
             return (
@@ -341,11 +378,11 @@ const MonthTabs = ({
                 role="tab"
                 aria-selected={active}
                 title={isChildMonth ? "내 아이 월령" : undefined}
-                onClick={() => onSelect(month)}
+                onClick={() => select(month)}
                 disabled={disabled}
-                className={`flex h-8.25 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3.5 text-xs font-medium leading-[1.4] ${
+                className={`relative z-10 flex h-8.25 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3.5 text-xs font-medium leading-[1.4] transition-[color,transform] duration-200 active:scale-95 motion-reduce:transition-none ${
                   active
-                    ? "bg-primary-300 text-white"
+                    ? `${indicator ? "border border-transparent" : "bg-primary-300"} text-white`
                     : isChildMonth
                       ? "border border-primary-200 bg-primary-50 text-primary-300"
                       : "border border-gray-100 bg-white text-gray-600"
@@ -358,7 +395,7 @@ const MonthTabs = ({
         </div>
         <button
           type="button"
-          onClick={() => nextMonth !== null && onSelect(nextMonth)}
+          onClick={() => nextMonth !== null && select(nextMonth)}
           disabled={nextMonth === null || disabled}
           aria-label="다음 월령 보기"
           className="flex size-8 shrink-0 items-center justify-center text-gray-800 disabled:text-gray-300"
@@ -380,13 +417,19 @@ const CategoryCardList = ({
   onToggle: (milestoneId: string, completed: boolean) => void;
 }) => (
   <section className="mt-5 flex flex-col gap-5 px-5 pb-8">
-    {groups.map((group) => (
-      <CategoryCard
+    {groups.map((group, index) => (
+      // 월령을 바꾸면 카드가 위에서부터 차례로 살짝 올라오며 나타난다
+      <div
         key={group.categoryId}
-        group={group}
-        pendingMilestoneIds={pendingMilestoneIds}
-        onToggle={onToggle}
-      />
+        className="animate-enter-up motion-reduce:animate-none"
+        style={{ animationDelay: `${index * 60}ms`, animationDuration: "450ms" }}
+      >
+        <CategoryCard
+          group={group}
+          pendingMilestoneIds={pendingMilestoneIds}
+          onToggle={onToggle}
+        />
+      </div>
     ))}
   </section>
 );
@@ -466,13 +509,19 @@ const CategoryCard = ({
                   aria-label={`${item.description} ${item.completed ? "체크 해제" : "체크"}`}
                   disabled={pendingMilestoneIds.has(item.id)}
                   onClick={() => onToggle(item.id, !item.completed)}
-                  className={`flex size-4.5 items-center justify-center rounded-xs border transition-colors disabled:opacity-60 ${
+                  className={`flex size-4.5 items-center justify-center rounded-xs border transition-[color,background-color,border-color,transform] duration-200 active:scale-90 disabled:opacity-60 ${
                     item.completed
                       ? "border-primary-400 bg-primary-400 text-white"
                       : "border-gray-200 bg-white text-transparent"
                   }`}
                 >
-                  <Check className="size-3" strokeWidth={3} aria-hidden />
+                  <Check
+                    className={`size-3 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none ${
+                      item.completed ? "scale-100" : "scale-0"
+                    }`}
+                    strokeWidth={3}
+                    aria-hidden
+                  />
                 </button>
               </div>
               <span className="text-sm font-normal leading-5 text-gray-600">
