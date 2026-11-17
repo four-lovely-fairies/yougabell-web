@@ -75,7 +75,7 @@ export type MissionEvent =
   | { type: "mission_start" }
   | { type: "mission_resume" }
   | { type: "mission_pause" }
-  | { type: "mission_complete"; completionType: "timer" | "early" }
+  | { type: "mission_complete"; completionType: "timer" | "early" | "manual" }
   | { type: "mission_feedback_submit" };
 
 export type RoadmapEvent =

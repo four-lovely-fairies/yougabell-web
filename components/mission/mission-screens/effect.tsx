@@ -117,7 +117,7 @@ export function MissionEffectScreen({
 
         setError(
           loadError instanceof ApiError
-            ? "미션 효과 정보를 불러오지 못했어요."
+            ? "놀이 효과 정보를 불러오지 못했어요."
             : "API 서버에 연결할 수 없습니다.",
         );
       } finally {
@@ -192,7 +192,7 @@ export function MissionEffectScreen({
   if (!state || !executionId || error) {
     return (
       <MissionErrorState
-        message={error ?? "미션 효과 정보를 불러오지 못했어요."}
+        message={error ?? "놀이 효과 정보를 불러오지 못했어요."}
         onBack={() => router.push("/")}
       />
     );

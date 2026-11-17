@@ -89,6 +89,16 @@
   /* Motion — 온보딩 가이드 등 진입 연출. 위→아래 한 방향 + 디졸브만 사용. */
   --animate-enter-up: enter-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-dissolve: dissolve 700ms ease-out both;
+  --animate-sheet-up: sheet-up 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes sheet-up {
+    from {
+      transform: translate3d(0, 100%, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
 
   @keyframes enter-up {
     from {

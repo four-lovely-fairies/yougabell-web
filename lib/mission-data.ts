@@ -17,6 +17,8 @@ export type CurrentMissionDetail = {
   // 목표 행(Figma 미션 시작하기). 실 API가 아직 안 내려줄 수 있어 optional.
   goalLabel?: string | null;
   status: "not_started" | "in_progress" | "completed";
+  // 관심 놀이로 저장했는지 (API 배포 전 응답에는 없을 수 있음)
+  isFavorite?: boolean;
 };
 
 export type ActiveMissionExecution = {
@@ -35,6 +37,8 @@ export type CurrentMissionResponse = {
   children: MissionSelectedChild[];
   mission: CurrentMissionDetail;
   activeExecution: ActiveMissionExecution | null;
+  // 오늘 이미 완료한 실행 — 재진입 시 피드백 작성 여부 판단용
+  completedExecution?: { id: string; hasFeedback: boolean } | null;
 };
 
 export type MissionExecutionSnapshot = {

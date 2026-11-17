@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { FEEDBACK_ICON_PATHS } from "./shared";
 
 export function FeedbackChoiceGroup({
@@ -16,7 +17,7 @@ export function FeedbackChoiceGroup({
   labels: [string, string, string, string, string];
 }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="space-y-2.5">
         <h2 className="whitespace-pre-line text-[18px] font-bold leading-[1.4] text-gray-800">
           {title}
@@ -64,9 +65,12 @@ export function FeedbackChoiceGroup({
 export function EnergySlider({
   value,
   onChange,
+  onCommit,
 }: {
   value: number | null;
   onChange: (value: number) => void;
+  /** 손가락·마우스를 떼거나 키보드로 값을 정했을 때 */
+  onCommit?: () => void;
 }) {
   const sliderValue = value ?? 0;
   const stepCount = 11; // 0~10 (Figma)
@@ -82,9 +86,53 @@ export function EnergySlider({
   const thumbLeft = `calc(${thumbRadiusPx}px + (100% - ${thumbSizePx}px) * ${normalizedProgress})`;
   const fillWidth = `calc(${thumbRadiusPx}px + (100% - ${thumbSizePx}px) * ${normalizedProgress})`;
 
+  // 모바일 기본 range는 손잡이를 끌어야만 움직인다. 트랙 아무 곳이나 누르면 그 점수로 바로 가고,
+  // 누른 채로 좌우로 움직이면 따라오게 직접 처리한다.
+  const valueFromPointer = (clientX: number, track: HTMLElement) => {
+    const rect = track.getBoundingClientRect();
+    const usable = rect.width - thumbSizePx;
+    if (usable <= 0) return sliderValue;
+    const progress = (clientX - rect.left - thumbRadiusPx) / usable;
+    return Math.round(Math.min(1, Math.max(0, progress)) * (stepCount - 1));
+  };
+
+  const draggingRef = useRef(false);
+  const update = (clientX: number, track: HTMLElement) => {
+    const next = valueFromPointer(clientX, track);
+    if (next !== sliderValue) onChange(next);
+  };
+
   return (
     <div className="space-y-2">
-      <div className="relative h-7">
+      <div
+        className="relative h-7 cursor-pointer touch-pan-y select-none"
+        onPointerDown={(event) => {
+          draggingRef.current = true;
+          try {
+            event.currentTarget.setPointerCapture(event.pointerId);
+          } catch {
+            // 캡처를 못 해도 드래그 플래그로 따라간다
+          }
+          update(event.clientX, event.currentTarget);
+        }}
+        onPointerMove={(event) => {
+          if (draggingRef.current) update(event.clientX, event.currentTarget);
+        }}
+        onPointerUp={(event) => {
+          if (!draggingRef.current) return;
+          draggingRef.current = false;
+          if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+          }
+          onCommit?.();
+        }}
+        onPointerCancel={(event) => {
+          draggingRef.current = false;
+          if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+          }
+        }}
+      >
         <div
           className="absolute left-0 right-0 top-1/2 -translate-y-1/2 rounded-full bg-[#dddddd]"
           style={{ height: `${trackHeightPx}px` }}
@@ -120,7 +168,9 @@ export function EnergySlider({
           step={1}
           value={sliderValue}
           onChange={(event) => onChange(Number(event.target.value))}
-          className="absolute inset-0 h-7 w-full cursor-pointer opacity-0"
+          onKeyUp={onCommit}
+          // 터치·마우스는 위 트랙이 처리하고, 이 input은 키보드·스크린리더용으로만 남긴다.
+          className="pointer-events-none absolute inset-0 h-7 w-full opacity-0"
           aria-label="부모 에너지 점수"
         />
       </div>

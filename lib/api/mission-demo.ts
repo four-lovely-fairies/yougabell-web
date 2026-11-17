@@ -112,6 +112,7 @@ export function persistDemoMissionEffect(
 export function applyDemoMissionAction(
   executionId: string,
   action: MissionExecutionAction,
+  clientElapsedSeconds?: number,
 ) {
   const current = readDemoMissionExecution(executionId);
   if (!current) {
@@ -154,7 +155,11 @@ export function applyDemoMissionAction(
       status: action === "early_complete" ? "early_completed" : "completed",
       completedAt: now.toISOString(),
       actualDurationSeconds:
-        action === "early_complete" ? elapsedSeconds : totalSeconds,
+        action === "early_complete"
+          ? elapsedSeconds
+          : clientElapsedSeconds === undefined
+            ? totalSeconds
+            : Math.min(totalSeconds, Math.max(elapsedSeconds, clientElapsedSeconds)),
       wasEarlyCompleted: action === "early_complete",
     },
     mission: getDemoMissionEffect().mission,

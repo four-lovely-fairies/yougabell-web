@@ -9,5 +9,6 @@ export * from "./chat";
 export * from "./roadmap";
 export * from "./weekly-report";
 export * from "./mission";
+export * from "./library";
 export * from "./mission-demo";
 export * from "./mission-feedback-draft";

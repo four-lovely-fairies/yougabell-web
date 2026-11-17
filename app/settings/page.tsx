@@ -1,37 +1,21 @@
 "use client";
 
 import { Mascot } from "@/components/characters/mascot";
+// 마이페이지 시안 — 지금은 목록형(MyPageList). 카드형으로 바꾸려면 MyPageCard로 교체하면 된다.
+import { MyPageList as MyPage } from "@/components/settings/my-page-variants";
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import { api, ApiError } from "@/lib/api";
 import { notifyMobile, openExternalUrl } from "@/lib/native-bridge";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import {
-  INTEREST_API_TO_WEB,
-  INTEREST_LABEL,
-  type ApiInterestId,
-} from "@/lib/types";
-import {
-  Bell,
-  ChevronRight,
-  FileText,
-  Flag,
-  LogOut,
-  MessageCircleQuestion,
-  ScrollText,
-  Settings as SettingsIcon,
-  Smile,
-  User,
-  UserMinus,
-  X,
-} from "lucide-react";
-import Link from "next/link";
+import type { ApiInterestId } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type ComponentType, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { clearStoredSelectedChildId } from "@/lib/api/storage";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [interests, setInterests] = useState<ApiInterestId[]>([]);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
@@ -40,9 +24,10 @@ export default function SettingsPage() {
     void (async () => {
       try {
         const me = await api.getMe();
+        setName(me.name ?? "");
         setInterests(me.interests ?? []);
       } catch {
-        // interests fetch 실패 — 빈 칩
+        // 내 정보 조회 실패 — 이름·관심사 없이 표시
       }
     })();
   }, []);
@@ -57,185 +42,26 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col">
-      {/* Figma 2395:8866 헤더 — h-78 px-20. viewport 상단 고정(fixed). */}
-      <header className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-107.5 bg-gray-20 px-5 pt-safe">
-        <div className="flex h-19.5 items-center justify-between">
-          <div className="flex w-[182.5px] items-center gap-2">
-            <SettingsIcon className="size-6 text-gray-800" />
-            <h1 className="text-xl font-bold tracking-[-0.4px] text-gray-800">
-              설정
-            </h1>
-          </div>
-          <button
-            type="button"
-            onClick={() => router.replace("/")}
-            aria-label="닫기"
-            className="flex size-11 items-center justify-center text-gray-700"
-          >
-            <X className="size-6" />
-          </button>
-        </div>
-      </header>
-      {/* 고정 헤더(safe-area + h-19.5) 높이만큼 콘텐츠 하강 */}
-      <div aria-hidden className="pt-safe">
-        <div className="h-19.5" />
-      </div>
-
-      {/* Figma 2395:8873 본문 — pt-20 pb-40 px-20, 섹션 gap-24 */}
-      <div className="flex flex-col gap-6 px-5 pt-5 pb-10">
-        <Section title="설정">
-          <Row
-            href="/settings/notifications"
-            icon={Bell}
-            title="미션 알림"
-            subtitle="오늘의 제안을 놓치지 마세요"
-            divider
-          />
-          <Row
-            href="/settings/interests"
-            icon={Flag}
-            title="관심사 수정"
-            subtitle={`${interests.length}개 선택됨`}
-            extra={
-              interests.length > 0 ? (
-                <div className="flex flex-wrap gap-2 pl-9 pt-1">
-                  {interests.map((id) => (
-                    <span
-                      key={id}
-                      className="rounded-full bg-primary-50 px-2 py-1 text-xs font-medium leading-[1.4] text-primary-400"
-                    >
-                      #{INTEREST_LABEL[INTEREST_API_TO_WEB[id]]}
-                    </span>
-                  ))}
-                </div>
-              ) : null
-            }
-          />
-        </Section>
-
-        <Section title="설정">
-          <Row
-            href="/settings/profile"
-            icon={User}
-            title="내 프로필 수정"
-            divider
-          />
-          <Row
-            href="/settings/children"
-            icon={Smile}
-            title="아이 프로필 추가/수정"
-          />
-        </Section>
-
-        <Section title="계정 및 구독">
-          <Row
-            onClick={() => setDeletingAccount(true)}
-            icon={UserMinus}
-            title="계정 탈퇴"
-            divider
-          />
-          <Row onClick={onLogout} icon={LogOut} title="로그아웃" />
-        </Section>
-
-        <Section title="기타">
-          <Row
-            onClick={() =>
-              openExternalUrl(`${window.location.origin}/policy/privacy`)
-            }
-            icon={FileText}
-            title="개인정보 보호정책"
-            divider
-          />
-          <Row
-            onClick={() =>
-              openExternalUrl(`${window.location.origin}/policy/terms`)
-            }
-            icon={ScrollText}
-            title="서비스 약관"
-            divider
-          />
-          <Row
-            href="/settings/inquiries"
-            icon={MessageCircleQuestion}
-            title="문의하기"
-            subtitle="궁금한 점이나 불편한 점을 알려주세요"
-          />
-        </Section>
-      </div>
-
+    <>
+      <MyPage
+        name={name}
+        interests={interests}
+        favoritesHref="/mission/saved"
+        onClose={() => router.replace("/")}
+        onLogout={() => void onLogout()}
+        onDeleteAccount={() => setDeletingAccount(true)}
+        onOpenPrivacy={() =>
+          openExternalUrl(`${window.location.origin}/policy/privacy`)
+        }
+        onOpenTerms={() =>
+          openExternalUrl(`${window.location.origin}/policy/terms`)
+        }
+      />
       {deletingAccount ? (
         <DeleteAccountModal onClose={() => setDeletingAccount(false)} />
       ) : null}
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="flex flex-col gap-4">
-      <h2 className="text-base font-bold leading-[1.4] text-gray-800">
-        {title}
-      </h2>
-      <div className="flex flex-col">{children}</div>
-    </section>
-  );
-}
-
-type RowProps = {
-  icon: ComponentType<{ className?: string }>;
-  title: string;
-  subtitle?: string;
-  extra?: ReactNode;
-  divider?: boolean;
-} & ({ href: string; onClick?: never } | { onClick: () => void; href?: never });
-
-function Row({
-  icon: Icon,
-  title,
-  subtitle,
-  extra,
-  divider,
-  ...action
-}: RowProps) {
-  const body = (
-    <div className="flex w-full items-center justify-between py-4">
-      <div className="flex items-center gap-3">
-        <Icon className="size-6 shrink-0 text-gray-700" />
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium leading-[1.4] text-gray-800">
-            {title}
-          </span>
-          {subtitle ? (
-            <span className="text-xs leading-[1.4] text-gray-500">
-              {subtitle}
-            </span>
-          ) : null}
-        </div>
-      </div>
-      <ChevronRight className="size-6 shrink-0 text-gray-700" />
-    </div>
-  );
-  const inner = (
-    <>
-      {"href" in action && action.href ? (
-        <Link href={action.href} className="block">
-          {body}
-        </Link>
-      ) : (
-        <button
-          type="button"
-          onClick={action.onClick}
-          className="block w-full text-left"
-        >
-          {body}
-        </button>
-      )}
-      {extra}
-      {divider ? <div className="h-px bg-gray-100" /> : null}
     </>
   );
-  return inner;
 }
 
 function DeleteAccountModal({ onClose }: { onClose: () => void }) {

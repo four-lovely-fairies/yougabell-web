@@ -1569,6 +1569,7 @@ export interface components {
         MissionExecutionActionBodyDto: {
             /** @enum {string} */
             action: "pause" | "resume" | "complete" | "early_complete";
+            elapsedSeconds?: number;
         };
         MissionExecutionEffectDto: {
             /** Format: uuid */
