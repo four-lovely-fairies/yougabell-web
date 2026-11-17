@@ -1,3 +1,4 @@
+import { LottieIcon } from "@/components/ui/lottie-icon";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
@@ -30,8 +31,10 @@ export const ReportProgressBanner = ({
           : `주간 리포트 생성까지 ${countdown.daysRemaining}일 남았어요!`}
       </p>
     </div>
-    <span className="shrink-0 rounded-full bg-white px-3 py-2 text-xs font-semibold text-primary-300">
-      🔥 {streak}일 연속
+    <span className="flex shrink-0 items-center gap-1 rounded-full bg-white py-2 pl-2.5 pr-3 text-xs font-semibold text-primary-300">
+      {/* 연속 놀이 불꽃 — 일렁이는 Lottie (불러오기 전에는 이모지) */}
+      <LottieIcon src="/lottie/fire.json" className="h-4.5 w-3.5 -mt-0.5" fallback="🔥" />
+      {streak}일 연속
     </span>
   </div>
 );
