@@ -4,8 +4,6 @@ import { MarkdownMessage } from "@/components/chat/markdown-message";
 import { track } from "@/lib/analytics";
 import type { ChatMessageCard } from "@/lib/chat-data";
 import { stripLeakedCardSyntax } from "@/lib/chat-sanitize";
-import { openExternalUrl } from "@/lib/native-bridge";
-import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -141,13 +139,13 @@ export function AssistantMessage({
   messageId,
   content,
   cards,
-  sources = [],
   onPickChoice,
   choicesDisabled,
 }: {
   messageId: string;
   content: string;
   cards: ChatMessageCard[];
+  /** 받아 두지만 채팅에서는 표시하지 않는다 */
   sources?: ChatSource[];
   onPickChoice?: (choice: string) => void;
   choicesDisabled?: boolean;
@@ -157,7 +155,7 @@ export function AssistantMessage({
   const choices = sorted.filter((card) => card.actionType === "follow_up");
   const actionCards = sorted.filter((card) => card.actionType !== "follow_up");
 
-  if (!text && cards.length === 0 && sources.length === 0) return null;
+  if (!text && cards.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-3.5 px-4 pb-1.5 pt-5">
@@ -202,30 +200,7 @@ export function AssistantMessage({
         </div>
       ) : null}
 
-      {sources.length > 0 ? (
-        // 출처는 버튼처럼 보이지 않게 — 테두리 없는 작은 회색 글자 링크 한 줄 (피드백 버튼과 구분)
-        <p className="no-scrollbar -mx-4 flex items-center gap-1 overflow-x-auto whitespace-nowrap px-4 text-xs leading-[1.4] text-gray-400">
-          <span className="shrink-0">출처</span>
-          {sources.map((s, index) => (
-            <span key={s.id} className="flex shrink-0 items-center gap-1">
-              {index > 0 ? <span aria-hidden>·</span> : null}
-              <button
-                type="button"
-                title={s.title ?? s.domain}
-                aria-label={`출처 열기: ${s.title ?? s.domain}`}
-                onClick={() => {
-                  track({ type: "chat_source_link_open", domain: s.domain });
-                  openExternalUrl(s.url);
-                }}
-                className="flex max-w-40 items-center gap-0.5 text-gray-500 underline decoration-gray-300 underline-offset-2 active:text-gray-700"
-              >
-                <span className="truncate">{s.domain.replace(/^www./, "")}</span>
-                <ArrowUpRight className="size-3 shrink-0" aria-hidden />
-              </button>
-            </span>
-          ))}
-        </p>
-      ) : null}
+      {/* 출처는 채팅에서 표시하지 않는다 (정확한 출처 페이지를 모두 확보하기 어려워 깨진 링크가 노출되던 문제) */}
 
       <FeedbackButtons messageId={messageId} />
     </div>
