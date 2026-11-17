@@ -214,7 +214,8 @@ export function PlayHistoryScreen() {
             <SearchField value={query} onChange={setQuery} />
             <CategoryChips value={category} onChange={setCategory} />
             <CountAndSort
-              countLabel={`${month.month}월 놀이 ${items?.length ?? 0}개`}
+              countLabel={`${items?.length ?? 0}개`}
+              countBold
               order={order}
               onOrderChange={setOrder}
             />
