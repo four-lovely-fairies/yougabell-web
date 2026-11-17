@@ -1,10 +1,21 @@
 import { RefreshCw } from "lucide-react";
-import { Mascot } from "@/components/characters/mascot";
+import Image from "next/image";
 import { type WeeklyReportLoadState } from "@/lib/api";
 import { type WeeklyReportEmptyState } from "@/lib/weekly-report-data";
 import { isFirstPlayEmptyState } from "@/lib/weekly-report-data";
 import { getWeeklyReportCountdown } from "@/lib/report-progress";
 import { Skeleton } from "@/components/ui/skeleton";
+
+// 빈 리포트 아이콘 — Figma icon/empty-document (42×51)
+const EmptyDocumentIcon = () => (
+  <Image
+    src="/images/figma/report/empty-document.svg"
+    alt=""
+    width={42}
+    height={51}
+    className="h-12.75 w-10.5 shrink-0"
+  />
+);
 
 export const WeeklyReportEmpty = ({
   emptyState,
@@ -14,17 +25,24 @@ export const WeeklyReportEmpty = ({
   onStartMission: () => void;
 }) => {
   if (!isFirstPlayEmptyState(emptyState)) {
+    // 지난주 기록이 없을 때는 웹 문구로 고정
+    const noRecordLastWeek = emptyState?.reason === "no_mission_for_week";
+    const title = noRecordLastWeek
+      ? "아직 주간 리포트가 없어요"
+      : (emptyState?.title ?? "주간 리포트를 준비하고 있어요");
+    const description = noRecordLastWeek
+      ? "지난주에는 리포트로 만들 기록이 없었어요.\n이번 주 놀이를 시작해보세요"
+      : (emptyState?.description ?? "리포트가 준비되면 알림으로 알려드릴게요.");
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-9 px-8 pb-20 text-center">
-        <Mascot pose="reviewing" className="w-36" />
+        <EmptyDocumentIcon />
         <div className="flex w-full flex-col items-center gap-7">
           <div className="space-y-3">
             <h2 className="text-lg font-bold leading-[25px]">
-              {emptyState?.title ?? "주간 리포트를 준비하고 있어요"}
+              {title}
             </h2>
-            <p className="mx-auto max-w-65 whitespace-pre-line text-sm leading-5 text-gray-500">
-              {emptyState?.description ??
-                "리포트가 준비되면 알림으로 알려드릴게요."}
+            <p className="mx-auto max-w-75 whitespace-pre-line break-keep text-sm leading-5 text-gray-500">
+              {description}
             </p>
           </div>
           <button
@@ -48,7 +66,7 @@ export const WeeklyReportEmpty = ({
         aria-hidden
       />
       <div className="relative flex w-full flex-col items-center">
-        <Mascot pose="reviewing" className="w-28" />
+        <EmptyDocumentIcon />
         <h2 className="mt-12 text-[20px] font-bold leading-[1.4] tracking-[-0.4px] text-gray-800">
           {countdown.kind === "generation_tomorrow" ? (
             "주간 리포트가 내일 아침에 생성돼요."

@@ -109,21 +109,6 @@ export const WeeklyReportScreen = () => {
         fixed
         title="주간 리포트"
         onBack={goBack}
-        right={
-          <button
-            type="button"
-            className="flex size-11 items-center justify-center text-gray-800"
-            aria-label="알림 열기"
-          >
-            {/* 홈 헤더와 동일한 Figma 알림 아이콘으로 통일 */}
-            <img
-              src="/icons/figma/home/header-notification.svg"
-              alt=""
-              className="size-6"
-              aria-hidden
-            />
-          </button>
-        }
       />
       <HeaderSpacer />
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
