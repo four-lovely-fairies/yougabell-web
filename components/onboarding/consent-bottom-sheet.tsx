@@ -91,11 +91,12 @@ export function ConsentBottomSheet({ initial, onClose, onConfirm }: Props) {
             <span className="ml-1 text-xs text-gray-500">선택 동의 포함</span>
           </button>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col">
             {ITEMS.map((item) => (
               <div
                 key={item.key}
-                className="flex items-center justify-between rounded-2xl p-4"
+                // 한 줄 44px(터치 최소 영역) — 항목 사이 간격을 촘촘하게
+                className="flex min-h-11 items-center justify-between rounded-2xl px-4 py-2"
               >
                 <button
                   type="button"
