@@ -5,7 +5,7 @@ import { track } from "@/lib/analytics";
 import type { ChatMessageCard } from "@/lib/chat-data";
 import { stripLeakedCardSyntax } from "@/lib/chat-sanitize";
 import { openExternalUrl } from "@/lib/native-bridge";
-import { Link2 } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -203,26 +203,28 @@ export function AssistantMessage({
       ) : null}
 
       {sources.length > 0 ? (
-        // 출처는 한 줄 — 사이트 이름만 작은 칩으로, 여러 개면 옆으로 넘겨 본다 (긴 제목은 칩을 길게 눌렀을 때 title로)
-        <div className="no-scrollbar -mx-4 flex items-center gap-1.5 overflow-x-auto px-4">
-          <span className="shrink-0 text-xs font-medium leading-[1.4] text-gray-400">출처</span>
-          {sources.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              title={s.title ?? s.domain}
-              aria-label={`출처 열기: ${s.title ?? s.domain}`}
-              onClick={() => {
-                track({ type: "chat_source_link_open", domain: s.domain });
-                openExternalUrl(s.url);
-              }}
-              className="flex max-w-40 shrink-0 items-center gap-1 rounded-full border border-[#e5e5e7] bg-white px-2.5 py-1 text-xs leading-[1.4] text-gray-600 active:bg-gray-50"
-            >
-              <Link2 className="size-3 shrink-0 text-gray-400" aria-hidden />
-              <span className="truncate">{s.domain.replace(/^www\./, "")}</span>
-            </button>
+        // 출처는 버튼처럼 보이지 않게 — 테두리 없는 작은 회색 글자 링크 한 줄 (피드백 버튼과 구분)
+        <p className="no-scrollbar -mx-4 flex items-center gap-1 overflow-x-auto whitespace-nowrap px-4 text-xs leading-[1.4] text-gray-400">
+          <span className="shrink-0">출처</span>
+          {sources.map((s, index) => (
+            <span key={s.id} className="flex shrink-0 items-center gap-1">
+              {index > 0 ? <span aria-hidden>·</span> : null}
+              <button
+                type="button"
+                title={s.title ?? s.domain}
+                aria-label={`출처 열기: ${s.title ?? s.domain}`}
+                onClick={() => {
+                  track({ type: "chat_source_link_open", domain: s.domain });
+                  openExternalUrl(s.url);
+                }}
+                className="flex max-w-40 items-center gap-0.5 text-gray-500 underline decoration-gray-300 underline-offset-2 active:text-gray-700"
+              >
+                <span className="truncate">{s.domain.replace(/^www./, "")}</span>
+                <ArrowUpRight className="size-3 shrink-0" aria-hidden />
+              </button>
+            </span>
           ))}
-        </div>
+        </p>
       ) : null}
 
       <FeedbackButtons messageId={messageId} />
