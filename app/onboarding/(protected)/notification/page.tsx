@@ -2,7 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
+import {
+  ONBOARDING_STEPS,
+  OnboardingHeader,
+} from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
@@ -84,7 +87,10 @@ export default function NotificationPermissionPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <OnboardingHeader variant="back" />
+      <OnboardingHeader
+        variant="back"
+        progress={{ step: 3, total: ONBOARDING_STEPS }}
+      />
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <header className="flex flex-col gap-2 py-6">

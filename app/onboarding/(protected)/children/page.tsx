@@ -5,7 +5,10 @@ import { Mascot } from "@/components/characters/mascot";
 import { useState } from "react";
 import { PlusIcon } from "@/components/icons";
 import { ChildCardForm, ChildRow } from "@/components/onboarding/child-card";
-import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
+import {
+  ONBOARDING_STEPS,
+  OnboardingHeader,
+} from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
@@ -90,7 +93,11 @@ export default function ChildrenPage() {
       }}
       className="flex min-h-0 flex-1 flex-col"
     >
-      <OnboardingHeader variant="back" onAction={back} />
+      <OnboardingHeader
+        variant="back"
+        onAction={back}
+        progress={{ step: 4, total: ONBOARDING_STEPS }}
+      />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <header className="mt-2 mb-7">

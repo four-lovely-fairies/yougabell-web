@@ -4,21 +4,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ClearCircleIcon } from "@/components/icons";
 import { ConsentBottomSheet } from "@/components/onboarding/consent-bottom-sheet";
-import { DateInput } from "@/components/onboarding/date-input";
 import { SegmentedToggle } from "@/components/onboarding/segmented-toggle";
-import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
+import {
+  ONBOARDING_STEPS,
+  OnboardingHeader,
+} from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type {
-  ConsentDraft,
-  Gender,
-  ParentDraft,
-  WorkStatus,
-} from "@/lib/types";
+import type { ConsentDraft, ParentDraft, WorkStatus } from "@/lib/types";
 
 export default function ParentPage() {
   const router = useRouter();
@@ -70,8 +67,9 @@ export default function ParentPage() {
   // Apple 비공개 이메일 릴레이 — 사용자가 처음 보면 자기 주소가 아닌 줄 안다.
   const isAppleRelay = Boolean(email?.endsWith("@privaterelay.appleid.com"));
 
-  // App Store 5.1.1: 생년월일·성별은 핵심 기능에 불필요하므로 선택 입력. 이름만 필수.
-  const canSubmit = Boolean(parent.name);
+  // 이탈 개선: 온보딩에서는 이름(미리 채움) + 아이와 함께하는 시간만 받는다.
+  // 생년월일·성별은 마이페이지(설정 > 내 프로필)에서 선택 입력.
+  const canSubmit = Boolean(parent.name?.trim()) && Boolean(parent.workStatus);
 
   const update = (next: Partial<ParentDraft>) =>
     setParent((prev) => ({ ...prev, ...next }));
@@ -95,40 +93,22 @@ export default function ParentPage() {
         }}
         className="flex min-h-0 flex-1 flex-col"
       >
-        <OnboardingHeader variant="back" />
+        <OnboardingHeader
+          variant="back"
+          progress={{ step: 1, total: ONBOARDING_STEPS }}
+        />
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           <header className="py-6">
             <h1 className="text-[24px] font-bold leading-[1.4] tracking-[-0.2px] text-gray-800">
-              프로필 정보를
+              만나서 반가워요!
               <br />
-              입력해 주세요
+              아이와 주로 언제 함께하세요?
             </h1>
           </header>
 
           <div className="flex flex-col gap-4">
-            <Field label="로그인 계정">
-              <Input
-                type="email"
-                readOnly
-                value={email ?? ""}
-                placeholder="불러오는 중…"
-                aria-describedby="email-hint"
-                // readOnly는 disabled와 달리 읽기·복사·스크린리더 접근이 가능하다.
-                // 편집 불가는 배경 톤으로만 표현한다.
-                className="bg-gray-50"
-              />
-              <p
-                id="email-hint"
-                className="text-[11px] leading-[1.4] text-gray-400"
-              >
-                {isAppleRelay
-                  ? "Apple 계정으로 로그인했어요. Apple이 만든 전달용 주소라 실제 메일함으로 연결돼요."
-                  : "이 주소로 로그인했어요. 변경할 수 없어요."}
-              </p>
-            </Field>
-
-            <Field label="이름" required>
+            <Field label="이름">
               <Input
                 type="text"
                 maxLength={30}
@@ -151,66 +131,30 @@ export default function ParentPage() {
               />
             </Field>
 
-            <Field
-              label="생년월일"
-              action={
-                <OptOutButton
-                  label="공개 안 함"
-                  onClick={() => update({ birthDate: undefined })}
-                />
-              }
-            >
-              <DateInput
-                value={parent.birthDate}
-                onChange={(iso) => update({ birthDate: iso })}
-                // 부모 연령 범위 — 만 18세 이상 ~ 만 70세 이하
-                yearMin={new Date().getFullYear() - 70}
-                yearMax={new Date().getFullYear() - 18}
-                // 시작 위치: 만 30세 기준 (가장 흔한 부모 연령대)
-                defaultYear={new Date().getFullYear() - 30}
-              />
-            </Field>
-
-            <Field
-              label="성별"
-              action={
-                <OptOutButton
-                  label="선택 안 함"
-                  onClick={() => update({ gender: undefined })}
-                />
-              }
-            >
-              <SegmentedToggle<Gender>
-                ariaLabel="본인 성별"
-                options={[
-                  { value: "female", label: "엄마" },
-                  { value: "male", label: "아빠" },
-                ]}
-                value={parent.gender ?? null}
-                onChange={(v) => update({ gender: v ?? undefined })}
-              />
-            </Field>
-
-            <Field
-              label="직장 유무"
-              action={
-                <OptOutButton
-                  label="공개 안 함"
-                  onClick={() => update({ workStatus: undefined })}
-                />
-              }
-            >
+            {/* 직장 유무를 직접 묻지 않고 "아이와 함께하는 시간"으로 바꿔 묻는다.
+                값은 기존 workStatus(working / full_time_caregiver)에 그대로 매핑. */}
+            <Field label="아이와 함께하는 시간" required>
               <SegmentedToggle<WorkStatus>
-                ariaLabel="직장 유무"
-                allowDeselect
+                ariaLabel="아이와 함께하는 시간"
                 options={[
-                  { value: "working", label: "일을 하고 있어요" },
-                  { value: "full_time_caregiver", label: "전업 가정인이에요" },
+                  { value: "working", label: "퇴근 후·주말에" },
+                  { value: "full_time_caregiver", label: "낮에도 함께 있어요" },
                 ]}
                 value={parent.workStatus ?? null}
-                onChange={(v) => update({ workStatus: v })}
+                onChange={(v) => update({ workStatus: v ?? undefined })}
               />
             </Field>
+
+            <div className="flex flex-col gap-1 text-xs leading-[1.4] text-gray-400">
+              <p>성별·생년월일은 마이페이지에서 원할 때 입력할 수 있어요.</p>
+              {/* 마케팅 수신 동의를 받은 화면이라 어느 주소로 로그인했는지는 계속 보여준다. */}
+              {email ? (
+                <p>
+                  로그인 계정 {email}
+                  {isAppleRelay ? " (Apple 전달용 주소)" : ""}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
 
@@ -228,26 +172,6 @@ export default function ParentPage() {
         />
       ) : null}
     </>
-  );
-}
-
-// 생년월일·성별·직장유무를 "공개/선택 안 함" 처리하는 회색 언더라인 텍스트 버튼.
-// 라벨 우측에 배치되며, 탭하면 해당 값을 비운다. (App Store 5.1.1 — 선택 입력)
-function OptOutButton({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="text-xs font-medium leading-[1.4] text-gray-500 underline underline-offset-2"
-    >
-      {label}
-    </button>
   );
 }
 

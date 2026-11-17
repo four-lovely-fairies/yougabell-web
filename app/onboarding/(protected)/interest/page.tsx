@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InterestCard } from "@/components/onboarding/interest-card";
-import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
+import {
+  ONBOARDING_STEPS,
+  OnboardingHeader,
+} from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
@@ -44,6 +47,13 @@ export default function InterestPage() {
     router.push("/onboarding/notification");
   };
 
+  // 관심 주제는 선택 — 안 고르면 아이 월령 기준 추천으로 시작한다.
+  const skip = () => {
+    patch({ interests: [], lastStep: "interest" });
+    track({ type: "onboarding_step_complete", step: "interest" });
+    router.push("/onboarding/notification");
+  };
+
   return (
     <form
       onSubmit={(e) => {
@@ -52,7 +62,19 @@ export default function InterestPage() {
       }}
       className="flex min-h-0 flex-1 flex-col"
     >
-      <OnboardingHeader variant="back" />
+      <OnboardingHeader
+        variant="back"
+        progress={{ step: 2, total: ONBOARDING_STEPS }}
+        right={
+          <button
+            type="button"
+            onClick={skip}
+            className="flex h-11 items-center px-1 text-sm font-medium leading-[1.4] text-gray-500"
+          >
+            건너뛰기
+          </button>
+        }
+      />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <header className="flex flex-col gap-2 py-6">
@@ -62,7 +84,7 @@ export default function InterestPage() {
             관심 있으신가요?
           </h1>
           <p className="text-sm text-gray-500">
-            최근 관심사를 선택해주세요 (최대 {MAX_SELECT}개)
+            최대 {MAX_SELECT}개까지 고를 수 있어요. 건너뛰어도 괜찮아요.
           </p>
         </header>
 
