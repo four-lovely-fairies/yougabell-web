@@ -4,8 +4,6 @@ import { MarkdownMessage } from "@/components/chat/markdown-message";
 import { track } from "@/lib/analytics";
 import type { ChatMessageCard } from "@/lib/chat-data";
 import { stripLeakedCardSyntax } from "@/lib/chat-sanitize";
-import { openExternalUrl } from "@/lib/native-bridge";
-import { Link2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -141,13 +139,13 @@ export function AssistantMessage({
   messageId,
   content,
   cards,
-  sources = [],
   onPickChoice,
   choicesDisabled,
 }: {
   messageId: string;
   content: string;
   cards: ChatMessageCard[];
+  /** 받아 두지만 채팅에서는 표시하지 않는다 */
   sources?: ChatSource[];
   onPickChoice?: (choice: string) => void;
   choicesDisabled?: boolean;
@@ -157,7 +155,7 @@ export function AssistantMessage({
   const choices = sorted.filter((card) => card.actionType === "follow_up");
   const actionCards = sorted.filter((card) => card.actionType !== "follow_up");
 
-  if (!text && cards.length === 0 && sources.length === 0) return null;
+  if (!text && cards.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-3.5 px-4 pb-1.5 pt-5">
@@ -202,28 +200,7 @@ export function AssistantMessage({
         </div>
       ) : null}
 
-      {sources.length > 0 ? (
-        // 출처는 한 줄 — 사이트 이름만 작은 칩으로, 여러 개면 옆으로 넘겨 본다 (긴 제목은 칩을 길게 눌렀을 때 title로)
-        <div className="no-scrollbar -mx-4 flex items-center gap-1.5 overflow-x-auto px-4">
-          <span className="shrink-0 text-xs font-medium leading-[1.4] text-gray-400">출처</span>
-          {sources.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              title={s.title ?? s.domain}
-              aria-label={`출처 열기: ${s.title ?? s.domain}`}
-              onClick={() => {
-                track({ type: "chat_source_link_open", domain: s.domain });
-                openExternalUrl(s.url);
-              }}
-              className="flex max-w-40 shrink-0 items-center gap-1 rounded-full border border-[#e5e5e7] bg-white px-2.5 py-1 text-xs leading-[1.4] text-gray-600 active:bg-gray-50"
-            >
-              <Link2 className="size-3 shrink-0 text-gray-400" aria-hidden />
-              <span className="truncate">{s.domain.replace(/^www\./, "")}</span>
-            </button>
-          ))}
-        </div>
-      ) : null}
+      {/* 출처는 채팅에서 표시하지 않는다 (정확한 출처 페이지를 모두 확보하기 어려워 깨진 링크가 노출되던 문제) */}
 
       <FeedbackButtons messageId={messageId} />
     </div>
