@@ -146,3 +146,32 @@ export const deleteChat = async (): Promise<{ ok: boolean }> => {
   }
 };
 import { measuredFetch } from "../performance";
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * AI 답변 피드백 저장 — PUT /me/chat/messages/{messageId}/feedback.
+ * 서버에 저장된 답변(UUID)만 보낸다. 로컬 임시 메시지·비로그인은 건너뛴다.
+ * 실패해도 화면 동작에는 영향이 없도록 조용히 무시한다.
+ */
+export const sendChatFeedback = async (
+  messageId: string,
+  helpful: boolean,
+): Promise<void> => {
+  if (!UUID_PATTERN.test(messageId)) return;
+  const headers = await authHeaders();
+  if (!headers.Authorization) return;
+  try {
+    await measuredFetch(
+      `${BASE_URL}/me/chat/messages/${encodeURIComponent(messageId)}/feedback`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...headers },
+        body: JSON.stringify({ helpful }),
+      },
+    );
+  } catch {
+    // 네트워크 실패는 무시 — Amplitude 이벤트는 따로 남는다
+  }
+};

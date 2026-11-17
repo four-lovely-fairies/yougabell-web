@@ -2,6 +2,7 @@
 
 import { MarkdownMessage } from "@/components/chat/markdown-message";
 import { track } from "@/lib/analytics";
+import { sendChatFeedback } from "@/lib/api/chat";
 import type { ChatMessageCard } from "@/lib/chat-data";
 import { stripLeakedCardSyntax } from "@/lib/chat-sanitize";
 import Image from "next/image";
@@ -228,7 +229,7 @@ const writeFeedback = (messageId: string, value: "up" | "down") => {
   }
 };
 
-// 도움이 돼요 / 안돼요 — 분석 이벤트로 남기고, 고른 값은 이 기기에 기억한다.
+// 도움이 돼요 / 안돼요 — 서버(답변과 연결)와 분석 이벤트에 남기고, 고른 값은 이 기기에 기억한다.
 function FeedbackButtons({ messageId }: { messageId: string }) {
   const [value, setValue] = useState<"up" | "down" | null>(null);
   useEffect(() => {
@@ -241,6 +242,7 @@ function FeedbackButtons({ messageId }: { messageId: string }) {
     setValue(next);
     writeFeedback(messageId, next);
     track({ type: "chat_feedback", helpful: next === "up" });
+    void sendChatFeedback(messageId, next === "up");
   };
 
   const button = (kind: "up" | "down", label: string) => {
