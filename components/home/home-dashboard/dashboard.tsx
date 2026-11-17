@@ -45,6 +45,8 @@ import {
   type NotificationAction,
 } from "./notification-state";
 import { TopAppBar } from "./top-app-bar";
+import { WhatsNewSheet } from "@/components/home/whats-new-sheet";
+import { markWhatsNewSeen, shouldShowWhatsNew } from "@/lib/whats-new";
 import type { Modal } from "./types";
 import { WeeklyCalendar } from "./weekly-calendar";
 
@@ -107,6 +109,17 @@ export const HomeDashboard = ({
 
   useEffect(() => {
     track({ type: "home_view" });
+  }, []);
+
+  // 업데이트 안내 — 기존 사용자에게 기기당 1회. 홈 진입 연출이 끝난 뒤 띄우고, 띄우는 순간 본 것으로 기록.
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
+  useEffect(() => {
+    if (!shouldShowWhatsNew()) return;
+    const timer = window.setTimeout(() => {
+      markWhatsNewSeen();
+      setWhatsNewOpen(true);
+    }, 900);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const selectedChild = data.selectedChild;
@@ -325,6 +338,9 @@ export const HomeDashboard = ({
           </div>
         </div>
       </div>
+      {whatsNewOpen && modal === null && notificationSetup.view === null ? (
+        <WhatsNewSheet onClose={() => setWhatsNewOpen(false)} />
+      ) : null}
       {modal === "children" ? (
         <ChildSwitcherSheet
           childItems={data.children}

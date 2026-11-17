@@ -7,6 +7,7 @@ import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { ApiError, api, clearStoredSelectedChildId } from "@/lib/api";
 import { isNativeWebView, notifyMobile } from "@/lib/native-bridge";
+import { markWhatsNewSeen } from "@/lib/whats-new";
 import {
   INTEREST_WEB_TO_API,
   type CompleteOnboardingPayload,
@@ -85,10 +86,11 @@ function getOrCreateCompletionRequest(payload: CompleteOnboardingPayload) {
   const promise = api
     .completeOnboarding(payload)
     .then(
-      (me): CompletionRequestResult => ({
-        kind: "success",
-        userId: me.id,
-      }),
+      (me): CompletionRequestResult => {
+        // 방금 가입한 사용자는 업데이트 안내를 볼 필요가 없다.
+        markWhatsNewSeen();
+        return { kind: "success", userId: me.id };
+      },
     )
     .catch((error: unknown): CompletionRequestResult => {
       if (error instanceof ApiError && error.status === 409) {

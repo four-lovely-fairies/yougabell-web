@@ -11,8 +11,11 @@ export function BottomSheet({
   onClose,
   children,
   labelledById,
+  titleAccessory,
 }: {
   title: string;
+  /** 제목 바로 옆에 붙는 작은 아이콘 등 */
+  titleAccessory?: ReactNode;
   /** 제목 아래 보조 설명 */
   description?: string;
   onClose: () => void;
@@ -39,8 +42,12 @@ export function BottomSheet({
       <div className="relative flex max-h-[85dvh] w-full max-w-97.5 animate-sheet-up flex-col rounded-t-3xl bg-white pb-[max(20px,env(safe-area-inset-bottom))] pt-7 motion-reduce:animate-none">
         <header className="flex shrink-0 items-start justify-between gap-3 px-6 pb-4">
           <div className="flex min-w-0 flex-col gap-1.5">
-            <h2 id={titleId} className="text-lg font-bold leading-[1.4] text-gray-800">
+            <h2
+              id={titleId}
+              className="flex items-center gap-1 text-lg font-bold leading-[1.4] text-gray-800"
+            >
               {title}
+              {titleAccessory}
             </h2>
             {description ? (
               <p className="text-sm leading-[1.4] text-gray-500">{description}</p>
