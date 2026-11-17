@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, ChevronDown, ChevronRight, X } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -222,87 +222,69 @@ export function ChildSwitchDropdown({
   );
 }
 
+// Figma 05 출처 바텀시트 — 놀이 추천에 쓰는 공통 근거 자료.
 const MISSION_SOURCE_REFERENCES = [
-  {
-    category: 'CDC',
-    source: '(미국 질병통제예방센터) — 발달 마일스톤 공식 기준',
-  },
-  {
-    category: 'AAP',
-    source: '(미국소아과학회) — 소아 언어 발달 가이드',
-  },
-  {
-    category: 'ASHA',
-    source: '(미국 언어청각협회) — 수용/표현 언어 발달 기준',
-  },
-  {
-    category: 'WHO',
-    source: '글로벌 아동 발달 마일스톤',
-  },
-  {
-    category: '',
-    source:
-      'Tomasello, Bates, Bruner, Fenson 등 국제 발달심리·언어획득 분야 핵심 학술 문헌',
-  },
+  { category: 'CDC', source: '미국 질병통제예방센터 · 발달 마일스톤 기준' },
+  { category: 'AAP', source: '미국소아과학회 · 소아 언어 발달 가이드' },
+  { category: 'ASHA', source: '미국 언어청각협회 · 수용/표현 언어 발달 기준' },
+  { category: 'WHO', source: '세계보건기구 · 글로벌 아동 발달 마일스톤' },
+  { category: '학술', source: 'Tomasello, Bates, Bruner 등 발달심리 문헌' },
 ];
 
 /** 출처 자세히 보기 — Figma 미션 출처 중앙 모달. */
-export function MissionSourceSheet({ onClose }: { onClose: () => void }) {
+// Figma 05 출처 바텀시트 — 이 놀이의 출처(회색 박스) + 공통 근거 자료 목록 + 확인.
+export function MissionSourceSheet({
+  citation,
+  onClose,
+}: {
+  /** 이 놀이의 출처 문구. 없으면 회색 박스를 숨긴다. */
+  citation?: string | null;
+  onClose: () => void;
+}) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.2)] px-7"
+      className="fixed inset-0 z-50 mx-auto flex w-full max-w-107.5 flex-col justify-end"
       role="dialog"
       aria-modal="true"
-      aria-label="놀이 출처"
-      onClick={onClose}
+      aria-labelledby="mission-source-title"
     >
-      <div className="mx-auto w-full max-w-83.5">
-        <div
-          className="overflow-hidden rounded-[20px] bg-white shadow-[0_12px_30px_rgba(0,0,0,0.12)]"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <div className="px-4 pb-2 pt-6">
-            <div className="flex w-full items-center justify-center gap-2 pt-2">
-              <h2 className="min-w-0 flex-1 text-lg font-bold leading-[1.4] text-black">
-                자료 출처
-              </h2>
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex size-6 shrink-0 items-center justify-center text-gray-800"
-                aria-label="자료 출처 닫기"
-              >
-                <X className="size-6" aria-hidden />
-              </button>
-            </div>
-
-            <div className="mt-3 w-full overflow-hidden">
-              <div className="grid grid-cols-[92px_1fr] bg-[#f9fafb] text-sm font-bold leading-[1.4] text-[#0a0a0a]">
-                <div className="px-3 py-[11px]">카테고리</div>
-                <div className="px-3 py-[11px]">자료 출처</div>
-              </div>
-              {MISSION_SOURCE_REFERENCES.map((item, index) => (
-                <div
-                  key={`${item.category}-${index}`}
-                  className="grid grid-cols-[92px_1fr] border-t border-[#e5e7eb] text-sm font-medium leading-[1.4] text-[#0a0a0a]"
-                >
-                  <div className="px-3 py-[11px]">{item.category}</div>
-                  <div className="px-3 py-[11px]">{item.source}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="px-4 pb-5 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex h-12 w-full items-center justify-center rounded-md bg-primary-300 px-4 py-3.5 text-sm font-medium leading-[1.4] text-white"
+      <button
+        type="button"
+        aria-label="닫기"
+        onClick={onClose}
+        className="absolute inset-0 animate-dissolve cursor-default bg-black/50 motion-reduce:animate-none"
+        style={{ animationDuration: '200ms' }}
+      />
+      <div className="relative flex max-h-[85dvh] animate-sheet-up flex-col gap-6 overflow-y-auto rounded-t-[24px] bg-white px-6 pb-[max(40px,env(safe-area-inset-bottom))] pt-3 motion-reduce:animate-none">
+        <div className="mx-auto h-1 w-10 shrink-0 rounded-[2px] bg-[#e0e0e0]" aria-hidden />
+        <h2 id="mission-source-title" className="text-lg font-bold leading-[1.4] text-gray-800">
+          자료 출처
+        </h2>
+        {citation ? (
+          <p className="whitespace-pre-line rounded-xl bg-[#f5f5f7] p-4 text-sm leading-[1.4] text-gray-600">
+            {citation}
+          </p>
+        ) : null}
+        <dl className="flex flex-col gap-1 text-sm leading-[1.4]">
+          {MISSION_SOURCE_REFERENCES.map((item, index) => (
+            <div
+              key={item.category}
+              className={`flex items-start gap-3 py-3 ${
+                index < MISSION_SOURCE_REFERENCES.length - 1 ? 'border-b border-[#efeff2]' : ''
+              }`}
             >
-              확인
-            </button>
-          </div>
-        </div>
+              <dt className="w-12 shrink-0 font-bold text-gray-800">{item.category}</dt>
+              <dd className="min-w-0 flex-1 text-gray-600">{item.source}</dd>
+            </div>
+          ))}
+        </dl>
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex h-13.5 w-full shrink-0 items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white"
+        >
+          확인
+        </button>
       </div>
     </div>
   );
