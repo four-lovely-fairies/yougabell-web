@@ -20,7 +20,7 @@ import {
 import type { MissionSelectedChild } from "@/lib/mission-data";
 import {
   ageLabelFromBirth,
-  ChildSwitchDropdown,
+  ChildSwitchSheet,
   HeaderSpacer,
   MISSION_META_ICONS,
   MissionHeader,
@@ -379,7 +379,7 @@ export function MissionIntroScreen() {
       </div>
 
       {switcherOpen ? (
-        <ChildSwitchDropdown
+        <ChildSwitchSheet
           childItems={children}
           selectedChildId={selectedChild.id}
           onSelect={onSelectChild}
