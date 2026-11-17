@@ -1,3 +1,4 @@
+import { forgetOnboarded, rememberOnboarded } from "../onboarded-cookie";
 import { request } from "./client";
 import type {
   ApiInterestId,
@@ -8,7 +9,13 @@ import type {
 } from "../types";
 
 export const api = {
-  getMe: () => request<MeResponse>("/me"),
+  getMe: async () => {
+    const me = await request<MeResponse>("/me");
+    // 온보딩을 마쳤으면 서버 레이아웃이 화면 전환마다 /me를 다시 부르지 않게 기억한다.
+    if (me.onboardedAt) rememberOnboarded(me.id);
+    else forgetOnboarded();
+    return me;
+  },
   claimNotificationPromptExposure: () =>
     request<{ shouldShow: boolean }>("/me/notification-prompt-exposure", {
       method: "POST",
@@ -44,11 +51,15 @@ export const api = {
       method: "PATCH",
       json: { agreed },
     }),
-  deleteAccount: (reason?: string) =>
-    request<void>("/me", { method: "DELETE", json: { reason } }),
+  deleteAccount: (reason?: string) => {
+    forgetOnboarded();
+    return request<void>("/me", { method: "DELETE", json: { reason } });
+  },
   // [임시] 온보딩 재진입 — 회원 정보 초기화 (User row 삭제, cascade)
-  resetOnboarding: () =>
-    request<void>("/me/reset-onboarding", { method: "POST" }),
+  resetOnboarding: () => {
+    forgetOnboarded();
+    return request<void>("/me/reset-onboarding", { method: "POST" });
+  },
   addChild: (body: {
     name: string;
     birthDate: string;

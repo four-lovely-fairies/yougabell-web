@@ -1,5 +1,6 @@
 "use client";
 
+import { forgetOnboarded } from "@/lib/onboarded-cookie";
 import { useEffect } from "react";
 
 import {
@@ -41,6 +42,7 @@ export function NativeSessionBridge() {
           }
           case "SUPABASE_SESSION_CLEARED": {
             clearStoredSelectedChildId();
+            forgetOnboarded();
             const { data } = await supabase.auth.getSession();
 
             if (!data.session) {
