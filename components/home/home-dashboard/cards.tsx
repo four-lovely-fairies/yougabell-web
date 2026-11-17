@@ -193,10 +193,11 @@ export const AiConsultationCard = ({ onClick }: { onClick: () => void }) => (
   >
     <span className="flex items-center gap-2 text-sm font-medium text-gray-800">
       <Image
-        src="/images/figma/home/question-mark.png"
+        src="/images/figma/home/ai-icon.svg"
         alt=""
-        width={14}
-        height={15.48}
+        width={24}
+        height={24}
+        className="size-6 shrink-0"
       />
       궁금한게 있으면 Ai 에게 물어보세요
     </span>
