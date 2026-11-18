@@ -21,6 +21,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
+import { ReferralSettingsCard } from "@/components/referral/referral-views";
 
 // 마이페이지 시안 — 카드형 / 목록형. 둘 다 같은 데이터·동작을 받는다.
 // 놀이 내역 · 관심 놀이 · 알림 설정 바로가기가 핵심. 친구 초대 배너는 화면이 생기면 추가한다.
@@ -33,6 +34,8 @@ export type MyPageProps = {
   onDeleteAccount: () => void;
   onOpenPrivacy: () => void;
   onOpenTerms: () => void;
+  /** 친구 초대하기 카드 (설정 맨 위 상시 진입점) */
+  onOpenReferral?: () => void;
 };
 
 const ICON = "/icons/figma/mypage";
@@ -245,6 +248,11 @@ export function MyPageList(props: MyPageProps) {
       <div className="px-5 pt-1">
         <NameHeader name={props.name} onClose={props.onClose} />
       </div>
+      {props.onOpenReferral ? (
+        <div className="px-5 pt-4">
+          <ReferralSettingsCard onClick={props.onOpenReferral} />
+        </div>
+      ) : null}
       <div className="pb-6 pt-4">
         <Shortcuts favoritesHref={props.favoritesHref} />
       </div>

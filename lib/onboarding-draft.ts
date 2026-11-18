@@ -18,6 +18,7 @@ export function mergeOnboardingDraft(
     notification: next.notification ?? prev?.notification,
     notificationPermission:
       next.notificationPermission ?? prev?.notificationPermission,
+    inviteCode: "inviteCode" in next ? next.inviteCode : prev?.inviteCode,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -30,6 +31,7 @@ const STEP_TO_PATH: Record<OnboardingStep, string> = {
   notification: "/onboarding/notification",
   "app-usage": "/onboarding/app-usage",
   children: "/onboarding/children",
+  invite: "/onboarding/invite",
 };
 
 export function getOnboardingResumePath(draft: OnboardingDraft | null): string {

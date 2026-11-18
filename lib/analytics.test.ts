@@ -132,3 +132,29 @@ test("mission click events record intent before the API call", () => {
     { name: "Mission Started", properties: { start_mode: "direct", entry: "today" } },
   );
 });
+
+test("referral funnel events carry result/method without personal data", () => {
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "invite_code_submit", result: "self" }),
+    { name: "Invite Code Submitted", properties: { result: "self" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "onboarding_finish", hasInviteCode: true }),
+    { name: "Onboarding Completed", properties: { has_invite_code: true } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({
+      type: "notice_sheet_click",
+      name: "referral_coupon",
+      action: "confirm",
+    }),
+    {
+      name: "Notice Sheet Clicked",
+      properties: { name: "referral_coupon", action: "confirm" },
+    },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "referral_share", method: "kakao" }),
+    { name: "Referral Shared", properties: { method: "kakao" } },
+  );
+});
