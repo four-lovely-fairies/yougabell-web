@@ -50,6 +50,7 @@ export default function SettingsPage() {
         interests={interests}
         favoritesHref="/mission/saved"
         onClose={() => router.replace("/")}
+        onOpenReferral={() => router.push("/referral?from=settings")}
         onLogout={() => void onLogout()}
         onDeleteAccount={() => setDeletingAccount(true)}
         onOpenPrivacy={() =>

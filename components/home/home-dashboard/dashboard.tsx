@@ -47,6 +47,17 @@ import {
 import { TopAppBar } from "./top-app-bar";
 import { WhatsNewSheet } from "@/components/home/whats-new-sheet";
 import { markWhatsNewSeen, shouldShowWhatsNew } from "@/lib/whats-new";
+import {
+  CouponArrivedModal,
+  InvitePopup,
+} from "@/components/referral/referral-views";
+import { getMyReferral } from "@/lib/api/referral";
+import {
+  markCouponModalSeen,
+  markInvitePopupSeen,
+  shouldShowCouponModal,
+  shouldShowInvitePopup,
+} from "@/lib/referral";
 import type { Modal } from "./types";
 import { WeeklyCalendar } from "./weekly-calendar";
 
@@ -120,6 +131,41 @@ export const HomeDashboard = ({
       setWhatsNewOpen(true);
     }, 900);
     return () => window.clearTimeout(timer);
+  }, []);
+
+  // 친구 초대 — 4명 달성 시 "커피 쿠폰이 도착했어요"(1회), 아니면 "친구 초대하고 커피 받아요"(기기당 1회).
+  // 업데이트 안내가 뜨는 방문에는 겹치지 않게 다음 방문으로 미룬다.
+  const [referralPopup, setReferralPopup] = useState<
+    { kind: "invite" } | { kind: "coupon"; goal: number } | null
+  >(null);
+  useEffect(() => {
+    if (shouldShowWhatsNew()) return;
+    const wantCoupon = shouldShowCouponModal();
+    const wantInvite = shouldShowInvitePopup();
+    if (!wantCoupon && !wantInvite) return;
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      getMyReferral()
+        .then((referral) => {
+          if (cancelled) return;
+          if (wantCoupon && referral.rewardAvailable) {
+            markCouponModalSeen();
+            setReferralPopup({ kind: "coupon", goal: referral.goal });
+            track({ type: "notice_sheet_view", name: "referral_coupon" });
+          } else if (wantInvite && referral.joinedCount < referral.goal) {
+            markInvitePopupSeen();
+            setReferralPopup({ kind: "invite" });
+            track({ type: "notice_sheet_view", name: "referral_invite" });
+          }
+        })
+        .catch(() => {
+          // 친구 초대 정보를 못 가져오면 팝업 없이 홈만 보여준다.
+        });
+    }, 900);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const selectedChild = data.selectedChild;
@@ -340,6 +386,37 @@ export const HomeDashboard = ({
       </div>
       {whatsNewOpen && modal === null && notificationSetup.view === null ? (
         <WhatsNewSheet onClose={() => setWhatsNewOpen(false)} />
+      ) : null}
+      {referralPopup?.kind === "invite" &&
+      modal === null &&
+      notificationSetup.view === null ? (
+        <InvitePopup
+          onConfirm={() => {
+            track({ type: "notice_sheet_click", name: "referral_invite", action: "confirm" });
+            setReferralPopup(null);
+            router.push("/referral?from=home_popup");
+          }}
+          onClose={() => {
+            track({ type: "notice_sheet_click", name: "referral_invite", action: "close" });
+            setReferralPopup(null);
+          }}
+        />
+      ) : null}
+      {referralPopup?.kind === "coupon" &&
+      modal === null &&
+      notificationSetup.view === null ? (
+        <CouponArrivedModal
+          goal={referralPopup.goal}
+          onClaim={() => {
+            track({ type: "notice_sheet_click", name: "referral_coupon", action: "confirm" });
+            setReferralPopup(null);
+            router.push("/referral/coupon");
+          }}
+          onClose={() => {
+            track({ type: "notice_sheet_click", name: "referral_coupon", action: "close" });
+            setReferralPopup(null);
+          }}
+        />
       ) : null}
       {modal === "children" ? (
         <ChildSwitcherSheet

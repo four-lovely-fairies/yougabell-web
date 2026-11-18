@@ -69,6 +69,7 @@ function buildPayload(
           marketing: Boolean(consents.marketing),
         }
       : undefined,
+    inviteCode: draft.inviteCode || undefined,
   };
 }
 
@@ -142,7 +143,10 @@ export default function DonePage() {
 
       if (nextStatus === "success") {
         try {
-          track({ type: "onboarding_finish" });
+          track({
+            type: "onboarding_finish",
+            hasInviteCode: Boolean(payload?.inviteCode),
+          });
         } catch (error) {
           console.error("[onboarding/done] track failed", error);
         }

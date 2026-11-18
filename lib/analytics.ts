@@ -19,7 +19,30 @@ export type OnboardingEvent =
     }
   | { type: "onboarding_work_status_filled" }
   | { type: "onboarding_skip"; from: "intro" }
-  | { type: "onboarding_finish" };
+  | { type: "onboarding_finish"; hasInviteCode?: boolean };
+
+// 친구 초대(레퍼럴). 초대 코드·전화번호·친구 이름은 넣지 않는다.
+export type ReferralEvent =
+  | { type: "invite_code_step_view" }
+  | {
+      type: "invite_code_submit";
+      result: "valid" | "not_found" | "self" | "error";
+    }
+  | { type: "invite_code_skip" }
+  | { type: "notice_sheet_view"; name: "referral_invite" | "referral_coupon" }
+  | {
+      type: "notice_sheet_click";
+      name: "referral_invite" | "referral_coupon";
+      action: "confirm" | "close";
+    }
+  | {
+      type: "referral_view";
+      entry: "home_popup" | "settings" | "notification" | "direct";
+      joinedCount: number;
+    }
+  | { type: "referral_invite_click" }
+  | { type: "referral_share"; method: "kakao" | "copy" | "sms" }
+  | { type: "referral_reward_claim_submit" };
 
 // 설정 화면 이벤트 (docs/features/20260519-settings.md §6).
 export type SettingsEvent =
@@ -137,7 +160,8 @@ export type AnalyticsEvent =
   | RoadmapEvent
   | WeeklyReportEvent
   | InquiryEvent
-  | NavigationEvent;
+  | NavigationEvent
+  | ReferralEvent;
 
 type AmplitudeEvent = {
   name: string;
@@ -199,7 +223,37 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
     case "onboarding_skip":
       return { name: "Onboarding Skipped", properties: { from: event.from } };
     case "onboarding_finish":
-      return { name: "Onboarding Completed" };
+      return {
+        name: "Onboarding Completed",
+        properties: props({ has_invite_code: event.hasInviteCode }),
+      };
+    case "invite_code_step_view":
+      return { name: "Invite Code Step Viewed" };
+    case "invite_code_submit":
+      return {
+        name: "Invite Code Submitted",
+        properties: { result: event.result },
+      };
+    case "invite_code_skip":
+      return { name: "Invite Code Skipped" };
+    case "notice_sheet_view":
+      return { name: "Notice Sheet Viewed", properties: { name: event.name } };
+    case "notice_sheet_click":
+      return {
+        name: "Notice Sheet Clicked",
+        properties: { name: event.name, action: event.action },
+      };
+    case "referral_view":
+      return {
+        name: "Referral Viewed",
+        properties: { entry: event.entry, joined_count: event.joinedCount },
+      };
+    case "referral_invite_click":
+      return { name: "Referral Invite Clicked" };
+    case "referral_share":
+      return { name: "Referral Shared", properties: { method: event.method } };
+    case "referral_reward_claim_submit":
+      return { name: "Referral Reward Claimed" };
     case "settings_open":
       return { name: "Settings Opened" };
     case "settings_notification_change":

@@ -40,7 +40,8 @@ export type OnboardingStep =
   | "interest"
   | "notification"
   | "app-usage"
-  | "children";
+  | "children"
+  | "invite";
 
 export type NotificationPermission = "granted" | "denied";
 
@@ -71,6 +72,8 @@ export type OnboardingDraft = {
    * granted → app-usage 진입, denied → app-usage skip.
    */
   notificationPermission?: NotificationPermission | null;
+  /** 친구에게 받은 초대 코드 (확인을 통과한 값만). 아이 정보 다음 단계에서 입력. */
+  inviteCode?: string;
   updatedAt: string;
 };
 
@@ -95,6 +98,8 @@ export type CompleteOnboardingPayload = {
   // 약관 동의 (docs/features/20260729-consent-storage.md).
   // 필수 2건은 true가 아니면 api가 400. 마케팅은 true일 때만 동의 이력이 남는다.
   consents?: ConsentDraft;
+  // 친구 초대 코드 (선택). 처음 가입하는 사람만 초대 1명으로 인정된다.
+  inviteCode?: string;
 };
 
 export type ConsentType = "service" | "privacy" | "marketing";

@@ -82,7 +82,8 @@ export default function ChildrenPage() {
     if (!canProceed) return;
     patch({ children, lastStep: "children" });
     track({ type: "onboarding_step_complete", step: "children" });
-    router.push("/onboarding/done");
+    // 진행 단계(4/4)는 여기서 끝. 초대 코드는 진행바 없는 선택 화면.
+    router.push("/onboarding/invite");
   };
 
   return (
