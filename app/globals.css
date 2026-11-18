@@ -200,24 +200,19 @@ body {
   color: var(--color-gray-800);
 }
 
+/* 리포트 말풍선 — 통통 튀지 않고 천천히 살짝 떠다닌다 */
 @keyframes report-tooltip-bob {
   0%,
-  24%,
-  48%,
   100% {
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
-  12% {
-    transform: translateY(-9px) scale(1.025);
-  }
-  36% {
-    transform: translateY(-4px) scale(1.01);
+  50% {
+    transform: translateY(-4px);
   }
 }
 
 .report-tooltip-bounce {
-  transform-origin: bottom center;
-  animation: report-tooltip-bob 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+  animation: report-tooltip-bob 2.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
