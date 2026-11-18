@@ -1,7 +1,13 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
 import { useMainShellReport } from "@/components/app/main-shell-report-context";
 import {
   getStoredSelectedChildId,
@@ -12,6 +18,34 @@ import { beginScreen } from "@/lib/performance";
 import { reportStateForChild } from "@/lib/main-shell-report-state";
 import { createSingleFlight } from "@/lib/single-flight";
 import type { NavigationEvent } from "@/lib/analytics";
+
+// 다음 AI 상담 업데이트 때는 날짜만 바꾸면 점이 다시 뜬다.
+const CHAT_NEW_KEY = "yb:nav-new:chat:2026-11-18";
+const isChatNew = () => {
+  try {
+    return window.localStorage.getItem(CHAT_NEW_KEY) === null;
+  } catch {
+    return false;
+  }
+};
+const CHAT_SEEN_EVENT = "yb:nav-chat-seen";
+const markChatSeen = () => {
+  if (!isChatNew()) return;
+  try {
+    window.localStorage.setItem(CHAT_NEW_KEY, "1");
+  } catch {
+    // 무시
+  }
+  window.dispatchEvent(new Event(CHAT_SEEN_EVENT));
+};
+const subscribeChatSeen = (onChange: () => void) => {
+  window.addEventListener(CHAT_SEEN_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(CHAT_SEEN_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+};
 
 const NAV_ICON_PATHS = {
   home: "/icons/figma/nav/home.svg",
@@ -97,6 +131,11 @@ export const BottomNav = () => {
   const showReportTooltip =
     selectedChildState?.hasUnviewedWeeklyReport ?? false;
   const runStatusRequest = useMemo(() => createSingleFlight<boolean>(), []);
+  // AI 상담 "새 기능" 점 — 업데이트된 AI 상담을 한 번 열면 사라진다(기기 기준).
+  const chatNew = useSyncExternalStore(subscribeChatSeen, isChatNew, () => false);
+  useEffect(() => {
+    if (pathname.startsWith("/chat")) markChatSeen();
+  }, [pathname]);
   // 누른 즉시 활성 알약을 옮긴다 — 화면 전환(서버 응답)을 기다리지 않아 눌렸다는 게 바로 보인다.
   // 경로가 바뀌면 실제 경로 기준으로 되돌아간다.
   const [pending, setPending] = useState<{ index: number; from: string } | null>(null);
@@ -185,6 +224,14 @@ export const BottomNav = () => {
 
           {items.map((item, index) => {
             const active = index === activeIndex;
+            // 알림 벨과 같은 빨간 점(숫자 없음)
+            // - 리포트: 안 본 주간 리포트가 있을 때
+            // - AI 상담: 업데이트 후 아직 안 열어봤을 때
+            const showDot =
+              (item.tab === "report" &&
+                showReportTooltip &&
+                !pathname.startsWith("/weekly-report")) ||
+              (item.tab === "chat" && chatNew && !pathname.startsWith("/chat"));
 
             return (
               <button
@@ -199,16 +246,23 @@ export const BottomNav = () => {
                   router.push(item.href);
                 }}
                 aria-current={active ? "page" : undefined}
+                aria-label={showDot ? `${item.label}, 새 소식 있음` : undefined}
                 className={`relative z-10 flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-full py-1 text-xs leading-[1.4] transition-[color,transform] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.9] motion-reduce:transition-none ${
                   active ? "font-medium text-gray-800" : "font-normal text-gray-400"
                 }`}
               >
-                <span className="flex size-6 items-center justify-center">
+                <span className="relative flex size-6 items-center justify-center">
                   <span
                     aria-hidden
                     className={`shrink-0 ${item.iconClassName}`}
                     style={maskStyle(item.iconSrc)}
                   />
+                  {showDot ? (
+                    <span
+                      aria-hidden
+                      className="absolute -right-0.5 top-0 size-2 rounded-full bg-error-600"
+                    />
+                  ) : null}
                 </span>
                 <span className="truncate">{item.label}</span>
               </button>
