@@ -321,16 +321,16 @@ function LoadingScreen({
   variant?: "default" | "error";
 }) {
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+    <div className="relative flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center motion-safe:animate-dissolve">
       {/* 큰 ellipse: 좌상단 회전 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-40 -top-32 size-105 -rotate-6 rounded-full bg-primary-200/60 blur-[80px]"
+        className="pointer-events-none absolute -left-40 -top-28 h-75 w-80 -rotate-6 rounded-full bg-primary-50 opacity-70 blur-[100px]"
       />
       {/* 큰 ellipse: 중앙 하단 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-24 top-1/2 h-65 w-141 rounded-full bg-primary-100/70 blur-[80px]"
+        className="pointer-events-none absolute -left-25 top-[30%] h-63 w-141 rounded-full bg-primary-50 opacity-60 blur-[100px]"
       />
       <div
         className={cnVariant(
@@ -357,12 +357,8 @@ function LoadingDots() {
       {[0, 1, 2, 3].map((i) => (
         <span
           key={i}
-          className="size-1.5 rounded-full bg-primary-500 motion-safe:animate-pulse"
-          style={{
-            opacity: 0.3 + i * 0.2,
-            animationDelay: `${i * 180}ms`,
-            animationDuration: "1.2s",
-          }}
+          className="loading-wave-dot size-2 rounded-full bg-primary-300"
+          style={{ animationDelay: `${i * 150}ms` }}
         />
       ))}
     </div>

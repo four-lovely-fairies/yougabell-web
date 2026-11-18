@@ -137,7 +137,7 @@ export function InviteCodeView({
   const canSubmit = value.length > 0 && !error && !checking;
   return (
     <form
-      className="flex min-h-0 flex-1 flex-col"
+      className="flex min-h-0 flex-1 flex-col motion-safe:animate-screen-in"
       onSubmit={(e) => {
         e.preventDefault();
         if (canSubmit) onSubmit();
@@ -290,7 +290,7 @@ export function ReferralView({
         : "친구 초대하기";
 
   return (
-    <div className="flex h-dvh flex-col bg-white">
+    <div className="flex h-dvh flex-col bg-white motion-safe:animate-screen-in">
       <AppHeader title="친구 초대 이벤트" onBack={onBack} />
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
         <PageTitle title={title} sub={sub} />
@@ -405,6 +405,11 @@ export function ShareSheet({
 /* 01 홈 진입 - 친구 초대 팝업 (뒤 화면 블러)                            */
 /* ------------------------------------------------------------------ */
 
+const popupStep = (delayMs: number) => ({
+  animationDelay: `${delayMs}ms`,
+  animationDuration: "650ms",
+});
+
 export function InvitePopup({
   onConfirm,
   onClose,
@@ -417,22 +422,29 @@ export function InvitePopup({
       role="dialog"
       aria-modal
       aria-labelledby="invite-popup-title"
-      className="fixed inset-0 z-50 mx-auto flex max-w-107.5 flex-col items-center bg-white/70 px-8 backdrop-blur-xl"
+      className="fixed inset-0 z-50 mx-auto flex max-w-107.5 flex-col items-center bg-white/70 px-8 backdrop-blur-xl motion-safe:animate-dissolve"
+      // 디이잉 — 배경이 천천히 번지고, 제목 → 선물 → 버튼 순서로 차례로 떠오른다.
+      style={{ animationDuration: "700ms" }}
     >
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-[34%] h-75 w-82 -translate-x-1/2 rounded-full bg-primary-100/60 blur-[60px]"
       />
       <div className="relative flex flex-1 flex-col items-center justify-center">
-        <h2
-          id="invite-popup-title"
-          className="text-[22px] font-bold leading-[1.4] text-gray-800"
+        <div
+          className="flex flex-col items-center motion-safe:animate-screen-in"
+          style={popupStep(150)}
         >
-          친구 초대하고 커피 받아요
-        </h2>
-        <p className="mt-1.5 text-[15px] leading-[1.4] text-gray-500">
-          4명 초대하면 스타벅스 커피를 드려요
-        </p>
+          <h2
+            id="invite-popup-title"
+            className="text-[22px] font-bold leading-[1.4] text-gray-800"
+          >
+            친구 초대하고 커피 받아요
+          </h2>
+          <p className="mt-1.5 text-[15px] leading-[1.4] text-gray-500">
+            4명 초대하면 스타벅스 커피를 드려요
+          </p>
+        </div>
         <Image
           src="/images/referral/gift.png"
           alt=""
@@ -440,12 +452,14 @@ export function InvitePopup({
           height={195}
           priority
           // 이미지에 흰 배경이 있어 블러 배경 위에서 섞이게 한다.
-          className="mt-3 mix-blend-multiply"
+          className="mt-3 mix-blend-multiply motion-safe:animate-pop-in"
+          style={{ animationDelay: "350ms" }}
         />
         <Button
           size="full"
           onClick={onConfirm}
-          className="mt-1 h-13 w-80.5 rounded-full"
+          className="mt-1 h-13 w-80.5 rounded-full motion-safe:animate-screen-in"
+          style={popupStep(550)}
         >
           친구 초대하러 가기
         </Button>
@@ -453,7 +467,8 @@ export function InvitePopup({
       <button
         type="button"
         onClick={onClose}
-        className="relative mb-[max(40px,env(safe-area-inset-bottom))] flex items-center gap-1 text-base font-medium text-gray-800"
+        className="relative mb-[max(40px,env(safe-area-inset-bottom))] flex items-center gap-1 text-base font-medium text-gray-800 motion-safe:animate-dissolve"
+        style={{ animationDelay: "700ms", animationDuration: "500ms" }}
       >
         닫기 <X className="size-5" aria-hidden />
       </button>
@@ -567,11 +582,12 @@ export function CouponArrivedModal({
       role="dialog"
       aria-modal
       aria-labelledby="coupon-modal-title"
-      className="fixed inset-0 z-50 mx-auto flex max-w-107.5 items-center justify-center overflow-hidden bg-black/50 px-10"
+      className="fixed inset-0 z-50 mx-auto flex max-w-107.5 items-center justify-center overflow-hidden bg-black/50 px-10 motion-safe:animate-dissolve"
+      style={{ animationDuration: "280ms" }}
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-77.5 rounded-3xl bg-white px-5 pb-5 pt-8 text-center"
+        className="relative w-full max-w-77.5 rounded-3xl bg-white px-5 pb-5 pt-8 text-center motion-safe:animate-pop-in"
         onClick={(e) => e.stopPropagation()}
       >
         <h2
@@ -626,7 +642,7 @@ export function CouponClaimView({
   // 개인정보 수집·이용은 회원가입 때 필수로 받으므로 여기서 다시 받지 않는다.
   const canSubmit = isValidPhone(phone) && !submitting;
   return (
-    <div className="flex h-dvh flex-col bg-white">
+    <div className="flex h-dvh flex-col bg-white motion-safe:animate-screen-in">
       <AppHeader title="쿠폰 받기" onBack={onBack} />
       <div className="min-h-0 flex-1 overflow-y-auto px-6">
         <PageTitle
@@ -679,7 +695,7 @@ export function CouponDoneView({
   onConfirm: () => void;
 }) {
   return (
-    <div className="flex h-dvh flex-col bg-white pt-safe">
+    <div className="flex h-dvh flex-col bg-white pt-safe motion-safe:animate-screen-in">
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pt-26 text-center">
         <Image
           src="/images/referral/coffee.png"
