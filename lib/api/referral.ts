@@ -80,7 +80,8 @@ export const KAKAO_SHARE_IMAGE = "/images/referral/kakao-share.jpg";
 export function referralKakaoCard(code: string) {
   return {
     title: "바쁜 부모도 하루 5분이면 충분해요",
-    description: `아이와의 5분, 육아벨이 설계해드려요 💜\n📪가입할 때 초대 코드 [${code}]를 입력해 주세요.`,
+    // 카카오 카드 설명은 짧게 잘리므로 초대 코드 한 줄만 둔다.
+    description: `📪가입할 때 초대 코드 [${code}]를 입력해 주세요.`,
   };
 }
 
