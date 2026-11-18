@@ -16,6 +16,7 @@ import { AppHeader } from "@/components/app/app-header";
 import { ClearCircleIcon } from "@/components/icons";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { MyReferral } from "@/lib/api/referral";
 import { formatPhone, isValidPhone } from "@/lib/api/referral";
 import { cn } from "@/lib/utils";
@@ -446,13 +447,12 @@ export function InvitePopup({
           </p>
         </div>
         <Image
-          src="/images/referral/gift.png"
+          src="/images/referral/gift.svg"
           alt=""
           width={200}
           height={195}
           priority
-          // 이미지에 흰 배경이 있어 블러 배경 위에서 섞이게 한다.
-          className="mt-3 mix-blend-multiply motion-safe:animate-pop-in"
+          className="mt-3 motion-safe:animate-pop-in"
           style={{ animationDelay: "350ms" }}
         />
         <Button
@@ -499,11 +499,11 @@ export function ReferralSettingsCard({ onClick }: { onClick: () => void }) {
         </span>
       </div>
       <Image
-        src="/images/referral/gift.png"
+        src="/images/referral/gift.svg"
         alt=""
         width={110}
         height={107}
-        className="absolute -right-1 top-1/2 -translate-y-1/2 mix-blend-multiply"
+        className="absolute -right-1 top-1/2 -translate-y-1/2"
       />
     </button>
   );
@@ -729,6 +729,54 @@ export function CouponDoneView({
         <Button size="full" onClick={onConfirm}>
           확인
         </Button>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* 친구 초대 화면 로딩 — 제목·가입한 친구 4칸·참여 방법·유의사항 자리     */
+/* ------------------------------------------------------------------ */
+
+export function ReferralSkeleton({ onBack }: { onBack: () => void }) {
+  return (
+    <div
+      className="flex h-dvh flex-col bg-white"
+      role="status"
+      aria-label="친구 초대 정보를 불러오는 중"
+    >
+      <AppHeader title="친구 초대 이벤트" onBack={onBack} />
+      <div className="min-h-0 flex-1 overflow-hidden px-6">
+        <div className="flex flex-col gap-2.5 pt-7">
+          <Skeleton className="h-8 w-56 rounded-lg" />
+          <Skeleton className="h-8 w-44 rounded-lg" />
+          <Skeleton className="mt-1 h-5 w-64 rounded-md" />
+        </div>
+        <div className="mt-9 flex items-center justify-between">
+          <Skeleton className="h-5 w-20 rounded-md" />
+          <Skeleton className="h-5 w-12 rounded-md" />
+        </div>
+        <div className="mt-4 grid grid-cols-4 rounded-[20px] bg-gray-50 px-2 py-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex flex-col items-center gap-2">
+              <Skeleton className="size-12 rounded-full" />
+              <Skeleton className="h-4 w-10 rounded-md" />
+            </div>
+          ))}
+        </div>
+        <Skeleton className="mt-9 h-6 w-28 rounded-md" />
+        <div className="mt-3.5 flex flex-col gap-3.5">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-2.5">
+              <Skeleton className="size-6 rounded-full" />
+              <Skeleton className="h-5 w-56 rounded-md" />
+            </div>
+          ))}
+        </div>
+        <Skeleton className="mt-9 h-24 rounded-2xl" />
+      </div>
+      <div className="shrink-0 px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-3">
+        <Skeleton className="h-14 rounded-2xl" />
       </div>
     </div>
   );

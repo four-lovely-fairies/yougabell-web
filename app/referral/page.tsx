@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import {
+  ReferralSkeleton,
   ReferralView,
   ShareSheet,
 } from "@/components/referral/referral-views";
@@ -57,9 +58,10 @@ function ReferralScreen() {
   };
 
   if (!data) {
+    if (!failed) return <ReferralSkeleton onBack={back} />;
     return (
       <div className="grid h-dvh place-items-center px-6 text-center text-sm text-gray-500">
-        {failed ? "친구 초대 정보를 불러오지 못했어요." : "불러오는 중…"}
+        친구 초대 정보를 불러오지 못했어요.
       </div>
     );
   }
