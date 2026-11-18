@@ -107,7 +107,7 @@ export function SavedPlayDetailScreen({ missionId }: { missionId: string }) {
   };
 
   // 실행을 시작한다. 다른 놀이가 진행 중이면 그 놀이부터 마치도록 안내한다.
-  const start = async () => {
+  const start = async (startMode: "timer" | "direct") => {
     const started = await startMissionExecution({
       childId: child.id,
       missionId: play.missionId,
@@ -116,29 +116,42 @@ export function SavedPlayDetailScreen({ missionId }: { missionId: string }) {
     if (started.source === "api" && started.execution.missionId !== play.missionId) {
       throw new Error("OTHER_ACTIVE");
     }
-    track({ type: "mission_start" });
+    track({ type: "mission_start", startMode, entry: "saved" });
     return started;
   };
 
   const run = async (action: "timer" | "done") => {
+    // 클릭 시점 기록 — 관심 놀이·놀이 내역 상세에서 들어온 경우
+    track(
+      action === "timer"
+        ? { type: "mission_timer_start_click", entry: "saved" }
+        : { type: "mission_complete_click", source: "detail_direct", entry: "saved" },
+    );
     setBusy(true);
     setError(null);
     try {
-      const started = await start();
+      const started = await start(action === "timer" ? "timer" : "direct");
       if (action === "timer") {
         router.push(`/mission/timer?executionId=${started.execution.id}&mode=${started.source}`);
         return;
       }
+      const elapsedSeconds =
+        enteredAtRef.current === null
+          ? undefined
+          : Math.floor((Date.now() - enteredAtRef.current) / 1000);
       const completed = await applyMissionExecutionAction({
         executionId: started.execution.id,
         action: "complete",
         mode: started.source,
-        elapsedSeconds:
-          enteredAtRef.current === null
-            ? undefined
-            : Math.floor((Date.now() - enteredAtRef.current) / 1000),
+        elapsedSeconds,
       });
-      track({ type: "mission_complete", completionType: "manual" });
+      track({
+        type: "mission_complete",
+        completionType: "manual",
+        source: "detail_direct",
+        entry: "saved",
+        elapsedSeconds,
+      });
       router.push(`/mission/effect?executionId=${started.execution.id}&mode=${completed.source}`);
     } catch (e) {
       setError(

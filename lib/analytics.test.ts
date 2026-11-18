@@ -76,3 +76,59 @@ test("home play notification nudge clicks have a dedicated GA event", () => {
   );
   assert.equal(toGoogleAnalyticsEventName({ type: "home_view" }), null);
 });
+
+test("mission completion carries where it was completed (detail vs timer)", () => {
+  assert.deepEqual(
+    toAmplitudeEvent({
+      type: "mission_complete",
+      completionType: "manual",
+      source: "detail_direct",
+      entry: "today",
+      elapsedSeconds: 312,
+    }),
+    {
+      name: "Mission Completed",
+      properties: {
+        completion_type: "manual",
+        source: "detail_direct",
+        entry: "today",
+        elapsed_seconds: 312,
+      },
+    },
+  );
+
+  // 값이 없는 프로퍼티(entry, elapsed_seconds)는 보내지 않는다
+  assert.deepEqual(
+    toAmplitudeEvent({
+      type: "mission_complete",
+      completionType: "early",
+      source: "timer_screen",
+    }),
+    {
+      name: "Mission Completed",
+      properties: { completion_type: "early", source: "timer_screen" },
+    },
+  );
+});
+
+test("mission click events record intent before the API call", () => {
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "mission_timer_start_click", entry: "saved" }),
+    { name: "Mission Timer Start Clicked", properties: { entry: "saved" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({
+      type: "mission_complete_click",
+      source: "timer_screen",
+      timerAction: "early_complete",
+    }),
+    {
+      name: "Mission Complete Clicked",
+      properties: { source: "timer_screen", timer_action: "early_complete" },
+    },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "mission_start", startMode: "direct", entry: "today" }),
+    { name: "Mission Started", properties: { start_mode: "direct", entry: "today" } },
+  );
+});

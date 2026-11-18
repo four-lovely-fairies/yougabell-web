@@ -155,6 +155,7 @@ export function MissionIntroScreen() {
 
   const onStart = async () => {
     if (!state?.data || state.data.mission.status === "completed") return;
+    track({ type: "mission_timer_start_click", entry: "today" });
 
     if (state.data.activeExecution?.status === "paused") {
       router.push(
@@ -170,7 +171,7 @@ export function MissionIntroScreen() {
         missionId: state.data.mission.id,
         durationMinutes: state.data.mission.durationMinutes,
       });
-      track({ type: "mission_start" });
+      track({ type: "mission_start", startMode: "timer", entry: "today" });
       router.push(
         `/mission/timer?executionId=${result.execution.id}&mode=${result.source}`,
       );
@@ -180,8 +181,12 @@ export function MissionIntroScreen() {
   };
 
   // 타이머 없이 바로 완료 — 실행을 만들고(진행 중인 게 있으면 그걸로) 곧바로 완료 처리한 뒤 놀이 효과로 간다.
-  const onDone = async () => {
+  // source: 상세 화면 [놀이 다 했어요] 바로 누름 vs 나가기 시트 [네, 다 했어요]
+  const onDone = async (
+    completeSource: "detail_direct" | "detail_exit_sheet" = "detail_direct",
+  ) => {
     if (!state?.data || state.data.mission.status === "completed") return;
+    track({ type: "mission_complete_click", source: completeSource, entry: "today" });
     setExitSheetOpen(false);
     setDoneError(null);
     setStarting(true);
@@ -196,18 +201,25 @@ export function MissionIntroScreen() {
         });
         executionId = started.execution.id;
         source = started.source;
-        track({ type: "mission_start" });
+        track({ type: "mission_start", startMode: "direct", entry: "today" });
       }
+      const elapsedSeconds =
+        enteredAtRef.current === null
+          ? undefined
+          : Math.floor((Date.now() - enteredAtRef.current) / 1000);
       const completed = await applyMissionExecutionAction({
         executionId,
         action: "complete",
         mode: source,
-        elapsedSeconds:
-          enteredAtRef.current === null
-            ? undefined
-            : Math.floor((Date.now() - enteredAtRef.current) / 1000),
+        elapsedSeconds,
       });
-      track({ type: "mission_complete", completionType: "manual" });
+      track({
+        type: "mission_complete",
+        completionType: "manual",
+        source: completeSource,
+        entry: "today",
+        elapsedSeconds,
+      });
       router.push(
         `/mission/effect?executionId=${executionId}&mode=${completed.source}`,
       );
@@ -367,7 +379,7 @@ export function MissionIntroScreen() {
             ) : (
               <button
                 type="button"
-                onClick={() => void onDone()}
+                onClick={() => void onDone("detail_direct")}
                 disabled={starting || isCompleted}
                 className="flex h-13.5 min-w-0 flex-1 items-center justify-center rounded-2xl bg-primary-300 text-base font-medium leading-[1.4] text-white disabled:bg-primary-100"
               >
@@ -406,7 +418,7 @@ export function MissionIntroScreen() {
               window.setTimeout(leave, 900);
             }
           }}
-          onDone={() => void onDone()}
+          onDone={() => void onDone("detail_exit_sheet")}
           onLeave={() => {
             setExitSheetOpen(false);
             leave();

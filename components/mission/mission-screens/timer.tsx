@@ -158,6 +158,7 @@ export function MissionTimerScreen({
         track({
           type: "mission_complete",
           completionType: action === "early_complete" ? "early" : "timer",
+          source: "timer_screen",
         });
         router.replace(
           `/mission/effect?executionId=${snapshot.id}&mode=${result.source}`,
@@ -272,7 +273,15 @@ export function MissionTimerScreen({
           </button>
           <button
             type="button"
-            onClick={() => void onAction("early_complete")}
+            onClick={() => {
+              // 클릭 시점 기록 — 타이머 화면에서 [조기완료]
+              track({
+                type: "mission_complete_click",
+                source: "timer_screen",
+                timerAction: "early_complete",
+              });
+              void onAction("early_complete");
+            }}
             disabled={actionLoading}
             className="text-base font-medium leading-[1.4] text-[#7d8180] disabled:opacity-60"
           >

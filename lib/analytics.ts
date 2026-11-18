@@ -71,12 +71,39 @@ export type HomeEvent =
   | { type: "home_play_notification_nudge_click" }
   | { type: "home_mission_restart" };
 
+/** 놀이 상세가 열린 경로 — 오늘의 놀이 상세 / 관심 놀이·놀이 내역 상세 */
+export type MissionEntry = "today" | "saved";
+/**
+ * 완료를 누른 곳 — 기획 의도(타이머 vs 즉시 완료) 효과 측정용.
+ * - detail_direct: 상세 화면 [놀이 다 했어요]
+ * - detail_exit_sheet: 상세에서 나갈 때 시트 [네, 다 했어요]
+ * - timer_screen: 타이머 화면 [조기완료] 또는 시간 종료
+ */
+export type MissionCompleteSource =
+  | "detail_direct"
+  | "detail_exit_sheet"
+  | "timer_screen";
+
 export type MissionEvent =
   | { type: "mission_view" }
-  | { type: "mission_start" }
+  | { type: "mission_start"; startMode: "timer" | "direct"; entry?: MissionEntry }
   | { type: "mission_resume" }
   | { type: "mission_pause" }
-  | { type: "mission_complete"; completionType: "timer" | "early" | "manual" }
+  | {
+      type: "mission_complete";
+      completionType: "timer" | "early" | "manual";
+      source: MissionCompleteSource;
+      entry?: MissionEntry;
+      elapsedSeconds?: number;
+    }
+  // 클릭 시점(API 결과와 무관) — 의도 대비 성공률을 보기 위함
+  | { type: "mission_timer_start_click"; entry: MissionEntry }
+  | {
+      type: "mission_complete_click";
+      source: MissionCompleteSource;
+      entry?: MissionEntry;
+      timerAction?: "early_complete";
+    }
   | { type: "mission_feedback_submit" };
 
 export type RoadmapEvent =
@@ -116,6 +143,14 @@ type AmplitudeEvent = {
   name: string;
   properties?: Record<string, boolean | number | string>;
 };
+
+/** 값이 없는(undefined) 프로퍼티는 빼고 보낸다. */
+const props = (
+  input: Record<string, boolean | number | string | undefined>,
+): Record<string, boolean | number | string> =>
+  Object.fromEntries(
+    Object.entries(input).filter(([, value]) => value !== undefined),
+  ) as Record<string, boolean | number | string>;
 
 let initialized = false;
 
@@ -254,7 +289,21 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
     case "mission_view":
       return { name: "Mission Viewed" };
     case "mission_start":
-      return { name: "Mission Started" };
+      return {
+        name: "Mission Started",
+        properties: props({ start_mode: event.startMode, entry: event.entry }),
+      };
+    case "mission_timer_start_click":
+      return { name: "Mission Timer Start Clicked", properties: { entry: event.entry } };
+    case "mission_complete_click":
+      return {
+        name: "Mission Complete Clicked",
+        properties: props({
+          source: event.source,
+          entry: event.entry,
+          timer_action: event.timerAction,
+        }),
+      };
     case "mission_resume":
       return { name: "Mission Resumed" };
     case "mission_pause":
@@ -262,7 +311,12 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
     case "mission_complete":
       return {
         name: "Mission Completed",
-        properties: { completion_type: event.completionType },
+        properties: props({
+          completion_type: event.completionType,
+          source: event.source,
+          entry: event.entry,
+          elapsed_seconds: event.elapsedSeconds,
+        }),
       };
     case "mission_feedback_submit":
       return { name: "Mission Feedback Submitted" };
