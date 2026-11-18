@@ -1,4 +1,5 @@
 import { referralShareText } from "@/lib/api/referral";
+import { isNativeWebView, openExternalUrl } from "@/lib/native-bridge";
 import { showToast } from "@/lib/toast";
 
 // 친구 초대 — 기기별 1회 노출 기록과 공유 동작.
@@ -40,9 +41,22 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
+export const SHARE_TOASTS = {
+  copy: "초대 코드를 복사했어요",
+  kakao: "초대 메시지를 복사했어요. 카카오톡 대화방에 붙여넣어 주세요",
+} as const;
+
+/** 카카오톡 앱을 바로 연다. 앱(WebView)에서는 네이티브가 열어준다. */
+function openKakaoTalk() {
+  const url = "kakaotalk://launch";
+  if (isNativeWebView()) openExternalUrl(url);
+  else window.location.href = url;
+}
+
 /**
  * 공유 시트에서 고른 방법으로 초대 코드를 보낸다.
- * 카카오톡 SDK가 없어서 카카오톡은 기기 공유창(카카오톡 선택)을 띄우고, 공유창이 없으면 복사로 대신한다.
+ * 카카오톡: 초대 코드가 담긴 메시지를 복사해 두고 카카오톡을 바로 연다.
+ * (메시지가 미리 채워진 친구 선택 화면은 카카오 개발자 앱 키가 있어야 가능하다.)
  */
 export async function shareInviteCode(
   method: "kakao" | "copy" | "sms",
@@ -53,22 +67,11 @@ export async function shareInviteCode(
     window.location.href = `sms:?&body=${encodeURIComponent(text)}`;
     return;
   }
-  if (method === "kakao" && typeof navigator.share === "function") {
-    try {
-      await navigator.share({ text });
-      showToast("카카오톡으로 초대 코드를 보냈어요", { icon: "check" });
-      return;
-    } catch (error) {
-      if ((error as Error).name === "AbortError") return;
-    }
-  }
   const copied = await copyText(method === "copy" ? code : text);
-  showToast(
-    copied
-      ? method === "copy"
-        ? "초대 코드를 복사했어요"
-        : "초대 메시지를 복사했어요. 카카오톡에 붙여넣어 보내주세요"
-      : `내 초대 코드는 ${code} 예요`,
-    copied ? { icon: "check" } : undefined,
-  );
+  if (!copied) {
+    showToast(`내 초대 코드는 ${code} 예요`);
+    return;
+  }
+  showToast(SHARE_TOASTS[method], { icon: "check" });
+  if (method === "kakao") openKakaoTalk();
 }

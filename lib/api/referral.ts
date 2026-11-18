@@ -40,7 +40,7 @@ export const claimReferralReward = async (
   try {
     return await request<ReferralRewardClaim>("/me/referral/reward-claim", {
       method: "POST",
-      json: { phone, privacyAgreed: true },
+      json: { phone },
     });
   } catch (error) {
     throw toClaimError(error);
@@ -80,3 +80,6 @@ export const INVITE_CODE_ERRORS = {
   self: "내 초대 코드는 입력할 수 없어요.",
   error: "코드를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.",
 } as const;
+
+/** 초대 코드 확인 통과 — 온보딩 완료 화면으로 넘어가며 보여주는 토스트 */
+export const INVITE_CODE_VERIFIED_TOAST = "초대 코드가 확인됐어요";

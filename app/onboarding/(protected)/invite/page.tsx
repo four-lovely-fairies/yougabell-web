@@ -8,8 +8,10 @@ import { track } from "@/lib/analytics";
 import {
   checkInviteCode,
   INVITE_CODE_ERRORS,
+  INVITE_CODE_VERIFIED_TOAST,
   normalizeInviteCode,
 } from "@/lib/api/referral";
+import { showToast } from "@/lib/toast";
 
 // 온보딩 마지막(아이 정보 다음) — 친구에게 받은 초대 코드. 진행 단계에는 세지 않는 선택 화면.
 export default function InviteCodePage() {
@@ -35,6 +37,8 @@ export default function InviteCodePage() {
       }
       track({ type: "invite_code_submit", result: "valid" });
       patch({ inviteCode: normalized, lastStep: "invite" });
+      // 완료 화면은 기존 그대로 — 코드가 인정됐다는 것만 토스트로 알린다.
+      showToast(INVITE_CODE_VERIFIED_TOAST, { icon: "check" });
       router.push("/onboarding/done");
     } catch {
       track({ type: "invite_code_submit", result: "error" });

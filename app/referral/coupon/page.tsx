@@ -5,7 +5,6 @@ import { useState } from "react";
 import {
   CouponClaimView,
   CouponDoneView,
-  CouponPrivacySheet,
 } from "@/components/referral/referral-views";
 import { track } from "@/lib/analytics";
 import { claimReferralReward } from "@/lib/api/referral";
@@ -21,10 +20,8 @@ const CLAIM_ERRORS = {
 export default function ReferralCouponPage() {
   const router = useRouter();
   const [phone, setPhone] = useState("");
-  const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
   const [doneFor, setDoneFor] = useState<string | null>(null);
 
   if (doneFor) {
@@ -41,31 +38,26 @@ export default function ReferralCouponPage() {
       track({ type: "referral_reward_claim_submit" });
       setDoneFor(claim.phone);
     } catch (reason) {
-      setError(CLAIM_ERRORS[reason as keyof typeof CLAIM_ERRORS] ?? CLAIM_ERRORS.unknown);
+      setError(
+        CLAIM_ERRORS[reason as keyof typeof CLAIM_ERRORS] ??
+          CLAIM_ERRORS.unknown,
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <>
-      <CouponClaimView
-        phone={phone}
-        agreed={agreed}
-        error={error}
-        submitting={submitting}
-        onPhoneChange={(next) => {
-          setPhone(next);
-          setError(null);
-        }}
-        onToggleAgree={() => setAgreed((v) => !v)}
-        onOpenTerms={() => setShowTerms(true)}
-        onSubmit={() => void submit()}
-        onBack={() => router.back()}
-      />
-      {showTerms ? (
-        <CouponPrivacySheet onClose={() => setShowTerms(false)} />
-      ) : null}
-    </>
+    <CouponClaimView
+      phone={phone}
+      error={error}
+      submitting={submitting}
+      onPhoneChange={(next) => {
+        setPhone(next);
+        setError(null);
+      }}
+      onSubmit={() => void submit()}
+      onBack={() => router.back()}
+    />
   );
 }

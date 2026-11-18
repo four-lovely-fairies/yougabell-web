@@ -17,7 +17,7 @@ import { ClearCircleIcon } from "@/components/icons";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import type { MyReferral } from "@/lib/api/referral";
-import { formatPhone } from "@/lib/api/referral";
+import { formatPhone, isValidPhone } from "@/lib/api/referral";
 import { cn } from "@/lib/utils";
 
 // 친구 초대(레퍼럴) 화면 모음. 데이터는 props로만 받는다 — 페이지와 미리보기가 같이 쓴다.
@@ -498,18 +498,60 @@ export function ReferralSettingsCard({ onClick }: { onClick: () => void }) {
 /* 07 4명 달성 - 쿠폰 도착 모달                                          */
 /* ------------------------------------------------------------------ */
 
-const CONFETTI = [
-  ["#9572FF", 8, 12, 0],
-  ["#FFD43B", 22, 4, 0.4],
-  ["#69DB7C", 36, 16, 0.2],
-  ["#FF8787", 52, 6, 0.6],
-  ["#74C0FC", 66, 14, 0.1],
-  ["#B69CFE", 80, 8, 0.5],
-  ["#FFD43B", 92, 18, 0.3],
-  ["#9572FF", 14, 30, 0.7],
-  ["#FF8787", 44, 26, 0.9],
-  ["#69DB7C", 72, 32, 0.8],
-] as const;
+// 쿠폰 도착 축하 — 모달 위쪽 가운데에서 한 번 터지고 떨어지는 색종이 (반복하지 않음).
+const CONFETTI_COLORS = [
+  "#9572FF",
+  "#FFD43B",
+  "#69DB7C",
+  "#FF8787",
+  "#74C0FC",
+  "#B69CFE",
+];
+const CONFETTI = Array.from({ length: 36 }, (_, i) => {
+  // 고정된 의사 난수 — 렌더마다 모양이 바뀌지 않게 한다.
+  const rand = (n: number) =>
+    (((Math.sin(i * 12.9898 + n * 78.233) * 43758.5453) % 1) + 1) % 1;
+  const angle = (i / 36) * Math.PI * 2 + rand(1) * 0.4;
+  const distance = 90 + rand(2) * 110;
+  return {
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    dx: Math.cos(angle) * distance,
+    dy: Math.sin(angle) * distance * 0.8 - 60,
+    rotate: (rand(3) - 0.5) * 720,
+    delay: rand(4) * 0.15,
+    round: i % 4 === 0,
+    w: 6 + rand(5) * 4,
+    h: i % 4 === 0 ? 7 : 10 + rand(6) * 6,
+  };
+});
+
+function ConfettiBurst() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute left-1/2 top-[30%] size-0"
+    >
+      {CONFETTI.map((piece, i) => (
+        <span
+          key={i}
+          className="confetti-burst absolute left-0 top-0"
+          style={
+            {
+              width: piece.w,
+              height: piece.round ? piece.w : piece.h,
+              background: piece.color,
+              borderRadius: piece.round ? 999 : 2,
+              animationDelay: `${piece.delay}s`,
+              "--dx": `${piece.dx}px`,
+              "--dy": `${piece.dy}px`,
+              "--rot": `${piece.rotate}deg`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
+}
 
 export function CouponArrivedModal({
   goal,
@@ -528,19 +570,7 @@ export function CouponArrivedModal({
       className="fixed inset-0 z-50 mx-auto flex max-w-107.5 items-center justify-center overflow-hidden bg-black/50 px-10"
       onClick={onClose}
     >
-      {CONFETTI.map(([color, left, top, delay], i) => (
-        <span
-          key={i}
-          aria-hidden
-          className="confetti-fall pointer-events-none absolute h-3.5 w-2 rounded-[2px]"
-          style={{
-            background: color,
-            left: `${left}%`,
-            top: `${top}%`,
-            animationDelay: `${delay}s`,
-          }}
-        />
-      ))}
+      <ConfettiBurst />
       <div
         className="relative w-full max-w-77.5 rounded-3xl bg-white px-5 pb-5 pt-8 text-center"
         onClick={(e) => e.stopPropagation()}
@@ -565,11 +595,7 @@ export function CouponArrivedModal({
           <br />
           쿠폰을 받아보세요!
         </p>
-        <Button
-          size="full"
-          onClick={onClaim}
-          className="mt-8 h-13 rounded-2xl"
-        >
+        <Button size="full" onClick={onClaim} className="mt-8 h-13 rounded-2xl">
           쿠폰 받기
         </Button>
       </div>
@@ -583,27 +609,21 @@ export function CouponArrivedModal({
 
 export function CouponClaimView({
   phone,
-  agreed,
   error,
   submitting,
   onPhoneChange,
-  onToggleAgree,
-  onOpenTerms,
   onSubmit,
   onBack,
 }: {
   phone: string;
-  agreed: boolean;
   error: string | null;
   submitting: boolean;
   onPhoneChange: (value: string) => void;
-  onToggleAgree: () => void;
-  onOpenTerms: () => void;
   onSubmit: () => void;
   onBack: () => void;
 }) {
-  const digits = phone.replace(/\D/g, "");
-  const canSubmit = /^01[016789]\d{7,8}$/.test(digits) && agreed && !submitting;
+  // 개인정보 수집·이용은 회원가입 때 필수로 받으므로 여기서 다시 받지 않는다.
+  const canSubmit = isValidPhone(phone) && !submitting;
   return (
     <div className="flex h-dvh flex-col bg-white">
       <AppHeader title="쿠폰 받기" onBack={onBack} />
@@ -636,40 +656,6 @@ export function CouponClaimView({
             }
           />
         </div>
-        <div className="mt-8 flex items-center rounded-2xl bg-gray-50 px-4 py-4">
-          <button
-            type="button"
-            role="checkbox"
-            aria-checked={agreed}
-            onClick={onToggleAgree}
-            className="flex flex-1 items-center gap-2.5 text-left text-sm font-medium text-gray-800"
-          >
-            <span
-              className={cn(
-                "grid size-5.5 place-items-center rounded-full transition-colors",
-                agreed ? "bg-primary-300" : "border border-gray-300 bg-white",
-              )}
-            >
-              <svg viewBox="0 0 12 12" className="size-3" fill="none" aria-hidden>
-                <path
-                  d="M2.5 6.2 5 8.5l4.5-5"
-                  stroke={agreed ? "#fff" : "#C4C4C4"}
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            [필수] 개인정보 수집·이용 동의
-          </button>
-          <button
-            type="button"
-            onClick={onOpenTerms}
-            className="text-[13px] text-gray-500"
-          >
-            보기
-          </button>
-        </div>
       </div>
       <div className="shrink-0 px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-3">
         <Button size="full" disabled={!canSubmit} onClick={onSubmit}>
@@ -677,25 +663,6 @@ export function CouponClaimView({
         </Button>
       </div>
     </div>
-  );
-}
-
-/** 08의 [보기] — 쿠폰 발송용 개인정보 수집·이용 안내 */
-export function CouponPrivacySheet({ onClose }: { onClose: () => void }) {
-  return (
-    <BottomSheet title="개인정보 수집·이용 동의" onClose={onClose}>
-      <dl className="grid grid-cols-[72px_1fr] gap-x-3 gap-y-3 px-6 pb-4 text-sm leading-normal">
-        <dt className="text-gray-500">수집 항목</dt>
-        <dd className="text-gray-800">휴대폰 번호</dd>
-        <dt className="text-gray-500">이용 목적</dt>
-        <dd className="text-gray-800">친구 초대 이벤트 쿠폰 발송</dd>
-        <dt className="text-gray-500">보유 기간</dt>
-        <dd className="text-gray-800">쿠폰 발송 후 3개월 뒤 파기</dd>
-      </dl>
-      <p className="px-6 pb-2 text-xs leading-normal text-gray-500">
-        동의하지 않으면 쿠폰을 받을 수 없어요.
-      </p>
-    </BottomSheet>
   );
 }
 
