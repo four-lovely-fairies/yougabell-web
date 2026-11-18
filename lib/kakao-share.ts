@@ -14,9 +14,15 @@ type KakaoSdk = {
   init: (key: string) => void;
   Share: {
     sendDefault: (template: {
-      objectType: "text";
-      text: string;
-      link: KakaoLink;
+      objectType: "feed";
+      content: {
+        title: string;
+        description: string;
+        imageUrl: string;
+        imageWidth: number;
+        imageHeight: number;
+        link: KakaoLink;
+      };
       buttons?: Array<{ title: string; link: KakaoLink }>;
     }) => void;
   };
@@ -58,7 +64,10 @@ export function preloadKakao(): void {
  * 카카오톡 친구 선택 화면을 연다. 실패하면 false — 호출한 쪽에서 복사 방식으로 대신한다.
  */
 export async function shareToKakao(input: {
-  text: string;
+  title: string;
+  description: string;
+  /** 사이트 기준 경로(/images/...) 또는 전체 주소 */
+  imagePath: string;
   linkUrl: string;
   buttonTitle: string;
 }): Promise<boolean> {
@@ -66,10 +75,17 @@ export async function shareToKakao(input: {
     const kakao = await loadKakao();
     if (!kakao.isInitialized()) kakao.init(KAKAO_JS_KEY);
     const link = { mobileWebUrl: input.linkUrl, webUrl: input.linkUrl };
+    // 위에 이미지(2:1)가 붙는 피드형 카드. 이미지는 지금 사이트에서 공개로 내려준다.
     kakao.Share.sendDefault({
-      objectType: "text",
-      text: input.text,
-      link,
+      objectType: "feed",
+      content: {
+        title: input.title,
+        description: input.description,
+        imageUrl: new URL(input.imagePath, window.location.origin).toString(),
+        imageWidth: 800,
+        imageHeight: 400,
+        link,
+      },
       buttons: [{ title: input.buttonTitle, link }],
     });
     return true;
