@@ -503,7 +503,7 @@ export function ReferralSettingsCard({ onClick }: { onClick: () => void }) {
         alt=""
         width={110}
         height={107}
-        className="absolute -right-1 top-1/2 -translate-y-1/2"
+        className="absolute right-5 top-1/2 -translate-y-1/2"
       />
     </button>
   );
