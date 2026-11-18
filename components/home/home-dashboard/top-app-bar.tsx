@@ -33,10 +33,10 @@ export const TopAppBar = ({
       <a
         href="/settings"
         className="flex size-11 items-center justify-center"
-        aria-label="설정"
+        aria-label="마이페이지"
       >
         <FigmaIcon
-          src={HOME_ICON_PATHS.headerSettings}
+          src={HOME_ICON_PATHS.headerProfile}
           alt=""
           className="size-6"
         />

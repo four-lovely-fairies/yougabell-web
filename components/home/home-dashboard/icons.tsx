@@ -2,7 +2,8 @@ export const HOME_ICON_PATHS = {
   childSwitcherChevron: "/icons/figma/home/child-switcher-chevron.svg",
   growthStage: "/icons/figma/home/growth-stage.svg",
   headerNotification: "/icons/figma/home/header-notification.svg",
-  headerSettings: "/icons/figma/home/header-settings.svg",
+  // 마이페이지(설정·친구 초대 포함) 진입 — 톱니 대신 프로필 아이콘
+  headerProfile: "/icons/figma/home/header-profile.svg",
   moodPlus: "/icons/figma/home/mood-plus.svg",
   // 마음의 배터리 감정 얼굴 5종 — Figma 실제 일러스트 (level 1~5)
   mood1: "/images/figma/home/mood-1.png",
