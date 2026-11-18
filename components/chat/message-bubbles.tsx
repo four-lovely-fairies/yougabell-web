@@ -331,7 +331,7 @@ function FeedbackCommentSheet({
           maxLength={500}
           rows={4}
           placeholder="예) 우리 아이 나이에 맞지 않는 놀이를 알려줬어요."
-          className="w-full resize-none rounded-2xl border border-gray-200 px-4 py-3.5 text-[15px] leading-[1.5] text-gray-800 outline-none placeholder:text-gray-400 focus:border-gray-800"
+          className="w-full resize-none rounded-2xl border border-gray-100 bg-white px-4 py-3.5 text-[15px] leading-[1.5] text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-primary-300"
         />
         <Button type="submit" size="full" disabled={!trimmed}>
           확인

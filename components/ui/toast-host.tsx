@@ -47,7 +47,7 @@ export function ToastHost() {
       {toast.icon === "check" ? (
         <span
           aria-hidden
-          className="mr-2.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-success-500"
+          className="mr-2.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-300"
         >
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
             <path d="M5 10.5l3.2 3.2L15 7" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
