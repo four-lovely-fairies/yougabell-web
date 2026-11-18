@@ -11,22 +11,53 @@ import { showToast } from "@/lib/toast";
 // 친구 초대 — 팝업 노출 횟수 기록과 공유 동작.
 
 // 홈 "친구 초대하고 커피 받아요" 팝업: 앱을 3번 켤 때 1번 (1·4·7…번째 실행).
-// 앱 실행 = WebView 세션. sessionStorage는 앱을 껐다 켜면 비워지므로 실행 1번을 한 번만 센다.
+// 앱 실행 = ① 새로 켜짐(WebView 세션 시작) 또는 ② 백그라운드에 1분 이상 있다가 다시 앞으로 나옴.
+// 사용자는 홈 버튼으로 나갔다 들어오는 것도 "앱을 켰다"고 느끼므로 둘 다 센다.
 const APP_LAUNCH_COUNT_KEY = "yb:app-launch-count";
 const LAUNCH_COUNTED_KEY = "yb:app-launch-counted";
 const INVITE_POPUP_SHOWN_KEY = "yb:referral-popup-shown";
 const INVITE_POPUP_EVERY = 3;
+const HIDDEN_AT_KEY = "yb:app-hidden-at";
+const RESUME_GAP_MS = 60_000;
+
+function bumpLaunchCount() {
+  const stored = Number(window.localStorage.getItem(APP_LAUNCH_COUNT_KEY));
+  const count = (Number.isFinite(stored) ? stored : 0) + 1;
+  window.localStorage.setItem(APP_LAUNCH_COUNT_KEY, String(count));
+  // 새 실행이니 이번 실행에서 팝업을 다시 띄울 수 있다.
+  window.sessionStorage.removeItem(INVITE_POPUP_SHOWN_KEY);
+}
+
+/** 앱이 뒤로 숨을 때 시각을 기록한다. */
+export function noteAppHidden(): void {
+  try {
+    window.sessionStorage.setItem(HIDDEN_AT_KEY, String(Date.now()));
+  } catch {
+    // 무시
+  }
+}
+
+/** 앱이 다시 앞으로 나왔을 때 — 1분 이상 숨어 있었으면 실행 1번으로 세고 true. */
+export function countResumeAsLaunch(): boolean {
+  try {
+    const hiddenAt = Number(window.sessionStorage.getItem(HIDDEN_AT_KEY));
+    window.sessionStorage.removeItem(HIDDEN_AT_KEY);
+    if (!hiddenAt || Date.now() - hiddenAt < RESUME_GAP_MS) return false;
+    bumpLaunchCount();
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function launchCount(): number {
   try {
-    const stored = Number(window.localStorage.getItem(APP_LAUNCH_COUNT_KEY));
-    let count = Number.isFinite(stored) ? stored : 0;
     if (window.sessionStorage.getItem(LAUNCH_COUNTED_KEY) === null) {
-      count += 1;
-      window.localStorage.setItem(APP_LAUNCH_COUNT_KEY, String(count));
+      bumpLaunchCount();
       window.sessionStorage.setItem(LAUNCH_COUNTED_KEY, "1");
     }
-    return count;
+    const count = Number(window.localStorage.getItem(APP_LAUNCH_COUNT_KEY));
+    return Number.isFinite(count) ? count : 0;
   } catch {
     return 0; // 저장소를 못 쓰면 띄우지 않는다
   }
