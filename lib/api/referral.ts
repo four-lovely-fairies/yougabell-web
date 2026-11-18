@@ -74,7 +74,18 @@ export const isValidPhone = (raw: string) =>
 /** 앱 다운로드 링크 (iOS·Android 스토어 링크 모음) */
 export const APP_DOWNLOAD_URL = "https://linktr.ee/Yougabell.official";
 
-/** 카카오톡·문자로 보내는 초대 메시지 — 소개 문구 + 초대 코드 + 다운로드 링크 */
+/** 카카오톡 공유 메시지 — 다운로드는 아래 버튼으로 붙으므로 링크 줄은 뺀다(카카오 텍스트 200자 제한). */
+export function referralKakaoText(code: string) {
+  return [
+    "바쁜 부모도 하루 5분이면 충분해요",
+    "월령별 맞춤 놀이 • 성장 마일스톤 • 주간 리포트",
+    "아이와의 5분, 육아벨이 설계해드려요",
+    "",
+    `가입할 때 초대 코드 [${code}]를 입력해 주세요.`,
+  ].join("\n");
+}
+
+/** 문자·복사용 초대 메시지 — 소개 문구 + 초대 코드 + 다운로드 링크 */
 export function referralShareText(code: string) {
   return [
     "바쁜 부모도 하루 5분이면 충분해요",

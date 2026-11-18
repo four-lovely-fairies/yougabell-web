@@ -9,6 +9,7 @@ import {
 } from "@/components/referral/referral-views";
 import { track } from "@/lib/analytics";
 import { getMyReferral, type MyReferral } from "@/lib/api/referral";
+import { preloadKakao } from "@/lib/kakao-share";
 import { shareInviteCode } from "@/lib/referral";
 
 type Entry = "home_popup" | "settings" | "notification" | "direct";
@@ -79,6 +80,8 @@ function ReferralScreen() {
             return;
           }
           track({ type: "referral_invite_click" });
+          // 카카오 SDK를 미리 불러 두면 [카카오톡으로 보내기]가 바로 뜬다.
+          preloadKakao();
           setSharing(true);
         }}
       />
