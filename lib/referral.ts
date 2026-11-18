@@ -2,10 +2,49 @@ import { referralShareText } from "@/lib/api/referral";
 import { isNativeWebView, openExternalUrl } from "@/lib/native-bridge";
 import { showToast } from "@/lib/toast";
 
-// 친구 초대 — 기기별 1회 노출 기록과 공유 동작.
+// 친구 초대 — 팝업 노출 횟수 기록과 공유 동작.
 
-// 홈 "친구 초대하고 커피 받아요" 팝업: 기존 사용자에게 기기당 1회.
-const INVITE_POPUP_KEY = "yb:referral-popup:2026-11-18";
+// 홈 "친구 초대하고 커피 받아요" 팝업: 앱을 3번 켤 때 1번 (1·4·7…번째 실행).
+// 앱 실행 = WebView 세션. sessionStorage는 앱을 껐다 켜면 비워지므로 실행 1번을 한 번만 센다.
+const APP_LAUNCH_COUNT_KEY = "yb:app-launch-count";
+const LAUNCH_COUNTED_KEY = "yb:app-launch-counted";
+const INVITE_POPUP_SHOWN_KEY = "yb:referral-popup-shown";
+const INVITE_POPUP_EVERY = 3;
+
+function launchCount(): number {
+  try {
+    const stored = Number(window.localStorage.getItem(APP_LAUNCH_COUNT_KEY));
+    let count = Number.isFinite(stored) ? stored : 0;
+    if (window.sessionStorage.getItem(LAUNCH_COUNTED_KEY) === null) {
+      count += 1;
+      window.localStorage.setItem(APP_LAUNCH_COUNT_KEY, String(count));
+      window.sessionStorage.setItem(LAUNCH_COUNTED_KEY, "1");
+    }
+    return count;
+  } catch {
+    return 0; // 저장소를 못 쓰면 띄우지 않는다
+  }
+}
+
+export function shouldShowInvitePopup(): boolean {
+  if (typeof window === "undefined") return false;
+  const count = launchCount();
+  if (count < 1 || count % INVITE_POPUP_EVERY !== 1) return false;
+  try {
+    // 같은 실행 안에서 홈을 다시 들어와도 한 번만
+    return window.sessionStorage.getItem(INVITE_POPUP_SHOWN_KEY) === null;
+  } catch {
+    return false;
+  }
+}
+
+export function markInvitePopupSeen(): void {
+  try {
+    window.sessionStorage.setItem(INVITE_POPUP_SHOWN_KEY, "1");
+  } catch {
+    // 무시
+  }
+}
 // 4명 달성 "커피 쿠폰이 도착했어요" 모달: 닫으면 다시 안 띄운다(설정·친구 초대 화면에서 계속 받을 수 있음).
 const COUPON_MODAL_KEY = "yb:referral-coupon-modal";
 
@@ -25,9 +64,6 @@ function write(key: string) {
   }
 }
 
-export const shouldShowInvitePopup = () =>
-  typeof window !== "undefined" && read(INVITE_POPUP_KEY) === null;
-export const markInvitePopupSeen = () => write(INVITE_POPUP_KEY);
 export const shouldShowCouponModal = () =>
   typeof window !== "undefined" && read(COUPON_MODAL_KEY) === null;
 export const markCouponModalSeen = () => write(COUPON_MODAL_KEY);
