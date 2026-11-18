@@ -46,9 +46,11 @@ export const SHARE_TOASTS = {
   kakao: "초대 메시지를 복사했어요. 카카오톡 대화방에 붙여넣어 주세요",
 } as const;
 
-/** 카카오톡 앱을 바로 연다. 앱(WebView)에서는 네이티브가 열어준다. */
-function openKakaoTalk() {
-  const url = "kakaotalk://launch";
+/**
+ * 다른 앱(카카오톡·문자)을 연다. 앱(WebView) 안에서는 sms:·kakaotalk: 주소를 WebView가
+ * 직접 못 열어서 네이티브(Linking.openURL)에 넘긴다.
+ */
+function openAppUrl(url: string) {
   if (isNativeWebView()) openExternalUrl(url);
   else window.location.href = url;
 }
@@ -64,7 +66,8 @@ export async function shareInviteCode(
 ): Promise<void> {
   const text = referralShareText(code);
   if (method === "sms") {
-    window.location.href = `sms:?&body=${encodeURIComponent(text)}`;
+    // 문자 앱을 열고 초대 메시지(코드 포함)를 본문에 채운다. 받는 사람은 사용자가 고른다.
+    openAppUrl(`sms:?&body=${encodeURIComponent(text)}`);
     return;
   }
   const copied = await copyText(method === "copy" ? code : text);
@@ -73,5 +76,5 @@ export async function shareInviteCode(
     return;
   }
   showToast(SHARE_TOASTS[method], { icon: "check" });
-  if (method === "kakao") openKakaoTalk();
+  if (method === "kakao") openAppUrl("kakaotalk://launch");
 }
