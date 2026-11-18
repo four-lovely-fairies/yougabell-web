@@ -1,6 +1,7 @@
 import {
   APP_DOWNLOAD_URL,
-  referralKakaoText,
+  KAKAO_SHARE_IMAGE,
+  referralKakaoCard,
   referralShareText,
 } from "@/lib/api/referral";
 import { shareToKakao } from "@/lib/kakao-share";
@@ -130,7 +131,8 @@ export async function shareInviteCode(
   }
   if (method === "kakao") {
     const opened = await shareToKakao({
-      text: referralKakaoText(code),
+      ...referralKakaoCard(code),
+      imagePath: KAKAO_SHARE_IMAGE,
       linkUrl: APP_DOWNLOAD_URL,
       buttonTitle: "육아벨 다운로드",
     });
