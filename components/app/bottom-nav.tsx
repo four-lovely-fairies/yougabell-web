@@ -193,12 +193,12 @@ export const BottomNav = () => {
             className="pointer-events-none absolute inset-x-1.5 bottom-[calc(100%+18px)] z-10"
           >
             <div className="report-tooltip-bounce relative flex justify-end">
-              <div className="whitespace-nowrap rounded-full bg-gray-700 px-5 py-3 text-sm font-medium text-white shadow-2">
+              <div className="whitespace-nowrap rounded-full bg-gray-700 px-3.5 py-2 text-xs font-medium leading-[1.4] text-white shadow-2">
                 생성된 리포트가 있어요!
               </div>
               <span
                 aria-hidden
-                className="absolute -bottom-1.5 right-[10%] size-3 translate-x-1/2 rotate-45 bg-gray-700"
+                className="absolute -bottom-1 right-[10%] size-2.5 translate-x-1/2 rotate-45 bg-gray-700"
               />
             </div>
           </div>
