@@ -186,18 +186,20 @@ export const BottomNav = () => {
         }}
       >
         {showReportTooltip && !pathname.startsWith("/weekly-report") ? (
+          // 말풍선은 탭바 오른쪽 끝에 맞춰 화면 밖으로 넘치지 않게 하고,
+          // 꼬리만 리포트 탭(마지막 칸, 오른쪽에서 10%) 가운데를 가리킨다.
           <div
             role="status"
-            className="pointer-events-none absolute bottom-[calc(100%+18px)] left-[90%] z-10 -translate-x-1/2"
+            className="pointer-events-none absolute inset-x-1.5 bottom-[calc(100%+18px)] z-10"
           >
-            <div className="report-tooltip-bounce">
-              <div className="relative whitespace-nowrap rounded-full bg-gray-700 px-5 py-3 text-sm font-medium text-white shadow-2">
+            <div className="report-tooltip-bounce relative flex justify-end">
+              <div className="whitespace-nowrap rounded-full bg-gray-700 px-5 py-3 text-sm font-medium text-white shadow-2">
                 생성된 리포트가 있어요!
-                <span
-                  aria-hidden
-                  className="absolute -bottom-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 bg-gray-700"
-                />
               </div>
+              <span
+                aria-hidden
+                className="absolute -bottom-1.5 right-[10%] size-3 translate-x-1/2 rotate-45 bg-gray-700"
+              />
             </div>
           </div>
         ) : null}
