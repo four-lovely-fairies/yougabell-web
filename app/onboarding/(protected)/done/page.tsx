@@ -7,6 +7,7 @@ import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { ApiError, api, clearStoredSelectedChildId } from "@/lib/api";
 import { isNativeWebView, notifyMobile } from "@/lib/native-bridge";
+import { markJustSignedUp } from "@/lib/referral";
 import { markWhatsNewSeen } from "@/lib/whats-new";
 import {
   INTEREST_WEB_TO_API,
@@ -90,6 +91,8 @@ function getOrCreateCompletionRequest(payload: CompleteOnboardingPayload) {
       (me): CompletionRequestResult => {
         // 방금 가입한 사용자는 업데이트 안내를 볼 필요가 없다.
         markWhatsNewSeen();
+        // 친구 초대 팝업은 가입 직후가 아니라 다음에 앱을 켤 때부터.
+        markJustSignedUp();
         return { kind: "success", userId: me.id };
       },
     )
@@ -142,6 +145,8 @@ export default function DonePage() {
       }
 
       if (nextStatus === "success") {
+        // 응답 대신 상태 확인으로 끝난 경우에도 가입 직후 팝업은 건너뛴다.
+        markJustSignedUp();
         try {
           track({
             type: "onboarding_finish",

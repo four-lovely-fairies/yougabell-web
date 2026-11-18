@@ -54,7 +54,9 @@ import {
 import { getMyReferral } from "@/lib/api/referral";
 import {
   markCouponModalSeen,
+  countResumeAsLaunch,
   markInvitePopupSeen,
+  noteAppHidden,
   shouldShowCouponModal,
   shouldShowInvitePopup,
 } from "@/lib/referral";
@@ -140,31 +142,43 @@ export const HomeDashboard = ({
   >(null);
   useEffect(() => {
     if (shouldShowWhatsNew()) return;
-    const wantCoupon = shouldShowCouponModal();
-    const wantInvite = shouldShowInvitePopup();
-    if (!wantCoupon && !wantInvite) return;
     let cancelled = false;
-    const timer = window.setTimeout(() => {
-      getMyReferral()
-        .then((referral) => {
-          if (cancelled) return;
-          if (wantCoupon && referral.rewardAvailable) {
-            markCouponModalSeen();
-            setReferralPopup({ kind: "coupon", goal: referral.goal });
-            track({ type: "notice_sheet_view", name: "referral_coupon" });
-          } else if (wantInvite && referral.joinedCount < referral.goal) {
-            markInvitePopupSeen();
-            setReferralPopup({ kind: "invite" });
-            track({ type: "notice_sheet_view", name: "referral_invite" });
-          }
-        })
-        .catch(() => {
-          // 친구 초대 정보를 못 가져오면 팝업 없이 홈만 보여준다.
-        });
-    }, 900);
+    let timer: number | undefined;
+    const check = () => {
+      const wantCoupon = shouldShowCouponModal();
+      const wantInvite = shouldShowInvitePopup();
+      if (!wantCoupon && !wantInvite) return;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        getMyReferral()
+          .then((referral) => {
+            if (cancelled) return;
+            if (wantCoupon && referral.rewardAvailable) {
+              markCouponModalSeen();
+              setReferralPopup({ kind: "coupon", goal: referral.goal });
+              track({ type: "notice_sheet_view", name: "referral_coupon" });
+            } else if (wantInvite && referral.joinedCount < referral.goal) {
+              markInvitePopupSeen();
+              setReferralPopup({ kind: "invite" });
+              track({ type: "notice_sheet_view", name: "referral_invite" });
+            }
+          })
+          .catch(() => {
+            // 친구 초대 정보를 못 가져오면 팝업 없이 홈만 보여준다.
+          });
+      }, 900);
+    };
+    check();
+    // 홈을 띄운 채 앱을 나갔다가(1분 이상) 다시 켜도 "앱 실행"으로 세서 다시 확인한다.
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") noteAppHidden();
+      else if (countResumeAsLaunch()) check();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 
@@ -392,12 +406,20 @@ export const HomeDashboard = ({
       notificationSetup.view === null ? (
         <InvitePopup
           onConfirm={() => {
-            track({ type: "notice_sheet_click", name: "referral_invite", action: "confirm" });
+            track({
+              type: "notice_sheet_click",
+              name: "referral_invite",
+              action: "confirm",
+            });
             setReferralPopup(null);
             router.push("/referral?from=home_popup");
           }}
           onClose={() => {
-            track({ type: "notice_sheet_click", name: "referral_invite", action: "close" });
+            track({
+              type: "notice_sheet_click",
+              name: "referral_invite",
+              action: "close",
+            });
             setReferralPopup(null);
           }}
         />
@@ -408,12 +430,20 @@ export const HomeDashboard = ({
         <CouponArrivedModal
           goal={referralPopup.goal}
           onClaim={() => {
-            track({ type: "notice_sheet_click", name: "referral_coupon", action: "confirm" });
+            track({
+              type: "notice_sheet_click",
+              name: "referral_coupon",
+              action: "confirm",
+            });
             setReferralPopup(null);
             router.push("/referral/coupon");
           }}
           onClose={() => {
-            track({ type: "notice_sheet_click", name: "referral_coupon", action: "close" });
+            track({
+              type: "notice_sheet_click",
+              name: "referral_coupon",
+              action: "close",
+            });
             setReferralPopup(null);
           }}
         />
