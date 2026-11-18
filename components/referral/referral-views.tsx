@@ -529,7 +529,7 @@ function ConfettiBurst() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute left-1/2 top-[30%] size-0"
+      className="pointer-events-none absolute left-1/2 top-[30%] z-10 size-0"
     >
       {CONFETTI.map((piece, i) => (
         <span
@@ -570,7 +570,6 @@ export function CouponArrivedModal({
       className="fixed inset-0 z-50 mx-auto flex max-w-107.5 items-center justify-center overflow-hidden bg-black/50 px-10"
       onClick={onClose}
     >
-      <ConfettiBurst />
       <div
         className="relative w-full max-w-77.5 rounded-3xl bg-white px-5 pb-5 pt-8 text-center"
         onClick={(e) => e.stopPropagation()}
@@ -599,6 +598,8 @@ export function CouponArrivedModal({
           쿠폰 받기
         </Button>
       </div>
+      {/* 색종이는 모달 카드 위에 보이게 맨 뒤에 그린다 (클릭은 통과). */}
+      <ConfettiBurst />
     </div>
   );
 }
