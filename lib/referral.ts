@@ -75,6 +75,19 @@ export function shouldShowInvitePopup(): boolean {
   }
 }
 
+/**
+ * 방금 가입한 사람 — 이번 실행에서는 친구 초대 팝업을 띄우지 않고, 다음에 앱을 켤 때(재방문) 띄운다.
+ * 이번 실행을 이미 센 것으로 두고 횟수를 0으로 맞추면, 다음 실행이 1번째가 되어 팝업이 뜬다.
+ */
+export function markJustSignedUp(): void {
+  try {
+    window.localStorage.setItem(APP_LAUNCH_COUNT_KEY, "0");
+    window.sessionStorage.setItem(LAUNCH_COUNTED_KEY, "1");
+  } catch {
+    // 무시
+  }
+}
+
 export function markInvitePopupSeen(): void {
   try {
     window.sessionStorage.setItem(INVITE_POPUP_SHOWN_KEY, "1");
