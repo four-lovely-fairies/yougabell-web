@@ -375,11 +375,12 @@ export function ShareSheet({
     },
   ];
   return (
-    <BottomSheet title="어떻게 초대할까요?" onClose={onClose}>
-      <p className="-mt-1 text-sm leading-[1.4] text-gray-500">
-        친구가 가입할 때 코드를 입력하면 초대 인원에 반영돼요.
-      </p>
-      <ul className="mt-4 flex flex-col">
+    <BottomSheet
+      title="어떻게 초대할까요?"
+      description="친구가 가입할 때 코드를 입력하면 초대 인원에 반영돼요."
+      onClose={onClose}
+    >
+      <ul className="flex flex-col px-6">
         {rows.map((row) => (
           <li key={row.method}>
             <button
@@ -438,7 +439,8 @@ export function InvitePopup({
           width={200}
           height={195}
           priority
-          className="mt-3"
+          // 이미지에 흰 배경이 있어 블러 배경 위에서 섞이게 한다.
+          className="mt-3 mix-blend-multiply"
         />
         <Button
           size="full"
@@ -486,7 +488,7 @@ export function ReferralSettingsCard({ onClick }: { onClick: () => void }) {
         alt=""
         width={110}
         height={107}
-        className="absolute -right-1 top-1/2 -translate-y-1/2"
+        className="absolute -right-1 top-1/2 -translate-y-1/2 mix-blend-multiply"
       />
     </button>
   );
@@ -682,7 +684,7 @@ export function CouponClaimView({
 export function CouponPrivacySheet({ onClose }: { onClose: () => void }) {
   return (
     <BottomSheet title="개인정보 수집·이용 동의" onClose={onClose}>
-      <dl className="grid grid-cols-[72px_1fr] gap-x-3 gap-y-3 pb-4 text-sm leading-normal">
+      <dl className="grid grid-cols-[72px_1fr] gap-x-3 gap-y-3 px-6 pb-4 text-sm leading-normal">
         <dt className="text-gray-500">수집 항목</dt>
         <dd className="text-gray-800">휴대폰 번호</dd>
         <dt className="text-gray-500">이용 목적</dt>
@@ -690,7 +692,7 @@ export function CouponPrivacySheet({ onClose }: { onClose: () => void }) {
         <dt className="text-gray-500">보유 기간</dt>
         <dd className="text-gray-800">쿠폰 발송 후 3개월 뒤 파기</dd>
       </dl>
-      <p className="pb-2 text-xs leading-normal text-gray-500">
+      <p className="px-6 pb-2 text-xs leading-normal text-gray-500">
         동의하지 않으면 쿠폰을 받을 수 없어요.
       </p>
     </BottomSheet>
