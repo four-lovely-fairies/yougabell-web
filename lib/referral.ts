@@ -1,4 +1,9 @@
-import { referralShareText } from "@/lib/api/referral";
+import {
+  APP_DOWNLOAD_URL,
+  referralKakaoText,
+  referralShareText,
+} from "@/lib/api/referral";
+import { shareToKakao } from "@/lib/kakao-share";
 import { isNativeWebView, openExternalUrl } from "@/lib/native-bridge";
 import { showToast } from "@/lib/toast";
 
@@ -77,6 +82,23 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
+/** 다른 앱으로 넘어가 화면이 숨겨지면 true. 데스크톱 팝업(카카오 공유 창)도 포커스를 잃으면 true. */
+function leftPageWithin(ms: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (document.visibilityState === "hidden") return resolve(true);
+    const done = (left: boolean) => {
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onHide);
+      window.removeEventListener("blur", onHide);
+      resolve(left);
+    };
+    const onHide = () => done(true);
+    const timer = window.setTimeout(() => done(false), ms);
+    document.addEventListener("visibilitychange", onHide);
+    window.addEventListener("blur", onHide);
+  });
+}
+
 export const SHARE_TOASTS = {
   copy: "초대 코드를 복사했어요",
   kakao: "초대 메시지를 복사했어요. 카카오톡 대화방에 붙여넣어 주세요",
@@ -93,8 +115,8 @@ function openAppUrl(url: string) {
 
 /**
  * 공유 시트에서 고른 방법으로 초대 코드를 보낸다.
- * 카카오톡: 초대 코드가 담긴 메시지를 복사해 두고 카카오톡을 바로 연다.
- * (메시지가 미리 채워진 친구 선택 화면은 카카오 개발자 앱 키가 있어야 가능하다.)
+ * 카카오톡: 카카오 공유로 친구 선택 화면을 바로 연다(메시지 + [앱 다운로드] 버튼).
+ *   카카오 공유가 안 되는 환경이면 메시지를 복사하고 카카오톡 앱만 연다.
  */
 export async function shareInviteCode(
   method: "kakao" | "copy" | "sms",
@@ -105,6 +127,15 @@ export async function shareInviteCode(
     // 문자 앱을 열고 초대 메시지(코드 포함)를 본문에 채운다. 받는 사람은 사용자가 고른다.
     openAppUrl(`sms:?&body=${encodeURIComponent(text)}`);
     return;
+  }
+  if (method === "kakao") {
+    const opened = await shareToKakao({
+      text: referralKakaoText(code),
+      linkUrl: APP_DOWNLOAD_URL,
+      buttonTitle: "육아벨 다운로드",
+    });
+    // 카카오톡이 열리면 화면이 뒤로 숨는다. 2.5초 안에 안 숨으면 못 연 것으로 보고 복사로 대신한다.
+    if (opened && (await leftPageWithin(2500))) return;
   }
   const copied = await copyText(method === "copy" ? code : text);
   if (!copied) {
