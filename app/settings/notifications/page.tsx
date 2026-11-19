@@ -1,7 +1,8 @@
 "use client";
 
 import { showToast } from "@/lib/toast";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 import { TimeBottomSheet } from "@/components/onboarding/time-bottom-sheet";
@@ -77,6 +78,69 @@ export default function SettingsNotificationsPage() {
   );
   const [error, setError] = useState<string | null>(null);
   const [marketing, setMarketing] = useState(false);
+  // 기기 알림 권한 — 앱(WebView)에서만 확인한다. 꺼져 있으면 시간 설정 대신 빈 화면 + [알림 켜기].
+  // 서버 렌더와 맞추려고 처음엔 항상 확인 중으로 두고, 브라우저에서 바로 판정한다.
+  const [permission, setPermission] = useState<"checking" | "on" | "off">(
+    "checking",
+  );
+  const [deviceStatus, setDeviceStatus] = useState<
+    "granted" | "denied" | "undetermined" | null
+  >(null);
+
+  const checkPermission = useCallback(async () => {
+    if (!isNativeWebView()) {
+      setPermission("on");
+      return;
+    }
+    const status = await requestNativePushPermissionStatus();
+    setDeviceStatus(status);
+    // 응답이 없으면(null) 막지 않고 설정을 보여준다.
+    setPermission(
+      status === "denied" || status === "undetermined" ? "off" : "on",
+    );
+  }, []);
+
+  // 들어올 때 + 기기 설정에서 권한을 켜고 돌아왔을 때 다시 확인
+  useEffect(() => {
+    const first = window.setTimeout(() => void checkPermission(), 0);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void checkPermission();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearTimeout(first);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [checkPermission]);
+
+  useEffect(() => {
+    if (permission === "off")
+      track({ type: "settings_notification_permission_view" });
+  }, [permission]);
+
+  /** [알림 켜기] — 처음이면 권한 팝업, 이미 거부했으면 기기 설정으로 보낸다(다시 물어볼 수 없음). */
+  const turnOnPermission = async () => {
+    if (deviceStatus !== "undetermined") {
+      track({
+        type: "settings_notification_permission_click",
+        result: "opened_settings",
+      });
+      openNativeNotificationSettings();
+      return;
+    }
+    const result = await requestNativePushPermission();
+    track({
+      type: "settings_notification_permission_click",
+      result: result === "granted" ? "granted" : "denied",
+    });
+    if (result === "granted") {
+      setPermission("on");
+      setDeviceStatus("granted");
+      showToast("알림을 켰어요", { icon: "check" });
+    } else {
+      openNativeNotificationSettings();
+    }
+  };
 
   useEffect(() => {
     void (async () => {
@@ -115,7 +179,11 @@ export default function SettingsNotificationsPage() {
     setMarketing(next);
     try {
       await api.updateConsent("marketing", next);
-      showToast(next ? "마케팅 정보 수신에 동의했어요" : "마케팅 정보 수신 동의를 철회했어요");
+      showToast(
+        next
+          ? "마케팅 정보 수신에 동의했어요"
+          : "마케팅 정보 수신 동의를 철회했어요",
+      );
     } catch (e) {
       setMarketing(prev);
       setError(
@@ -178,46 +246,50 @@ export default function SettingsNotificationsPage() {
       </header>
 
       <div className="flex flex-col gap-5">
-        {SECTIONS.map(({ type, title }) => {
-          const pref = prefs[type];
-          return (
-            <section key={type} className="flex flex-col gap-2">
-              <h2 className="text-sm font-medium text-gray-700">{title}</h2>
-              <div className="flex flex-col rounded-2xl bg-gray-50">
-                <Row
-                  label="알람 받기"
-                  control={
-                    <Switch
-                      checked={pref.enabled}
-                      onCheckedChange={(next) =>
-                        void patch(type, { enabled: next })
-                      }
-                      ariaLabel={`${title} 받기`}
-                    />
-                  }
-                />
-                <div className="mx-4 border-t border-gray-100" />
-                <Row
-                  label="알림 받을 시간"
-                  control={
-                    <button
-                      type="button"
-                      onClick={() => setEditing(type)}
-                      disabled={!pref.enabled}
-                      className={cn(
-                        "flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium",
-                        pref.enabled ? "text-gray-800" : "text-gray-400",
-                      )}
-                    >
-                      {formatTime(pref.time)}
-                      <ChevronRight className="size-3.5 text-gray-400" />
-                    </button>
-                  }
-                />
-              </div>
-            </section>
-          );
-        })}
+        {permission === "off" ? (
+          <NotificationOffState onTurnOn={() => void turnOnPermission()} />
+        ) : null}
+        {permission === "on" &&
+          SECTIONS.map(({ type, title }) => {
+            const pref = prefs[type];
+            return (
+              <section key={type} className="flex flex-col gap-2">
+                <h2 className="text-sm font-medium text-gray-700">{title}</h2>
+                <div className="flex flex-col rounded-2xl bg-gray-50">
+                  <Row
+                    label="알람 받기"
+                    control={
+                      <Switch
+                        checked={pref.enabled}
+                        onCheckedChange={(next) =>
+                          void patch(type, { enabled: next })
+                        }
+                        ariaLabel={`${title} 받기`}
+                      />
+                    }
+                  />
+                  <div className="mx-4 border-t border-gray-100" />
+                  <Row
+                    label="알림 받을 시간"
+                    control={
+                      <button
+                        type="button"
+                        onClick={() => setEditing(type)}
+                        disabled={!pref.enabled}
+                        className={cn(
+                          "flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium",
+                          pref.enabled ? "text-gray-800" : "text-gray-400",
+                        )}
+                      >
+                        {formatTime(pref.time)}
+                        <ChevronRight className="size-3.5 text-gray-400" />
+                      </button>
+                    }
+                  />
+                </div>
+              </section>
+            );
+          })}
 
         <section className="flex flex-col gap-2">
           <h2 className="text-sm font-medium text-gray-700">마케팅 수신동의</h2>
@@ -254,6 +326,34 @@ export default function SettingsNotificationsPage() {
           }}
         />
       ) : null}
+    </div>
+  );
+}
+
+/** 기기 알림 권한이 꺼져 있을 때 — 다른 빈 화면과 같은 구성(그림 + 굵은 제목 + 회색 설명) + CTA */
+function NotificationOffState({ onTurnOn }: { onTurnOn: () => void }) {
+  return (
+    <div
+      className="flex animate-dissolve flex-col items-center py-10 text-center leading-[1.4] motion-reduce:animate-none"
+      style={{ animationDuration: "300ms" }}
+    >
+      <Image
+        src="/images/notification/notification-off.png"
+        alt=""
+        width={80}
+        height={89}
+      />
+      <p className="mt-5 text-lg font-bold text-gray-800">알림이 꺼져있어요</p>
+      <p className="mt-1.5 text-sm text-gray-500">
+        알림을 받기 위해 권한 허용이 필요해요
+      </p>
+      <button
+        type="button"
+        onClick={onTurnOn}
+        className="mt-6 h-11 rounded-full bg-primary-300 px-6 text-sm font-semibold text-white transition-transform active:scale-95"
+      >
+        알림 켜기
+      </button>
     </div>
   );
 }
