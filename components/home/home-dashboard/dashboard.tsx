@@ -7,6 +7,7 @@ import {
   useEffect,
   useOptimistic,
   useState,
+  useSyncExternalStore,
   useTransition,
 } from "react";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
@@ -60,6 +61,13 @@ import {
   shouldShowCouponModal,
   shouldShowInvitePopup,
 } from "@/lib/referral";
+import {
+  getNotificationsSeenAt,
+  getServerNotificationsSeenAt,
+  hasNewNotification,
+  markNotificationsSeen,
+  subscribeNotificationsSeen,
+} from "@/lib/notification-seen";
 import type { Modal } from "./types";
 import { WeeklyCalendar } from "./weekly-calendar";
 
@@ -182,11 +190,21 @@ export const HomeDashboard = ({
     };
   }, []);
 
-  // 빨간 점·모두 읽기는 목록에 보이는 알림(최근 5개) 기준. 서버 전체 개수로 세면
-  // 목록에 없는 예전 알림 때문에 다 읽어도 점이 남는다.
+  // [모두 읽기]는 목록에 보이는 알림(최근 5개) 기준.
   const visibleUnreadCount = data.notifications.latest.filter(
     (notification) => !notification.readAt,
   ).length;
+
+  // 알림 종 빨간 점 — 마지막으로 알림 창을 연 뒤 새 알림이 왔을 때만. 창을 열면 바로 사라진다.
+  const notificationsSeenAt = useSyncExternalStore(
+    subscribeNotificationsSeen,
+    getNotificationsSeenAt,
+    getServerNotificationsSeenAt,
+  );
+  const hasNewNotifications = hasNewNotification(
+    data.notifications.latest,
+    notificationsSeenAt,
+  );
 
   const selectedChild = data.selectedChild;
 
@@ -341,9 +359,12 @@ export const HomeDashboard = ({
         <div className="relative">
           <TopAppBar
             child={selectedChild}
-            unreadCount={visibleUnreadCount}
+            unreadCount={hasNewNotifications ? 1 : 0}
             onOpenChildren={() => setModal("children")}
-            onOpenNotifications={() => setModal("notifications")}
+            onOpenNotifications={() => {
+              markNotificationsSeen();
+              setModal("notifications");
+            }}
           />
         </div>
       </div>
