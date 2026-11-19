@@ -18,8 +18,9 @@ import type { NotificationPermission } from "@/lib/types";
 
 /**
  * OS 알림 권한 요청 — 흐름의 분기점.
- * - granted → /onboarding/app-usage (시간대 설정)
- * - denied / 미요청 → /onboarding/children (시간대 skip, notificationSlot=null로 저장)
+ * - [허용하기] → 권한 결과와 상관없이 /onboarding/app-usage (시간대 설정)
+ *   (기기에서 권한 결과가 denied로 오거나 응답이 늦어도, 사용자는 알림을 받겠다고 고른 것)
+ * - [나중에] → /onboarding/children (시간대 skip, notificationSlot=null로 저장)
  *
  * native(WebView): mobile에 REQUEST_PUSH_PERMISSION postMessage 위임.
  * web: Notification.requestPermission() 표준 API.
@@ -27,17 +28,29 @@ import type { NotificationPermission } from "@/lib/types";
 export default function NotificationPermissionPage() {
   const router = useRouter();
   const { patch } = useOnboardingDraft();
+
+  useEffect(() => {
+    track({ type: "onboarding_step_view", step: "notification" });
+  }, []);
   const [busy, setBusy] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const decide = (result: NotificationPermission) => {
+  const decide = (
+    result: NotificationPermission,
+    choseAllow: boolean = true,
+  ) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
     patch({ notificationPermission: result, lastStep: "notification" });
-    track({ type: "onboarding_step_complete", step: "notification" });
-    if (result === "granted") {
+    track({
+      type: "onboarding_step_complete",
+      step: "notification",
+      choice: choseAllow ? "allow" : "later",
+      permission: choseAllow ? result : undefined,
+    });
+    if (choseAllow) {
       router.push("/onboarding/app-usage");
     } else {
       router.push("/onboarding/children");
@@ -83,7 +96,7 @@ export default function NotificationPermissionPage() {
     }
   };
 
-  const deny = () => decide("denied");
+  const deny = () => decide("denied", false);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">

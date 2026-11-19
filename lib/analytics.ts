@@ -3,19 +3,29 @@ import { sendGAEvent } from "@next/third-parties/google";
 
 // 제품 분석 이벤트. 이벤트 속성에는 개인정보, 자녀 식별자, 채팅 원문을 넣지 않는다.
 
+type OnboardingStep =
+  | "consent"
+  | "parent"
+  | "interest"
+  | "notification"
+  | "app_usage"
+  | "children";
+
 export type OnboardingEvent =
   | { type: "onboarding_intro_view"; page?: number }
+  // 단계별 이탈을 보려면 "본 사람"이 있어야 한다 — 완료만 있으면 어디서 빠지는지 모른다.
+  | { type: "onboarding_step_view"; step: OnboardingStep }
   | { type: "onboarding_google_sign_in_click" }
   | { type: "onboarding_apple_sign_in_click" }
   | {
       type: "onboarding_step_complete";
-      step:
-        | "consent"
-        | "parent"
-        | "interest"
-        | "notification"
-        | "app_usage"
-        | "children";
+      step: OnboardingStep;
+      /** consent: 마케팅 수신 동의 여부 */
+      marketing?: boolean;
+      /** notification: [허용하기] / [나중에] */
+      choice?: "allow" | "later";
+      /** notification: 기기 알림 권한 결과 */
+      permission?: "granted" | "denied";
     }
   | { type: "onboarding_work_status_filled" }
   | { type: "onboarding_skip"; from: "intro" }
@@ -109,7 +119,11 @@ export type MissionCompleteSource =
 
 export type MissionEvent =
   | { type: "mission_view" }
-  | { type: "mission_start"; startMode: "timer" | "direct"; entry?: MissionEntry }
+  | {
+      type: "mission_start";
+      startMode: "timer" | "direct";
+      entry?: MissionEntry;
+    }
   | { type: "mission_resume" }
   | { type: "mission_pause" }
   | {
@@ -213,10 +227,20 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
         name: "Onboarding Sign In Clicked",
         properties: { provider: "apple" },
       };
+    case "onboarding_step_view":
+      return {
+        name: "Onboarding Step Viewed",
+        properties: { step: event.step },
+      };
     case "onboarding_step_complete":
       return {
         name: "Onboarding Step Completed",
-        properties: { step: event.step },
+        properties: props({
+          step: event.step,
+          marketing: event.marketing,
+          choice: event.choice,
+          permission: event.permission,
+        }),
       };
     case "onboarding_work_status_filled":
       return { name: "Onboarding Work Status Filled" };
@@ -323,7 +347,10 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
     case "chat_source_link_open":
       return { name: "Chat Source Link Opened" };
     case "chat_feedback":
-      return { name: "Chat Feedback Submitted", properties: { helpful: event.helpful } };
+      return {
+        name: "Chat Feedback Submitted",
+        properties: { helpful: event.helpful },
+      };
     case "home_view":
       return { name: "Home Viewed" };
     case "home_child_switch":
@@ -348,7 +375,10 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
         properties: props({ start_mode: event.startMode, entry: event.entry }),
       };
     case "mission_timer_start_click":
-      return { name: "Mission Timer Start Clicked", properties: { entry: event.entry } };
+      return {
+        name: "Mission Timer Start Clicked",
+        properties: { entry: event.entry },
+      };
     case "mission_complete_click":
       return {
         name: "Mission Complete Clicked",

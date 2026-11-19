@@ -7,6 +7,7 @@ import {
   useEffect,
   useOptimistic,
   useState,
+  useSyncExternalStore,
   useTransition,
 } from "react";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
@@ -60,6 +61,13 @@ import {
   shouldShowCouponModal,
   shouldShowInvitePopup,
 } from "@/lib/referral";
+import {
+  getNotificationsSeenAt,
+  getServerNotificationsSeenAt,
+  hasNewNotification,
+  markNotificationsSeen,
+  subscribeNotificationsSeen,
+} from "@/lib/notification-seen";
 import type { Modal } from "./types";
 import { WeeklyCalendar } from "./weekly-calendar";
 
@@ -182,6 +190,22 @@ export const HomeDashboard = ({
     };
   }, []);
 
+  // [모두 읽기]는 목록에 보이는 알림(최근 5개) 기준.
+  const visibleUnreadCount = data.notifications.latest.filter(
+    (notification) => !notification.readAt,
+  ).length;
+
+  // 알림 종 빨간 점 — 마지막으로 알림 창을 연 뒤 새 알림이 왔을 때만. 창을 열면 바로 사라진다.
+  const notificationsSeenAt = useSyncExternalStore(
+    subscribeNotificationsSeen,
+    getNotificationsSeenAt,
+    getServerNotificationsSeenAt,
+  );
+  const hasNewNotifications = hasNewNotification(
+    data.notifications.latest,
+    notificationsSeenAt,
+  );
+
   const selectedChild = data.selectedChild;
 
   const onSelectChild = (child: HomeChild) => {
@@ -242,7 +266,13 @@ export const HomeDashboard = ({
         return;
       case "url":
         if (notification.targetUrl) {
-          window.location.href = notification.targetUrl;
+          // 앱 안 주소(/...)는 화면 이동으로 연다. 전체 새로고침하면 로그인 세션이
+          // 붙기 전에 요청이 나가 에러 화면이 뜬다.
+          if (notification.targetUrl.startsWith("/")) {
+            router.push(notification.targetUrl);
+          } else {
+            window.location.href = notification.targetUrl;
+          }
         }
         return;
       default:
@@ -281,7 +311,7 @@ export const HomeDashboard = ({
   };
 
   const handleMarkAllNotificationsRead = () => {
-    if (notificationSubmitting || data.notifications.unreadCount === 0) {
+    if (notificationSubmitting || visibleUnreadCount === 0) {
       return;
     }
 
@@ -329,9 +359,12 @@ export const HomeDashboard = ({
         <div className="relative">
           <TopAppBar
             child={selectedChild}
-            unreadCount={data.notifications.unreadCount}
+            unreadCount={hasNewNotifications ? 1 : 0}
             onOpenChildren={() => setModal("children")}
-            onOpenNotifications={() => setModal("notifications")}
+            onOpenNotifications={() => {
+              markNotificationsSeen();
+              setModal("notifications");
+            }}
           />
         </div>
       </div>
@@ -467,7 +500,7 @@ export const HomeDashboard = ({
       {modal === "notifications" ? (
         <NotificationModal
           notifications={data.notifications.latest}
-          unreadCount={data.notifications.unreadCount}
+          unreadCount={visibleUnreadCount}
           submitting={notificationSubmitting}
           errorMessage={notificationError}
           onClose={() => setModal(null)}

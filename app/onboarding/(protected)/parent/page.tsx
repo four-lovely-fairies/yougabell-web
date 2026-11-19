@@ -31,7 +31,20 @@ export default function ParentPage() {
   );
   const showConsent = !requiredConsented && !consentDone;
 
+  // 약관 시트가 먼저 뜨면 동의 단계, 아니면 바로 내 프로필 단계를 본 것으로 센다.
+  useEffect(() => {
+    track({
+      type: "onboarding_step_view",
+      step: showConsent ? "consent" : "parent",
+    });
+  }, [showConsent]);
+
   const handleConsentConfirm = (consents: ConsentDraft) => {
+    track({
+      type: "onboarding_step_complete",
+      step: "consent",
+      marketing: Boolean(consents.marketing),
+    });
     patch({ consents });
     setConsentDone(true);
   };
