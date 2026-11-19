@@ -33,12 +33,22 @@ function ReferralScreen() {
 
   useEffect(() => {
     let cancelled = false;
-    getMyReferral()
+    // 푸시·알림으로 앱이 이 화면부터 열리면 로그인 세션이 조금 늦게 붙는다 → 몇 번 다시 시도한다.
+    const load = async (): Promise<MyReferral> => {
+      for (let attempt = 0; ; attempt += 1) {
+        try {
+          return await getMyReferral();
+        } catch (error) {
+          if (attempt >= 3 || cancelled) throw error;
+          await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
+        }
+      }
+    };
+    load()
       .then((result) => {
         if (cancelled) return;
         setData(result);
         const raw = params.get("from") as Entry | null;
-        // 알림에서 들어오면 targetUrl(/referral)에 from이 없다 → direct로 남는다.
         track({
           type: "referral_view",
           entry: raw && ENTRIES.includes(raw) ? raw : "direct",
@@ -61,8 +71,17 @@ function ReferralScreen() {
   if (!data) {
     if (!failed) return <ReferralSkeleton onBack={back} />;
     return (
-      <div className="grid h-dvh place-items-center px-6 text-center text-sm text-gray-500">
-        친구 초대 정보를 불러오지 못했어요.
+      <div className="flex h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="text-sm text-gray-500">
+          친구 초대 정보를 불러오지 못했어요.
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="h-11 rounded-full bg-gray-800 px-5 text-sm font-semibold text-white"
+        >
+          다시 불러오기
+        </button>
       </div>
     );
   }

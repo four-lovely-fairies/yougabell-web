@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NotificationSlotPicker } from "@/components/onboarding/notification-slot-picker";
 import { OnboardingHeader } from "@/components/onboarding/onboarding-header";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,10 @@ function isValid(
 export default function AppUsagePage() {
   const router = useRouter();
   const { draft, patch } = useOnboardingDraft();
+
+  useEffect(() => {
+    track({ type: "onboarding_step_view", step: "app_usage" });
+  }, []);
   const [pref, setPref] = useState<NotificationPreference | null>(
     draft?.notification ?? null,
   );

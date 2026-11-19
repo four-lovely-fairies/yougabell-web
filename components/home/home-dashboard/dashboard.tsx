@@ -182,6 +182,12 @@ export const HomeDashboard = ({
     };
   }, []);
 
+  // 빨간 점·모두 읽기는 목록에 보이는 알림(최근 5개) 기준. 서버 전체 개수로 세면
+  // 목록에 없는 예전 알림 때문에 다 읽어도 점이 남는다.
+  const visibleUnreadCount = data.notifications.latest.filter(
+    (notification) => !notification.readAt,
+  ).length;
+
   const selectedChild = data.selectedChild;
 
   const onSelectChild = (child: HomeChild) => {
@@ -242,7 +248,13 @@ export const HomeDashboard = ({
         return;
       case "url":
         if (notification.targetUrl) {
-          window.location.href = notification.targetUrl;
+          // 앱 안 주소(/...)는 화면 이동으로 연다. 전체 새로고침하면 로그인 세션이
+          // 붙기 전에 요청이 나가 에러 화면이 뜬다.
+          if (notification.targetUrl.startsWith("/")) {
+            router.push(notification.targetUrl);
+          } else {
+            window.location.href = notification.targetUrl;
+          }
         }
         return;
       default:
@@ -281,7 +293,7 @@ export const HomeDashboard = ({
   };
 
   const handleMarkAllNotificationsRead = () => {
-    if (notificationSubmitting || data.notifications.unreadCount === 0) {
+    if (notificationSubmitting || visibleUnreadCount === 0) {
       return;
     }
 
@@ -329,7 +341,7 @@ export const HomeDashboard = ({
         <div className="relative">
           <TopAppBar
             child={selectedChild}
-            unreadCount={data.notifications.unreadCount}
+            unreadCount={visibleUnreadCount}
             onOpenChildren={() => setModal("children")}
             onOpenNotifications={() => setModal("notifications")}
           />
@@ -467,7 +479,7 @@ export const HomeDashboard = ({
       {modal === "notifications" ? (
         <NotificationModal
           notifications={data.notifications.latest}
-          unreadCount={data.notifications.unreadCount}
+          unreadCount={visibleUnreadCount}
           submitting={notificationSubmitting}
           errorMessage={notificationError}
           onClose={() => setModal(null)}

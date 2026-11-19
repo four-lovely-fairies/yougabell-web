@@ -158,3 +158,26 @@ test("referral funnel events carry result/method without personal data", () => {
     { name: "Referral Shared", properties: { method: "kakao" } },
   );
 });
+
+test("onboarding funnel: step viewed + completion details", () => {
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "onboarding_step_view", step: "interest" }),
+    { name: "Onboarding Step Viewed", properties: { step: "interest" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({
+      type: "onboarding_step_complete",
+      step: "notification",
+      choice: "allow",
+      permission: "denied",
+    }),
+    {
+      name: "Onboarding Step Completed",
+      properties: { step: "notification", choice: "allow", permission: "denied" },
+    },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "onboarding_step_complete", step: "parent" }),
+    { name: "Onboarding Step Completed", properties: { step: "parent" } },
+  );
+});

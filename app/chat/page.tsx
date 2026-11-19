@@ -13,6 +13,7 @@ import {
 } from "@/components/chat/message-bubbles";
 import { useChatTypewriter } from "@/hooks/use-chat-typewriter";
 import { track } from "@/lib/analytics";
+import { markChatSeen } from "@/lib/chat-new";
 import { useScreenPerformance } from "@/hooks/use-screen-performance";
 import { api, loadChat, streamChatMessage } from "@/lib/api";
 import {
@@ -88,6 +89,8 @@ export default function ChatPage() {
 
   useEffect(() => {
     track({ type: "chat_open" });
+    // 하단 바 AI 상담 빨간 점은 채팅 화면에 한 번 들어오면 지운다.
+    markChatSeen();
     let active = true;
     void loadChat().then((state) => {
       if (!active) return;

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Mascot } from "@/components/characters/mascot";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PlusIcon } from "@/components/icons";
 import { ChildCardForm, ChildRow } from "@/components/onboarding/child-card";
 import {
@@ -26,6 +26,10 @@ function isValid(c: ChildDraft) {
 export default function ChildrenPage() {
   const router = useRouter();
   const { draft, patch } = useOnboardingDraft();
+
+  useEffect(() => {
+    track({ type: "onboarding_step_view", step: "children" });
+  }, []);
   const [children, setChildren] = useState<ChildDraft[]>(() => {
     const saved = draft?.children ?? [];
     return saved.length > 0 ? saved : [emptyChild()];
@@ -73,7 +77,7 @@ export default function ChildrenPage() {
   // 흐름 분기: 알림 허용 시 app-usage에서, 거부 시 notification에서 진입.
   const back = () => {
     const previous =
-      draft?.notificationPermission === "granted"
+      draft?.notificationPermission === "granted" || draft?.notification
         ? "/onboarding/app-usage"
         : "/onboarding/notification";
     router.push(previous);

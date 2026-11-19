@@ -1,4 +1,5 @@
 import { Check, Pencil, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { XIcon } from "@/components/icons";
 import type { HomeChild, HomeNotification } from "@/lib/home-data";
@@ -178,9 +179,26 @@ export const NotificationModal = ({
           })}
         </ul>
       ) : (
-        <p className="px-5 py-10 text-center text-[15px] font-medium leading-[1.5] text-gray-500">
-          아직 새 알림이 없어요
-        </p>
+        // 다른 빈 화면(놀이 내역·관심 놀이·주간 리포트)과 같은 모양: 문서 아이콘 + 굵은 제목 + 회색 설명
+        <div
+          className="flex h-full animate-dissolve flex-col items-center justify-center px-5 pb-24 text-center leading-[1.4] motion-reduce:animate-none"
+          style={{ animationDuration: "300ms" }}
+        >
+          <Image
+            src="/icons/figma/play-category/empty-document.svg"
+            alt=""
+            width={42}
+            height={51}
+          />
+          <p className="mt-5 text-lg font-bold text-gray-800">
+            아직 받은 알림이 없어요
+          </p>
+          <p className="mt-1.5 text-sm text-gray-500">
+            놀이 알림, 주간 리포트 소식이 오면
+            <br />
+            여기에서 알려드릴게요
+          </p>
+        </div>
       )}
     </div>
   </div>

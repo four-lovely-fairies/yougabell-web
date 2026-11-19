@@ -9,6 +9,7 @@ import {
   type CSSProperties,
 } from "react";
 import { useMainShellReport } from "@/components/app/main-shell-report-context";
+import { isChatNew, markChatSeen, subscribeChatSeen } from "@/lib/chat-new";
 import {
   getStoredSelectedChildId,
   loadWeeklyReportUnviewedStatus,
@@ -19,33 +20,6 @@ import { reportStateForChild } from "@/lib/main-shell-report-state";
 import { createSingleFlight } from "@/lib/single-flight";
 import type { NavigationEvent } from "@/lib/analytics";
 
-// 다음 AI 상담 업데이트 때는 날짜만 바꾸면 점이 다시 뜬다.
-const CHAT_NEW_KEY = "yb:nav-new:chat:2026-11-18";
-const isChatNew = () => {
-  try {
-    return window.localStorage.getItem(CHAT_NEW_KEY) === null;
-  } catch {
-    return false;
-  }
-};
-const CHAT_SEEN_EVENT = "yb:nav-chat-seen";
-const markChatSeen = () => {
-  if (!isChatNew()) return;
-  try {
-    window.localStorage.setItem(CHAT_NEW_KEY, "1");
-  } catch {
-    // 무시
-  }
-  window.dispatchEvent(new Event(CHAT_SEEN_EVENT));
-};
-const subscribeChatSeen = (onChange: () => void) => {
-  window.addEventListener(CHAT_SEEN_EVENT, onChange);
-  window.addEventListener("storage", onChange);
-  return () => {
-    window.removeEventListener(CHAT_SEEN_EVENT, onChange);
-    window.removeEventListener("storage", onChange);
-  };
-};
 
 const NAV_ICON_PATHS = {
   home: "/icons/figma/nav/home.svg",
@@ -242,6 +216,8 @@ export const BottomNav = () => {
                 onClick={() => {
                   // 이미 열려 있는 탭이면 화면 전환이 없으므로 유입으로 세지 않는다.
                   if (item.href === pathname) return;
+                  // 채팅 화면에는 하단 바가 없어 경로로는 못 지운다 — 누르는 순간 확인한 것으로.
+                  if (item.tab === "chat") markChatSeen();
                   setPending({ index, from: pathname });
                   track({ type: "bottom_nav_tap", tab: item.tab });
                   beginScreen(item.href);

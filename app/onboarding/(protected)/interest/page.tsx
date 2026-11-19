@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InterestCard } from "@/components/onboarding/interest-card";
 import {
   ONBOARDING_STEPS,
@@ -26,6 +26,10 @@ const OPTIONS: Array<{ id: InterestId; emoji: string; label: string }> = [
 export default function InterestPage() {
   const router = useRouter();
   const { draft, patch } = useOnboardingDraft();
+
+  useEffect(() => {
+    track({ type: "onboarding_step_view", step: "interest" });
+  }, []);
   const [selected, setSelected] = useState<InterestId[]>(
     draft?.interests ?? [],
   );
