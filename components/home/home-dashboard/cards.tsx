@@ -16,7 +16,7 @@ export const ReportProgressBanner = ({
   countdown: WeeklyReportCountdown;
   streak: number;
 }) => (
-  <div className="flex min-h-12 items-center justify-between gap-3 rounded-[24px] bg-primary-50 px-4 py-2.5">
+  <div className="flex min-h-12 items-center justify-between gap-3 rounded-[24px] bg-[#F4F3F6] px-4 py-2.5">
     <div className="flex min-w-0 items-center gap-2">
       <Image
         src="/images/figma/home/star-shine.png"
