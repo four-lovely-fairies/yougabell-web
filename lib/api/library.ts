@@ -24,6 +24,8 @@ export type LibraryPlayItem = {
   categoryLabel: string;
   // 놀이 출처 — API 배포 전 응답에는 없을 수 있다
   sourceLabel?: string;
+  // 놀이 목표 (예: #순서기다리기 #충동조절) — API 배포 전 응답에는 없을 수 있다
+  goalLabel?: string | null;
   isFavorite: boolean;
 };
 

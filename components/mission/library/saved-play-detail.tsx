@@ -211,6 +211,13 @@ export function SavedPlayDetailScreen({ missionId }: { missionId: string }) {
                 onClick={() => setSourceOpen(true)}
               />
             ) : null}
+            {play.goalLabel ? (
+              <MissionMetaRow
+                icon={MISSION_META_ICONS.goal}
+                label="목표"
+                value={play.goalLabel}
+              />
+            ) : null}
           </div>
         </div>
 
