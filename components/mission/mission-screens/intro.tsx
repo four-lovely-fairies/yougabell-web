@@ -2,8 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { track } from "@/lib/analytics";
+import {
+  getServerFavoriteTip,
+  markFavoriteTipSeen,
+  shouldShowFavoriteTip,
+  subscribeFavoriteTip,
+} from "@/lib/favorite-tip";
 import { useScreenPerformance } from "@/hooks/use-screen-performance";
 import { Mascot } from "@/components/characters/mascot";
 import {
@@ -77,6 +83,16 @@ export function MissionIntroScreen() {
   const [favorite, setFavorite] = useState(false);
   const [favoriteBusy, setFavoriteBusy] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
+  // "찜 기능이 추가됐어요!" 안내 — 놀이가 다 뜬 뒤 한 번
+  const favoriteTipPending = useSyncExternalStore(
+    subscribeFavoriteTip,
+    shouldShowFavoriteTip,
+    getServerFavoriteTip,
+  );
+  const showFavoriteTip = favoriteTipPending && !loading && Boolean(state);
+  useEffect(() => {
+    if (showFavoriteTip) track({ type: "notice_sheet_view", name: "favorite_tip" });
+  }, [showFavoriteTip]);
   useScreenPerformance(
     "/mission",
     loading || !state || state.data.activeExecution?.status === "in_progress"
@@ -275,9 +291,26 @@ export function MissionIntroScreen() {
           onSwitchChild={canSwitch ? () => setSwitcherOpen(true) : undefined}
           favorite={{
             on: favorite,
-            onToggle: () => void saveFavorite(!favorite, "today_detail"),
+            onToggle: () => {
+              // 하트를 눌러 봤으면 안내는 할 일을 다 한 것
+              if (showFavoriteTip) {
+                track({ type: "notice_sheet_click", name: "favorite_tip", action: "confirm" });
+                markFavoriteTipSeen();
+              }
+              void saveFavorite(!favorite, "today_detail");
+            },
             busy: favoriteBusy,
           }}
+          favoriteTip={
+            showFavoriteTip
+              ? {
+                  onClose: () => {
+                    track({ type: "notice_sheet_click", name: "favorite_tip", action: "close" });
+                    markFavoriteTipSeen();
+                  },
+                }
+              : undefined
+          }
         />
         <HeaderSpacer />
 

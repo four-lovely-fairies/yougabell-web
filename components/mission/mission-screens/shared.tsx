@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Check, ChevronDown, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, ChevronRight, X } from 'lucide-react';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,11 +29,14 @@ export function MissionHeader({
   onBack,
   onSwitchChild,
   favorite,
+  favoriteTip,
 }: {
   childLabel: string;
   onBack: () => void;
   /** 전달 시 오른쪽에 관심 놀이 하트를 보여 준다. */
   favorite?: { on: boolean; onToggle: () => void; busy?: boolean };
+  /** 전달 시 하트 아래에 "찜 기능이 추가됐어요!" 말풍선을 띄운다. */
+  favoriteTip?: { onClose: () => void };
   /** 전달 시 자녀 라벨이 자녀 변경 트리거 버튼이 된다. 미전달 시 정적 표시. */
   onSwitchChild?: () => void;
 }) {
@@ -76,6 +79,7 @@ export function MissionHeader({
           </div>
         )}
         {favorite ? (
+          <div className="relative">
           <button
             type="button"
             onClick={favorite.onToggle}
@@ -91,6 +95,32 @@ export function MissionHeader({
               height={24}
             />
           </button>
+          {favoriteTip ? (
+            // 하단 바 "생성된 리포트가 있어요!" 말풍선과 같은 모양. 꼬리는 하트 가운데를 가리킨다.
+            <div
+              role="status"
+              className="absolute right-0 top-full z-10 mt-1.5 motion-safe:animate-screen-in"
+            >
+              <div className="report-tooltip-bounce relative">
+                <span
+                  aria-hidden
+                  className="absolute -top-1 right-4 size-2.5 rotate-45 bg-gray-700"
+                />
+                <div className="relative flex items-center gap-1 whitespace-nowrap rounded-full bg-gray-700 py-1.5 pl-3.5 pr-1.5 text-xs font-medium leading-[1.4] text-white shadow-2">
+                  찜 기능이 추가됐어요!
+                  <button
+                    type="button"
+                    onClick={favoriteTip.onClose}
+                    aria-label="안내 닫기"
+                    className="flex size-5 items-center justify-center rounded-full text-white/80 active:bg-white/10"
+                  >
+                    <X className="size-3.5" aria-hidden />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          </div>
         ) : (
           <div className="size-11 opacity-0" aria-hidden />
         )}
