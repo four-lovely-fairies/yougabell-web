@@ -39,10 +39,10 @@ export type ReferralEvent =
       result: "valid" | "not_found" | "self" | "error";
     }
   | { type: "invite_code_skip" }
-  | { type: "notice_sheet_view"; name: "referral_invite" | "referral_coupon" }
+  | { type: "notice_sheet_view"; name: "referral_invite" | "referral_coupon" | "favorite_tip" }
   | {
       type: "notice_sheet_click";
-      name: "referral_invite" | "referral_coupon";
+      name: "referral_invite" | "referral_coupon" | "favorite_tip";
       action: "confirm" | "close";
     }
   | {
