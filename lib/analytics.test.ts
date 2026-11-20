@@ -198,3 +198,37 @@ test("notification settings permission-off state events", () => {
     },
   );
 });
+
+test("favorite (찜) events record action and where it happened", () => {
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "play_favorite_toggle", action: "add", source: "exit_sheet" }),
+    { name: "Play Favorite Added", properties: { source: "exit_sheet" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "play_favorite_toggle", action: "remove", source: "saved_list" }),
+    { name: "Play Favorite Removed", properties: { source: "saved_list" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "saved_plays_view", count: 3 }),
+    { name: "Saved Plays Viewed", properties: { count: 3 } },
+  );
+});
+
+test("my page shortcuts and library screens events", () => {
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "settings_shortcut_click", target: "saved_plays" }),
+    { name: "Settings Shortcut Clicked", properties: { target: "saved_plays" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "play_history_view_change", view: "list" }),
+    { name: "Play History View Changed", properties: { view: "list" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "library_category_filter", screen: "saved", category: "all" }),
+    { name: "Library Category Filtered", properties: { screen: "saved", category: "all" } },
+  );
+  assert.deepEqual(toAmplitudeEvent({ type: "library_search", screen: "history" }), {
+    name: "Library Searched",
+    properties: { screen: "history" },
+  });
+});

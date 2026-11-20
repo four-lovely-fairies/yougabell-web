@@ -21,6 +21,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
+import { track } from "@/lib/analytics";
 import { ReferralSettingsCard } from "@/components/referral/referral-views";
 
 // 마이페이지 시안 — 카드형 / 목록형. 둘 다 같은 데이터·동작을 받는다.
@@ -96,10 +97,15 @@ function NameHeader({ name, onClose }: { name: string; onClose: () => void }) {
 
 function Shortcuts({ favoritesHref }: { favoritesHref: string }) {
   const items = [
-    { href: "/mission/history", icon: "calendar", label: "놀이 내역" },
-    { href: favoritesHref, icon: "heart", label: "관심 놀이" },
-    { href: "/settings/notifications", icon: "bell", label: "알림 설정" },
-  ];
+    { href: "/mission/history", icon: "calendar", label: "놀이 내역", target: "play_history" },
+    { href: favoritesHref, icon: "heart", label: "관심 놀이", target: "saved_plays" },
+    {
+      href: "/settings/notifications",
+      icon: "bell",
+      label: "알림 설정",
+      target: "notification_settings",
+    },
+  ] as const;
   return (
     <div className="flex items-center">
       {items.map((item, i) => (
@@ -107,6 +113,7 @@ function Shortcuts({ favoritesHref }: { favoritesHref: string }) {
           {i > 0 ? <div className="h-9 w-px bg-[#eeeef0]" aria-hidden /> : null}
           <Link
             href={item.href}
+            onClick={() => track({ type: "settings_shortcut_click", target: item.target })}
             className="flex flex-1 flex-col items-center gap-2"
           >
             <Image src={`${ICON}/${item.icon}.svg`} alt="" width={32} height={32} />

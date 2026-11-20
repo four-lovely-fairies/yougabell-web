@@ -123,6 +123,39 @@ export type MissionCompleteSource =
   | "detail_exit_sheet"
   | "timer_screen";
 
+// 찜(관심 놀이) — 어디서 눌렀는지(source)로 구분한다. 저장에 성공했을 때만 남긴다.
+export type FavoriteSource =
+  | "today_detail" // 오늘의 놀이 상세 하트
+  | "exit_sheet" // 놀이 상세에서 나갈 때 시트의 [관심 놀이에 저장]
+  | "history" // 놀이 내역 목록 하트
+  | "saved_list" // 관심 놀이 목록 하트(해제)
+  | "saved_detail"; // 관심 놀이 상세 하트
+
+export type FavoriteEvent =
+  | {
+      type: "play_favorite_toggle";
+      action: "add" | "remove";
+      source: FavoriteSource;
+    }
+  | { type: "saved_plays_view"; count: number }
+  | { type: "saved_play_open" };
+
+// 놀이 내역·관심 놀이 화면(마이페이지 바로가기). 검색어 원문은 넣지 않는다.
+export type LibraryScreen = "history" | "saved";
+export type LibraryEvent =
+  | {
+      type: "settings_shortcut_click";
+      target: "play_history" | "saved_plays" | "notification_settings";
+    }
+  | { type: "play_history_view"; count: number }
+  | { type: "play_history_view_change"; view: "calendar" | "list" }
+  | { type: "play_history_month_change" }
+  | { type: "play_history_open" }
+  | { type: "library_search"; screen: LibraryScreen }
+  | { type: "library_category_filter"; screen: LibraryScreen; category: string }
+  | { type: "library_order_change"; screen: LibraryScreen; order: string }
+  | { type: "play_detail_view" };
+
 export type MissionEvent =
   | { type: "mission_view" }
   | {
@@ -181,7 +214,9 @@ export type AnalyticsEvent =
   | WeeklyReportEvent
   | InquiryEvent
   | NavigationEvent
-  | ReferralEvent;
+  | ReferralEvent
+  | FavoriteEvent
+  | LibraryEvent;
 
 type AmplitudeEvent = {
   name: string;
@@ -428,6 +463,51 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
       };
     case "weekly_report_mission_start":
       return { name: "Weekly Report Mission Started" };
+    case "settings_shortcut_click":
+      return {
+        name: "Settings Shortcut Clicked",
+        properties: { target: event.target },
+      };
+    case "play_history_view":
+      return {
+        name: "Play History Viewed",
+        properties: { count: event.count },
+      };
+    case "play_history_view_change":
+      return {
+        name: "Play History View Changed",
+        properties: { view: event.view },
+      };
+    case "play_history_month_change":
+      return { name: "Play History Month Changed" };
+    case "play_history_open":
+      return { name: "Play History Item Opened" };
+    case "library_search":
+      return { name: "Library Searched", properties: { screen: event.screen } };
+    case "library_category_filter":
+      return {
+        name: "Library Category Filtered",
+        properties: { screen: event.screen, category: event.category },
+      };
+    case "library_order_change":
+      return {
+        name: "Library Order Changed",
+        properties: { screen: event.screen, order: event.order },
+      };
+    case "play_detail_view":
+      return { name: "Play Detail Viewed" };
+    case "play_favorite_toggle":
+      return {
+        name:
+          event.action === "add"
+            ? "Play Favorite Added"
+            : "Play Favorite Removed",
+        properties: { source: event.source },
+      };
+    case "saved_plays_view":
+      return { name: "Saved Plays Viewed", properties: { count: event.count } };
+    case "saved_play_open":
+      return { name: "Saved Play Opened" };
     case "bottom_nav_tap":
       return { name: "Bottom Nav Tapped", properties: { tab: event.tab } };
   }

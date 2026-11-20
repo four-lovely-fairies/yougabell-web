@@ -230,12 +230,16 @@ export function MissionIntroScreen() {
     }
   };
 
-  const saveFavorite = async (on: boolean) => {
+  const saveFavorite = async (
+    on: boolean,
+    source: "today_detail" | "exit_sheet",
+  ) => {
     if (!state) return false;
     setFavoriteBusy(true);
     setFavorite(on);
     try {
       await setPlayFavorite(state.data.mission.id, on);
+      track({ type: "play_favorite_toggle", action: on ? "add" : "remove", source });
       if (on) setToastOpen(true);
       return true;
     } catch {
@@ -271,7 +275,7 @@ export function MissionIntroScreen() {
           onSwitchChild={canSwitch ? () => setSwitcherOpen(true) : undefined}
           favorite={{
             on: favorite,
-            onToggle: () => void saveFavorite(!favorite),
+            onToggle: () => void saveFavorite(!favorite, "today_detail"),
             busy: favoriteBusy,
           }}
         />
@@ -411,7 +415,7 @@ export function MissionIntroScreen() {
           busy={starting || favoriteBusy}
           canSave={!favorite}
           onSave={async () => {
-            const saved = await saveFavorite(true);
+            const saved = await saveFavorite(true, "exit_sheet");
             if (saved) {
               setExitSheetOpen(false);
               // 토스트를 잠깐 보여 준 뒤 나간다.
