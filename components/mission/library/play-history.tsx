@@ -12,7 +12,7 @@ import { Check, ChevronDown, Search, X } from "lucide-react";
 import Image from "next/image";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import {
   CategoryChips,
@@ -82,6 +82,10 @@ export function PlayHistoryScreen() {
   const [order, setOrder] = useState<LibraryOrder>("latest");
   const [query, setQuery] = useState("");
   const q = useDebounced(query);
+  const viewTracked = useRef(false);
+  useEffect(() => {
+    if (q.trim()) track({ type: "library_search", screen: "history" });
+  }, [q]);
   const [items, setItems] = useState<PlayHistoryItem[] | null>(null);
   const [error, setError] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -103,6 +107,11 @@ export function PlayHistoryScreen() {
         if (cancelled) return;
         setError(false);
         setItems(result.items);
+        // 화면에 처음 들어왔을 때 한 번 — 이번 달 놀이 수와 함께
+        if (!viewTracked.current) {
+          viewTracked.current = true;
+          track({ type: "play_history_view", count: result.items.length });
+        }
       })
       .catch(() => {
         if (!cancelled) {
@@ -125,6 +134,7 @@ export function PlayHistoryScreen() {
     if (sameMonth(next, month)) return;
     setItems(null);
     setMonth(next);
+    track({ type: "play_history_month_change" });
     // 이번 달이면 오늘, 지난달이면 1일을 기본으로 고른다.
     setSelectedDay(sameMonth(next, thisMonth) ? today.getDate() : 1);
   };
@@ -151,6 +161,7 @@ export function PlayHistoryScreen() {
   };
 
   const open = (item: PlayHistoryItem) => {
+    track({ type: "play_history_open" });
     rememberSelectedPlay(item);
     router.push(`/mission/saved/play?missionId=${item.missionId}`);
   };
@@ -194,7 +205,13 @@ export function PlayHistoryScreen() {
             {monthLabel(month)}
             <ChevronDown className="size-6" aria-hidden />
           </button>
-          <ViewToggle value={view} onChange={setView} />
+          <ViewToggle
+            value={view}
+            onChange={(next) => {
+              setView(next);
+              track({ type: "play_history_view_change", view: next });
+            }}
+          />
         </div>
 
         {view === "calendar" ? (
@@ -215,12 +232,21 @@ export function PlayHistoryScreen() {
         ) : (
           <div className="flex flex-col gap-3">
             <SearchField value={query} onChange={setQuery} />
-            <CategoryChips value={category} onChange={setCategory} />
+            <CategoryChips
+              value={category}
+              onChange={(next) => {
+                setCategory(next);
+                track({ type: "library_category_filter", screen: "history", category: next ?? "all" });
+              }}
+            />
             <CountAndSort
               countLabel={`${items?.length ?? 0}개`}
               countBold
               order={order}
-              onOrderChange={setOrder}
+              onOrderChange={(next) => {
+                setOrder(next);
+                track({ type: "library_order_change", screen: "history", order: next });
+              }}
             />
             {items === null ? (
               <>

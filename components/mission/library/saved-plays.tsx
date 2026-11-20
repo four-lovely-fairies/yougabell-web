@@ -29,6 +29,9 @@ export function SavedPlaysScreen() {
   const [order, setOrder] = useState<LibraryOrder>("latest");
   const [query, setQuery] = useState("");
   const q = useDebounced(query);
+  useEffect(() => {
+    if (q.trim()) track({ type: "library_search", screen: "saved" });
+  }, [q]);
   const [items, setItems] = useState<FavoritePlayItem[] | null>(null);
   const [error, setError] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -122,11 +125,20 @@ export function SavedPlaysScreen() {
       />
       <LibraryHeaderSpacer />
       <div className="flex flex-col gap-3 px-5 pb-10 pt-2">
-        <CategoryChips value={category} onChange={setCategory} />
+        <CategoryChips
+          value={category}
+          onChange={(next) => {
+            setCategory(next);
+            track({ type: "library_category_filter", screen: "saved", category: next ?? "all" });
+          }}
+        />
         <CountAndSort
           countLabel={`저장한 놀이 ${items?.length ?? 0}개`}
           order={order}
-          onOrderChange={setOrder}
+          onOrderChange={(next) => {
+            setOrder(next);
+            track({ type: "library_order_change", screen: "saved", order: next });
+          }}
         />
         {items === null ? (
           <>

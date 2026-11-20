@@ -31,6 +31,9 @@ const delay = (ms: number) => ({ animationDelay: `${ms}ms` });
 
 // Figma 04-2 관심 놀이에서 진입 — 놀이 상세. 오늘의 놀이가 아니어도 다시 해볼 수 있다.
 export function SavedPlayDetailScreen({ missionId }: { missionId: string }) {
+  useEffect(() => {
+    track({ type: "play_detail_view" });
+  }, [missionId]);
   const router = useRouter();
   const [play, setPlay] = useState<LibraryPlayItem | null | undefined>(undefined);
   const [context, setContext] = useState<MissionLoadState | null>(null);

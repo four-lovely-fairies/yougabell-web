@@ -213,3 +213,22 @@ test("favorite (찜) events record action and where it happened", () => {
     { name: "Saved Plays Viewed", properties: { count: 3 } },
   );
 });
+
+test("my page shortcuts and library screens events", () => {
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "settings_shortcut_click", target: "saved_plays" }),
+    { name: "Settings Shortcut Clicked", properties: { target: "saved_plays" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "play_history_view_change", view: "list" }),
+    { name: "Play History View Changed", properties: { view: "list" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "library_category_filter", screen: "saved", category: "all" }),
+    { name: "Library Category Filtered", properties: { screen: "saved", category: "all" } },
+  );
+  assert.deepEqual(toAmplitudeEvent({ type: "library_search", screen: "history" }), {
+    name: "Library Searched",
+    properties: { screen: "history" },
+  });
+});
