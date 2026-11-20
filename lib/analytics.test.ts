@@ -181,3 +181,20 @@ test("onboarding funnel: step viewed + completion details", () => {
     { name: "Onboarding Step Completed", properties: { step: "parent" } },
   );
 });
+
+test("notification settings permission-off state events", () => {
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "settings_notification_permission_view" }),
+    { name: "Settings Notification Permission Viewed" },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({
+      type: "settings_notification_permission_click",
+      result: "opened_settings",
+    }),
+    {
+      name: "Settings Notification Permission Clicked",
+      properties: { result: "opened_settings" },
+    },
+  );
+});

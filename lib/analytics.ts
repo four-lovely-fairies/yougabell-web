@@ -62,6 +62,12 @@ export type SettingsEvent =
       notificationType: "play_10min" | "weekly_report";
       enabled: boolean;
     }
+  // 알림 설정 — 기기 알림 권한이 꺼져 있을 때 보이는 빈 화면과 [알림 켜기]
+  | { type: "settings_notification_permission_view" }
+  | {
+      type: "settings_notification_permission_click";
+      result: "granted" | "denied" | "opened_settings";
+    }
   | { type: "settings_interests_save"; count: number }
   | { type: "settings_parent_save" }
   | { type: "settings_child_add" }
@@ -287,6 +293,13 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
           notification_type: event.notificationType,
           enabled: event.enabled,
         },
+      };
+    case "settings_notification_permission_view":
+      return { name: "Settings Notification Permission Viewed" };
+    case "settings_notification_permission_click":
+      return {
+        name: "Settings Notification Permission Clicked",
+        properties: { result: event.result },
       };
     case "settings_interests_save":
       return {
