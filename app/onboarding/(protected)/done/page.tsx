@@ -7,6 +7,7 @@ import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { track } from "@/lib/analytics";
 import { ApiError, api, clearStoredSelectedChildId } from "@/lib/api";
 import { isNativeWebView, notifyMobile } from "@/lib/native-bridge";
+import { markFavoriteTipSeen } from "@/lib/favorite-tip";
 import { markJustSignedUp } from "@/lib/referral";
 import { markWhatsNewSeen } from "@/lib/whats-new";
 import {
@@ -93,6 +94,8 @@ function getOrCreateCompletionRequest(payload: CompleteOnboardingPayload) {
         markWhatsNewSeen();
         // 친구 초대 팝업은 가입 직후가 아니라 다음에 앱을 켤 때부터.
         markJustSignedUp();
+        // "찜 기능이 추가됐어요!" 안내는 기존 가입 유저에게만 — 신규 가입자는 본 것으로 둔다.
+        markFavoriteTipSeen();
         return { kind: "success", userId: me.id };
       },
     )
@@ -147,6 +150,8 @@ export default function DonePage() {
       if (nextStatus === "success") {
         // 응답 대신 상태 확인으로 끝난 경우에도 가입 직후 팝업은 건너뛴다.
         markJustSignedUp();
+        // "찜 기능이 추가됐어요!" 안내는 기존 가입 유저에게만 — 신규 가입자는 본 것으로 둔다.
+        markFavoriteTipSeen();
         try {
           track({
             type: "onboarding_finish",
