@@ -123,6 +123,23 @@ export type MissionCompleteSource =
   | "detail_exit_sheet"
   | "timer_screen";
 
+// 찜(관심 놀이) — 어디서 눌렀는지(source)로 구분한다. 저장에 성공했을 때만 남긴다.
+export type FavoriteSource =
+  | "today_detail" // 오늘의 놀이 상세 하트
+  | "exit_sheet" // 놀이 상세에서 나갈 때 시트의 [관심 놀이에 저장]
+  | "history" // 놀이 내역 목록 하트
+  | "saved_list" // 관심 놀이 목록 하트(해제)
+  | "saved_detail"; // 관심 놀이 상세 하트
+
+export type FavoriteEvent =
+  | {
+      type: "play_favorite_toggle";
+      action: "add" | "remove";
+      source: FavoriteSource;
+    }
+  | { type: "saved_plays_view"; count: number }
+  | { type: "saved_play_open" };
+
 export type MissionEvent =
   | { type: "mission_view" }
   | {
@@ -181,7 +198,8 @@ export type AnalyticsEvent =
   | WeeklyReportEvent
   | InquiryEvent
   | NavigationEvent
-  | ReferralEvent;
+  | ReferralEvent
+  | FavoriteEvent;
 
 type AmplitudeEvent = {
   name: string;
@@ -428,6 +446,18 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
       };
     case "weekly_report_mission_start":
       return { name: "Weekly Report Mission Started" };
+    case "play_favorite_toggle":
+      return {
+        name:
+          event.action === "add"
+            ? "Play Favorite Added"
+            : "Play Favorite Removed",
+        properties: { source: event.source },
+      };
+    case "saved_plays_view":
+      return { name: "Saved Plays Viewed", properties: { count: event.count } };
+    case "saved_play_open":
+      return { name: "Saved Play Opened" };
     case "bottom_nav_tap":
       return { name: "Bottom Nav Tapped", properties: { tab: event.tab } };
   }

@@ -198,3 +198,18 @@ test("notification settings permission-off state events", () => {
     },
   );
 });
+
+test("favorite (찜) events record action and where it happened", () => {
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "play_favorite_toggle", action: "add", source: "exit_sheet" }),
+    { name: "Play Favorite Added", properties: { source: "exit_sheet" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "play_favorite_toggle", action: "remove", source: "saved_list" }),
+    { name: "Play Favorite Removed", properties: { source: "saved_list" } },
+  );
+  assert.deepEqual(
+    toAmplitudeEvent({ type: "saved_plays_view", count: 3 }),
+    { name: "Saved Plays Viewed", properties: { count: 3 } },
+  );
+});

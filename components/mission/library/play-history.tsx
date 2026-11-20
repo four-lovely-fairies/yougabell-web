@@ -13,6 +13,7 @@ import Image from "next/image";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { track } from "@/lib/analytics";
 import {
   CategoryChips,
   CountAndSort,
@@ -140,6 +141,7 @@ export function PlayHistoryScreen() {
     setFavoriteLocal(item.missionId, next);
     try {
       await setPlayFavorite(item.missionId, next);
+      track({ type: "play_favorite_toggle", action: next ? "add" : "remove", source: "history" });
       if (next) setToastOpen(true);
     } catch {
       setFavoriteLocal(item.missionId, !next);

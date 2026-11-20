@@ -9,7 +9,8 @@ import {
   type PlayCategoryId,
 } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { track } from "@/lib/analytics";
 import {
   CategoryChips,
   CountAndSort,
@@ -31,6 +32,7 @@ export function SavedPlaysScreen() {
   const [items, setItems] = useState<FavoritePlayItem[] | null>(null);
   const [error, setError] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const viewTracked = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +41,11 @@ export function SavedPlaysScreen() {
         if (cancelled) return;
         setError(false);
         setItems(result.items);
+        // 화면에 처음 들어왔을 때 한 번 — 찜해 둔 놀이 개수와 함께
+        if (!viewTracked.current) {
+          viewTracked.current = true;
+          track({ type: "saved_plays_view", count: result.items.length });
+        }
       })
       .catch(() => {
         if (!cancelled) {
@@ -63,6 +70,7 @@ export function SavedPlaysScreen() {
     setItems((list) => list?.filter((i) => i.missionId !== item.missionId) ?? null);
     try {
       await setPlayFavorite(item.missionId, false);
+      track({ type: "play_favorite_toggle", action: "remove", source: "saved_list" });
     } catch {
       setItems(before);
     } finally {
@@ -71,6 +79,7 @@ export function SavedPlaysScreen() {
   };
 
   const open = (item: FavoritePlayItem) => {
+    track({ type: "saved_play_open" });
     rememberSelectedPlay(item);
     router.push(`/mission/saved/play?missionId=${item.missionId}`);
   };

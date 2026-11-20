@@ -98,6 +98,7 @@ export function SavedPlayDetailScreen({ missionId }: { missionId: string }) {
     setPlay({ ...play, isFavorite: next });
     try {
       await setPlayFavorite(play.missionId, next);
+      track({ type: "play_favorite_toggle", action: next ? "add" : "remove", source: "saved_detail" });
       setToastOpen(next);
     } catch {
       setPlay({ ...play, isFavorite: !next });
