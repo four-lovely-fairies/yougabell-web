@@ -49,11 +49,11 @@ test("uncategorized inquiries fall back to a fixed label", () => {
 });
 
 test("bottom nav taps carry only the tab identifier", () => {
-  const event = toAmplitudeEvent({ type: "bottom_nav_tap", tab: "play" });
+  const event = toAmplitudeEvent({ type: "bottom_nav_tap", tab: "my" });
 
   assert.deepEqual(event, {
     name: "Bottom Nav Tapped",
-    properties: { tab: "play" },
+    properties: { tab: "my" },
   });
 });
 

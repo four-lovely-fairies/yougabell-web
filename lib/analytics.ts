@@ -201,7 +201,7 @@ export type WeeklyReportEvent =
  */
 export type NavigationEvent = {
   type: "bottom_nav_tap";
-  tab: "home" | "play" | "roadmap" | "chat" | "report";
+  tab: "home" | "roadmap" | "chat" | "report" | "my";
 };
 
 export type AnalyticsEvent =

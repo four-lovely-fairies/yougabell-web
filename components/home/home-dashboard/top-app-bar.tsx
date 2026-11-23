@@ -30,17 +30,6 @@ export const TopAppBar = ({
       />
     </button>
     <div className="flex items-center">
-      <a
-        href="/settings"
-        className="flex size-11 items-center justify-center"
-        aria-label="마이페이지"
-      >
-        <FigmaIcon
-          src={HOME_ICON_PATHS.headerProfile}
-          alt=""
-          className="size-6"
-        />
-      </a>
       <button
         type="button"
         onClick={onOpenNotifications}
