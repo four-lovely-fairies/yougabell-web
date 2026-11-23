@@ -65,12 +65,6 @@ export const WeeklyReportScreen = () => {
       loadWeeklyReport({ childId, reportId }),
       loadWeeklyReportList(childId),
     ]);
-    // 이번 주 리포트가 아직 없으면(생성 전·지난주 놀이 없음) 가장 최근에 받은 리포트를 보여준다.
-    // 받은 리포트가 하나도 없을 때만 "리포트 생성 전" 화면이 뜬다.
-    if (!reportId && current.data && !current.data.report && items.length > 0) {
-      const latest = await loadWeeklyReport({ reportId: items[0].id });
-      if (latest.data?.report) return { next: latest, items };
-    }
     return { next: current, items };
   }, []);
 
@@ -297,6 +291,78 @@ const ReportPickerSheet = ({
   </BottomSheet>
 );
 
+// ── 이번 주 리포트 발행 전 (Figma 07) ──
+// 리포트는 한 주(월~일) 기록으로 다음 월요일 아침에 나온다.
+// - 월요일 아침 생성 중(report_generation_pending): 지난주 기록 → 오늘 발행
+// - 그 외(지난주 놀이 없음 등): 이번 주 기록 → 다음 월요일 발행
+const DAY_MS = 24 * 60 * 60 * 1000;
+const pendingSchedule = (generating: boolean) => {
+  const seoulNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const today = Date.UTC(seoulNow.getUTCFullYear(), seoulNow.getUTCMonth(), seoulNow.getUTCDate());
+  const thisMonday = today - ((seoulNow.getUTCDay() + 6) % 7) * DAY_MS;
+  const start = generating ? thisMonday - 7 * DAY_MS : thisMonday;
+  const md = (ms: number) => {
+    const d = new Date(ms);
+    return { month: d.getUTCMonth() + 1, day: d.getUTCDate() };
+  };
+  return { start: md(start), end: md(start + 6 * DAY_MS), issue: md(start + 7 * DAY_MS) };
+};
+
+const WeeklyReportPendingView = ({
+  reason,
+  onOpenPicker,
+  onStartMission,
+}: {
+  reason: string | null;
+  onOpenPicker: () => void;
+  onStartMission: () => void;
+}) => {
+  const generating = reason === "report_generation_pending";
+  const { start, end, issue } = pendingSchedule(generating);
+  return (
+    <div className="flex flex-1 flex-col px-5 pb-12 pt-5">
+      <div className="flex flex-col gap-1">
+        {/* 지난 리포트는 여기서 고른다 */}
+        <button
+          type="button"
+          onClick={onOpenPicker}
+          aria-haspopup="dialog"
+          className="flex items-center gap-2 self-start text-left"
+        >
+          <span className="text-xl font-bold leading-[1.4] text-gray-800">
+            {issue.month}월 {issue.day}일 발행 예정
+          </span>
+          <span className="flex size-7 items-center justify-center rounded-full bg-[#EDEDF0] text-gray-700">
+            <ChevronDown className="size-4" strokeWidth={2.4} aria-hidden />
+          </span>
+        </button>
+        <p className="text-sm leading-[1.4] text-gray-600">
+          {start.month}월 {start.day}일 – {end.month}월 {end.day}일 놀이 기록
+        </p>
+      </div>
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 pb-10 pt-16 text-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/figma/report/report-pending.svg" alt="" className="size-18" aria-hidden />
+        <h2 className="mt-2 text-base font-bold leading-[1.4] text-gray-800">
+          이번 주 리포트는 아직 발행 전이에요
+        </h2>
+        <p className="whitespace-pre-line break-keep text-sm leading-[1.6] text-gray-600">
+          {generating
+            ? "지난주 놀이 기록으로 리포트를 만들고 있어요.\n오늘 아침 중에 도착해요"
+            : `이번 주에 놀이를 기록하면\n${issue.month}월 ${issue.day}일 월요일 아침에 리포트가 도착해요`}
+        </p>
+        <button
+          type="button"
+          onClick={onStartMission}
+          className="mt-4 flex h-12 items-center justify-center rounded-2xl bg-primary-300 px-6 text-base font-medium leading-6 text-white active:scale-[0.98]"
+        >
+          오늘의 놀이 하러 가기
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const WeeklyReportContent = ({
   data,
   reports,
@@ -308,6 +374,16 @@ const WeeklyReportContent = ({
   onOpenPicker: () => void;
   onStartMission: () => void;
 }) => {
+  if (!data.report && reports.length > 0) {
+    return (
+      <WeeklyReportPendingView
+        reason={data.emptyState?.reason ?? null}
+        onOpenPicker={onOpenPicker}
+        onStartMission={onStartMission}
+      />
+    );
+  }
+
   if (!data.report) {
     return (
       <WeeklyReportEmpty
