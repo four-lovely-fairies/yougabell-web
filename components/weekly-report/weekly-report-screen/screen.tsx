@@ -54,18 +54,30 @@ export const WeeklyReportScreen = () => {
           : "pending",
   );
 
-  const requestReport = useCallback(() => {
+  const requestReport = useCallback(async (): Promise<{
+    next: WeeklyReportLoadState;
+    items: WeeklyReportListItem[];
+  }> => {
     const params = new URLSearchParams(window.location.search);
     const reportId = params.get("reportId");
-    return loadWeeklyReport({
-      childId: getStoredSelectedChildId(),
-      reportId,
-    });
+    const childId = getStoredSelectedChildId();
+    const [current, items] = await Promise.all([
+      loadWeeklyReport({ childId, reportId }),
+      loadWeeklyReportList(childId),
+    ]);
+    // 이번 주 리포트가 아직 없으면(생성 전·지난주 놀이 없음) 가장 최근에 받은 리포트를 보여준다.
+    // 받은 리포트가 하나도 없을 때만 "리포트 생성 전" 화면이 뜬다.
+    if (!reportId && current.data && !current.data.report && items.length > 0) {
+      const latest = await loadWeeklyReport({ reportId: items[0].id });
+      if (latest.data?.report) return { next: latest, items };
+    }
+    return { next: current, items };
   }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const next = await requestReport();
+    const { next, items } = await requestReport();
+    setReports(items);
     setState(next);
     setLoading(false);
     if (next.data?.report) {
@@ -74,16 +86,6 @@ export const WeeklyReportScreen = () => {
         .catch(() => undefined);
     }
   }, [requestReport, setHasUnviewedWeeklyReport]);
-
-  useEffect(() => {
-    let active = true;
-    void loadWeeklyReportList(getStoredSelectedChildId()).then((items) => {
-      if (active) setReports(items);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
 
   // 드롭다운에서 고른 리포트로 바꾼다. 주소(reportId)도 바꿔서 새로고침해도 같은 리포트가 보이게.
   const selectReport = useCallback(
@@ -110,8 +112,9 @@ export const WeeklyReportScreen = () => {
 
   useEffect(() => {
     let active = true;
-    void requestReport().then((next) => {
+    void requestReport().then(({ next, items }) => {
       if (!active) return;
+      setReports(items);
       setState(next);
       setLoading(false);
       if (next.data?.report) {
