@@ -205,6 +205,8 @@ const WeeklyReportDetailView = ({ report }: { report: WeeklyReportDetail }) => (
 
     <KeywordSection report={report} />
     <BestMomentSection moments={report.bestMoments} />
+    {/* 내면 상태와 AI 제안은 이어지는 내용이라 섹션 간격(32)보다 가깝게 붙인다 */}
+    <div className="flex flex-col gap-3">
     <InnerStateSection report={report} />
     <ReportCard>
       <div className="flex items-center gap-1">
@@ -223,5 +225,6 @@ const WeeklyReportDetailView = ({ report }: { report: WeeklyReportDetail }) => (
         {report.aiActionSuggestion.body}
       </p>
     </ReportCard>
+    </div>
   </div>
 );
