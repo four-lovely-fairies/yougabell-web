@@ -3,11 +3,11 @@
 import { BottomNav } from "@/components/app/bottom-nav";
 import { MainShellReportProvider } from "@/components/app/main-shell-report-context";
 import { Mascot } from "@/components/characters/mascot";
-// 마이페이지 시안 — 지금은 목록형(MyPageList). 카드형으로 바꾸려면 MyPageCard로 교체하면 된다.
-import { MyPageList as MyPage } from "@/components/settings/my-page-variants";
+// 마이페이지 — 카드형(Figma 02 마이페이지). 목록형(MyPageList)은 시안으로 남겨 둔다.
+import { MyPageCard as MyPage } from "@/components/settings/my-page-variants";
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, getMyReferral } from "@/lib/api";
 import { notifyMobile, openExternalUrl } from "@/lib/native-bridge";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { ApiInterestId } from "@/lib/types";
@@ -21,6 +21,7 @@ export default function SettingsPage() {
   const [name, setName] = useState("");
   const [interests, setInterests] = useState<ApiInterestId[]>([]);
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [referralProgress, setReferralProgress] = useState<string>();
 
   useEffect(() => {
     track({ type: "settings_open" });
@@ -33,6 +34,10 @@ export default function SettingsPage() {
         // 내 정보 조회 실패 — 이름·관심사 없이 표시
       }
     })();
+    // 친구 초대 진행 "1/4명" — 실패하면 숫자 없이 줄만 보인다
+    void getMyReferral()
+      .then((r) => setReferralProgress(`${Math.min(r.joinedCount, r.goal)}/${r.goal}명`))
+      .catch(() => undefined);
   }, []);
 
   const onLogout = async () => {
@@ -54,6 +59,7 @@ export default function SettingsPage() {
         interests={interests}
         favoritesHref="/mission/saved"
         onOpenReferral={() => router.push("/referral?from=settings")}
+        referralProgress={referralProgress}
         onLogout={() => void onLogout()}
         onDeleteAccount={() => setDeletingAccount(true)}
         onOpenPrivacy={() =>
