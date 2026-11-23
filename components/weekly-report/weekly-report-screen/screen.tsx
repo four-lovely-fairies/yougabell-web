@@ -320,7 +320,7 @@ const WeeklyReportPendingView = ({
   const generating = reason === "report_generation_pending";
   const { start, end, issue } = pendingSchedule(generating);
   return (
-    <div className="flex flex-1 flex-col px-5 pb-12 pt-5">
+    <div className="stagger-enter flex flex-1 flex-col px-5 pb-12 pt-5">
       <div className="flex flex-col gap-1">
         {/* 지난 리포트는 여기서 고른다 */}
         <button
@@ -411,7 +411,8 @@ const WeeklyReportDetailView = ({
   canPick: boolean;
   onOpenPicker: () => void;
 }) => (
-  <div className="flex flex-1 flex-col gap-8 px-5 pb-12 pt-5">
+  // key: 다른 리포트를 고르면 등장 연출을 다시 보여준다
+  <div key={report.id} className="stagger-enter flex flex-1 flex-col gap-8 px-5 pb-12 pt-5">
     <ReportIssueHeader report={report} canPick={canPick} onOpenPicker={onOpenPicker} />
     <ReportSection title={report.headline.question}>
       <ReportCard>
@@ -431,7 +432,7 @@ const WeeklyReportDetailView = ({
         <ReportCard>
           <p className="text-sm font-bold leading-[1.4]">이번주 미션 현황</p>
           <div className="mt-3.75 flex items-center justify-between">
-            {report.missionSummary.days.map((day) => (
+            {report.missionSummary.days.map((day, dayIndex) => (
               <div
                 key={day.weekday}
                 className="flex w-8.5 flex-col items-center gap-1"
@@ -439,9 +440,10 @@ const WeeklyReportDetailView = ({
                 <span
                   className={`flex size-8 items-center justify-center rounded-full ${
                     day.completed
-                      ? "bg-primary-300 text-white"
+                      ? "animate-pop-in bg-primary-300 text-white motion-reduce:animate-none"
                       : "border border-gray-200 bg-white text-gray-300"
                   }`}
+                  style={day.completed ? { animationDelay: `${250 + dayIndex * 70}ms` } : undefined}
                   aria-label={`${day.label}요일 완료 미션 ${day.completedCount}개`}
                 >
                   {day.completed ? (
