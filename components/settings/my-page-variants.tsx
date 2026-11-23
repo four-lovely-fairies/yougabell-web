@@ -207,7 +207,6 @@ export function MyPageCard(props: MyPageProps) {
         <CardGroup>
           <CardRow icon={`${ICON}/privacy.svg`} title="개인정보 보호정책" action={{ onClick: props.onOpenPrivacy }} />
           <CardRow icon={`${ICON}/terms.svg`} title="서비스 약관" action={{ onClick: props.onOpenTerms }} />
-          <CardRow icon={`${ICON}/inquiry.svg`} title="문의하기" action={{ href: "/settings/inquiries" }} />
         </CardGroup>
         <CardGroup>
           <CardRow icon={`${ICON}/logout.svg`} title="로그아웃" muted action={{ onClick: props.onLogout }} />
