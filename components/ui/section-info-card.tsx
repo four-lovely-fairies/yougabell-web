@@ -21,7 +21,7 @@ export const SectionInfoCard = ({
   className?: string;
 }) => {
   return (
-    <Card radius="xxl" className={cn("flex flex-col gap-3", className)}>
+    <Card radius="xxl" shadow="none" className={cn("flex flex-col gap-3", className)}>
       <div className="flex items-center gap-1">
         {icon}
         <span className="text-xs font-bold leading-[1.4] text-gray-800">
