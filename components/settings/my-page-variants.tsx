@@ -37,6 +37,8 @@ export type MyPageProps = {
   onOpenTerms: () => void;
   /** 친구 초대하기 카드 (설정 맨 위 상시 진입점) */
   onOpenReferral?: () => void;
+  /** 친구 초대 진행 "1/4명" — 불러오기 전이면 비워 둔다 */
+  referralProgress?: string;
 };
 
 const ICON = "/icons/figma/mypage";
@@ -174,7 +176,7 @@ function CardRow({
 export function MyPageCard(props: MyPageProps) {
   return (
     <div className="min-h-dvh bg-[#f4f4f6] pt-safe">
-      <div className="flex flex-col gap-3 px-5 pb-10 pt-1">
+      <div className="flex flex-col gap-3 px-5 pb-6 pt-1">
         <NameHeader name={props.name} onClose={props.onClose} />
         <div className="rounded-[20px] bg-white pb-4.5 pt-5">
           <Shortcuts favoritesHref={props.favoritesHref} />
@@ -188,11 +190,24 @@ export function MyPageCard(props: MyPageProps) {
             value={interestSummary(props.interests)}
             action={{ href: "/settings/interests" }}
           />
+          {props.onOpenReferral ? (
+            <CardRow
+              icon={`${ICON}/gift.svg`}
+              title="친구 초대하고 쿠폰 받기"
+              value={props.referralProgress}
+              action={{
+                onClick: () => {
+                  track({ type: "settings_shortcut_click", target: "referral" });
+                  props.onOpenReferral?.();
+                },
+              }}
+            />
+          ) : null}
         </CardGroup>
         <CardGroup>
           <CardRow icon={`${ICON}/privacy.svg`} title="개인정보 보호정책" action={{ onClick: props.onOpenPrivacy }} />
           <CardRow icon={`${ICON}/terms.svg`} title="서비스 약관" action={{ onClick: props.onOpenTerms }} />
-          <CardRow icon={`${ICON}/terms.svg`} title="문의하기" action={{ href: "/settings/inquiries" }} />
+          <CardRow icon={`${ICON}/inquiry.svg`} title="문의하기" action={{ href: "/settings/inquiries" }} />
         </CardGroup>
         <CardGroup>
           <CardRow icon={`${ICON}/logout.svg`} title="로그아웃" muted action={{ onClick: props.onLogout }} />
