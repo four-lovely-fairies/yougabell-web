@@ -381,6 +381,42 @@
         ]
       }
     },
+    "/weekly-reports": {
+      "get": {
+        "operationId": "WeeklyReportsController_list",
+        "parameters": [
+          {
+            "name": "childId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyReportListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "weekly-reports"
+        ]
+      }
+    },
     "/weekly-reports/current": {
       "get": {
         "operationId": "WeeklyReportsController_getCurrent",
@@ -5505,6 +5541,57 @@
             "maxLength": 4000
           }
         }
+      },
+      "WeeklyReportListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "weekStart": {
+            "type": "string",
+            "example": "2026-11-10"
+          },
+          "weekEnd": {
+            "type": "string",
+            "example": "2026-11-16"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "viewed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "weekStart",
+          "weekEnd",
+          "generatedAt",
+          "viewed"
+        ]
+      },
+      "WeeklyReportListResponseDto": {
+        "type": "object",
+        "properties": {
+          "childId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeeklyReportListItemDto"
+            }
+          }
+        },
+        "required": [
+          "childId",
+          "items"
+        ]
       }
     }
   }

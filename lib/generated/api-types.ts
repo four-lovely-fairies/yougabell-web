@@ -220,6 +220,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/weekly-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WeeklyReportsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/weekly-reports/current": {
         parameters: {
             query?: never;
@@ -1569,7 +1585,6 @@ export interface components {
         MissionExecutionActionBodyDto: {
             /** @enum {string} */
             action: "pause" | "resume" | "complete" | "early_complete";
-            elapsedSeconds?: number;
         };
         MissionExecutionEffectDto: {
             /** Format: uuid */
@@ -1916,6 +1931,22 @@ export interface components {
             status?: "received" | "in_progress" | "answered";
             answerBody?: string;
         };
+        WeeklyReportListItemDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example 2026-11-10 */
+            weekStart: string;
+            /** @example 2026-11-16 */
+            weekEnd: string;
+            /** Format: date-time */
+            generatedAt: string;
+            viewed: boolean;
+        };
+        WeeklyReportListResponseDto: {
+            /** Format: uuid */
+            childId: string | null;
+            items: components["schemas"]["WeeklyReportListItemDto"][];
+        };
     };
     responses: never;
     parameters: never;
@@ -2169,6 +2200,27 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    WeeklyReportsController_list: {
+        parameters: {
+            query?: {
+                childId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeeklyReportListResponseDto"];
+                };
             };
         };
     };

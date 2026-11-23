@@ -105,7 +105,7 @@ export const KeywordSection = ({ report }: { report: WeeklyReportDetail }) => (
         <p className="text-sm font-bold leading-5">
           {report.keywordEmptyState.title}
         </p>
-        <p className="mt-2 text-sm leading-5 text-gray-500">
+        <p className="mt-2 text-sm leading-[1.6] text-gray-600">
           {report.keywordEmptyState.description}
         </p>
       </Card>
@@ -138,14 +138,14 @@ export const BestMomentSection = ({
             <div key={moment.id} className="flex w-full shrink-0 snap-center">
               <Card className="w-full">
                 {moment.label ? (
-                  <p className="text-xs font-medium leading-[17px] text-gray-600">
+                  <p className="text-sm font-medium leading-[1.4] text-gray-600">
                     {moment.label}
                   </p>
                 ) : null}
                 <h2 className="mt-1 text-base font-bold leading-6">
                   {moment.title}
                 </h2>
-                <p className="mt-3.75 text-sm leading-5 text-gray-500">
+                <p className="mt-3 text-sm leading-[1.6] text-gray-600">
                   {moment.body}
                 </p>
               </Card>
@@ -177,7 +177,7 @@ export const InnerStateSection = ({
   <ReportSection title="사용자의 내면 상태">
     <ReportCard>
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium leading-[17px] text-gray-600">
+        <p className="text-sm font-medium leading-[1.4] text-gray-600">
           심리적 에너지
         </p>
         <p className="text-base font-bold leading-6">

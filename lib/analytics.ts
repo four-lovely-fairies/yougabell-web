@@ -188,7 +188,9 @@ export type RoadmapEvent =
 
 export type WeeklyReportEvent =
   | { type: "weekly_report_view"; hasReport: boolean }
-  | { type: "weekly_report_mission_start" };
+  | { type: "weekly_report_mission_start" }
+  | { type: "weekly_report_picker_open"; reportCount: number }
+  | { type: "weekly_report_select"; isLatest: boolean; position: number };
 
 /**
  * 하단 네비게이션 유입 (2026-08-20 추가).
@@ -463,6 +465,16 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
       };
     case "weekly_report_mission_start":
       return { name: "Weekly Report Mission Started" };
+    case "weekly_report_picker_open":
+      return {
+        name: "Weekly Report Picker Opened",
+        properties: { report_count: event.reportCount },
+      };
+    case "weekly_report_select":
+      return {
+        name: "Weekly Report Selected",
+        properties: { is_latest: event.isLatest, position: event.position },
+      };
     case "settings_shortcut_click":
       return {
         name: "Settings Shortcut Clicked",
