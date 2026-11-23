@@ -53,7 +53,8 @@ export default function SettingsPage() {
   // 하단 탭 "마이" 화면 — 탭으로 오가므로 닫기(X) 없이 하단 바를 함께 띄운다.
   return (
     <MainShellReportProvider>
-      <div className="pb-[calc(96px+env(safe-area-inset-bottom))]">
+      {/* 하단 탭 자리까지 같은 연회색으로 채운다 — 끝까지 내려도 흰 바탕이 안 보이게 */}
+      <div className="min-h-dvh bg-[#f4f4f6] pb-[calc(96px+env(safe-area-inset-bottom))]">
       <MyPage
         name={name}
         interests={interests}
