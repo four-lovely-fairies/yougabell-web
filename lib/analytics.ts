@@ -145,7 +145,12 @@ export type LibraryScreen = "history" | "saved";
 export type LibraryEvent =
   | {
       type: "settings_shortcut_click";
-      target: "play_history" | "saved_plays" | "notification_settings" | "referral";
+      target:
+        | "play_history"
+        | "saved_plays"
+        | "notification_settings"
+        | "referral"
+        | "inquiry_fab";
     }
   | { type: "play_history_view"; count: number }
   | { type: "play_history_view_change"; view: "calendar" | "list" }

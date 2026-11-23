@@ -70,6 +70,21 @@ export default function SettingsPage() {
         }
       />
       </div>
+      {/* 문의하기 플로팅 버튼 — 하단 탭 바로 위 오른쪽 (Figma 02-1) */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(115px+env(safe-area-inset-bottom))] z-30 mx-auto flex w-full max-w-97.5 justify-end px-5">
+        <button
+          type="button"
+          onClick={() => {
+            track({ type: "settings_shortcut_click", target: "inquiry_fab" });
+            router.push("/settings/inquiries");
+          }}
+          aria-label="문의하기"
+          className="pointer-events-auto flex size-16 items-center justify-center rounded-full bg-[linear-gradient(135deg,#B69CFE_0%,#9572FF_55%,#7850FF_100%)] shadow-[0_8px_20px_rgba(120,80,255,0.35)] transition-transform active:scale-95"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/figma/mypage/fab-inquiry.svg" alt="" className="size-8" aria-hidden />
+        </button>
+      </div>
       <BottomNav />
       {deletingAccount ? (
         <DeleteAccountModal onClose={() => setDeletingAccount(false)} />
