@@ -136,11 +136,13 @@ export const RoadmapScreen = () => {
   ).length;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-20 text-gray-800">
+    // 주간 리포트와 같은 톤 — 연회색 바탕 + 그림자 없는 흰 카드
+    <div className="flex min-h-dvh flex-col bg-[#F4F4F6] text-gray-800">
       <AppHeader
         fixed
         title="발달 로드맵"
         onBack={goBack}
+        className="bg-[#F4F4F6]"
         right={
           <button
             ref={infoButtonRef}
@@ -385,7 +387,7 @@ const MonthTabs = ({
                     ? `${indicator ? "border border-transparent" : "bg-primary-300"} text-white`
                     : isChildMonth
                       ? "border border-primary-200 bg-primary-50 text-primary-300"
-                      : "border border-gray-100 bg-white text-gray-600"
+                      : "border border-transparent bg-white text-gray-600"
                 }`}
               >
                 {month}개월
@@ -463,7 +465,7 @@ const CategoryCard = ({
       padding="none"
       radius="xxl"
       shadow="none"
-      className="border border-gray-50 p-5"
+      className="p-5"
       aria-labelledby={`category-${group.categoryId}`}
     >
       <div className="flex items-center justify-between gap-4">
@@ -573,7 +575,7 @@ const CategoryIcon = ({ iconKey }: { iconKey: string }) => {
 
 const RoadmapSkeleton = () => (
   <div
-    className="min-h-dvh bg-gray-20 px-5 pb-5 pt-safe"
+    className="min-h-dvh bg-[#F4F4F6] px-5 pb-5 pt-safe"
     role="status"
     aria-label="불러오는 중"
   >
