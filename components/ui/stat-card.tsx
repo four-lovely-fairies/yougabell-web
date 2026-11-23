@@ -20,6 +20,7 @@ export const StatCard = ({
   const centered = align === "center";
   return (
     <Card
+      shadow="none"
       padding="none"
       radius="xxl"
       className={cn(
