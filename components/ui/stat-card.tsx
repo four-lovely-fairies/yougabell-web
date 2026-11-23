@@ -52,7 +52,7 @@ export const StatValue = ({
   unit,
   size = "md",
 }: {
-  value: string | number;
+  value: React.ReactNode;
   unit?: string;
   size?: "md" | "lg";
 }) => {

@@ -7,6 +7,7 @@ import {
   type WeeklyReportDetail,
 } from "@/lib/weekly-report-data";
 import { keywordIcons, keywordTones } from "./constants";
+import { CountUp } from "./count-up";
 
 export const ReportSection = ({
   title,
@@ -38,7 +39,7 @@ export const DurationStat = ({
     {splitDurationLabel(value).map((segment) => (
       <StatValue
         key={`${segment.value}-${segment.unit}`}
-        value={segment.value}
+        value={<CountUp value={segment.value} delay={300} />}
         unit={segment.unit}
         size="lg"
       />
@@ -67,7 +68,7 @@ export const PercentStat = ({
       />
     }
   >
-    <StatValue value={value} unit="%" size="lg" />
+    <StatValue value={<CountUp value={value} delay={300} />} unit="%" size="lg" />
   </StatCard>
 );
 
@@ -86,7 +87,8 @@ export const KeywordSection = ({ report }: { report: WeeklyReportDetail }) => (
               shape="square"
               tone={keywordTones[index] ?? "amber"}
               size="md"
-              className="font-semibold"
+              className="font-semibold animate-pop-in motion-reduce:animate-none"
+              style={{ animationDelay: `${400 + index * 120}ms` }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -181,7 +183,7 @@ export const InnerStateSection = ({
           심리적 에너지
         </p>
         <p className="text-base font-bold leading-6">
-          {report.innerState.psychologicalEnergy}%
+          <CountUp value={report.innerState.psychologicalEnergy} delay={500} />%
         </p>
       </div>
       <div
@@ -192,7 +194,7 @@ export const InnerStateSection = ({
         aria-valuemax={100}
       >
         <div
-          className="h-full rounded-xs bg-primary-300"
+          className="h-full origin-left animate-bar-grow rounded-xs bg-primary-300 [animation-delay:500ms] motion-reduce:animate-none"
           style={{ width: `${report.innerState.psychologicalEnergy}%` }}
         />
       </div>
