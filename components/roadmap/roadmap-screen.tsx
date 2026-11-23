@@ -137,7 +137,8 @@ export const RoadmapScreen = () => {
 
   return (
     // 주간 리포트와 같은 톤 — 연회색 바탕 + 그림자 없는 흰 카드
-    <div className="flex min-h-dvh flex-col bg-[#F4F4F6] text-gray-800">
+    // 하단 탭 자리(셸의 아래 여백)까지 같은 연회색으로 채운다 — 끝까지 내려도 흰 바탕이 안 보이게
+    <div className="-mb-[calc(96px+env(safe-area-inset-bottom))] flex min-h-dvh flex-col bg-[#F4F4F6] pb-[calc(96px+env(safe-area-inset-bottom))] text-gray-800">
       <AppHeader
         fixed
         title="발달 로드맵"
