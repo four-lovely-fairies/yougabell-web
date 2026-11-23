@@ -30,7 +30,8 @@ export type MyPageProps = {
   name: string;
   interests: ApiInterestId[];
   favoritesHref: string;
-  onClose: () => void;
+  /** 없으면 닫기(X)를 그리지 않는다 — 하단 탭 "마이"로 들어온 화면. */
+  onClose?: () => void;
   onLogout: () => void;
   onDeleteAccount: () => void;
   onOpenPrivacy: () => void;
@@ -74,7 +75,7 @@ function Pressable({
 
 /* ───────────── 공통: 이름 헤더 + 바로가기 ───────────── */
 
-function NameHeader({ name, onClose }: { name: string; onClose: () => void }) {
+function NameHeader({ name, onClose }: { name: string; onClose?: () => void }) {
   return (
     <div className="flex items-center justify-between pb-2 pl-1 pt-3">
       <Link href="/settings/profile" className="flex items-center gap-0.5">
@@ -83,14 +84,16 @@ function NameHeader({ name, onClose }: { name: string; onClose: () => void }) {
         </span>
         <Image src={`${ICON}/name-chevron.svg`} alt="" width={24} height={24} />
       </Link>
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="닫기"
-        className="flex size-11 items-center justify-center text-gray-800"
-      >
-        <X className="size-6" />
-      </button>
+      {onClose ? (
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="닫기"
+          className="flex size-11 items-center justify-center text-gray-800"
+        >
+          <X className="size-6" />
+        </button>
+      ) : null}
     </div>
   );
 }

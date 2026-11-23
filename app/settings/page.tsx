@@ -1,5 +1,7 @@
 "use client";
 
+import { BottomNav } from "@/components/app/bottom-nav";
+import { MainShellReportProvider } from "@/components/app/main-shell-report-context";
 import { Mascot } from "@/components/characters/mascot";
 // 마이페이지 시안 — 지금은 목록형(MyPageList). 카드형으로 바꾸려면 MyPageCard로 교체하면 된다.
 import { MyPageList as MyPage } from "@/components/settings/my-page-variants";
@@ -43,13 +45,14 @@ export default function SettingsPage() {
     router.replace("/onboarding/intro");
   };
 
+  // 하단 탭 "마이" 화면 — 탭으로 오가므로 닫기(X) 없이 하단 바를 함께 띄운다.
   return (
-    <>
+    <MainShellReportProvider>
+      <div className="pb-[calc(96px+env(safe-area-inset-bottom))]">
       <MyPage
         name={name}
         interests={interests}
         favoritesHref="/mission/saved"
-        onClose={() => router.replace("/")}
         onOpenReferral={() => router.push("/referral?from=settings")}
         onLogout={() => void onLogout()}
         onDeleteAccount={() => setDeletingAccount(true)}
@@ -60,10 +63,12 @@ export default function SettingsPage() {
           openExternalUrl(`${window.location.origin}/policy/terms`)
         }
       />
+      </div>
+      <BottomNav />
       {deletingAccount ? (
         <DeleteAccountModal onClose={() => setDeletingAccount(false)} />
       ) : null}
-    </>
+    </MainShellReportProvider>
   );
 }
 

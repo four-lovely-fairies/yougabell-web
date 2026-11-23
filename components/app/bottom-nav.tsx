@@ -23,10 +23,10 @@ import type { NavigationEvent } from "@/lib/analytics";
 
 const NAV_ICON_PATHS = {
   home: "/icons/figma/nav/home.svg",
-  play: "/icons/figma/nav/play.svg",
   roadmap: "/icons/figma/nav/roadmap.svg",
   ai: "/icons/figma/nav/ai.svg",
   report: "/icons/figma/nav/report.svg",
+  my: "/icons/figma/nav/my.svg",
 } as const;
 
 type BottomNavItem = {
@@ -39,7 +39,8 @@ type BottomNavItem = {
   matches: (pathname: string) => boolean;
 };
 
-// Figma 6113:9267 — 홈 / 놀이 / 로드맵 / AI 상담 / 리포트
+// Figma btn 3162:3242 — 홈 / 로드맵 / AI 상담 / 리포트 / 마이
+// (놀이는 홈 카드에서 들어가고, 홈 상단에 있던 마이페이지 아이콘이 마지막 탭으로 내려왔다)
 const items: BottomNavItem[] = [
   {
     label: "홈",
@@ -48,14 +49,6 @@ const items: BottomNavItem[] = [
     iconSrc: NAV_ICON_PATHS.home,
     iconClassName: "size-6",
     matches: (pathname: string) => pathname === "/",
-  },
-  {
-    label: "놀이",
-    href: "/mission",
-    tab: "play",
-    iconSrc: NAV_ICON_PATHS.play,
-    iconClassName: "size-6",
-    matches: (pathname: string) => pathname.startsWith("/mission"),
   },
   {
     label: "로드맵",
@@ -80,6 +73,14 @@ const items: BottomNavItem[] = [
     iconSrc: NAV_ICON_PATHS.report,
     iconClassName: "size-5",
     matches: (pathname: string) => pathname.startsWith("/weekly-report"),
+  },
+  {
+    label: "마이",
+    href: "/settings",
+    tab: "my",
+    iconSrc: NAV_ICON_PATHS.my,
+    iconClassName: "size-6",
+    matches: (pathname: string) => pathname === "/settings",
   },
 ];
 
@@ -161,7 +162,7 @@ export const BottomNav = () => {
       >
         {showReportTooltip && !pathname.startsWith("/weekly-report") ? (
           // 말풍선은 탭바 오른쪽 끝에 맞춰 화면 밖으로 넘치지 않게 하고,
-          // 꼬리만 리포트 탭(마지막 칸, 오른쪽에서 10%) 가운데를 가리킨다.
+          // 꼬리만 리포트 탭(5칸 중 4번째, 오른쪽에서 30%) 가운데를 가리킨다.
           <div
             role="status"
             className="pointer-events-none absolute inset-x-1.5 bottom-[calc(100%+18px)] z-10"
@@ -172,7 +173,7 @@ export const BottomNav = () => {
               </div>
               <span
                 aria-hidden
-                className="absolute -bottom-1 right-[10%] size-2.5 translate-x-1/2 rotate-45 bg-gray-700"
+                className="absolute -bottom-1 right-[30%] size-2.5 translate-x-1/2 rotate-45 bg-gray-700"
               />
             </div>
           </div>
