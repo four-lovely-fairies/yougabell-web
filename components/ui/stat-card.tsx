@@ -28,7 +28,7 @@ export const StatCard = ({
         className,
       )}
     >
-      <span className="text-xs font-medium leading-[1.4] text-gray-500">
+      <span className="text-sm font-medium leading-[1.4] text-gray-600">
         {label}
       </span>
       <div

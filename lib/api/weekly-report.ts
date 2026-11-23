@@ -75,6 +75,32 @@ export const loadWeeklyReport = async ({
   }
 };
 
+export type WeeklyReportListItem = {
+  id: string;
+  weekStart: string;
+  weekEnd: string;
+  generatedAt: string;
+  viewed: boolean;
+};
+
+/** 아이별 지난 리포트(최신순). 실패하면 빈 목록 — 드롭다운만 안 보일 뿐 리포트 보기는 그대로. */
+export const loadWeeklyReportList = async (
+  childId?: string | null,
+): Promise<WeeklyReportListItem[]> => {
+  const headers = await authHeaders();
+  if (!headers.Authorization) return [];
+  try {
+    const { data, error } = await openApiClient.GET("/weekly-reports", {
+      params: { query: { childId: childId ?? undefined } },
+      headers,
+    });
+    if (error || !data) return [];
+    return data.items;
+  } catch {
+    return [];
+  }
+};
+
 export const loadWeeklyReportUnviewedStatus = async (
   childId?: string | null,
 ): Promise<boolean> => {

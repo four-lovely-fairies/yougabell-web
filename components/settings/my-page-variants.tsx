@@ -6,7 +6,6 @@ import {
   type ApiInterestId,
 } from "@/lib/types";
 import {
-  Bell,
   ChevronRight,
   FileText,
   Flag,
@@ -269,13 +268,6 @@ export function MyPageList(props: MyPageProps) {
       <div className="h-2 bg-[#f4f4f6]" aria-hidden />
       <div className="flex flex-col gap-6 px-5 pb-10 pt-6">
         <ListSection title="설정">
-          <ListRow
-            icon={Bell}
-            title="미션 알림"
-            subtitle="오늘의 제안을 놓치지 마세요"
-            divider
-            action={{ href: "/settings/notifications" }}
-          />
           <ListRow
             icon={Flag}
             title="관심사 수정"
