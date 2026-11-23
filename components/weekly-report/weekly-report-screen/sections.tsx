@@ -21,9 +21,9 @@ export const ReportSection = ({
   </section>
 );
 
-// 리포트 카드 = 공통 Card (Figma: 흰배경 radius 20, shadow-1, padding 24)
+// 리포트 카드 = 공통 Card (흰배경 radius 20, padding 24). 연회색 바탕이라 그림자 없이 구분된다
 export const ReportCard = ({ children }: { children: React.ReactNode }) => (
-  <Card>{children}</Card>
+  <Card shadow="none">{children}</Card>
 );
 
 // 누적 수행시간 통계 ("1시간 17분" → SUIT 32px 숫자)
@@ -101,7 +101,7 @@ export const KeywordSection = ({ report }: { report: WeeklyReportDetail }) => (
         })}
       </div>
     ) : report.keywordEmptyState ? (
-      <Card padding="md">
+      <Card padding="md" shadow="none">
         <p className="text-sm font-bold leading-5">
           {report.keywordEmptyState.title}
         </p>
@@ -136,7 +136,7 @@ export const BestMomentSection = ({
         >
           {moments.map((moment) => (
             <div key={moment.id} className="flex w-full shrink-0 snap-center">
-              <Card className="w-full">
+              <Card shadow="none" className="w-full">
                 {moment.label ? (
                   <p className="text-sm font-medium leading-[1.4] text-gray-600">
                     {moment.label}

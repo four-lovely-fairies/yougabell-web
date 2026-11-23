@@ -43,7 +43,9 @@ export const AppHeader = ({
     // 좌우 패딩은 20px(px-5)로 통일 — 어느 화면이든 버튼 위치가 일정하게 노출된다.
     <header
       className={cn(
-        "z-30 bg-white pt-safe",
+        // 배경색을 넘기면 그것만 쓴다 (cn은 클래스 병합을 안 해서 bg-white가 이기는 문제)
+        "z-30 pt-safe",
+        className?.includes("bg-") ? null : "bg-white",
         fixed
           ? "fixed inset-x-0 top-0 mx-auto w-full max-w-107.5"
           : "sticky top-0 shrink-0",

@@ -201,9 +201,11 @@ const issuedLabel = (iso: string) => {
   const { month, day } = seoulParts(iso);
   return `${month}월 ${day}일 발행`;
 };
-const rangeLabel = (weekStart: string, weekEnd: string) => {
-  const s = dateKeyParts(weekStart);
+// 저장된 weekStart가 시간대 때문에 하루 앞(일요일)으로 오는 리포트가 있어, 끝(일요일)에서 6일 전을 시작으로 쓴다.
+const rangeLabel = (weekEnd: string) => {
   const e = dateKeyParts(weekEnd);
+  const startDate = new Date(Date.UTC(e.year, e.month - 1, e.day - 6));
+  const s = { month: startDate.getUTCMonth() + 1, day: startDate.getUTCDate() };
   return `${s.month}월 ${s.day}일 – ${e.month}월 ${e.day}일 놀이 기록`;
 };
 
@@ -238,7 +240,7 @@ const ReportIssueHeader = ({
       </p>
     )}
     <p className="text-sm leading-[1.4] text-gray-600">
-      {rangeLabel(report.weekStart, report.weekEnd)}
+      {rangeLabel(report.weekEnd)}
     </p>
   </div>
 );
