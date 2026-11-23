@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { StatCard, StatValue } from "@/components/ui/stat-card";
@@ -117,33 +118,47 @@ export const BestMomentSection = ({
 }: {
   moments: WeeklyReportDetail["bestMoments"];
 }) => {
-  const firstMoment = moments[0];
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  if (!firstMoment) return null;
+  if (moments.length === 0) return null;
 
   return (
     <ReportSection title="아이의 ‘베스트 모먼트’">
       <div className="flex flex-col items-center gap-3">
-        <ReportCard>
-          {firstMoment.label ? (
-            <p className="text-xs font-medium leading-[17px] text-gray-600">
-              {firstMoment.label}
-            </p>
-          ) : null}
-          <h2 className="mt-1 text-base font-bold leading-6">
-            {firstMoment.title}
-          </h2>
-          <p className="mt-3.75 text-sm leading-5 text-gray-500">
-            {firstMoment.body}
-          </p>
-        </ReportCard>
+        {/* 옆으로 넘기는 캐러셀 — 카드 한 장씩 딱 맞게 멈춘다. 그림자가 잘리지 않게 위아래 여백을 둔다. */}
+        <div
+          className="-my-2 flex w-full snap-x snap-mandatory gap-3 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          onScroll={(event) => {
+            const el = event.currentTarget;
+            const next = Math.round(el.scrollLeft / (el.clientWidth + 12));
+            if (next !== activeIndex) setActiveIndex(next);
+          }}
+        >
+          {moments.map((moment) => (
+            <div key={moment.id} className="flex w-full shrink-0 snap-center">
+              <Card className="w-full">
+                {moment.label ? (
+                  <p className="text-xs font-medium leading-[17px] text-gray-600">
+                    {moment.label}
+                  </p>
+                ) : null}
+                <h2 className="mt-1 text-base font-bold leading-6">
+                  {moment.title}
+                </h2>
+                <p className="mt-3.75 text-sm leading-5 text-gray-500">
+                  {moment.body}
+                </p>
+              </Card>
+            </div>
+          ))}
+        </div>
         {moments.length > 1 ? (
-          <div className="flex h-1.5 items-center gap-1">
+          <div className="flex h-1.5 items-center gap-1" aria-hidden>
             {moments.map((moment, index) => (
               <span
                 key={moment.id}
-                className={`h-1.5 rounded-full ${
-                  index === 0 ? "w-6 bg-black" : "w-1.5 bg-gray-200"
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  index === activeIndex ? "w-6 bg-black" : "w-1.5 bg-gray-200"
                 }`}
               />
             ))}
@@ -181,14 +196,6 @@ export const InnerStateSection = ({
           style={{ width: `${report.innerState.psychologicalEnergy}%` }}
         />
       </div>
-      <p className="mt-3.75 text-sm font-medium leading-[22px] text-gray-500">
-        {report.innerState.tipTitle}
-      </p>
-      {report.innerState.tipBody ? (
-        <p className="mt-2 text-sm leading-5 text-gray-500">
-          {report.innerState.tipBody}
-        </p>
-      ) : null}
     </ReportCard>
   </ReportSection>
 );
