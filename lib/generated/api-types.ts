@@ -964,8 +964,12 @@ export interface components {
             /** @description 동의 여부. append-only라 매번 새 이력 row가 쌓인다 (철회 시각도 근거로 남는다). */
             agreed: boolean;
         };
+        /** @enum {string} */
+        AccountDeletionReasonCode: "rarely_use" | "not_helpful" | "hard_to_use" | "privacy" | "other";
         DeleteAccountDto: {
-            /** @description 탈퇴 사유 (선택, 자유 텍스트). 통계·CS 용도. */
+            /** @description 탈퇴 사유 선택값 (선택). 보내면 AccountDeletionReason에 한 줄 저장한다. */
+            reasonCode?: components["schemas"]["AccountDeletionReasonCode"];
+            /** @description 탈퇴 사유 직접 입력 (선택, 자유 텍스트). 통계·CS 용도. */
             reason?: string;
         };
         GenerateWeeklyReportsDto: {

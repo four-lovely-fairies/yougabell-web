@@ -1,3 +1,4 @@
+import type { AccountDeletionReasonCode } from "../account-deletion-reasons";
 import { forgetOnboarded, rememberOnboarded } from "../onboarded-cookie";
 import { request } from "./client";
 import type {
@@ -51,9 +52,13 @@ export const api = {
       method: "PATCH",
       json: { agreed },
     }),
-  deleteAccount: (reason?: string) => {
+  // 탈퇴 — reasonCode(선택지)·reason(직접 입력) 모두 선택값.
+  deleteAccount: (body: {
+    reasonCode?: AccountDeletionReasonCode;
+    reason?: string;
+  } = {}) => {
     forgetOnboarded();
-    return request<void>("/me", { method: "DELETE", json: { reason } });
+    return request<void>("/me", { method: "DELETE", json: body });
   },
   // [임시] 온보딩 재진입 — 회원 정보 초기화 (User row 삭제, cascade)
   resetOnboarding: () => {

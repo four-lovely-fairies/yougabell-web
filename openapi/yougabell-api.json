@@ -2535,12 +2535,26 @@
           "agreed"
         ]
       },
+      "AccountDeletionReasonCode": {
+        "type": "string",
+        "enum": [
+          "rarely_use",
+          "not_helpful",
+          "hard_to_use",
+          "privacy",
+          "other"
+        ]
+      },
       "DeleteAccountDto": {
         "type": "object",
         "properties": {
+          "reasonCode": {
+            "description": "탈퇴 사유 선택값 (선택). 보내면 AccountDeletionReason에 한 줄 저장한다.",
+            "$ref": "#/components/schemas/AccountDeletionReasonCode"
+          },
           "reason": {
             "type": "string",
-            "description": "탈퇴 사유 (선택, 자유 텍스트). 통계·CS 용도.",
+            "description": "탈퇴 사유 직접 입력 (선택, 자유 텍스트). 통계·CS 용도.",
             "maxLength": 500
           }
         }

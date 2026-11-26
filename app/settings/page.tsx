@@ -5,7 +5,13 @@ import { MainShellReportProvider } from "@/components/app/main-shell-report-cont
 import { Mascot } from "@/components/characters/mascot";
 // 마이페이지 — 카드형(Figma 02 마이페이지). 목록형(MyPageList)은 시안으로 남겨 둔다.
 import { MyPageCard as MyPage } from "@/components/settings/my-page-variants";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import {
+  ACCOUNT_DELETION_DETAIL_MAX,
+  ACCOUNT_DELETION_REASONS,
+  type AccountDeletionReasonCode,
+} from "@/lib/account-deletion-reasons";
 import { track } from "@/lib/analytics";
 import { api, ApiError, getMyReferral } from "@/lib/api";
 import { notifyMobile, openExternalUrl } from "@/lib/native-bridge";
@@ -94,17 +100,28 @@ export default function SettingsPage() {
   );
 }
 
+// 탈퇴 모달 — 1단계: 탈퇴 사유 선택(선택 사항) → 2단계: 최종 확인.
 function DeleteAccountModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
+  const [step, setStep] = useState<"reason" | "confirm">("reason");
+  const [reasonCode, setReasonCode] = useState<AccountDeletionReasonCode | null>(null);
+  const [detail, setDetail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const confirm = async () => {
     setBusy(true);
     setError(null);
+    const trimmed = detail.trim();
     try {
-      await api.deleteAccount();
-      track({ type: "settings_account_delete_confirm" });
+      await api.deleteAccount({
+        reasonCode: reasonCode ?? undefined,
+        reason: trimmed ? trimmed : undefined,
+      });
+      track({
+        type: "settings_account_delete_confirm",
+        reasonCode: reasonCode ?? undefined,
+      });
       notifyMobile({ type: "LOGOUT" });
       clearStoredSelectedChildId();
       const supabase = createSupabaseBrowserClient();
@@ -122,6 +139,73 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
     }
   };
 
+  // 1단계 — 공통 바텀시트 (제목 + 오른쪽 X, 딤/X로 닫기)
+  if (step === "reason") {
+    return (
+      <BottomSheet
+        title="떠나시는 이유를 알려주세요"
+        description="더 나은 육아벨을 만드는 데 참고할게요. (선택)"
+        onClose={onClose}
+        labelledById="account-deletion-reason-title"
+      >
+        <div className="flex flex-col gap-4 px-6 pt-1">
+          <div
+            role="radiogroup"
+            aria-labelledby="account-deletion-reason-title"
+            className="flex flex-col gap-2"
+          >
+            {ACCOUNT_DELETION_REASONS.map((r) => {
+              const selected = reasonCode === r.code;
+              return (
+                <button
+                  key={r.code}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setReasonCode(selected ? null : r.code)}
+                  className={`flex min-h-12 items-center gap-3 rounded-xl border px-4 py-3 text-left text-[15px] leading-[1.4] transition-colors ${
+                    selected
+                      ? "border-primary-300 bg-primary-50 font-semibold text-gray-800"
+                      : "border-gray-100 bg-white text-gray-700"
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                      selected ? "border-primary-300" : "border-gray-200"
+                    }`}
+                  >
+                    {selected ? <span className="size-2.5 rounded-full bg-primary-300" /> : null}
+                  </span>
+                  {r.label}
+                </button>
+              );
+            })}
+            {reasonCode ? (
+              <textarea
+                value={detail}
+                onChange={(e) => setDetail(e.target.value)}
+                maxLength={ACCOUNT_DELETION_DETAIL_MAX}
+                rows={3}
+                aria-label="탈퇴 사유 자세히"
+                placeholder={
+                  reasonCode === "other"
+                    ? "어떤 점 때문에 떠나시는지 알려주세요."
+                    : "더 하고 싶은 말이 있다면 적어주세요. (선택)"
+                }
+                className="mt-1 w-full resize-none rounded-2xl border border-gray-100 bg-white px-4 py-3.5 text-[15px] leading-[1.5] text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-primary-300"
+              />
+            ) : null}
+          </div>
+          <Button size="full" onClick={() => setStep("confirm")}>
+            다음
+          </Button>
+        </div>
+      </BottomSheet>
+    );
+  }
+
+  // 2단계 — 최종 확인 (기존 가운데 모달)
   return (
     <div
       role="dialog"

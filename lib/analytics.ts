@@ -74,7 +74,7 @@ export type SettingsEvent =
   | { type: "settings_child_update"; childId: string }
   | { type: "settings_child_delete"; childId: string }
   | { type: "settings_logout" }
-  | { type: "settings_account_delete_confirm" };
+  | { type: "settings_account_delete_confirm"; reasonCode?: string };
 
 // 1:1 문의 이벤트 (docs/features/20260819-inquiry.md §6).
 // 제목·본문·이메일은 개인정보를 담을 수 있어 속성으로 보내지 않는다.
@@ -373,7 +373,10 @@ export function toAmplitudeEvent(event: AnalyticsEvent): AmplitudeEvent {
         properties: { status: event.status },
       };
     case "settings_account_delete_confirm":
-      return { name: "Settings Account Deletion Confirmed" };
+      return {
+        name: "Settings Account Deletion Confirmed",
+        properties: { reason: event.reasonCode ?? "unspecified" },
+      };
     case "chat_open":
       return { name: "Chat Opened" };
     case "chat_message_send":
