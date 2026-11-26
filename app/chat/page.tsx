@@ -12,8 +12,10 @@ import {
   UserBubble,
 } from "@/components/chat/message-bubbles";
 import { useChatTypewriter } from "@/hooks/use-chat-typewriter";
+import { useRotatingPlaceholder } from "@/hooks/use-rotating-placeholder";
 import { track } from "@/lib/analytics";
 import { markChatSeen } from "@/lib/chat-new";
+import { chatExamplesForBirthDate, DEFAULT_CHAT_EXAMPLES } from "@/lib/chat-placeholder";
 import { useScreenPerformance } from "@/hooks/use-screen-performance";
 import { api, loadChat, streamChatMessage } from "@/lib/api";
 import {
@@ -32,6 +34,8 @@ function nowMs(): number {
 const GRADIENT_BG =
   "linear-gradient(180deg, rgb(236, 228, 255) 0%, rgb(246, 242, 255) 25%, rgba(253, 253, 254, 0) 55%), linear-gradient(90deg, rgb(253, 253, 254) 0%, rgb(253, 253, 254) 100%)";
 
+const DEFAULT_PLACEHOLDER = "궁금한 점을 질문해보세요";
+
 export default function ChatPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
@@ -45,6 +49,8 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [name, setName] = useState("");
+  // 입력창 타자기 예시 질문 — 첫째 아이 월령에 맞춘 3개 (정보 없으면 기본 문구)
+  const [examples, setExamples] = useState<readonly string[]>(DEFAULT_CHAT_EXAMPLES);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const suppressScrollRef = useRef(false);
@@ -86,6 +92,9 @@ export default function ChatPage() {
   }, []);
 
   const typewriter = useChatTypewriter(onTurnComplete);
+  const animatedPlaceholder = useRotatingPlaceholder(examples, {
+    enabled: !busy && input.length === 0,
+  });
 
   useEffect(() => {
     track({ type: "chat_open" });
@@ -120,7 +129,9 @@ export default function ChatPage() {
     void api
       .getMe()
       .then((me) => {
-        if (active) setName(me.name ?? "");
+        if (!active) return;
+        setName(me.name ?? "");
+        setExamples(chatExamplesForBirthDate(me.children?.[0]?.birthDate));
       })
       .catch(() => {});
     return () => {
@@ -338,7 +349,8 @@ export default function ChatPage() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="궁금한 점을 질문해보세요"
+            placeholder={animatedPlaceholder ?? DEFAULT_PLACEHOLDER}
+            aria-label={DEFAULT_PLACEHOLDER}
             disabled={busy}
             enterKeyHint="send"
             className="min-w-0 flex-1 bg-transparent text-[16px] leading-[1.4] text-gray-800 placeholder:text-sm placeholder:text-gray-400 focus:outline-none disabled:opacity-60"
